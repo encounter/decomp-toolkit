@@ -1,6 +1,6 @@
 # decomp-toolkit [![Build Status]][actions]
 
-[Build Status]: https://github.com/encounter/decomp-toolkit/actions/workflows/build.yaml/badge.svg
+[Build Status]: https://github.com/encounter/decomp-toolkit/actions/workflows/build.yml/badge.svg
 [actions]: https://github.com/encounter/decomp-toolkit/actions
 
 GameCube/Wii decompilation project tools.
