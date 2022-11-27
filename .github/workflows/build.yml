@@ -1,0 +1,132 @@
+name: Build
+
+on: [ push, pull_request ]
+
+env:
+  CARGO_BIN_NAME: dtk
+  CARGO_TARGET_DIR: target
+
+jobs:
+  check:
+    name: Check
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+      - name: Cargo check
+        run: cargo check --all-features
+      - name: Cargo clippy
+        run: cargo clippy --all-features
+
+  deny:
+    name: Deny
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        checks:
+          - advisories
+          - bans licenses sources
+    # Prevent new advisories from failing CI
+    continue-on-error: ${{ matrix.checks == 'advisories' }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: EmbarkStudios/cargo-deny-action@v1
+        with:
+          command: check ${{ matrix.checks }}
+
+  test:
+    name: Test
+    strategy:
+      matrix:
+        platform: [ ubuntu-latest, windows-latest, macos-latest ]
+      fail-fast: false
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+      - name: Cargo test
+        run: cargo test --release --all-features
+
+  build:
+    name: Build
+    strategy:
+      matrix:
+        include:
+          - platform: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            name: linux-x86_64
+          - platform: ubuntu-latest
+            target: aarch64-unknown-linux-gnu
+            name: linux-aarch64
+            packages: gcc-aarch64-linux-gnu
+          - platform: ubuntu-latest
+            target: armv7-unknown-linux-gnueabihf
+            name: linux-armv7l
+            packages: gcc-arm-linux-gnueabihf
+          - platform: windows-latest
+            target: x86_64-pc-windows-msvc
+            name: windows-x86_64
+          - platform: windows-latest
+            target: aarch64-pc-windows-msvc
+            name: windows-arm64
+          - platform: macos-latest
+            target: x86_64-apple-darwin
+            name: macos-x86_64
+          - platform: macos-latest
+            target: aarch64-apple-darwin
+            name: macos-arm64
+      fail-fast: false
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install dependencies
+        if: matrix.packages != ''
+        run: sudo apt-get -y install ${{ matrix.packages }}
+      - name: Setup Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - name: Cargo build
+        run: cargo build --release --all-features --target ${{ matrix.target }} --bin ${{ env.CARGO_BIN_NAME }}
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: ${{ matrix.name }}
+          path: |
+            ${{ env.CARGO_TARGET_DIR }}/release/${{ env.CARGO_BIN_NAME }}
+            ${{ env.CARGO_TARGET_DIR }}/release/${{ env.CARGO_BIN_NAME }}.exe
+            ${{ env.CARGO_TARGET_DIR }}/${{ matrix.target }}/release/${{ env.CARGO_BIN_NAME }}
+            ${{ env.CARGO_TARGET_DIR }}/${{ matrix.target }}/release/${{ env.CARGO_BIN_NAME }}.exe
+          if-no-files-found: error
+
+  release:
+    name: Release
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: artifacts
+      - name: Rename artifacts
+        working-directory: artifacts
+        run: |
+          mkdir ../out
+          for i in */*/release/$CARGO_BIN_NAME*; do
+            mv "$i" "../out/$(sed -E "s/([^/]+)\/[^/]+\/release\/($CARGO_BIN_NAME)/\2-\1/" <<< "$i")"
+          done
+          ls -R ../out
+      - name: Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: out/*
