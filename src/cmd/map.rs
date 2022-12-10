@@ -1,9 +1,9 @@
-use std::{fs::File, io::BufReader};
+use std::{fs::File, io::BufReader, ops::Range};
 
 use anyhow::{Context, Error, Result};
 use argh::FromArgs;
 
-use crate::util::map::{process_map, SymbolEntry, SymbolRef};
+use crate::util::map::{process_map, resolve_link_order, SymbolEntry, SymbolRef};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing CodeWarrior maps.
@@ -18,6 +18,9 @@ pub struct Args {
 enum SubCommand {
     Entries(EntriesArgs),
     Symbol(SymbolArgs),
+    Order(OrderArgs),
+    Slices(SlicesArgs),
+    Symbols(SymbolsArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -44,10 +47,40 @@ pub struct SymbolArgs {
     symbol: String,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Attempts to resolve global link order.
+#[argh(subcommand, name = "order")]
+pub struct OrderArgs {
+    #[argh(positional)]
+    /// path to input map
+    map_file: String,
+}
+
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Emits a slices.yml for ppcdis. (WIP)
+#[argh(subcommand, name = "slices")]
+pub struct SlicesArgs {
+    #[argh(positional)]
+    /// path to input map
+    map_file: String,
+}
+
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Emits a symbols.yml for ppcdis. (WIP)
+#[argh(subcommand, name = "symbols")]
+pub struct SymbolsArgs {
+    #[argh(positional)]
+    /// path to input map
+    map_file: String,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Entries(c_args) => entries(c_args),
         SubCommand::Symbol(c_args) => symbol(c_args),
+        SubCommand::Order(c_args) => order(c_args),
+        SubCommand::Slices(c_args) => slices(c_args),
+        SubCommand::Symbols(c_args) => symbols(c_args),
     }
 }
 
@@ -135,6 +168,67 @@ fn symbol(args: SymbolArgs) -> Result<()> {
         None => {
             return Err(Error::msg(format!("Failed to find symbol '{}' in map", args.symbol)));
         }
+    }
+    Ok(())
+}
+
+fn order(args: OrderArgs) -> Result<()> {
+    let reader = BufReader::new(
+        File::open(&args.map_file)
+            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
+    );
+    let entries = process_map(reader)?;
+    let order = resolve_link_order(&entries.unit_order)?;
+    for unit in order {
+        println!("{unit}");
+    }
+    Ok(())
+}
+
+fn slices(args: SlicesArgs) -> Result<()> {
+    let reader = BufReader::new(
+        File::open(&args.map_file)
+            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
+    );
+    let entries = process_map(reader)?;
+    let order = resolve_link_order(&entries.unit_order)?;
+    for unit in order {
+        let unit_path = if let Some((lib, name)) = unit.split_once(' ') {
+            format!("{}/{}", lib.strip_suffix(".a").unwrap_or(lib), name)
+        } else if let Some(strip) = unit.strip_suffix(".o") {
+            format!("{strip}.c")
+        } else {
+            unit.clone()
+        };
+        println!("{unit_path}:");
+        let mut ranges = Vec::<(String, Range<u32>)>::new();
+        match entries.unit_section_ranges.get(&unit) {
+            Some(sections) => {
+                for (name, range) in sections {
+                    ranges.push((name.clone(), range.clone()));
+                }
+            }
+            None => return Err(Error::msg(format!("Failed to locate sections for unit '{unit}'"))),
+        }
+        ranges.sort_by(|(_, a), (_, b)| a.start.cmp(&b.start));
+        for (name, range) in ranges {
+            println!("\t{}: [{:#010x}, {:#010x}]", name, range.start, range.end);
+        }
+    }
+    Ok(())
+}
+
+fn symbols(args: SymbolsArgs) -> Result<()> {
+    let reader = BufReader::new(
+        File::open(&args.map_file)
+            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
+    );
+    let entries = process_map(reader)?;
+    for (address, symbol) in entries.address_to_symbol {
+        if symbol.name.starts_with('@') {
+            continue;
+        }
+        println!("{:#010x}: {}", address, symbol.name);
     }
     Ok(())
 }

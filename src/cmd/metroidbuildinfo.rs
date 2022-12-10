@@ -22,10 +22,10 @@ pub fn run(args: Args) -> Result<()> {
     let build_string = std::fs::read_to_string(&args.build_info)
         .with_context(|| format!("Failed to read build info string from '{}'", args.build_info))?;
     let build_string_trim = build_string.trim_end();
-    if build_string_trim.as_bytes().len() > BUILD_STRING_MAX {
+    let build_string_bytes = build_string_trim.as_bytes();
+    if build_string_bytes.len() > BUILD_STRING_MAX {
         return Err(Error::msg(format!(
-            "Build string '{}' is greater than maximum size of {}",
-            build_string_trim, BUILD_STRING_MAX
+            "Build string '{build_string_trim}' is greater than maximum size of {BUILD_STRING_MAX}"
         )));
     }
 
@@ -40,8 +40,8 @@ pub fn run(args: Args) -> Result<()> {
         Some(idx) => idx + BUILD_STRING_TAG.as_bytes().len(),
         None => return Err(Error::msg("Failed to find build string tag in binary")),
     };
-    let end = start + build_string_trim.as_bytes().len();
-    map[start..end].copy_from_slice(build_string_trim.as_bytes());
+    let end = start + build_string_bytes.len();
+    map[start..end].copy_from_slice(build_string_bytes);
     map[end] = 0;
     Ok(())
 }

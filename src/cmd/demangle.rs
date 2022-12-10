@@ -18,7 +18,7 @@ pub fn run(args: Args) -> Result<()> {
     let options = DemangleOptions { omit_empty_parameters: !args.keep_void };
     match demangle(args.symbol.as_str(), &options) {
         Some(symbol) => {
-            println!("{}", symbol);
+            println!("{symbol}");
             Ok(())
         }
         None => Err(Error::msg("Failed to demangle symbol")),

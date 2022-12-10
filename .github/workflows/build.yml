@@ -95,7 +95,9 @@ jobs:
         uses: actions/checkout@v3
       - name: Install dependencies
         if: matrix.packages != ''
-        run: sudo apt-get -y install ${{ matrix.packages }}
+        run: |
+          sudo apt-get -y update
+          sudo apt-get -y install ${{ matrix.packages }}
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
