@@ -66,28 +66,33 @@ jobs:
       matrix:
         include:
           - platform: ubuntu-latest
-            target: x86_64-unknown-linux-gnu
+            target: x86_64-unknown-linux-musl
             name: linux-x86_64
+            build: zigbuild
           - platform: ubuntu-latest
-            target: aarch64-unknown-linux-gnu
+            target: aarch64-unknown-linux-musl
             name: linux-aarch64
-            packages: gcc-aarch64-linux-gnu
+            build: zigbuild
           - platform: ubuntu-latest
-            target: armv7-unknown-linux-gnueabihf
+            target: armv7-unknown-linux-musleabi
             name: linux-armv7l
-            packages: gcc-arm-linux-gnueabihf
+            build: zigbuild
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             name: windows-x86_64
+            build: build
           - platform: windows-latest
             target: aarch64-pc-windows-msvc
             name: windows-arm64
+            build: build
           - platform: macos-latest
             target: x86_64-apple-darwin
             name: macos-x86_64
+            build: build
           - platform: macos-latest
             target: aarch64-apple-darwin
             name: macos-arm64
+            build: build
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     steps:
@@ -98,12 +103,15 @@ jobs:
         run: |
           sudo apt-get -y update
           sudo apt-get -y install ${{ matrix.packages }}
+      - name: Install cargo-zigbuild
+        if: matrix.build == 'zigbuild'
+        run: pip install cargo-zigbuild
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
       - name: Cargo build
-        run: cargo build --release --all-features --target ${{ matrix.target }} --bin ${{ env.CARGO_BIN_NAME }}
+        run: cargo ${{ matrix.build }} --release --all-features --target ${{ matrix.target }} --bin ${{ env.CARGO_BIN_NAME }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:

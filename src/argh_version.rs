@@ -24,8 +24,8 @@ where T: FromArgs
                         output: format!(
                             "{} {} {}",
                             command_name.first().unwrap_or(&""),
-                            env!("VERGEN_BUILD_SEMVER"),
-                            env!("VERGEN_GIT_SHA"),
+                            env!("CARGO_PKG_VERSION"),
+                            env!("GIT_COMMIT_SHA"),
                         ),
                         status: Ok(()),
                     })
