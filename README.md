@@ -11,6 +11,18 @@ UNIX compatibility layers like msys2, or other idiosyncrasies.
 
 ## Commands
 
+### ar create
+
+Create a static library (.a) from the input objects.
+
+```shell
+$ dtk ar create out.a input_1.o input_2.o
+# or
+$ echo input_1.o >> rspfile
+$ echo input_2.o >> rspfile
+$ dtk ar create out.a @rspfile
+```
+
 ### demangle
 
 Demangles CodeWarrior C++ symbols. A thin wrapper for [cwdemangle](https://github.com/encounter/cwdemangle).
@@ -18,6 +30,28 @@ Demangles CodeWarrior C++ symbols. A thin wrapper for [cwdemangle](https://githu
 ```shell
 $ dtk demangle 'BuildLight__9CGuiLightCFv'
 CGuiLight::BuildLight() const
+```
+
+### elf disasm
+
+Disassemble an unstripped CodeWarrior ELF file into fully-split & fully-shiftable assembly files.
+
+```shell
+$ dtk disasm input.elf out
+```
+
+### elf fixup
+
+Fixes issues with GNU assembler-built objects to ensure compatibility with `mwldeppc`.
+
+- Strips empty sections
+- Generates section symbols for all allocatable sections
+- Where possible, replaces section-relative relocations with direct relocations.
+- Adds an ` (asm)` suffix to the file symbol. (For matching progress calculation)
+
+```shell
+# input and output can be the same
+$ dtk elf fixup file.o file.o
 ```
 
 ### elf2dol
