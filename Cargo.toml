@@ -3,7 +3,7 @@ name = "decomp-toolkit"
 description = "GameCube/Wii decompilation project tools."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.2.1"
+version = "0.2.2"
 edition = "2021"
 publish = false
 build = "build.rs"
@@ -22,6 +22,7 @@ strip = "debuginfo"
 
 [dependencies]
 anyhow = "1.0.64"
+ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "do_not_remove_cg_clif_ranlib" }
 argh = "0.1.8"
 base16ct = "0.1.1"
 cwdemangle = "0.1.3"

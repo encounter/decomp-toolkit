@@ -3,6 +3,7 @@ use std::{
     fs,
     fs::File,
     io::{BufWriter, Write},
+    path::PathBuf,
 };
 
 use anyhow::{Context, Error, Result};
@@ -10,7 +11,7 @@ use argh::FromArgs;
 use object::{
     write::{SectionId, SymbolId},
     Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, SectionFlags,
-    SectionIndex, SectionKind, SymbolFlags, SymbolKind, SymbolSection,
+    SectionIndex, SectionKind, SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
 };
 
 use crate::util::{asm::write_asm, elf::process_elf};
@@ -36,10 +37,10 @@ enum SubCommand {
 pub struct DisasmArgs {
     #[argh(positional)]
     /// input file
-    elf_file: String,
+    elf_file: PathBuf,
     #[argh(positional)]
     /// output directory
-    out_dir: String,
+    out_dir: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -48,10 +49,10 @@ pub struct DisasmArgs {
 pub struct FixupArgs {
     #[argh(positional)]
     /// input file
-    in_file: String,
+    in_file: PathBuf,
     #[argh(positional)]
     /// output file
-    out_file: String,
+    out_file: PathBuf,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -83,6 +84,8 @@ fn file_name_from_unit(str: &str) -> String {
     format!("{}.o", str.strip_prefix('/').unwrap_or(&str))
 }
 
+const ASM_SUFFIX: &[u8] = " (asm)".as_bytes();
+
 fn fixup(args: FixupArgs) -> Result<()> {
     let in_buf = fs::read(&args.in_file).context("Failed to open input file")?;
     let in_file = object::read::File::parse(&*in_buf).context("Failed to parse input ELF")?;
@@ -90,11 +93,36 @@ fn fixup(args: FixupArgs) -> Result<()> {
         object::write::Object::new(in_file.format(), in_file.architecture(), in_file.endianness());
 
     // Write file symbol(s) first
+    let mut file_symbol_found = false;
     for symbol in in_file.symbols() {
         if symbol.kind() != SymbolKind::File {
             continue;
         }
-        out_file.add_symbol(to_write_symbol(&symbol, &[])?);
+        let mut out_symbol = to_write_symbol(&symbol, &[])?;
+        out_symbol.name.append(&mut ASM_SUFFIX.to_vec());
+        out_file.add_symbol(out_symbol);
+        file_symbol_found = true;
+        break;
+    }
+    if !file_symbol_found {
+        let file_name = args.in_file.file_name().ok_or_else(|| {
+            Error::msg(format!("'{}' is not a file path", args.in_file.to_string_lossy()))
+        })?;
+        let file_name = file_name.to_str().ok_or_else(|| {
+            Error::msg(format!("'{}' is not valid UTF-8", file_name.to_string_lossy()))
+        })?;
+        let mut name_bytes = file_name.as_bytes().to_vec();
+        name_bytes.append(&mut ASM_SUFFIX.to_vec());
+        out_file.add_symbol(object::write::Symbol {
+            name: name_bytes,
+            value: 0,
+            size: 0,
+            kind: SymbolKind::File,
+            scope: SymbolScope::Compilation,
+            weak: false,
+            section: object::write::SymbolSection::Absolute,
+            flags: SymbolFlags::None,
+        });
     }
 
     // Write section symbols & sections

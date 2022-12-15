@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, fmt::Display, fs::File, path::Path};
+use std::{collections::BTreeMap, fs::File, path::Path};
 
 use anyhow::{Context, Error, Result};
 use cwdemangle::demangle;
@@ -19,11 +19,13 @@ use crate::util::obj::{
     ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
 };
 
-pub fn process_elf<P: AsRef<Path> + Display>(path: P) -> Result<ObjInfo> {
-    let elf_file =
-        File::open(&path).with_context(|| format!("Failed to open ELF file '{path}'"))?;
-    let map = unsafe { MmapOptions::new().map(&elf_file) }
-        .with_context(|| format!("Failed to mmap ELF file: '{path}'"))?;
+pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
+    let elf_file = File::open(&path).with_context(|| {
+        format!("Failed to open ELF file '{}'", path.as_ref().to_string_lossy())
+    })?;
+    let map = unsafe { MmapOptions::new().map(&elf_file) }.with_context(|| {
+        format!("Failed to mmap ELF file: '{}'", path.as_ref().to_string_lossy())
+    })?;
     let obj_file = object::read::File::parse(&*map)?;
     let architecture = match obj_file.architecture() {
         Architecture::PowerPc => ObjArchitecture::PowerPc,

@@ -1,3 +1,4 @@
+pub(crate) mod ar;
 pub(crate) mod demangle;
 pub(crate) mod elf;
 pub(crate) mod elf2dol;

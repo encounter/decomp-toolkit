@@ -16,6 +16,7 @@ struct TopLevel {
 #[derive(FromArgs, PartialEq, Debug)]
 #[argh(subcommand)]
 enum SubCommand {
+    Ar(cmd::ar::Args),
     Demangle(cmd::demangle::Args),
     Elf(cmd::elf::Args),
     Elf2Dol(cmd::elf2dol::Args),
@@ -29,6 +30,7 @@ fn main() {
 
     let args: TopLevel = argh_version::from_env();
     let result = match args.command {
+        SubCommand::Ar(c_args) => cmd::ar::run(c_args),
         SubCommand::Demangle(c_args) => cmd::demangle::run(c_args),
         SubCommand::Elf(c_args) => cmd::elf::run(c_args),
         SubCommand::Elf2Dol(c_args) => cmd::elf2dol::run(c_args),

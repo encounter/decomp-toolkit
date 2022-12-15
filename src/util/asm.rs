@@ -1,7 +1,6 @@
 use std::{
     cmp::{min, Ordering},
     collections::{btree_map, hash_map::Entry, BTreeMap, HashMap},
-    fmt::Display,
     fs,
     fs::{DirBuilder, File},
     io::{BufWriter, Write},
@@ -29,7 +28,7 @@ struct SymbolEntry {
     kind: SymbolEntryKind,
 }
 
-pub fn write_asm<P: AsRef<Path> + Display>(path: P, obj: &ObjInfo) -> Result<()> {
+pub fn write_asm<P: AsRef<Path>>(path: P, obj: &ObjInfo) -> Result<()> {
     let mut file_map = HashMap::<String, BufWriter<File>>::new();
 
     let asm_dir = path.as_ref().join("asm");

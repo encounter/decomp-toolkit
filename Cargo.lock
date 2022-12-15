@@ -29,6 +29,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "216261ddc8289130e551ddcd5ce8a064710c0d064a4d2895c67151c92b5443f6"
 
 [[package]]
+name = "ar"
+version = "0.8.0"
+source = "git+https://github.com/bjorn3/rust-ar.git?branch=do_not_remove_cg_clif_ranlib#de9ab0e56bf3a208381d342aa5b60f9ff2891648"
+
+[[package]]
 name = "argh"
 version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -149,9 +154,10 @@ dependencies = [
 
 [[package]]
 name = "decomp-toolkit"
-version = "0.2.0"
+version = "0.2.2"
 dependencies = [
  "anyhow",
+ "ar",
  "argh",
  "base16ct",
  "cwdemangle",
