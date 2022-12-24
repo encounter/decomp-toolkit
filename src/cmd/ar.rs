@@ -7,7 +7,7 @@ use std::{
 
 use anyhow::{Context, Error, Result};
 use argh::FromArgs;
-use object::{Object, ObjectSymbol};
+use object::{Object, ObjectSymbol, SymbolScope};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing static libraries.
@@ -52,7 +52,7 @@ fn create(args: CreateArgs) -> Result<()> {
             Some(rsp_file) => {
                 let reader = BufReader::new(
                     File::open(rsp_file)
-                        .with_context(|| format!("Failed to open file '{}'", rsp_file))?,
+                        .with_context(|| format!("Failed to open file '{rsp_file}'"))?,
                 );
                 for result in reader.lines() {
                     let line = result?;
@@ -92,7 +92,7 @@ fn create(args: CreateArgs) -> Result<()> {
             .with_context(|| format!("Failed to mmap object file: '{}'", path.to_string_lossy()))?;
         let obj = object::File::parse(map.as_ref())?;
         for symbol in obj.symbols() {
-            if symbol.is_global() {
+            if symbol.scope() == SymbolScope::Dynamic {
                 entries.push(symbol.name_bytes()?.to_vec());
             }
         }

@@ -51,7 +51,8 @@ struct SectionOrder {
     unit_order: Vec<(String, Vec<String>)>,
 }
 
-fn is_code_section(section: &str) -> bool { section == ".text" || section == ".init" }
+#[inline]
+fn is_code_section(section: &str) -> bool { matches!(section, ".text" | ".init") }
 
 /// Iterate over the BTreeMap and generate an ordered list of symbols and TUs by address.
 fn resolve_section_order(

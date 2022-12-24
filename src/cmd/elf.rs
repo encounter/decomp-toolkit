@@ -1,7 +1,7 @@
 use std::{
-    collections::{btree_map::Entry, BTreeMap},
+    collections::{btree_map, hash_map, BTreeMap, HashMap},
     fs,
-    fs::File,
+    fs::{DirBuilder, File},
     io::{BufWriter, Write},
     path::PathBuf,
 };
@@ -14,7 +14,12 @@ use object::{
     SectionIndex, SectionKind, SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
 };
 
-use crate::util::{asm::write_asm, elf::process_elf};
+use crate::util::{
+    asm::write_asm,
+    elf::{process_elf, write_elf},
+    obj::ObjKind,
+    split::split_obj,
+};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing ELF files.
@@ -29,6 +34,7 @@ pub struct Args {
 enum SubCommand {
     Disasm(DisasmArgs),
     Fixup(FixupArgs),
+    Split(SplitArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -39,8 +45,8 @@ pub struct DisasmArgs {
     /// input file
     elf_file: PathBuf,
     #[argh(positional)]
-    /// output directory
-    out_dir: PathBuf,
+    /// output file (.o) or directory (.elf)
+    out: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -55,55 +61,132 @@ pub struct FixupArgs {
     out_file: PathBuf,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Splits an executable ELF into relocatable objects.
+#[argh(subcommand, name = "split")]
+pub struct SplitArgs {
+    #[argh(positional)]
+    /// input file
+    in_file: PathBuf,
+    #[argh(positional)]
+    /// output directory
+    out_dir: PathBuf,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Disasm(c_args) => disasm(c_args),
         SubCommand::Fixup(c_args) => fixup(c_args),
+        SubCommand::Split(c_args) => split(c_args),
     }
 }
 
 fn disasm(args: DisasmArgs) -> Result<()> {
     let obj = process_elf(&args.elf_file)?;
-    write_asm(&args.out_dir, &obj)?;
-    for unit in obj.link_order {
-        let name = format!("$(OBJ_DIR)/asm/{}", file_name_from_unit(&unit));
-        println!("    {name: <70}\\");
+    match obj.kind {
+        ObjKind::Executable => {
+            let split_objs = split_obj(&obj)?;
+
+            let asm_dir = args.out.join("asm");
+            let include_dir = args.out.join("include");
+            DirBuilder::new().recursive(true).create(&include_dir)?;
+            fs::write(&include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
+
+            for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
+                let out_path = asm_dir.join(file_name_from_unit(unit, ".s"));
+                if let Some(parent) = out_path.parent() {
+                    DirBuilder::new().recursive(true).create(parent)?;
+                }
+                let mut w = BufWriter::new(File::create(out_path)?);
+                write_asm(&mut w, split_obj)?;
+
+                let name = format!("$(OBJ_DIR)/asm/{}", file_name_from_unit(unit, ".o"));
+                println!("    {name: <70}\\");
+            }
+        }
+        ObjKind::Relocatable => {
+            if let Some(parent) = args.out.parent() {
+                DirBuilder::new().recursive(true).create(parent)?;
+            }
+            let mut w = BufWriter::new(File::create(args.out)?);
+            write_asm(&mut w, &obj)?;
+        }
     }
     Ok(())
 }
 
-fn file_name_from_unit(str: &str) -> String {
+fn split(args: SplitArgs) -> Result<()> {
+    let obj = process_elf(&args.in_file)?;
+
+    let mut file_map = HashMap::<String, object::write::Object>::new();
+
+    let split_objs = split_obj(&obj)?;
+    for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
+        let out_obj = write_elf(split_obj)?;
+        match file_map.entry(unit.clone()) {
+            hash_map::Entry::Occupied(_) => {
+                return Err(Error::msg(format!("Duplicate file {unit}")));
+            }
+            hash_map::Entry::Vacant(e) => e.insert(out_obj),
+        };
+    }
+
+    let mut rsp_file = BufWriter::new(File::create("rsp")?);
+    for unit in &obj.link_order {
+        let object = file_map
+            .get(unit)
+            .ok_or_else(|| Error::msg(format!("Failed to find object file for unit '{unit}'")))?;
+        let out_path = args.out_dir.join(file_name_from_unit(unit, ".o"));
+        writeln!(rsp_file, "{}", out_path.to_string_lossy())?;
+        if let Some(parent) = out_path.parent() {
+            DirBuilder::new().recursive(true).create(parent)?;
+        }
+        let mut file = BufWriter::new(File::create(out_path)?);
+        object.write_stream(&mut file).map_err(|e| Error::msg(format!("{e:?}")))?;
+        file.flush()?;
+    }
+    rsp_file.flush()?;
+    Ok(())
+}
+
+fn file_name_from_unit(str: &str, suffix: &str) -> String {
+    let str = str.strip_suffix(ASM_SUFFIX).unwrap_or(str);
     let str = str.strip_prefix("C:").unwrap_or(str);
     let str = str
         .strip_suffix(".c")
         .or_else(|| str.strip_suffix(".cp"))
         .or_else(|| str.strip_suffix(".cpp"))
         .or_else(|| str.strip_suffix(".s"))
+        .or_else(|| str.strip_suffix(".o"))
         .unwrap_or(str);
     let str = str.replace('\\', "/");
-    format!("{}.o", str.strip_prefix('/').unwrap_or(&str))
+    let str = str.strip_prefix('/').unwrap_or(&str);
+    format!("{str}{suffix}")
 }
 
-const ASM_SUFFIX: &[u8] = " (asm)".as_bytes();
+const ASM_SUFFIX: &str = " (asm)";
 
 fn fixup(args: FixupArgs) -> Result<()> {
-    let in_buf = fs::read(&args.in_file).context("Failed to open input file")?;
+    let in_buf = fs::read(&args.in_file).with_context(|| {
+        format!("Failed to open input file: '{}'", args.in_file.to_string_lossy())
+    })?;
     let in_file = object::read::File::parse(&*in_buf).context("Failed to parse input ELF")?;
     let mut out_file =
         object::write::Object::new(in_file.format(), in_file.architecture(), in_file.endianness());
 
-    // Write file symbol(s) first
+    // Write file symbol first
     let mut file_symbol_found = false;
     for symbol in in_file.symbols() {
         if symbol.kind() != SymbolKind::File {
             continue;
         }
         let mut out_symbol = to_write_symbol(&symbol, &[])?;
-        out_symbol.name.append(&mut ASM_SUFFIX.to_vec());
+        out_symbol.name.append(&mut ASM_SUFFIX.as_bytes().to_vec());
         out_file.add_symbol(out_symbol);
         file_symbol_found = true;
         break;
     }
+    // Create a file symbol if not found
     if !file_symbol_found {
         let file_name = args.in_file.file_name().ok_or_else(|| {
             Error::msg(format!("'{}' is not a file path", args.in_file.to_string_lossy()))
@@ -112,7 +195,7 @@ fn fixup(args: FixupArgs) -> Result<()> {
             Error::msg(format!("'{}' is not valid UTF-8", file_name.to_string_lossy()))
         })?;
         let mut name_bytes = file_name.as_bytes().to_vec();
-        name_bytes.append(&mut ASM_SUFFIX.to_vec());
+        name_bytes.append(&mut ASM_SUFFIX.as_bytes().to_vec());
         out_file.add_symbol(object::write::Symbol {
             name: name_bytes,
             value: 0,
@@ -163,11 +246,11 @@ fn fixup(args: FixupArgs) -> Result<()> {
         symbol_ids.push(Some(symbol_id));
         if symbol.size() != 0 {
             if let Some(section_id) = section_id {
-                let map = match addr_to_sym.entry(section_id) {
-                    Entry::Vacant(e) => e.insert(BTreeMap::new()),
-                    Entry::Occupied(e) => e.into_mut(),
-                };
-                map.insert(symbol.address() as u32, symbol_id);
+                match addr_to_sym.entry(section_id) {
+                    btree_map::Entry::Vacant(e) => e.insert(BTreeMap::new()),
+                    btree_map::Entry::Occupied(e) => e.into_mut(),
+                }
+                .insert(symbol.address() as u32, symbol_id);
             }
         }
     }
@@ -179,53 +262,42 @@ fn fixup(args: FixupArgs) -> Result<()> {
             None => continue,
         };
         for (addr, reloc) in section.relocations() {
-            let mut symbol = match reloc.target() {
+            let mut target_symbol_id = match reloc.target() {
                 RelocationTarget::Symbol(idx) => match symbol_ids[idx.0] {
-                    Some(id) => id,
+                    Some(id) => Ok(id),
                     None => {
                         let in_symbol = in_file.symbol_by_index(idx)?;
                         match in_symbol.kind() {
-                            SymbolKind::Section => {
-                                let section_idx = match in_symbol.section_index() {
-                                    Some(id) => id,
-                                    None => {
-                                        return Err(Error::msg("Missing section for relocation"))
-                                    }
-                                };
-                                let section_id = match section_ids[section_idx.0] {
-                                    Some(id) => id,
-                                    None => {
-                                        return Err(Error::msg("Missing section for relocation"))
-                                    }
-                                };
-                                out_file.section_symbol(section_id)
-                            }
-                            _ => return Err(Error::msg("Missing symbol for relocation")),
+                            SymbolKind::Section => in_symbol
+                                .section_index()
+                                .ok_or_else(|| Error::msg("Section symbol without section"))
+                                .and_then(|section_idx| {
+                                    section_ids[section_idx.0].ok_or_else(|| {
+                                        Error::msg("Relocation against stripped section")
+                                    })
+                                })
+                                .map(|section_idx| out_file.section_symbol(section_idx)),
+                            _ => Err(Error::msg("Missing symbol for relocation")),
                         }
                     }
                 },
-                RelocationTarget::Section(idx) => {
-                    let section_id = match section_ids[idx.0] {
-                        Some(id) => id,
-                        None => return Err(Error::msg("Missing section for relocation")),
-                    };
-                    out_file.section_symbol(section_id)
-                }
-                RelocationTarget::Absolute => todo!("Absolute relocation target"),
-                _ => return Err(Error::msg("Invalid relocation target")),
-            };
-            let mut addend = reloc.addend();
+                RelocationTarget::Section(section_idx) => section_ids[section_idx.0]
+                    .ok_or_else(|| Error::msg("Relocation against stripped section"))
+                    .map(|section_id| out_file.section_symbol(section_id)),
+                target => Err(Error::msg(format!("Invalid relocation target '{target:?}'"))),
+            }?;
 
             // Attempt to replace section symbols with direct symbol references
-            let target_sym = out_file.symbol(symbol);
+            let mut addend = reloc.addend();
+            let target_sym = out_file.symbol(target_symbol_id);
             if target_sym.kind == SymbolKind::Section {
-                if let Some(new_symbol_id) = target_sym
+                if let Some(&new_symbol_id) = target_sym
                     .section
                     .id()
                     .and_then(|id| addr_to_sym.get(&id))
                     .and_then(|map| map.get(&(addend as u32)))
                 {
-                    symbol = *new_symbol_id;
+                    target_symbol_id = new_symbol_id;
                     addend = 0;
                 }
             }
@@ -242,14 +314,15 @@ fn fixup(args: FixupArgs) -> Result<()> {
                 size: reloc.size(),
                 kind,
                 encoding: reloc.encoding(),
-                symbol,
+                symbol: target_symbol_id,
                 addend,
             })?;
         }
     }
 
-    let mut out =
-        BufWriter::new(File::create(&args.out_file).context("Failed to create out file")?);
+    let mut out = BufWriter::new(File::create(&args.out_file).with_context(|| {
+        format!("Failed to create output file: '{}'", args.out_file.to_string_lossy())
+    })?);
     out_file.write_stream(&mut out).map_err(|e| Error::msg(format!("{e:?}")))?;
     out.flush()?;
     Ok(())
@@ -259,24 +332,25 @@ fn to_write_symbol_section(
     section: SymbolSection,
     section_ids: &[Option<SectionId>],
 ) -> Result<object::write::SymbolSection> {
-    Ok(match section {
-        SymbolSection::None => object::write::SymbolSection::None,
-        SymbolSection::Absolute => object::write::SymbolSection::Absolute,
-        SymbolSection::Common => object::write::SymbolSection::Common,
-        SymbolSection::Section(idx) => match section_ids.get(idx.0).and_then(|opt| *opt) {
-            Some(section_id) => object::write::SymbolSection::Section(section_id),
-            None => return Err(Error::msg("Missing symbol section")),
-        },
-        _ => object::write::SymbolSection::Undefined,
-    })
+    match section {
+        SymbolSection::None => Ok(object::write::SymbolSection::None),
+        SymbolSection::Absolute => Ok(object::write::SymbolSection::Absolute),
+        SymbolSection::Common => Ok(object::write::SymbolSection::Common),
+        SymbolSection::Section(idx) => section_ids
+            .get(idx.0)
+            .and_then(|&opt| opt)
+            .map(object::write::SymbolSection::Section)
+            .ok_or_else(|| Error::msg("Missing symbol section")),
+        _ => Ok(object::write::SymbolSection::Undefined),
+    }
 }
 
 fn to_write_symbol_flags(flags: SymbolFlags<SectionIndex>) -> Result<SymbolFlags<SectionId>> {
-    Ok(match flags {
-        SymbolFlags::Elf { st_info, st_other } => SymbolFlags::Elf { st_info, st_other },
-        SymbolFlags::None => SymbolFlags::None,
-        _ => return Err(Error::msg("Unexpected symbol flags")),
-    })
+    match flags {
+        SymbolFlags::Elf { st_info, st_other } => Ok(SymbolFlags::Elf { st_info, st_other }),
+        SymbolFlags::None => Ok(SymbolFlags::None),
+        _ => Err(Error::msg("Unexpected symbol flags")),
+    }
 }
 
 fn to_write_symbol(

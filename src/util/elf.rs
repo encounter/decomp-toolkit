@@ -7,16 +7,18 @@ use indexmap::IndexMap;
 use memmap2::MmapOptions;
 use object::{
     elf::{
-        R_PPC_ADDR16_HA, R_PPC_ADDR16_HI, R_PPC_ADDR16_LO, R_PPC_EMB_SDA21, R_PPC_REL14,
-        R_PPC_REL24,
+        R_PPC_ADDR16_HA, R_PPC_ADDR16_HI, R_PPC_ADDR16_LO, R_PPC_ADDR32, R_PPC_EMB_SDA21,
+        R_PPC_REL14, R_PPC_REL24,
     },
-    Architecture, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation, RelocationKind,
-    RelocationTarget, Section, SectionKind, Symbol, SymbolKind, SymbolSection,
+    write::{Mangling, SectionId, SymbolId},
+    Architecture, BinaryFormat, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol,
+    Relocation, RelocationEncoding, RelocationKind, RelocationTarget, SectionKind, Symbol,
+    SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
 };
 
 use crate::util::obj::{
-    ObjArchitecture, ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
-    ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+    ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
+    ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
 };
 
 pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
@@ -31,13 +33,15 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         Architecture::PowerPc => ObjArchitecture::PowerPc,
         arch => return Err(Error::msg(format!("Unexpected architecture: {arch:?}"))),
     };
-    if obj_file.is_little_endian() {
+    if obj_file.endianness() != Endianness::Big {
         return Err(Error::msg("Expected big endian"));
     }
-    match obj_file.kind() {
-        ObjectKind::Executable => {}
+    let kind = match obj_file.kind() {
+        ObjectKind::Executable => ObjKind::Executable,
+        ObjectKind::Relocatable => ObjKind::Relocatable,
         kind => return Err(Error::msg(format!("Unexpected ELF type: {kind:?}"))),
-    }
+    };
+    let mut obj_name = String::new();
 
     let mut stack_address: Option<u32> = None;
     let mut stack_end: Option<u32> = None;
@@ -45,7 +49,36 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let mut arena_lo: Option<u32> = None;
     let mut arena_hi: Option<u32> = None;
 
-    let mut common: Vec<ObjSymbol> = vec![];
+    let mut sections: Vec<ObjSection> = vec![];
+    let mut section_indexes: Vec<Option<usize>> = vec![];
+    for section in obj_file.sections() {
+        let section_kind = match section.kind() {
+            SectionKind::Text => ObjSectionKind::Code,
+            SectionKind::Data => ObjSectionKind::Data,
+            SectionKind::ReadOnlyData => ObjSectionKind::ReadOnlyData,
+            SectionKind::UninitializedData => ObjSectionKind::Bss,
+            _ => {
+                section_indexes.push(None);
+                continue;
+            }
+        };
+        section_indexes.push(Some(sections.len()));
+        sections.push(ObjSection {
+            name: section.name()?.to_string(),
+            kind: section_kind,
+            address: section.address(),
+            size: section.size(),
+            data: section.uncompressed_data()?.to_vec(),
+            align: section.align(),
+            index: sections.len(),
+            relocations: vec![],
+            original_address: 0, // TODO load from abs symbol
+            file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
+        });
+    }
+
+    let mut symbols: Vec<ObjSymbol> = vec![];
+    let mut symbol_indexes: Vec<Option<usize>> = vec![];
     let mut current_file: Option<String> = None;
     let mut section_starts = IndexMap::<String, Vec<(u64, String)>>::new();
     for symbol in obj_file.symbols() {
@@ -54,23 +87,18 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         match symbol_name {
             "_stack_addr" => {
                 stack_address = Some(symbol.address() as u32);
-                continue;
             }
             "_stack_end" => {
                 stack_end = Some(symbol.address() as u32);
-                continue;
             }
             "_db_stack_addr" => {
                 db_stack_addr = Some(symbol.address() as u32);
-                continue;
             }
             "__ArenaLo" => {
                 arena_lo = Some(symbol.address() as u32);
-                continue;
             }
             "__ArenaHi" => {
                 arena_hi = Some(symbol.address() as u32);
-                continue;
             }
             _ => {}
         }
@@ -79,6 +107,9 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             // Detect file boundaries
             SymbolKind::File => {
                 let file_name = symbol_name.to_string();
+                if kind == ObjKind::Relocatable {
+                    obj_name = file_name.clone();
+                }
                 match section_starts.entry(file_name.clone()) {
                     indexmap::map::Entry::Occupied(_) => {
                         return Err(Error::msg(format!("Duplicate file name: {file_name}")));
@@ -86,15 +117,13 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                     indexmap::map::Entry::Vacant(e) => e.insert(Default::default()),
                 };
                 current_file = Some(file_name);
-                continue;
             }
             // Detect sections within a file
             SymbolKind::Section => {
                 if let Some(file_name) = &current_file {
-                    let sections = match section_starts.get_mut(file_name) {
-                        Some(entries) => entries,
-                        None => return Err(Error::msg("Failed to create entry")),
-                    };
+                    let sections = section_starts
+                        .get_mut(file_name)
+                        .ok_or_else(|| Error::msg("Failed to create entry"))?;
                     let section_index = symbol
                         .section_index()
                         .ok_or_else(|| Error::msg("Section symbol without section"))?;
@@ -102,30 +131,27 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                     let section_name = section.name()?.to_string();
                     sections.push((symbol.address(), section_name));
                 };
-                continue;
             }
             // Sometimes, the section symbol address is 0,
             // so attempt to detect it from first symbol within section
             SymbolKind::Data | SymbolKind::Text => {
                 if let Some(file_name) = &current_file {
-                    let section_map = match section_starts.get_mut(file_name) {
-                        Some(entries) => entries,
-                        None => return Err(Error::msg("Failed to create entry")),
-                    };
-                    let section_index = symbol
-                        .section_index()
-                        .ok_or_else(|| Error::msg("Section symbol without section"))?;
+                    let sections = section_starts
+                        .get_mut(file_name)
+                        .ok_or_else(|| Error::msg("Failed to create entry"))?;
+                    let section_index = symbol.section_index().ok_or_else(|| {
+                        Error::msg(format!("Section symbol without section: {symbol:?}"))
+                    })?;
                     let section = obj_file.section_by_index(section_index)?;
                     let section_name = section.name()?;
                     if let Some((addr, _)) =
-                        section_map.iter_mut().find(|(_, name)| name == section_name)
+                        sections.iter_mut().find(|(_, name)| name == section_name)
                     {
                         if *addr == 0 {
                             *addr = symbol.address();
                         }
                     };
                 };
-                continue;
             }
             _ => match symbol.section() {
                 // Linker generated symbols indicate the end
@@ -133,82 +159,60 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                     current_file = None;
                 }
                 SymbolSection::Section(_) | SymbolSection::Undefined => {}
-                _ => todo!("Symbol section type {:?}", symbol),
+                _ => return Err(Error::msg(format!("Unsupported symbol section type {symbol:?}"))),
             },
         }
 
-        // Keep track of common symbols
-        if !symbol.is_common() {
+        // Generate symbols
+        if matches!(symbol.kind(), SymbolKind::Null | SymbolKind::File) {
+            symbol_indexes.push(None);
             continue;
         }
-        common.push(to_obj_symbol(&obj_file, &symbol, 0)?);
+        symbol_indexes.push(Some(symbols.len()));
+        symbols.push(to_obj_symbol(&obj_file, &symbol, &section_indexes)?);
     }
 
-    // Link order is trivially deduced
     let mut link_order = Vec::<String>::new();
-    for file_name in section_starts.keys() {
-        link_order.push(file_name.clone());
-    }
-
-    // Create a map of address -> file splits
     let mut splits = BTreeMap::<u32, String>::new();
-    for (file_name, sections) in section_starts {
-        for (address, _) in sections {
-            splits.insert(address as u32, file_name.clone());
+    if kind == ObjKind::Executable {
+        // Link order is trivially deduced
+        for file_name in section_starts.keys() {
+            link_order.push(file_name.clone());
         }
+
+        // Create a map of address -> file splits
+        for (file_name, sections) in section_starts {
+            for (address, _) in sections {
+                splits.insert(address as u32, file_name.clone());
+            }
+        }
+
+        // TODO rebuild common symbols
     }
 
-    let mut sections: Vec<ObjSection> = vec![];
-    for section in obj_file.sections() {
-        let section_index = section.index();
-        let section_kind = match section.kind() {
-            SectionKind::Text => ObjSectionKind::Code,
-            SectionKind::Data => ObjSectionKind::Data,
-            SectionKind::ReadOnlyData => ObjSectionKind::Data,
-            SectionKind::UninitializedData => ObjSectionKind::Bss,
-            _ => continue,
+    for (section_idx, section) in obj_file.sections().enumerate() {
+        let out_section = match section_indexes[section_idx].and_then(|idx| sections.get_mut(idx)) {
+            Some(s) => s,
+            None => continue,
         };
-        let name = section.name()?;
-        log::info!("Processing section {}", name);
-        let data = section.uncompressed_data()?.to_vec();
-
-        // Generate symbols
-        let mut symbols: Vec<ObjSymbol> = vec![];
-        for symbol in obj_file.symbols() {
-            if !matches!(symbol.section_index(), Some(idx) if idx == section_index) {
-                continue;
-            }
-            if symbol.address() == 0 || symbol.name()?.is_empty() {
-                continue;
-            }
-            symbols.push(to_obj_symbol(&obj_file, &symbol, 0)?);
-        }
-
         // Generate relocations
-        let mut relocations: Vec<ObjReloc> = vec![];
         for (address, reloc) in section.relocations() {
-            relocations.push(to_obj_reloc(&obj_file, &section, &data, address, reloc)?);
+            out_section.relocations.push(to_obj_reloc(
+                &obj_file,
+                &symbol_indexes,
+                &out_section.data,
+                address,
+                reloc,
+            )?);
         }
-
-        let file_offset = section.file_range().map(|(v, _)| v).unwrap_or_default();
-        sections.push(ObjSection {
-            name: name.to_string(),
-            kind: section_kind,
-            address: section.address(),
-            size: section.size(),
-            data,
-            index: sections.len(),
-            symbols,
-            relocations,
-            file_offset,
-        });
     }
 
     Ok(ObjInfo {
+        kind,
         architecture,
-        path: path.as_ref().to_path_buf(),
+        name: obj_name,
+        symbols,
         sections,
-        common,
         entry: obj_file.entry() as u32,
         stack_address,
         stack_end,
@@ -220,10 +224,107 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     })
 }
 
+pub fn write_elf(obj: &ObjInfo) -> Result<object::write::Object> {
+    let mut out_obj =
+        object::write::Object::new(BinaryFormat::Elf, Architecture::PowerPc, Endianness::Big);
+    out_obj.set_mangling(Mangling::None);
+    if !obj.name.is_empty() {
+        out_obj.add_file_symbol(obj.name.as_bytes().to_vec());
+    }
+
+    let mut section_idxs: Vec<SectionId> = Vec::with_capacity(obj.sections.len());
+    for section in &obj.sections {
+        let section_id =
+            out_obj.add_section(vec![], section.name.as_bytes().to_vec(), match section.kind {
+                ObjSectionKind::Code => SectionKind::Text,
+                ObjSectionKind::Data => SectionKind::Data,
+                ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
+                ObjSectionKind::Bss => SectionKind::UninitializedData,
+            });
+        section_idxs.push(section_id);
+        let out_section = out_obj.section_mut(section_id);
+        match section.kind {
+            ObjSectionKind::Bss => {
+                out_section.append_bss(section.size, section.align);
+            }
+            _ => {
+                out_section.set_data(section.data.clone(), section.align);
+            }
+        }
+
+        // Generate section symbol
+        out_obj.section_symbol(section_id);
+
+        // Add original addresses
+        if section.original_address != 0 {
+            // TODO write to metadata?
+        }
+        if section.file_offset != 0 {
+            // TODO write to metadata?
+        }
+    }
+
+    // Add symbols
+    let mut symbol_idxs: Vec<SymbolId> = Vec::with_capacity(obj.symbols.len());
+    for symbol in &obj.symbols {
+        let symbol_id = out_obj.add_symbol(object::write::Symbol {
+            name: symbol.name.as_bytes().to_vec(),
+            value: symbol.address,
+            size: symbol.size,
+            kind: match symbol.kind {
+                ObjSymbolKind::Unknown => SymbolKind::Null,
+                ObjSymbolKind::Function => SymbolKind::Text,
+                ObjSymbolKind::Object => SymbolKind::Data,
+                ObjSymbolKind::Section => SymbolKind::Section,
+            },
+            scope: if symbol.flags.0.contains(ObjSymbolFlags::Hidden) {
+                SymbolScope::Linkage
+            } else if symbol.flags.0.contains(ObjSymbolFlags::Local) {
+                SymbolScope::Compilation
+            } else {
+                SymbolScope::Dynamic
+            },
+            weak: symbol.flags.0.contains(ObjSymbolFlags::Weak),
+            section: match symbol.section {
+                None => object::write::SymbolSection::Undefined,
+                Some(idx) => object::write::SymbolSection::Section(section_idxs[idx]),
+            },
+            flags: SymbolFlags::None,
+        });
+        symbol_idxs.push(symbol_id);
+    }
+
+    // Add relocations
+    for section in &obj.sections {
+        let section_id = section_idxs[section.index];
+        for reloc in &section.relocations {
+            let symbol_id = symbol_idxs[reloc.target_symbol];
+            out_obj.add_relocation(section_id, object::write::Relocation {
+                offset: reloc.address,
+                size: 0,
+                kind: RelocationKind::Elf(match reloc.kind {
+                    ObjRelocKind::Absolute => R_PPC_ADDR32,
+                    ObjRelocKind::PpcAddr16Hi => R_PPC_ADDR16_HI,
+                    ObjRelocKind::PpcAddr16Ha => R_PPC_ADDR16_HA,
+                    ObjRelocKind::PpcAddr16Lo => R_PPC_ADDR16_LO,
+                    ObjRelocKind::PpcRel24 => R_PPC_REL24,
+                    ObjRelocKind::PpcRel14 => R_PPC_REL14,
+                    ObjRelocKind::PpcEmbSda21 => R_PPC_EMB_SDA21,
+                }),
+                encoding: RelocationEncoding::Generic,
+                symbol: symbol_id,
+                addend: reloc.addend,
+            })?;
+        }
+    }
+
+    Ok(out_obj)
+}
+
 fn to_obj_symbol(
     obj_file: &object::File<'_>,
     symbol: &Symbol<'_, '_>,
-    addend: i64,
+    section_indexes: &[Option<usize>],
 ) -> Result<ObjSymbol> {
     let section = match symbol.section_index() {
         Some(idx) => Some(obj_file.section_by_index(idx)?),
@@ -255,31 +356,31 @@ fn to_obj_symbol(
     if symbol.is_weak() {
         flags = ObjSymbolFlagSet(flags.0 | ObjSymbolFlags::Weak);
     }
-    let section_address = if let Some(section) = &section {
-        symbol.address() - section.address()
-    } else {
-        symbol.address()
-    };
+    if symbol.scope() == SymbolScope::Linkage {
+        flags = ObjSymbolFlagSet(flags.0 | ObjSymbolFlags::Hidden);
+    }
+    let section_idx = section.as_ref().and_then(|section| section_indexes[section.index().0]);
     Ok(ObjSymbol {
         name: name.to_string(),
         demangled_name: demangle(name, &Default::default()),
         address: symbol.address(),
-        section_address,
+        section: section_idx,
         size: symbol.size(),
-        size_known: symbol.size() != 0,
+        size_known: true,
         flags,
-        addend,
         kind: match symbol.kind() {
             SymbolKind::Text => ObjSymbolKind::Function,
             SymbolKind::Data => ObjSymbolKind::Object,
-            _ => ObjSymbolKind::Unknown,
+            SymbolKind::Unknown => ObjSymbolKind::Unknown,
+            SymbolKind::Section => ObjSymbolKind::Section,
+            _ => return Err(Error::msg(format!("Unsupported symbol kind: {:?}", symbol.kind()))),
         },
     })
 }
 
 fn to_obj_reloc(
     obj_file: &object::File<'_>,
-    _section: &Section<'_, '_>,
+    symbol_indexes: &[Option<usize>],
     section_data: &[u8],
     address: u64,
     reloc: Relocation,
@@ -305,17 +406,10 @@ fn to_obj_reloc(
             return Err(Error::msg(format!("Unhandled relocation target: {:?}", reloc.target())));
         }
     };
-    let target_section = match symbol.section() {
-        SymbolSection::Common => Some(".comm".to_string()),
-        SymbolSection::Section(idx) => {
-            obj_file.section_by_index(idx).and_then(|s| s.name().map(|s| s.to_string())).ok()
-        }
-        _ => None,
-    };
-    let target = match symbol.kind() {
-        SymbolKind::Text | SymbolKind::Data | SymbolKind::Unknown => {
-            to_obj_symbol(obj_file, &symbol, reloc.addend())
-        }
+    let target_symbol = symbol_indexes[symbol.index().0]
+        .ok_or_else(|| Error::msg(format!("Relocation against stripped symbol: {symbol:?}")))?;
+    let addend = match symbol.kind() {
+        SymbolKind::Text | SymbolKind::Data | SymbolKind::Unknown => Ok(reloc.addend()),
         SymbolKind::Section => {
             let addend = if reloc.has_implicit_addend() {
                 let addend = u32::from_be_bytes(
@@ -323,70 +417,23 @@ fn to_obj_reloc(
                 ) as i64;
                 match reloc_kind {
                     ObjRelocKind::Absolute => addend,
-                    _ => todo!(),
+                    _ => {
+                        return Err(Error::msg(format!(
+                            "Unsupported implicit relocation type {reloc_kind:?}"
+                        )))
+                    }
                 }
             } else {
-                let addend = reloc.addend();
-                if addend < 0 {
-                    return Err(Error::msg(format!("Negative addend in section reloc: {addend}")));
-                }
-                addend
+                reloc.addend()
             };
-            // find_section_symbol(&obj_file, &symbol, addend as u64)
-            to_obj_symbol(obj_file, &symbol, addend)
+            if addend < 0 {
+                return Err(Error::msg(format!("Negative addend in section reloc: {addend}")));
+            }
+            Ok(addend)
         }
         _ => Err(Error::msg(format!("Unhandled relocation symbol type {:?}", symbol.kind()))),
     }?;
-    let address = address & !3; // FIXME round down for instruction
-    let reloc_data = ObjReloc { kind: reloc_kind, address, target, target_section };
+    let address = address & !3; // TODO hack: round down for instruction
+    let reloc_data = ObjReloc { kind: reloc_kind, address, target_symbol, addend };
     Ok(reloc_data)
-}
-
-// TODO needed?
-#[allow(dead_code)]
-fn find_section_symbol(
-    obj_file: &object::File<'_>,
-    target: &Symbol<'_, '_>,
-    addend: u64,
-) -> Result<ObjSymbol> {
-    let section_index =
-        target.section_index().ok_or_else(|| Error::msg("Unknown section index"))?;
-    let section = obj_file.section_by_index(section_index)?;
-    let target_address = target.address() + addend;
-
-    let mut closest_symbol: Option<Symbol<'_, '_>> = None;
-    for symbol in obj_file.symbols() {
-        if !matches!(symbol.section_index(), Some(idx) if idx == section_index) {
-            continue;
-        }
-        if symbol.kind() == SymbolKind::Section || symbol.address() != target_address {
-            if symbol.address() < target_address
-                && symbol.size() != 0
-                && (closest_symbol.is_none()
-                    || matches!(&closest_symbol, Some(s) if s.address() <= symbol.address()))
-            {
-                closest_symbol = Some(symbol);
-            }
-            continue;
-        }
-        return to_obj_symbol(obj_file, &symbol, 0);
-    }
-
-    if let Some(symbol) = closest_symbol {
-        let addend = target_address - symbol.address();
-        Ok(to_obj_symbol(obj_file, &symbol, addend as i64)?)
-    } else {
-        let addend = target_address - section.address();
-        Ok(ObjSymbol {
-            name: section.name()?.to_string(),
-            demangled_name: None,
-            address: section.address(),
-            section_address: 0,
-            size: section.size(),
-            size_known: true,
-            flags: Default::default(),
-            addend: addend as i64,
-            kind: ObjSymbolKind::Unknown,
-        })
-    }
 }
