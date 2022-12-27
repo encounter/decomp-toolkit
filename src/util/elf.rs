@@ -1,4 +1,8 @@
-use std::{collections::BTreeMap, fs::File, path::Path};
+use std::{
+    collections::{hash_map, BTreeMap, HashMap},
+    fs::File,
+    path::Path,
+};
 
 use anyhow::{Context, Error, Result};
 use cwdemangle::demangle;
@@ -74,6 +78,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             relocations: vec![],
             original_address: 0, // TODO load from abs symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
+            section_known: true,
         });
     }
 
@@ -81,6 +86,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let mut symbol_indexes: Vec<Option<usize>> = vec![];
     let mut current_file: Option<String> = None;
     let mut section_starts = IndexMap::<String, Vec<(u64, String)>>::new();
+    let mut name_to_index = HashMap::<String, usize>::new(); // for resolving duplicate names
     for symbol in obj_file.symbols() {
         // Locate linker-generated symbols
         let symbol_name = symbol.name()?;
@@ -106,15 +112,25 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         match symbol.kind() {
             // Detect file boundaries
             SymbolKind::File => {
-                let file_name = symbol_name.to_string();
+                let mut file_name = symbol_name.to_string();
                 if kind == ObjKind::Relocatable {
                     obj_name = file_name.clone();
                 }
                 match section_starts.entry(file_name.clone()) {
                     indexmap::map::Entry::Occupied(_) => {
-                        return Err(Error::msg(format!("Duplicate file name: {file_name}")));
+                        let index = match name_to_index.entry(file_name.clone()) {
+                            hash_map::Entry::Occupied(mut e) => e.into_mut(),
+                            hash_map::Entry::Vacant(e) => e.insert(0),
+                        };
+                        *index += 1;
+                        let new_name = format!("{}_{}", file_name, index);
+                        log::info!("Renaming {} to {}", file_name, new_name);
+                        section_starts.insert(new_name.clone(), Default::default());
+                        file_name = new_name;
                     }
-                    indexmap::map::Entry::Vacant(e) => e.insert(Default::default()),
+                    indexmap::map::Entry::Vacant(e) => {
+                        e.insert(Default::default());
+                    }
                 };
                 current_file = Some(file_name);
             }
