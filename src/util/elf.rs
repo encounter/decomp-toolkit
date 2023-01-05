@@ -78,7 +78,6 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             relocations: vec![],
             original_address: 0, // TODO load from abs symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
-            section_known: true,
         });
     }
 
@@ -119,7 +118,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 match section_starts.entry(file_name.clone()) {
                     indexmap::map::Entry::Occupied(_) => {
                         let index = match name_to_index.entry(file_name.clone()) {
-                            hash_map::Entry::Occupied(mut e) => e.into_mut(),
+                            hash_map::Entry::Occupied(e) => e.into_mut(),
                             hash_map::Entry::Vacant(e) => e.insert(0),
                         };
                         *index += 1;

@@ -376,6 +376,7 @@ fn write_symbol_entry<W: Write>(
     Ok(())
 }
 
+#[allow(clippy::too_many_arguments)]
 fn write_data<W: Write>(
     w: &mut W,
     symbols: &[ObjSymbol],

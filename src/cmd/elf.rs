@@ -90,7 +90,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             let asm_dir = args.out.join("asm");
             let include_dir = args.out.join("include");
             DirBuilder::new().recursive(true).create(&include_dir)?;
-            fs::write(&include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
+            fs::write(include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
 
             for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
                 let out_path = asm_dir.join(file_name_from_unit(unit, ".s"));

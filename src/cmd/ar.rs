@@ -71,19 +71,16 @@ fn create(args: CreateArgs) -> Result<()> {
     let mut identifiers = Vec::with_capacity(files.len());
     let mut symbol_table = BTreeMap::new();
     for path in &files {
-        let file_name = path.file_name().ok_or_else(|| {
-            Error::msg(format!("'{}' is not a file path", path.to_string_lossy()))
+        let path_str = path.to_str().ok_or_else(|| {
+            Error::msg(format!("'{}' is not valid UTF-8", path.to_string_lossy()))
         })?;
-        let file_name = file_name.to_str().ok_or_else(|| {
-            Error::msg(format!("'{}' is not valid UTF-8", file_name.to_string_lossy()))
-        })?;
-        let identifier = file_name.as_bytes().to_vec();
+        let identifier = path_str.as_bytes().to_vec();
         identifiers.push(identifier.clone());
 
         let entries = match symbol_table.entry(identifier) {
             Entry::Vacant(e) => e.insert(Vec::new()),
             Entry::Occupied(_) => {
-                return Err(Error::msg(format!("Duplicate file name '{file_name}'")))
+                return Err(Error::msg(format!("Duplicate file name '{path_str}'")))
             }
         };
         let object_file = File::open(path)
@@ -103,7 +100,11 @@ fn create(args: CreateArgs) -> Result<()> {
     let mut builder =
         ar::GnuBuilder::new(out, identifiers, ar::GnuSymbolTableFormat::Size32, symbol_table)?;
     for path in files {
-        builder.append_path(path)?;
+        let path_str = path.to_str().ok_or_else(|| {
+            Error::msg(format!("'{}' is not valid UTF-8", path.to_string_lossy()))
+        })?;
+        let mut file = File::open(&path)?;
+        builder.append_file(path_str.as_bytes(), &mut file)?;
     }
     builder.into_inner()?.flush()?;
     Ok(())
