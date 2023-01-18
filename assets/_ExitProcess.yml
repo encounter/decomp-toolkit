@@ -1,0 +1,38 @@
+- symbol: 0
+  hash: 9cb15dc0c16f52de5d46476e7226810c7cad1fc4
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAAfwAAAOAAQAM/////zghAAj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: _ExitProcess
+    size: 32
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 82d08ce341917ff7f79c945a5cd98f598ad04ee6
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: _ExitProcess
+    size: 32
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

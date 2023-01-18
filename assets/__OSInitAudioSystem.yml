@@ -1,0 +1,525 @@
+- symbol: 0
+  hash: cdf6eea66ddf2715f2308588e6e5dc3d17f09971
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OIMAAP//AAA8YIEA/////5Qh/9D/////OKAAgP////+/IQAU/////0gAAAH8AAADPGCBAP////84gACA/////0gAAAH8AAADPGDMAP////84Y1AA/////zgAAEP/////sAMAEv////874wAK/////zgACKz/////sAMACv////+gAwAK/////2AAAAH/////sAMACv////+gHwAA/////1QAB///////QIL/+P////84AAAA/////zyAzAD/////sARQAP////87xFAA/////6R+AAT/////O6RQAP////+kHQAG/////1BggB7/////VAAAAf////9Agv/o/////zxgzAD/////PAABAP////87Y1AA/////5QbACD/////OAAAAP////87Q1AA/////5QaACT/////OAAAIP////87I1AA/////5QZACj/////oH8AAP////9IAAAI/////6B/AAD/////VGAGtf////9Bgv/4/////7B/AAD/////SAAAAfwAAAN8fBt4/////0gAAAH8AAADfBwYUP////8sAAiS/////0GA//T/////PAABAP////+QGwAA/////zhgAAD/////OAAAIP////+QegAA/////5AZAAD/////oH8AAP////9IAAAI/////6B/AAD/////VGAGtf////9Bgv/4/////7B/AAD/////oB8AAP////9UAAVm/////7AfAAD/////oB8AAP////9UAAVr/////0CC//j/////oB8AAP////9UAAe4/////7AfAAD/////oB4AAP////9IAAAI/////6AeAAD/////VAUEPv////9UAAQh/////0GC//T/////oB8AAP////+gnQAA/////2AAAAT/////sB8AAP////84AAis/////7AfAAD/////oB8AAP////9gAAAB/////7AfAAD/////oB8AAP////9UAAf//////0CC//j/////uyEAFP////+AAQA0/////zghADD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitAudioSystem
+    size: 404
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DSPInitCode
+    size: 128
+    flags: 2
+    section: .data
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: ee9f7f9ac5386504c8879d77bb7b6e4f472b352f
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////vyEAFP////9IAAAB/AAAAzyAgQD/////OKAAgP////84Y/+A/////0gAAAH8AAADPGAAAP//AAA4gwAA//8AADxggQD/////OKAAgP////9IAAAB/AAAAzxggQD/////OIAAgP////9IAAAB/AAAAzxgzAD/////OGNQAP////84AABD/////7ADABL/////O+MACv////84AAis/////7ADAAr/////oAMACv////9gAAAB/////7ADAAr/////oB8AAP////9UAAf//////0CC//j/////OAAAAP////88gMwA/////7AEUAD/////O8RQAP////+kfgAE/////zukUAD/////pB0ABv////9QYIAe/////1QAAAH/////QIL/6P////88YMwA/////zwAAQD/////O2NQAP////+UGwAg/////zgAAAD/////O0NQAP////+UGgAk/////zgAACD/////OyNQAP////+UGQAo/////6B/AAD/////SAAACP////+gfwAA/////1RgBrX/////QYL/+P////+wfwAA/////0gAAAH8AAADfHwbeP////9IAAAB/AAAA3wcGFD/////LAAIkv////9BgP/0/////zwAAQD/////kBsAAP////84YAAA/////zgAACD/////kHoAAP////+QGQAA/////6B/AAD/////SAAACP////+gfwAA/////1RgBrX/////QYL/+P////+wfwAA/////6AfAAD/////VAAFZv////+wHwAA/////6AfAAD/////VAAFa/////9Agv/4/////6AfAAD/////VAAHuP////+wHwAA/////6AeAAD/////SAAACP////+gHgAA/////1QFBD7/////VAAEIf////9Bgv/0/////6AfAAD/////oJ0AAP////9gAAAE/////7AfAAD/////OAAIrP////+wHwAA/////6AfAAD/////YAAAAf////+wHwAA/////6AfAAD/////VAAH//////9Agv/4/////0gAAAH8AAADOIP/gP////88YIEA/////zigAID/////SAAAAfwAAAO7IQAU/////4ABADT/////OCEAMP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitAudioSystem
+    size: 444
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: DSPInitCode
+    size: 128
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 586110c8f086e45e91f2b627db4df06cae1ae051
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QIIADP////84YAAB/////0gAAAH8AAADSAAAAfwAAAM8gIEA/////zigAID/////OGP/gP////9IAAAB/AAAAzyAAAD//wAAPGCBAP////84hAAA//8AADigAID/////SAAAAfwAAAM8YIEA/////ziAAID/////SAAAAfwAAAM8YMwA/////zgAAEP/////sANQEv////84AAis/////7ADUAr/////oANQCv////9gAAAB/////7ADUAr/////oANQCv////9UAAf//////0CC//j/////OAAAAP////88gMwA/////7AEUAD/////oGRQBP////+gBFAG/////1BggB7/////VAAAAf////9Agv/w/////zyAzAD/////PAABAP////+QBFAg/////zhgAAD/////OAAAIP////+QZFAk/////5AEUCj/////oKRQCv////9IAAAI/////6CkUAr/////VKAGtf////9Bgv/4/////zxgzAD/////sKNQCv////9IAAAB/AAAA3x/G3j/////SAAAAfwAAAN8HxhQ/////ywACJL/////QYD/9P////88gMwA/////zwAAQD/////kARQIP////84YAAA/////zgAACD/////kGRQJP////+QBFAo/////6CkUAr/////SAAACP////+gpFAK/////1SgBrX/////QYL/+P////88YMwA/////7CjUAr/////oANQCv////9UAAVm/////7ADUAr/////oANQCv////9UAAVr/////0CC//j/////PGDMAP////+gA1AK/////1QAB7j/////sANQCv////+gA1AE/////0gAAAj/////oANQBP////9UAAQh/////0GC//j/////PIDMAP////84AAis/////6BkUAb/////oGRQCv////9gYwAE/////7BkUAr/////sARQCv////+gBFAK/////2AAAAH/////sARQCv////+gBFAK/////1QAB///////QIL/+P////9IAAAB/AAAA3xkG3j/////PGCBAP////84hP+A/////zigAID/////SAAAAfwAAAOAAQAU/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitAudioSystem
+    size: 456
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __AIClockInit
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: DSPInitCode
+    size: 128
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 83b527a119ef5a032223b09de11a9add523c0b10
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QIIADP////84YAAB/////0gAAAH8AAADSAAAAfwAAAM8gIEA/////zigAID/////OGP/gP////9IAAAB/AAAAzyAAAD//wAAPGCBAP////84hAAA//8AADigAID/////SAAAAfwAAAM8YIEA/////ziAAID/////SAAAAfwAAAM8YMwA/////zgAAEP/////sANQEv////84AAis/////7ADUAr/////oANQCv////9gAAAB/////7ADUAr/////oANQCv////9UAAf//////0CC//j/////PIDMAP////84AAAA/////7AEUAD/////oGRQBP////+gBFAG/////1BggB7/////VAAAAf////9Agv/w/////zyAzAD/////PAABAP////+QBFAg/////zhgAAD/////OAAAIP////+QZFAk/////5AEUCj/////oKRQCv////9IAAAI/////6CkUAr/////VKAGtf////9Bgv/4/////zxgzAD/////sKNQCv////9IAAAB/AAAA3x/G3j/////SAAAAfwAAAN8HxhQ/////ywACJL/////QYD/9P////88gMwA/////zwAAQD/////kARQIP////84YAAA/////zgAACD/////kGRQJP////+QBFAo/////6CkUAr/////SAAACP////+gpFAK/////1SgBrX/////QYL/+P////88YMwA/////7CjUAr/////oANQCv////9UAAVm/////7ADUAr/////oANQCv////9UAAVr/////0CC//j/////PGDMAP////+gA1AK/////1QAB7j/////sANQCv////+gA1AE/////0gAAAz/////YAAAAP////+gA1AE/////1QABCH/////QYL/+P////88gMwA/////zgACKz/////oGRQBv////+gZFAK/////2BjAAT/////sGRQCv////+wBFAK/////6AEUAr/////YAAAAf////+wBFAK/////2AAAAD/////oARQCv////9UAAf//////0CC//j/////SAAAAfwAAAN8ZBt4/////zxggQD/////OIT/gP////84oACA/////0gAAAH8AAADgAEAFP////+D4QAM/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitAudioSystem
+    size: 464
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __AIClockInit
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: DSPInitCode
+    size: 128
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: fa85ab131ed80b5170d62e8109b558745e32107a
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////v6EAFP////88YAAA//8AADvDAAD//wAASAAAAfwAAAM4Y/+A/////zyAgQD/////OKAAgP////9IAAAB/AAAAzxggQD/////OJ4AAP////84oACA/////0gAAAH8AAADPGCBAP////84gACA/////0gAAAH8AAADOAAAQ/////88YMwA/////7ADUBL/////PGDMAP////+gA1AK/////1QABa3/////QYIAGP////84fgCA/////ziAAHH/////OL4AkP////9MxjGC/////0gAAAH8AAADPGDMAP////+gA1AK/////1QABWv/////QYIAGP////84fgCA/////ziAAHX/////OL4AxP////9MxjGC/////0gAAAH8AAADPGDMAP////+gA1AK/////1QAB3v/////QIIAGP////84fgCA/////ziAAHn/////OL4A+P////9MxjGC/////0gAAAH8AAADOAAIrP////88YMwA/////7ADUAr/////PGDMAP////84Y1AA/////6ADAAr/////YAAAAf////+wAwAK/////zxgzAD/////oANQCv////9UAAf//////0CC//T/////OAAAAP////88YMwA/////7ADUAD/////PGDMAP////+gg1AE/////zxgzAD/////oANQBv////9QgIAe/////1QAAAH/////QIL/6P////88AAEA/////zxgzAD/////kANQIP////84AAAA/////zxgzAD/////kANQJP////84AAAg/////zxgzAD/////kANQKP////88YMwA/////6PjUAr/////SAAADP////88YMwA/////6PjUAr/////V+AGtf////9Bgv/0/////zxgzAD/////s+NQCv////9IAAAB/AAAA3x9G3j/////SAAAAfwAAAN8HRhQ/////ywACJL/////QYD/9P////88AAEA/////zxgzAD/////kANQIP////84AAAA/////zxgzAD/////kANQJP////84AAAg/////zxgzAD/////kANQKP////88YMwA/////6PjUAr/////SAAADP////88YMwA/////6PjUAr/////V+AGtf////9Bgv/0/////zxgzAD/////s+NQCv////88YMwA/////zhjUAD/////oAMACv////9UAAVm/////7ADAAr/////PGDMAP////+gA1AK/////1QABWv/////QIL/9P////88YMwA/////zhjUAD/////oAMACv////9UAAe4/////7ADAAr/////OAAAAP////+YAQAI/////zxgzAD/////o+NQBP////9IAAAM/////zxgzAD/////o+NQBP////9X4AQh/////0GC//T/////PGDMAP////84Y1AA/////6BjAAb/////U+OAHv////88A3+s/////ygAQ0j/////QYIAGP////84fgCA/////ziAAMH/////OL4BJP////9MxjGC/////0gAAAH8AAADPGDMAP////84Y1AA/////6ADAAr/////YAAABP////+wAwAK/////zgACKz/////PGDMAP////+wA1AK/////zxgzAD/////OGNQAP////+gAwAK/////2AAAAH/////sAMACv////88YMwA/////6ADUAr/////VAAH//////9Agv/0/////0gAAAH8AAADOIMAAP////88YIEA/////ziE/4D/////OKAAgP////9IAAAB/AAAA4ABACT/////u6EAFP////84IQAg/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitAudioSystem
+    size: 700
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DSPInitCode
+    size: 128
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 656
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 676
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 4095d9030cd151bae1cda6629b8bbc1800a10a59
+  signature: lCH/wP////98CAKm/////5ABAET/////k+EAPP////+TwQA4/////zxgAAD//wAAO8MAAP//AACAAAAA/+AAACwAAAD/////QIIADP////84YAAB/////0gAAAH8AAADSAAAAfwAAAM4Y/+A/////zyAgQD/////OKAAgP////9IAAAB/AAAAzxggQD/////OJ4AAP////84oACA/////0gAAAH8AAADPGCBAP////84gACA/////0gAAAH8AAADOAAAQ/////88YMwA/////7ADUBL/////OAAAAf////+QAQAk/////zxgzAD/////oANQCv////9UAAWs/////ywAAAD/////QYIANP////84fgCA/////ziAAP3/////OL4AkP////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAg/////4ABACD/////LAAAAP////9AggAM/////zgAAAD/////kAEAJP////84AAAB/////5ABABz/////PGDMAP////+gA1AK/////1QABWr/////LAAAAP////9BggA0/////zh+AID/////OIABAf////84vgDE/////0zGMYL/////SAAAAfwAAAM4AAAA/////5ABABj/////gAEAGP////8sAAAA/////0CCAAz/////OAAAAP////+QAQAc/////zgAAAH/////kAEAFP////88YMwA/////6ADUAr/////VAAHev////8sAAAA/////0CCADT/////OH4AgP////84gAEF/////zi+APj/////TMYxgv////9IAAAB/AAAAzgAAAD/////kAEAEP////+AAQAQ/////ywAAAD/////QIIADP////84AAAA/////5ABABT/////OAAIrP////88YMwA/////7ADUAr/////PGDMAP////+gA1AK/////2AAAAH/////VAAEPv////+wA1AK/////zxgzAD/////oANQCv////9UAAf+/////ywAAAD/////QIL/8P////84AAAA/////zxgzAD/////sANQAP////88YMwA/////6ADUAT/////VASAHv////88YMwA/////6ADUAb/////fIADeP////9UAAAA/////ywAAAD/////QIL/4P////88AAEA/////zxgzAD/////kANQIP////84AAAA/////zxgzAD/////kANQJP////84AAAg/////zxgzAD/////kANQKP////88YMwA/////6ADUAr/////VB8EPv////9IAAAQ/////zxgzAD/////oANQCv////9UHwQ+/////1fgBD7/////VAAGtP////8sAAAA/////0GC/+j/////V+AEPv////88YMwA/////7ADUAr/////SAAAAfwAAAOQYQAo/////0gAAAH8AAADgAEAKP////98ABhQ/////ywACJL/////QYD/8P////88AAEA/////zxgzAD/////kANQIP////84AAAA/////zxgzAD/////kANQJP////84AAAg/////zxgzAD/////kANQKP////88YMwA/////6ADUAr/////VB8EPv////9IAAAQ/////zxgzAD/////oANQCv////9UHwQ+/////1fgBD7/////VAAGtP////8sAAAA/////0GC/+j/////V+AEPv////88YMwA/////7ADUAr/////PGDMAP////+gA1AK/////1QABWb/////VAAEPv////+wA1AK/////zxgzAD/////oANQCv////9UAAVq/////ywAAAD/////QIL/8P////88YMwA/////6ADUAr/////VAAHuP////9UAAQ+/////7ADUAr/////OAAAAP////+YAQAI/////zxgzAD/////oANQBP////9UHwQ+/////0gAABD/////PGDMAP////+gA1AE/////1QfBD7/////V+AEPv////9UAAQg/////ywAAAD/////QYL/6P////9X4AQ+/////1QEgB7/////PGDMAP////+gA1AG/////3yDA3j/////PAN/rP////8oAENI/////0GCADD/////OH4AgP////84gAFN/////zi+AST/////TMYxgv////9IAAAB/AAAAzgAAAD/////kAEADP////+AYQAM/////3wDAND/////fAAbeP////9UAA/+/////zxgzAD/////oANQCv////9gAAAE/////1QABD7/////sANQCv////84AAis/////zxgzAD/////sANQCv////88YMwA/////6ADUAr/////YAAAAf////9UAAQ+/////7ADUAr/////PGDMAP////+gA1AK/////1QAB/7/////LAAAAP////9Agv/w/////0gAAAH8AAADfGQbeP////88YIEA/////ziE/4D/////OKAAgP////9IAAAB/AAAA4PhADz/////g8EAOP////+AAQBE/////3wIA6b/////OCEAQP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitAudioSystem
+    size: 956
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DSPInitCode
+    size: 128
+    flags: 2
+    section: .data
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __AIClockInit
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 528
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 808
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 908
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 928
+    kind: PpcRel24
+    symbol: 5
+    addend: 0

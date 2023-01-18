@@ -2,10 +2,9 @@ use std::{
     collections::{btree_map, hash_map, BTreeMap, HashMap},
     hash::Hash,
     io::BufRead,
-    ops::Range,
 };
 
-use anyhow::{Context, Error, Result};
+use anyhow::{bail, ensure, Error, Result};
 use cwdemangle::{demangle, DemangleOptions};
 use lazy_static::lazy_static;
 use multimap::MultiMap;
@@ -33,7 +32,7 @@ pub struct SymbolEntry {
     pub demangled: Option<String>,
     pub kind: SymbolKind,
     pub visibility: SymbolVisibility,
-    pub unit: String,
+    pub unit: Option<String>,
     pub address: u32,
     pub size: u32,
     pub section: String,
@@ -42,7 +41,7 @@ pub struct SymbolEntry {
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
 pub struct SymbolRef {
     pub name: String,
-    pub unit: String,
+    pub unit: Option<String>,
 }
 
 #[derive(Default)]
@@ -61,66 +60,66 @@ fn resolve_section_order(
 ) -> Result<SectionOrder> {
     let mut ordering = SectionOrder::default();
 
-    let mut last_unit = String::new();
-    let mut last_section = String::new();
-    let mut section_unit_idx = 0usize;
-    for symbol_ref in address_to_symbol.values() {
-        if let Some(symbol) = symbol_entries.get_mut(symbol_ref) {
-            if last_unit != symbol.unit {
-                if last_section != symbol.section {
-                    ordering.unit_order.push((symbol.section.clone(), vec![]));
-                    section_unit_idx = ordering.unit_order.len() - 1;
-                    last_section = symbol.section.clone();
-                }
-                let unit_order = &mut ordering.unit_order[section_unit_idx];
-                if unit_order.1.contains(&symbol.unit) {
-                    // With -common on, .bss is split into two parts. The TU order repeats
-                    // at the end with all globally-deduplicated BSS symbols. Once we detect
-                    // a duplicate inside of .bss, we create a new section and start again.
-                    // TODO the first entry in .comm *could* be a TU without regular .bss
-                    if symbol.section == ".bss" {
-                        log::debug!(".comm section detected, duplicate {}", symbol.unit);
-                        ordering.unit_order.push((".comm".to_string(), vec![symbol.unit.clone()]));
-                        section_unit_idx = ordering.unit_order.len() - 1;
-                    } else {
-                        return Err(Error::msg(format!(
-                            "TU order conflict: {} exists multiple times in {}.",
-                            symbol.unit, symbol.section,
-                        )));
-                    }
-                } else {
-                    unit_order.1.push(symbol.unit.clone());
-                }
-                last_unit = symbol.unit.clone();
-            }
-            // For ASM-generated objects, notype,local symbols in .text
-            // are usually local jump labels, and should be ignored.
-            if is_code_section(&symbol.section)
-                && symbol.size == 0
-                && symbol.kind == SymbolKind::NoType
-                && symbol.visibility == SymbolVisibility::Local
-            {
-                // Being named something other than lbl_* could indicate
-                // that it's actually a local function, but let's just
-                // make the user resolve that if necessary.
-                if !symbol.name.starts_with("lbl_") {
-                    log::warn!("Skipping local text symbol {}", symbol.name);
-                }
-                continue;
-            }
-            // Guess the symbol type if necessary.
-            if symbol.kind == SymbolKind::NoType {
-                if is_code_section(&symbol.section) {
-                    symbol.kind = SymbolKind::Function;
-                } else {
-                    symbol.kind = SymbolKind::Object;
-                }
-            }
-            ordering.symbol_order.push(symbol_ref.clone());
-        } else {
-            return Err(Error::msg(format!("Symbol has address but no entry: {symbol_ref:?}")));
-        }
-    }
+    // let mut last_unit = String::new();
+    // let mut last_section = String::new();
+    // let mut section_unit_idx = 0usize;
+    // for symbol_ref in address_to_symbol.values() {
+    //     if let Some(symbol) = symbol_entries.get_mut(symbol_ref) {
+    //         if last_unit != symbol.unit {
+    //             if last_section != symbol.section {
+    //                 ordering.unit_order.push((symbol.section.clone(), vec![]));
+    //                 section_unit_idx = ordering.unit_order.len() - 1;
+    //                 last_section = symbol.section.clone();
+    //             }
+    //             let unit_order = &mut ordering.unit_order[section_unit_idx];
+    //             if unit_order.1.contains(&symbol.unit) {
+    //                 // With -common on, .bss is split into two parts. The TU order repeats
+    //                 // at the end with all globally-deduplicated BSS symbols. Once we detect
+    //                 // a duplicate inside of .bss, we create a new section and start again.
+    //                 // TODO the first entry in .comm *could* be a TU without regular .bss
+    //                 if symbol.section == ".bss" {
+    //                     log::debug!(".comm section detected, duplicate {}", symbol.unit);
+    //                     ordering.unit_order.push((".comm".to_string(), vec![symbol.unit.clone()]));
+    //                     section_unit_idx = ordering.unit_order.len() - 1;
+    //                 } else {
+    //                     bail!(
+    //                         "TU order conflict: {} exists multiple times in {}.",
+    //                         symbol.unit, symbol.section,
+    //                     );
+    //                 }
+    //             } else {
+    //                 unit_order.1.push(symbol.unit.clone());
+    //             }
+    //             last_unit = symbol.unit.clone();
+    //         }
+    //         // For ASM-generated objects, notype,local symbols in .text
+    //         // are usually local jump labels, and should be ignored.
+    //         if is_code_section(&symbol.section)
+    //             && symbol.size == 0
+    //             && symbol.kind == SymbolKind::NoType
+    //             && symbol.visibility == SymbolVisibility::Local
+    //         {
+    //             // Being named something other than lbl_* could indicate
+    //             // that it's actually a local function, but let's just
+    //             // make the user resolve that if necessary.
+    //             if !symbol.name.starts_with("lbl_") {
+    //                 log::warn!("Skipping local text symbol {}", symbol.name);
+    //             }
+    //             continue;
+    //         }
+    //         // Guess the symbol type if necessary.
+    //         if symbol.kind == SymbolKind::NoType {
+    //             if is_code_section(&symbol.section) {
+    //                 symbol.kind = SymbolKind::Function;
+    //             } else {
+    //                 symbol.kind = SymbolKind::Object;
+    //             }
+    //         }
+    //         ordering.symbol_order.push(symbol_ref.clone());
+    //     } else {
+    //         bail!("Symbol has address but no entry: {symbol_ref:?}");
+    //     }
+    // }
 
     for iter in ordering.symbol_order.windows(2) {
         let next_address = symbol_entries.get(&iter[1]).unwrap().address;
@@ -145,7 +144,7 @@ pub fn resolve_link_order(section_unit_order: &[(String, Vec<String>)]) -> Resul
     let mut t_sort = TopologicalSort::<String>::new();
     for (section, order) in section_unit_order {
         let mut order: &[String] = order;
-        if (section == ".ctors" || section == ".dtors") && order.len() > 1 {
+        if matches!(section.as_str(), ".ctors" | ".dtors") && order.len() > 1 {
             // __init_cpp_exceptions.o has symbols that get ordered to the beginning of
             // .ctors and .dtors, so our topological sort would fail if we added them.
             // Always skip the first TU of .ctors and .dtors.
@@ -159,15 +158,11 @@ pub fn resolve_link_order(section_unit_order: &[(String, Vec<String>)]) -> Resul
         global_unit_order.push(unit);
     }
     // An incomplete topological sort indicates that a cyclic dependency was encountered.
-    if !t_sort.is_empty() {
-        return Err(Error::msg("Cyclic dependency encountered!"));
-    }
+    ensure!(t_sort.is_empty(), "Cyclic dependency encountered!");
     // Sanity check, did we get all TUs in the final order?
     for (_, order) in section_unit_order {
         for unit in order {
-            if !global_unit_order.contains(unit) {
-                return Err(Error::msg(format!("Failed to find an order for {unit}")));
-            }
+            ensure!(global_unit_order.contains(unit), "Failed to find an order for {unit}");
         }
     }
     Ok(global_unit_order)
@@ -204,8 +199,8 @@ pub struct MapEntries {
     pub unit_entries: MultiMap<String, SymbolRef>,
     pub entry_references: MultiMap<SymbolRef, SymbolRef>,
     pub entry_referenced_from: MultiMap<SymbolRef, SymbolRef>,
-    pub address_to_symbol: BTreeMap<u32, SymbolRef>,
-    pub unit_section_ranges: HashMap<String, HashMap<String, Range<u32>>>,
+    // pub address_to_symbol: BTreeMap<u32, SymbolRef>,
+    // pub unit_section_ranges: HashMap<String, HashMap<String, Range<u32>>>,
     pub symbol_order: Vec<SymbolRef>,
     pub unit_order: Vec<(String, Vec<String>)>,
 }
@@ -219,11 +214,13 @@ struct LinkMapState {
 #[derive(Default)]
 struct SectionLayoutState {
     current_section: String,
-    section_units: Vec<String>,
-    unit_override: Option<String>,
-    relative_offset: u32,
-    last_unit_start: u32,
-    last_section_end: u32,
+    current_unit: Option<String>,
+    units: Vec<(u32, String)>,
+    symbols: BTreeMap<u32, Vec<SymbolEntry>>,
+    // unit_override: Option<String>,
+    // relative_offset: u32,
+    // last_unit_start: u32,
+    // last_section_end: u32,
     has_link_map: bool,
 }
 
@@ -262,9 +259,7 @@ impl StateMachine {
                 } else if LINKER_SYMBOLS_HEADER.is_match(&line) {
                     self.switch_state(ProcessMapState::LinkerGeneratedSymbols)?;
                 } else {
-                    return Err(Error::msg(format!(
-                        "Unexpected line while processing map: '{line}'"
-                    )));
+                    bail!("Unexpected line while processing map: '{line}'");
                 }
             }
             ProcessMapState::LinkMap(ref mut state) => {
@@ -286,20 +281,18 @@ impl StateMachine {
                 } else if LINKER_SYMBOLS_HEADER.is_match(&line) {
                     self.switch_state(ProcessMapState::LinkerGeneratedSymbols)?;
                 } else {
-                    return Err(Error::msg(format!(
-                        "Unexpected line while processing map: '{line}'"
-                    )));
+                    bail!("Unexpected line while processing map: '{line}'");
                 }
             }
             ProcessMapState::SectionLayout(ref mut state) => {
                 if let Some(captures) = SECTION_LAYOUT_SYMBOL.captures(&line) {
                     StateMachine::section_layout_entry(captures, state, &mut self.entries)?;
                 } else if let Some(captures) = SECTION_LAYOUT_START.captures(&line) {
-                    let last_section_end = state.last_section_end;
+                    // let last_section_end = state.last_section_end;
                     self.switch_state(ProcessMapState::SectionLayout(SectionLayoutState {
                         current_section: captures["section"].to_string(),
                         has_link_map: self.has_link_map,
-                        last_section_end,
+                        // last_section_end,
                         ..Default::default()
                     }))?;
                 } else if SECTION_LAYOUT_HEADER.is_match(&line) {
@@ -309,9 +302,7 @@ impl StateMachine {
                 } else if LINKER_SYMBOLS_HEADER.is_match(&line) {
                     self.switch_state(ProcessMapState::LinkerGeneratedSymbols)?;
                 } else {
-                    return Err(Error::msg(format!(
-                        "Unexpected line while processing map: '{line}'"
-                    )));
+                    bail!("Unexpected line while processing map: '{line}'");
                 }
             }
             ProcessMapState::MemoryMap => {
@@ -351,21 +342,19 @@ impl StateMachine {
         state: &mut LinkMapState,
         entries: &mut MapEntries,
     ) -> Result<()> {
-        if captures["sym"].starts_with('.') {
-            state.last_name.clear();
-            return Ok(());
-        }
+        // if captures["sym"].starts_with('.') {
+        //     state.last_name.clear();
+        //     return Ok(());
+        // }
         let is_duplicate = &captures["sym"] == ">>>";
         let unit = captures["tu"].trim().to_string();
         let name = if is_duplicate {
-            if state.last_name.is_empty() {
-                return Err(Error::msg("Last name empty?"));
-            }
+            ensure!(!state.last_name.is_empty(), "Last name empty?");
             state.last_name.clone()
         } else {
             captures["sym"].to_string()
         };
-        let symbol_ref = SymbolRef { name: name.clone(), unit: unit.clone() };
+        let symbol_ref = SymbolRef { name: name.clone(), unit: Some(unit.clone()) };
         let depth: usize = captures["depth"].parse()?;
         if depth > state.symbol_stack.len() {
             state.symbol_stack.push(symbol_ref.clone());
@@ -379,19 +368,13 @@ impl StateMachine {
             "object" => SymbolKind::Object,
             "section" => SymbolKind::Section,
             "notype" => SymbolKind::NoType,
-            _ => {
-                return Err(Error::msg(format!("Unknown symbol type: {}", &captures["type"],)));
-            }
+            kind => bail!("Unknown symbol type: {kind}"),
         };
         let visibility = match &captures["vis"] {
             "global" => SymbolVisibility::Global,
             "local" => SymbolVisibility::Local,
             "weak" => SymbolVisibility::Weak,
-            _ => {
-                return Err(Error::msg(
-                    format!("Unknown symbol visibility: {}", &captures["vis"],),
-                ));
-            }
+            visibility => bail!("Unknown symbol visibility: {visibility}"),
         };
         if !is_duplicate && state.symbol_stack.len() > 1 {
             let from = &state.symbol_stack[state.symbol_stack.len() - 2];
@@ -420,13 +403,13 @@ impl StateMachine {
             should_insert = false;
         }
         if should_insert {
-            let demangled = demangle(&name, &DemangleOptions { omit_empty_parameters: true });
+            let demangled = demangle(&name, &DemangleOptions::default());
             entries.symbols.insert(symbol_ref.clone(), SymbolEntry {
                 name: name.clone(),
                 demangled,
                 kind,
                 visibility,
-                unit: unit.clone(),
+                unit: Some(unit.clone()),
                 address: 0,
                 size: 0,
                 section: String::new(),
@@ -443,14 +426,14 @@ impl StateMachine {
         entries: &mut MapEntries,
     ) -> Result<()> {
         let name = captures["sym"].to_string();
-        let demangled = demangle(&name, &DemangleOptions { omit_empty_parameters: true });
-        let symbol_ref = SymbolRef { name: name.clone(), unit: "[generated]".to_string() };
+        let demangled = demangle(&name, &DemangleOptions::default());
+        let symbol_ref = SymbolRef { name: name.clone(), unit: None };
         entries.symbols.insert(symbol_ref, SymbolEntry {
             name,
             demangled,
             kind: SymbolKind::NoType,
             visibility: SymbolVisibility::Global,
-            unit: "[generated]".to_string(),
+            unit: None,
             address: 0,
             size: 0,
             section: String::new(),
@@ -460,18 +443,18 @@ impl StateMachine {
 
     fn end_section_layout(state: &mut SectionLayoutState, entries: &mut MapEntries) -> Result<()> {
         // Set last section size
-        if let Some(last_unit) = state.section_units.last() {
-            let last_unit = state.unit_override.as_ref().unwrap_or(last_unit);
-            nested_try_insert(
-                &mut entries.unit_section_ranges,
-                last_unit.clone(),
-                state.current_section.clone(),
-                state.last_unit_start..state.last_section_end,
-            )
-            .with_context(|| {
-                format!("TU '{}' already exists in section '{}'", last_unit, state.current_section)
-            })?;
-        }
+        // if let Some(last_unit) = state.section_units.last() {
+        //     let last_unit = state.unit_override.as_ref().unwrap_or(last_unit);
+        //     nested_try_insert(
+        //         &mut entries.unit_section_ranges,
+        //         last_unit.clone(),
+        //         state.current_section.clone(),
+        //         state.last_unit_start..state.last_section_end,
+        //     )
+        //     .with_context(|| {
+        //         format!("TU '{}' already exists in section '{}'", last_unit, state.current_section)
+        //     })?;
+        // }
         Ok(())
     }
 
@@ -483,165 +466,58 @@ impl StateMachine {
         if captures["rom_addr"].trim() == "UNUSED" {
             return Ok(());
         }
+
         let sym_name = captures["sym"].trim();
         let mut tu = captures["tu"].trim().to_string();
         let mut address = u32::from_str_radix(captures["addr"].trim(), 16)?;
         let mut size = u32::from_str_radix(captures["size"].trim(), 16)?;
 
-        // For RELs, the each section starts at address 0. For our purposes
-        // we'll create "fake" addresses by simply starting at the end of the
-        // previous section.
-        if state.section_units.is_empty() {
-            if address == 0 {
-                state.relative_offset = state.last_section_end;
-            } else {
-                state.relative_offset = 0;
+        if state.current_unit.as_ref() != Some(&tu) || sym_name == state.current_section {
+            state.current_unit = Some(tu.clone());
+            state.units.push((address, tu.clone()));
+            if sym_name == state.current_section {
+                return Ok(());
             }
         }
-        address += state.relative_offset;
 
-        let original_tu = tu.clone();
-        if state.section_units.last() != Some(&tu) || sym_name == state.current_section {
-            // Set last section size
-            if let Some(last_unit) = state.section_units.last() {
-                let last_unit = state.unit_override.as_ref().unwrap_or(last_unit);
-                nested_try_insert(
-                    &mut entries.unit_section_ranges,
-                    last_unit.clone(),
-                    state.current_section.clone(),
-                    state.last_unit_start..address,
-                )
-                .with_context(|| {
-                    format!(
-                        "TU '{}' already exists in section '{}'",
-                        last_unit, state.current_section
-                    )
-                })?;
+        let symbol_ref = SymbolRef { name: sym_name.to_string(), unit: Some(tu.clone()) };
+        let entry = if let Some(existing) = entries.symbols.get(&symbol_ref) {
+            SymbolEntry {
+                name: existing.name.clone(),
+                demangled: existing.demangled.clone(),
+                kind: existing.kind,
+                visibility: existing.visibility,
+                unit: existing.unit.clone(),
+                address,
+                size,
+                section: state.current_section.clone(),
             }
-            state.last_unit_start = address;
-
-            // Since the map doesn't contain file paths, it's likely that
-            // a duplicate TU inside of a section is simply a separate file.
-            // We can rename it and remap symbols to the new TU name.
-            // TODO: Find symbols in other sections and rename?
-            if state.section_units.contains(&tu) {
-                let new_unit = format!("{}_{}_{:08x}", tu, state.current_section, address);
+        } else {
+            let visibility = if state.has_link_map {
                 log::warn!(
-                    "TU order conflict: {} exists multiple times in {}. Renaming to {}.",
+                    "Symbol not in link map: {} ({}). Type and visibility unknown.",
+                    sym_name,
                     tu,
-                    state.current_section,
-                    new_unit,
                 );
-                state.unit_override = Some(new_unit);
+                SymbolVisibility::Local
             } else {
-                state.unit_override = None;
+                SymbolVisibility::Global
+            };
+            SymbolEntry {
+                name: sym_name.to_string(),
+                demangled: None,
+                kind: SymbolKind::NoType,
+                visibility,
+                unit: Some(tu.clone()),
+                address,
+                size,
+                section: state.current_section.clone(),
             }
-        }
-        if let Some(unit) = &state.unit_override {
-            tu = unit.clone();
-        }
-
-        // Section symbol (i.e. ".data") indicates section size for a TU
-        // ...but we can't rely on it because of UNUSED symbols
-        if sym_name == state.current_section {
-            // Skip empty sections
-            if size != 0 {
-                state.section_units.push(original_tu);
-            }
-            return Ok(());
-        }
-
-        // Otherwise, for ASM-generated objects, the first section symbol in a TU
-        // has the full size of the section.
-        if state.section_units.last() != Some(&original_tu) {
-            if size == 0 {
-                return Err(Error::msg(format!("No section size for {sym_name} in {tu}")));
-            }
-            state.section_units.push(original_tu);
-
-            // Clear it, so that we guess the "real" symbol size later.
-            size = 0;
-        }
-
-        // Ignore ...data.0 and similar
-        if sym_name.starts_with("...") {
-            return Ok(());
-        }
-
-        // Increment section end
-        state.last_section_end = address + size;
-
-        let symbol_ref = SymbolRef { name: sym_name.to_string(), unit: tu.clone() };
-        match entries.symbols.entry(symbol_ref.clone()) {
-            hash_map::Entry::Occupied(entry) => {
-                // let symbol = if tu != original_tu {
-                //     let old_entry = entry.remove();
-                //     match entries.symbols.entry(SymbolRef {
-                //         name: sym_name.to_string(),
-                //         unit: tu.clone(),
-                //     }) {
-                //         Entry::Occupied(entry) => entry.into_mut(),
-                //         Entry::Vacant(entry) => entry.insert(old_entry),
-                //     }
-                // } else {
-                //     entry.into_mut()
-                // };
-                let symbol = entry.into_mut();
-                symbol.address = address;
-                symbol.size = size;
-                symbol.section = state.current_section.clone();
-                // Move symbol to renamed TU if necessary
-                // symbol.unit = tu.clone();
-                match entries.address_to_symbol.entry(address) {
-                    btree_map::Entry::Vacant(entry) => {
-                        entry.insert(symbol_ref);
-                    }
-                    btree_map::Entry::Occupied(entry) => {
-                        log::warn!(
-                            "Symbol overridden @ {:X} from {} to {} in {}",
-                            symbol.address,
-                            entry.get().name,
-                            sym_name,
-                            tu
-                        );
-                    }
-                }
-            }
-            hash_map::Entry::Vacant(entry) => {
-                let visibility = if state.has_link_map {
-                    log::warn!(
-                        "Symbol not in link map: {} ({}). Type and visibility unknown.",
-                        sym_name,
-                        tu,
-                    );
-                    SymbolVisibility::Local
-                } else {
-                    SymbolVisibility::Global
-                };
-                entry.insert(SymbolEntry {
-                    name: sym_name.to_string(),
-                    demangled: None,
-                    kind: SymbolKind::NoType,
-                    visibility,
-                    unit: tu.clone(),
-                    address,
-                    size,
-                    section: state.current_section.clone(),
-                });
-                match entries.address_to_symbol.entry(address) {
-                    btree_map::Entry::Vacant(entry) => {
-                        entry.insert(symbol_ref);
-                    }
-                    btree_map::Entry::Occupied(entry) => {
-                        log::warn!(
-                            "Symbol overridden @ {:X} from {} to {} in {}",
-                            address,
-                            entry.get().name,
-                            sym_name,
-                            tu
-                        );
-                    }
-                }
+        };
+        match state.symbols.entry(address) {
+            btree_map::Entry::Occupied(e) => e.into_mut().push(entry),
+            btree_map::Entry::Vacant(e) => {
+                e.insert(vec![entry]);
             }
         }
         Ok(())
@@ -663,9 +539,9 @@ pub fn process_map<R: BufRead>(reader: R) -> Result<MapEntries> {
     state.end_state()?;
 
     let mut entries = state.entries;
-    let section_order = resolve_section_order(&entries.address_to_symbol, &mut entries.symbols)?;
-    entries.symbol_order = section_order.symbol_order;
-    entries.unit_order = section_order.unit_order;
+    // let section_order = resolve_section_order(&entries.address_to_symbol, &mut entries.symbols)?;
+    // entries.symbol_order = section_order.symbol_order;
+    // entries.unit_order = section_order.unit_order;
     Ok(entries)
 }
 
@@ -685,7 +561,7 @@ where
         hash_map::Entry::Vacant(entry) => entry.insert(Default::default()),
     };
     match map.entry(v2) {
-        hash_map::Entry::Occupied(_) => return Err(Error::msg("Entry already exists")),
+        hash_map::Entry::Occupied(_) => bail!("Entry already exists"),
         hash_map::Entry::Vacant(entry) => entry.insert(v3),
     };
     Ok(())

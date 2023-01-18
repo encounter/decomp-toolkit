@@ -1,0 +1,60 @@
+- symbol: 0
+  hash: 29176266331eb4f8704bc71665c4ca1b90eea2c1
+  signature: VCsG/v////98LAt4/////yFr/sD/////fCFZbv////98CAKm/////5AMAAT/////OOEA8P////+T7P/8/////3x/G3j/////gIAAAP/gAAAsBAAA/////0GAABD/////OAAAAP////98AwBA/////0CCAAz/////OGD8B/////9IAABA/////zhhACD/////OAAACP////+QYQDw/////3yDI3j/////OIAAIP////84oAAA/////5ABAPT/////OMAAAf////9IAAAB/AAAAywDAAD/////QIIAFP////+AAQAg/////4CBACT/////kJ8ABP////+QHwAA/////4FBAAD/////gAoABP////+D6v/8/////3wIA6b/////fUFTeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: ESP_GetTitleId
+    size: 152
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __esFd
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IOS_Ioctlv
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 04597748a872826b93bedaff192420160e9d09f7
+  signature: VCsG/v////8ha/7A/////3wsC3j/////fCFZbv////98CAKm/////5AMAAT/////k+z//P////+TzP/4/////5Os//T/////fH0beP////87wAAA/////zvhAPD/////gAAAAP/gAAAsAAAA/////0GAABD/////OAAAAP////98HQBA/////0CCAAz/////O8D8B/////9IAABI/////zgBACD/////kB8AAP////84AAAI/////5AfAAT/////gGAAAP/gAAA4gAAg/////zigAAD/////OMAAAf////9/5/t4/////0gAAAH8AAADfH4beP////8sHgAA/////0CCABT/////gAEAIP////+AYQAk/////5B9AAT/////kB0AAP////9/w/N4/////4FBAAD/////g+r//P////+Dyv/4/////4Oq//T/////gAoABP////98CAOm/////31BU3j/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: ESP_GetTitleId
+    size: 184
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __esFd
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IOS_Ioctlv
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

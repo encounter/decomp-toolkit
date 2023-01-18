@@ -3,10 +3,10 @@ use std::{
     io::{BufWriter, Seek, SeekFrom, Write},
 };
 
-use anyhow::{Context, Error, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use argh::FromArgs;
 use memmap2::MmapOptions;
-use object::{Architecture, Object, ObjectKind, ObjectSection, SectionKind};
+use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, SectionKind};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Converts an ELF file to a DOL file.
@@ -49,14 +49,12 @@ pub fn run(args: Args) -> Result<()> {
     let obj_file = object::read::File::parse(&*map)?;
     match obj_file.architecture() {
         Architecture::PowerPc => {}
-        arch => return Err(Error::msg(format!("Unexpected architecture: {arch:?}"))),
+        arch => bail!("Unexpected architecture: {arch:?}"),
     };
-    if obj_file.is_little_endian() {
-        return Err(Error::msg("Expected big endian"));
-    }
+    ensure!(obj_file.endianness() == Endianness::Big, "Expected big endian");
     match obj_file.kind() {
         ObjectKind::Executable => {}
-        kind => return Err(Error::msg(format!("Unexpected ELF type: {kind:?}"))),
+        kind => bail!("Unexpected ELF type: {kind:?}"),
     }
 
     let mut header = DolHeader { entry_point: obj_file.entry() as u32, ..Default::default() };
@@ -75,10 +73,10 @@ pub fn run(args: Args) -> Result<()> {
         let address = section.address() as u32;
         let size = align32(section.size() as u32);
         *header.text_sections.get_mut(header.text_section_count).ok_or_else(|| {
-            Error::msg(format!(
+            anyhow!(
                 "Too many text sections (while processing '{}')",
                 section.name().unwrap_or("[error]")
-            ))
+            )
         })? = DolSection { offset, address, size };
         header.text_section_count += 1;
         write_aligned(&mut out, section.data()?, size)?;
@@ -93,10 +91,10 @@ pub fn run(args: Args) -> Result<()> {
         let address = section.address() as u32;
         let size = align32(section.size() as u32);
         *header.data_sections.get_mut(header.data_section_count).ok_or_else(|| {
-            Error::msg(format!(
+            anyhow!(
                 "Too many data sections (while processing '{}')",
                 section.name().unwrap_or("[error]")
-            ))
+            )
         })? = DolSection { offset, address, size };
         header.data_section_count += 1;
         write_aligned(&mut out, section.data()?, size)?;

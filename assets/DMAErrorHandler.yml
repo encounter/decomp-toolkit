@@ -1,0 +1,700 @@
+- symbol: 0
+  hash: bbbaf823e03832cb3aca63fadd97373d64293ff7
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////5OhAHT/////fJ0jeP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////8/4AAA//8AAJBhAAj/////O/8AAP//AACQgQAM/////5ChABD/////kMEAFP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////0gAAAH8AAADfH4beP////84fwAw/////0zGMYL/////SAAAAfwAAAOAvQGc/////3/E83j/////OH8ASP////9MxjGC/////0gAAAH8AAADV8ACF/////9BggAQ/////4AdAZz/////VAAClf////9AggAc/////zh/AGj/////TMYxgv////9IAAAB/AAAA3+j63j/////SAAAAfwAAANIAAAB/AAAAzh/AJj/////TMYxgv////9IAAAB/AAAAzh/ANT/////TMYxgv////9IAAAB/AAAA1fAAhH/////QYIAEP////84fwEM/////0zGMYL/////SAAAAfwAAANXwAJT/////0GCABD/////OH8BTP////9MxjGC/////0gAAAH8AAADV8AClf////9BggAQ/////zh/AXj/////TMYxgv////9IAAAB/AAAA1fAAtf/////QYIAEP////84fwGY/////0zGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEAhP////+D4QB8/////4PBAHj/////g6EAdP////98CAOm/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DMAErrorHandler
+    size: 328
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@878'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDumpContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 89c80a7b654ed2169e5a916b5cf5d73417197c69
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////5OhAHT/////fJ0jeP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////8/4AAA//8AAJBhAAj/////O/8AAP//AACQgQAM/////5ChABD/////kMEAFP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////0gAAAH8AAADfH4beP////84fwAA/////0zGMYL/////SAAAAfwAAAOAvQGc/////3/E83j/////OH8AGP////9MxjGC/////0gAAAH8AAADV8ACF/////9BggAQ/////4AdAZz/////VAAClf////9AggAc/////zh/ADj/////TMYxgv////9IAAAB/AAAA3+j63j/////SAAAAfwAAANIAAAB/AAAAzh/AGj/////TMYxgv////9IAAAB/AAAAzh/AKT/////TMYxgv////9IAAAB/AAAA1fAAhH/////QYIAEP////84fwDc/////0zGMYL/////SAAAAfwAAANXwAJT/////0GCABD/////OH8BHP////9MxjGC/////0gAAAH8AAADV8AClf////9BggAQ/////zh/AUj/////TMYxgv////9IAAAB/AAAA1fAAtf/////QYIAEP////84fwFo/////0zGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEAhP////+D4QB8/////4PBAHj/////g6EAdP////98CAOm/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DMAErrorHandler
+    size: 328
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@909'
+    size: 24
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDumpContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 4692a0bb2cf6955f5f278d4dd1d5e3eaf65879cb
+  signature: fAgCpv////+QAQAE/////5Qh/4D/////v6EAdP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////5CBAAz/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////fJ0jeP////88YAAA//8AADvjAAD//wAASAAAAfwAAAN8fht4/////zh/AaD/////TMYxgv////9IAAAB/AAAAzh/Abj/////f8TzeP////+AvQGc/////0zGMYL/////SAAAAfwAAANXwAIW/////ygAAAD/////QYIAFP////+AHQGc/////1QAApT/////KAAAAP////9AggAc/////zh/AdT/////TMYxgv////9IAAAB/AAAA3+j63j/////SAAAAfwAAANIAAAB/AAAAzh/AgT/////TMYxgv////9IAAAB/AAAAzh/AkD/////TMYxgv////9IAAAB/AAAA1fAAhD/////KAAAAP////9BggAQ/////zh/Anj/////TMYxgv////9IAAAB/AAAA1fAAlL/////KAAAAP////9BggAQ/////zh/Arj/////TMYxgv////9IAAAB/AAAA1fAApT/////KAAAAP////9BggAQ/////zh/AuT/////TMYxgv////9IAAAB/AAAA1fAAtb/////KAAAAP////9BggAQ/////zh/AwT/////TMYxgv////9IAAAB/AAAA3/D83j/////SAAAAfwAAAOAAQCE/////7uhAHT/////OCEAgP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DMAErrorHandler
+    size: 336
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@22'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDumpContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: d938cc5af4889db022e8e077f6f5bed84fa677e2
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////5OhAHT/////fJ0jeP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////5CBAAz/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////PGAAAP//AAA74wAA//8AAEgAAAH8AAADfH4beP////84fwGo/////0zGMYL/////SAAAAfwAAAM4fwHA/////3/E83j/////gL0BnP////9MxjGC/////0gAAAH8AAADV8ACFv////8sAAAA/////0GCABT/////gB0BnP////9UAAKU/////ywAAAD/////QIIAHP////84fwHg/////0zGMYL/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADSAAAAfwAAAM4fwIQ/////0zGMYL/////SAAAAfwAAAM4fwJM/////0zGMYL/////SAAAAfwAAANXwAIQ/////ywAAAD/////QYIAEP////84fwKE/////0zGMYL/////SAAAAfwAAANXwAJS/////ywAAAD/////QYIAEP////84fwLE/////0zGMYL/////SAAAAfwAAANXwAKU/////ywAAAD/////QYIAEP////84fwLw/////0zGMYL/////SAAAAfwAAANXwALW/////ywAAAD/////QYIAEP////84fwMQ/////0zGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADg+EAfP////+DwQB4/////4OhAHT/////gAEAhP////98CAOm/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DMAErrorHandler
+    size: 352
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@659'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDumpContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 92c8db6d9905f40c43bcfde7f426fbb42b72fb9d
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////5OhAHT/////fJ0jeP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////5CBAAz/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////PGAAAP//AAA74wAA//8AAEgAAAH8AAADfH4beP////84fwF4/////0zGMYL/////SAAAAfwAAAM4fwGQ/////3/E83j/////gL0BnP////9MxjGC/////0gAAAH8AAADV8ACFv////8sAAAA/////0GCABT/////gB0BnP////9UAAKU/////ywAAAD/////QIIAHP////84fwGw/////0zGMYL/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADSAAAAfwAAAM4fwHg/////0zGMYL/////SAAAAfwAAAM4fwIc/////0zGMYL/////SAAAAfwAAANXwAIQ/////ywAAAD/////QYIAEP////84fwJU/////0zGMYL/////SAAAAfwAAANXwAJS/////ywAAAD/////QYIAEP////84fwKU/////0zGMYL/////SAAAAfwAAANXwAKU/////ywAAAD/////QYIAEP////84fwLA/////0zGMYL/////SAAAAfwAAANXwALW/////ywAAAD/////QYIAEP////84fwLg/////0zGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADg+EAfP////+DwQB4/////4OhAHT/////gAEAhP////98CAOm/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DMAErrorHandler
+    size: 352
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@663'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDumpContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 32fac35fe2ab1771fc61404bb96d345f6ec10457
+  signature: fAgCpv////+QAQAE/////5Qh/4D/////k+EAfP////+TwQB4/////5OhAHT/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////kGEACP////+QgQAM/////5ChABD/////kMEAFP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////3ydI3j/////PGAAAP//AAA74wAA//8AAEgAAAH8AAADfH4beP////9MxjGC/////zh/ACz/////SAAAAfwAAAOAvQGc/////3/E83j/////OH8ARP////9MxjGC/////0gAAAH8AAADV8ACFv////8oAAAA/////0GCABT/////gB0BnP////9UAAKU/////ygAAAD/////QIIAHP////84fwBg/////0zGMYL/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADSAAAAfwAAAM4fwCQ/////0zGMYL/////SAAAAfwAAAM4fwDM/////0zGMYL/////SAAAAfwAAANXwAIQ/////ygAAAD/////QYIAEP////84fwEE/////0zGMYL/////SAAAAfwAAANXwAJS/////ygAAAD/////QYIAEP////84fwFE/////0zGMYL/////SAAAAfwAAANXwAKU/////ygAAAD/////QYIAEP////84fwFw/////0zGMYL/////SAAAAfwAAANXwALW/////ygAAAD/////QYIAEP////84fwGQ/////0zGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEAhP////+D4QB8/////4PBAHj/////g6EAdP////84IQCA/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DMAErrorHandler
+    size: 352
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@69'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDumpContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: e8f36c090227a158655955235f0d1773d837950a
+  signature: fAgCpv////+QAQAE/////5Qh/4D/////k+EAfP////+TwQB4/////5OhAHT/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////kGEACP////+QgQAM/////5ChABD/////kMEAFP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////3ydI3j/////PGAAAP//AAA74wAA//8AAEgAAAH8AAADfH4beP////9MxjGC/////zh/ACz/////SAAAAfwAAAOAvQGc/////3/E83j/////OH8ARP////9MxjGC/////0gAAAH8AAADV8ACFv////8oAAAA/////0GCABT/////gB0BnP////9UAAKU/////ygAAAD/////QIIAHP////84fwBg/////0zGMYL/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADSAAAAfwAAAM4fwCQ/////0zGMYL/////SAAAAfwAAAM4fwDM/////0zGMYL/////SAAAAfwAAANXwAIQ/////ygAAAD/////QYIAEP////84fwEE/////0zGMYL/////SAAAAfwAAANXwAJS/////ygAAAD/////QYIAEP////84fwFE/////0zGMYL/////SAAAAfwAAANXwAKU/////ygAAAD/////QYIAEP////84fwFw/////0zGMYL/////SAAAAfwAAANXwALW/////ygAAAD/////QYIAEP////84fwGQ/////0zGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEAhP////+D4QB8/////4PBAHj/////fAgDpv////+DoQB0/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DMAErrorHandler
+    size: 352
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@69'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDumpContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

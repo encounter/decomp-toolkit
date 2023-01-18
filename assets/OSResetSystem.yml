@@ -1,0 +1,2623 @@
+- symbol: 0
+  hash: d6e61fd933b8784ac4ac7ec7e441582d3905fa90
+  signature: PGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAEav////84pQAA//8AAEzGMYL/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1720'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1790'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 598fa9b10fe1f23ea9d6859e3d405aeb6dfde1cc
+  signature: PGAAAP//AAA8oAAA//8AADhjAAD//wAAOIADp/////84pQAA//8AAEzGMYL/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1546'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1552'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 6e31f09a510647f92cfd845d8233e5549a375f87
+  signature: PGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAEof////84pQAA//8AAEzGMYL/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2083'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2163'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 3823145575ddff9bd7fd3dd88f1a36739cbb9e55
+  signature: PGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAEZ/////84pQAA//8AAEzGMYL/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1719'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1789'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 971b59cadc035537d20446e206f83c34558c4065
+  signature: PGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAD0v////84pQAA//8AAEzGMYL/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1580'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1588'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 29fd1f3991a9ee4d40be692d7649a75760679012
+  signature: PGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAD/P////84pQAA//8AAEzGMYL/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1593'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1601'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 6c863d45f1427c4aab717fe0786043bc89e8159d
+  signature: lCH/8P////98CAKm/////5ABABT/////PGAAAP//AAA4YwAA//8AADiAA/z/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1181'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1415'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: f92be26fff6561ad208795c7f0c24ac15bc80b0b
+  signature: lCH/8P////98CAKm/////5ABABT/////PGAAAP//AAA4YwAA//8AADiABKH/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1581'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1843'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 38968dc6cca39e9ca278db2ef488ae55b5647558
+  signature: lCH/8P////98CAKm/////5ABABT/////PGAAAP//AAA4YwAA//8AADiABGr/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1276'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1524'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: ead46ae4d913c603d087cbd93399a3f7c0f01503
+  signature: lCH/8P////98CAKm/////5ABABT/////PGAAAP//AAA4YwAA//8AADiAArz/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@728'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@877'
+    size: 59
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 11f36dbfd1a5a2d0c17b6456a4f5cd7c02264fc7
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v4EAGP////98fxt4/////3yeI3j/////fLwreP////9IAAAB/AAAAywfAAH/////QIIALP////8sHAAA/////0GCACT/////SAAAAfwAAAN8fRt4/////4gdABP/////YAAAQP////+YHQAT/////zhgAAH/////SAAAAfwAAAM7wAAA/////ywfAAL/////QYIAJP////8sHwAA/////0CCACj/////gAAAAP/gAAAoAAAA/////0CCABD/////PB4///////8oAAAA/////0CCABD/////OGAAAP////9IAAAB/AAAA0gAAAz/////OGAAAf////9IAAAB/AAAAywfAAH/////QIIAEP////9/w/N4/////0gAAAH8AAADSAAANP////8sHwAA/////0CCACz/////LBwAAf////9AggAU/////zxgAAD//wAAOGMAAP//AABMxjGC/////0gAAAH8AAADSAAAAfwAAAN/w/N4/////4CAAAD/4AAASAAAAfwAAAM4YABA/////0gAAAH8AAADOIAAAP////84oACM/////0gAAAH8AAADOGAA1P////9IAAAB/AAAAziAAAD/////OKAAFP////9IAAAB/AAAAzhgAPT/////SAAAAfwAAAM4gAAA/////zigAAT/////SAAAAfwAAAM4YDAA/////0gAAAH8AAADOIAAAP////84oADA/////0gAAAH8AAADOGAwyP////9IAAAB/AAAAziAAAD/////OKAADP////9IAAAB/AAAAzhgMOL/////SAAAAfwAAAM4gAAA/////zigAAH/////SAAAAfwAAAOAAQAs/////7uBABj/////OCEAKP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 348
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootThisDol
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSDoHotReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@100'
+    size: 78
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: ce4ff7174301228077e9c440aad40a3fb40cda49
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////v0EAGP////98fxt4/////3yaI3j/////fLsreP////9IAAAB/AAAA0gAAAH8AAADLB8AAv////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fRt4/////zhgAAD/////SAAAAfwAAAMsAwAA/////0GC//T/////LB8AAf////9AggA0/////ywbAAD/////QYIALP////9IAAAB/AAAA3x8G3j/////iBwAE/////9gAABA/////5gcABP/////OGAAAf////9IAAAB/AAAA0gAAAH8AAADLAMAAP////9Bgv/4/////0gAAAH8AAADkGEAFP////84YAAB/////0gAAAH8AAADfH4beP////84AAAA/////yweAAD/////QIIALP////88YAAA//8AADhjAAD//wAAOIABg/////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////LAAAAP////9BggAI/////zgAAAH/////SAAAAfwAAAMsHwAB/////0CCABD/////f0PTeP////9IAAAB/AAAA0gAACD/////LB8AAP////9AggAY/////0gAAAH8AAADSAAAAfwAAAN/Q9N4/////39k23j/////SAAAAfwAAANIAAAB/AAAAzhgAED/////SAAAAfwAAAM4gAAA/////zigAIz/////SAAAAfwAAAM4YADU/////0gAAAH8AAADOIAAAP////84oAAU/////0gAAAH8AAADOGAA9P////9IAAAB/AAAAziAAAD/////OKAABP////9IAAAB/AAAAzhgMAD/////SAAAAfwAAAM4gAAA/////zigAMD/////SAAAAfwAAAM4YDDI/////0gAAAH8AAADOIAAAP////84oAAM/////0gAAAH8AAADOGAw4v////9IAAAB/AAAAziAAAD/////OKAAAf////9IAAAB/AAAA3+j63j/////SAAAAfwAAAOAAQA0/////7tBABj/////OCEAMP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 408
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCallResetFunctions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@27'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@87'
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSDoHotReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: KillThreads
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: c5ba9aa6e9f65ba489d27160e9d442d1ad99e1f9
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////v0EAIP////98eht4/////3yeI3j/////fL8reP////9IAAAB/AAAA0gAAAH8AAADSAAABP////9IAAAE/////4OAAAD/4AAAO6AAAP////9IAAAE/////0gAAAT/////SAAAJP////84YAAA/////4GcAAD/////fYgDpv////9OgAAh/////3xgADT/////g5wACP////9UANl+/////3+9A3j/////KBwAAP////9Agv/c/////0gAAAH8AAADfGAANP////9UANl+/////3+9A3j/////LB0AAP////9BggAM/////zgAAAD/////SAAACP////84AAAB/////ywAAAD/////QYL/nP////8sGgAA/////0GCADj/////LB8AAP////9BggAw/////0gAAAH8AAADiAMAE/////9gAABA/////5gDABP/////OGAAAf////9IAAAB/AAAA0gAAAT/////SAAABP////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAA4OgAAD/4AAAfHsbeP////87gAAA/////0gAAAT/////SAAABP////9IAAAk/////zhgAAH/////gZ0AAP////99iAOm/////06AACH/////fGAANP////+DvQAI/////1QA2X7/////f5wDeP////8oHQAA/////0CC/9z/////SAAAAfwAAAMsGgAB/////0CCACj/////SAAAAfwAAAM8YMwA/////zhjIAD/////OAAAAP////+wAwAC/////0gAAAH8AAADV8MYOP////9IAAAB/AAAA0gAAFj/////PGCAAP////+AYwDc/////0gAAAT/////SAAABP////9IAAAs/////6ADAsj/////g4MC/P////8sAAAE/////0GCABT/////QIAAFP////8sAAAB/////0GCAAj/////SAAACP////9IAAAB/AAAA3+D43j/////KAMAAP////9Agv/U/////0gAAAH8AAADf8PzeP////9/5Pt4/////0gAAAH8AAADf2PbeP////9IAAAB/AAAA0gAAAH8AAADu0EAIP////+AAQA8/////zghADj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 440
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: eec7b9cb80f5820dd1664548f1d33e1f2465644e
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////v0EAIP////98eht4/////3yeI3j/////fL8reP////9IAAAB/AAAA0gAAAH8AAADSAAABP////9IAAAE/////4OAAAD/4AAAO6AAAP////9IAAAE/////0gAAAT/////SAAAJP////84YAAA/////4GcAAD/////fYgDpv////9OgAAh/////3xgADT/////g5wACP////9UANl+/////3+9A3j/////KBwAAP////9Agv/c/////0gAAAH8AAADfGAANP////9UANl+/////3+9A3j/////LB0AAP////9BggAM/////zgAAAD/////SAAACP////84AAAB/////ywAAAD/////QYL/nP////8sGgAA/////0GCADj/////LB8AAP////9BggAw/////0gAAAH8AAADiAMAE/////9gAABA/////5gDABP/////OGAAAf////9IAAAB/AAAA0gAAAT/////SAAABP////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAA4OgAAD/4AAAfHsbeP////87gAAA/////0gAAAT/////SAAABP////9IAAAk/////zhgAAH/////gZ0AAP////99iAOm/////06AACH/////fGAANP////+DvQAI/////1QA2X7/////f5wDeP////8oHQAA/////0CC/9z/////SAAAAfwAAANIAAAB/AAAAywaAAH/////QIIAKP////9IAAAB/AAAAzxgzAD/////OGMgAP////84AAAA/////7ADAAL/////SAAAAfwAAANXwxg4/////0gAAAH8AAADSAAAWP////88YIAA/////4BjANz/////SAAABP////9IAAAE/////0gAACz/////oAMCyP////+DgwL8/////ywAAAT/////QYIAFP////9AgAAU/////ywAAAH/////QYIACP////9IAAAI/////0gAAAH8AAADf4PjeP////8oAwAA/////0CC/9T/////SAAAAfwAAAN/w/N4/////3/k+3j/////SAAAAfwAAAN/Y9t4/////0gAAAH8AAADSAAAAfwAAAO7QQAg/////4ABADz/////OCEAOP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 444
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: ee31a9388c85c0a3b2d0b3076fb02eb8b03e3f60
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////v0EAGP////98fxt4/////3yaI3j/////fLsreP////9IAAAB/AAAA0gAAAH8AAADLB8AAv////9BggAY/////ywfAAD/////QIIAHP////+AAAAA/+AAACgAAAD/////QYIAEP////84YAAB/////0gAAAH8AAADfH4beP////84YAAA/////0gAAAH8AAADLAMAAP////9Bgv/0/////ywfAAH/////QIIANP////8sGwAA/////0GCACz/////SAAAAfwAAAN8fBt4/////4gcABP/////YAAAQP////+YHAAT/////zhgAAH/////SAAAAfwAAANIAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAA5BhABT/////OGAAAf////9IAAAB/AAAA3x9G3j/////OAAAAP////8sHQAA/////0CCACz/////PGAAAP//AAA4YwAA//8AADiAAYz/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////ywAAAD/////QYIACP////84AAAB/////0gAAAH8AAADLB8AAf////9AggAQ/////39D03j/////SAAAAfwAAANIAABA/////ywfAAD/////QIIAOP////+AAAAA/+AAADxggAD/////kAMw7P////+AAAAA/+AAACgAAAD/////QYIADP////9/w/N4/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA39D03j/////f2TbeP////9IAAAB/AAAA0gAAAH8AAADOGAAQP////9IAAAB/AAAAziAAAD/////OKAAjP////9IAAAB/AAAAzhgANT/////SAAAAfwAAAM4gAAA/////zigABT/////SAAAAfwAAAM4YAD0/////0gAAAH8AAADOIAAAP////84oAAE/////0gAAAH8AAADOGAwAP////9IAAAB/AAAAziAAAD/////OKAAwP////9IAAAB/AAAAzhgMMj/////SAAAAfwAAAM4gAAA/////zigAAz/////SAAAAfwAAAM4YDDi/////0gAAAH8AAADOIAAAP////84oAAB/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA4ABADT/////u0EAGP////84IQAw/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 460
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootThisDol
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCallResetFunctions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@27'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@91'
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSDoHotReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: KillThreads
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 256
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 436
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: bddc3ff38db3397871162cc5d8c546d9dc1de298
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////k+EALP////+TwQAo/////5OhACT/////k4EAIP////98fBt4/////3ydI3j/////fL4reP////9IAAAB/AAAAywcAAH/////QIIAKP////8sHgAA/////0GCACD/////SAAAAfwAAAOIAwAT/////2AAAED/////mAMAE/////84YAAB/////0gAAAH8AAADO6AAAP////8sHAAC/////0GCACT/////LBwAAP////9AggB4/////4AAAAD/4AAAKAAAAP////9AggAQ/////zwdP///////KAAAAP////9AggBg/////0gAAAH8AAADOGAAAf////9IAAAB/AAAA3x/G3j/////SAAABP////9IAAAE/////zhgAAD/////SAAAAfwAAAMsAwAA/////0GC//T/////SAAABP////9IAAAE/////0gAAAH8AAADLAMAAP////9Bgv/4/////0gAAAH8AAADOGAAAf////9IAAAB/AAAA0gAAAH8AAADf+P7eP////9IAAAB/AAAA0gAAAH8AAADSAAASP////9IAAAB/AAAA0gAAAT/////SAAABP////84YAAA/////0gAAAH8AAADLAMAAP////9Bgv/0/////0gAAAT/////SAAABP////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAAzhgAAH/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADLBwAAf////9AggAo/////0gAAAH8AAADPGDMAP////84YyAA/////zgAAAD/////sAMAAv////9IAAAB/AAAA1ejGDj/////SAAAAfwAAANIAAA0/////ywcAAD/////QIIALP////8sHgAB/////0CCABT/////PGAAAP//AABMxjGC/////zhjAAD//wAASAAAAfwAAANIAAAB/AAAA3+j63j/////gIAAAP/gAABIAAAB/AAAAz/ggAD/////OH8AQP////84gAAA/////zigAIz/////SAAAAfwAAAM4fwDU/////ziAAAD/////OKAAFP////9IAAAB/AAAAzh/APT/////OIAAAP////84oAAE/////0gAAAH8AAADOH8wAP////84gAAA/////zigAMD/////SAAAAfwAAAM4fzDI/////ziAAAD/////OKAADP////9IAAAB/AAAAzh/MOL/////OIAAAP////84oAAB/////0gAAAH8AAADgAEANP////+D4QAs/////4PBACj/////g6EAJP////+DgQAg/////zghADD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 512
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootThisDol
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCallResetFunctions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: KillThreads
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@153'
+    size: 78
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 40
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 356
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 460
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 1dceaf8e3eaedf0c37f07b35d9486c1e9a5357be
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////v0EAKP////98eht4/////3ydI3j/////fL4reP////9IAAAB/AAAA0gAAAH8AAADLBoAAv////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fxt4/////0gAAAT/////SAAABP////+DYAAA/+AAADuAAAD/////SAAABP////9IAAAE/////0gAACT/////OGAAAP////+BmwAA/////32IA6b/////ToAAIf////98YAA0/////4N7AAj/////VADZfv////9/nAN4/////ygbAAD/////QIL/3P////9IAAAB/AAAA3xgADT/////VADZfv////9/nAN4/////ywcAAD/////QYIADP////84AAAA/////0gAAAj/////OAAAAf////8sAAAA/////0GC/5z/////LBoAAf////9AggA4/////yweAAD/////QYIAMP////9IAAAB/AAAA4gDABP/////YAAAQP////+YAwAT/////zhgAAH/////SAAAAfwAAANIAAAE/////0gAAAT/////SAAAAfwAAAMsAwAA/////0GC//j/////SAAAAfwAAAODgAAA/+AAADtgAAD/////SAAABP////9IAAAE/////0gAACT/////OGAAAf////+BnAAA/////32IA6b/////ToAAIf////98YAA0/////4OcAAj/////VADZfv////9/ewN4/////ygcAAD/////QIL/3P////9IAAAB/AAAA0gAAAH8AAADLBoAAf////9AggAo/////0gAAAH8AAADPGDMAP////84YyAA/////zgAAAD/////sAMAAv////9IAAAB/AAAA1ejGDj/////SAAAAfwAAANIAABg/////ywaAAD/////QIIAWP////88YIAA/////4BjANz/////SAAABP////9IAAAE/////0gAACz/////oAMCyP////+DYwL8/////ywAAAT/////QYIAFP////9AgAAU/////ywAAAH/////QYIACP////9IAAAI/////0gAAAH8AAADf2PbeP////8oAwAA/////0CC/9T/////SAAAAfwAAAN/o+t4/////3/E83j/////SAAAAfwAAAM8YIAA/////4BjANz/////SAAABP////9IAAAE/////0gAACz/////oAMCyP////+DYwL8/////ywAAAT/////QYIAFP////9AgAAU/////ywAAAH/////QYIACP////9IAAAI/////0gAAAH8AAADf2PbeP////8oAwAA/////0CC/9T/////P6CAAP////84fQBA/////ziAAAD/////OKAAjP////9IAAAB/AAAAzh9ANT/////OIAAAP////84oAAU/////0gAAAH8AAADOH0A9P////84gAAA/////zigAAT/////SAAAAfwAAAM4fTAA/////ziAAAD/////OKAAwP////9IAAAB/AAAAzh9MMj/////OIAAAP////84oAAM/////0gAAAH8AAADf+P7eP////9IAAAB/AAAA7tBACj/////gAEARP////84IQBA/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 616
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 232
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 568
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 2d99b591ad3f66e6ffcc7d2f0766fcba9c5735c3
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////v0EAKP////98eht4/////3ydI3j/////fL4reP////9IAAAB/AAAA0gAAAH8AAADLBoAAv////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fxt4/////0gAAAT/////SAAABP////+DYAAA/+AAADuAAAD/////SAAABP////9IAAAE/////0gAACT/////OGAAAP////+BmwAA/////32IA6b/////ToAAIf////98YAA0/////4N7AAj/////VADZfv////9/nAN4/////ygbAAD/////QIL/3P////9IAAAB/AAAA3xgADT/////VADZfv////9/nAN4/////ywcAAD/////QYIADP////84AAAA/////0gAAAj/////OAAAAf////8sAAAA/////0GC/5z/////LBoAAf////9AggA4/////yweAAD/////QYIAMP////9IAAAB/AAAA4gDABP/////YAAAQP////+YAwAT/////zhgAAH/////SAAAAfwAAANIAAAE/////0gAAAT/////SAAAAfwAAAMsAwAA/////0GC//j/////SAAAAfwAAAODgAAA/+AAADtgAAD/////SAAABP////9IAAAE/////0gAACT/////OGAAAf////+BnAAA/////32IA6b/////ToAAIf////98YAA0/////4OcAAj/////VADZfv////9/ewN4/////ygcAAD/////QIL/3P////9IAAAB/AAAA0gAAAH8AAADLBoAAf////9AggAo/////0gAAAH8AAADPGDMAP////84YyAA/////zgAAAD/////sAMAAv////9IAAAB/AAAA1ejGDj/////SAAAAfwAAANIAABg/////ywaAAD/////QIIAWP////88YIAA/////4BjANz/////SAAABP////9IAAAE/////0gAACz/////oAMCyP////+DYwL8/////ywAAAT/////QYIAFP////9AgAAU/////ywAAAH/////QYIACP////9IAAAI/////0gAAAH8AAADf2PbeP////8oAwAA/////0CC/9T/////SAAAAfwAAAN/o+t4/////3/E83j/////SAAAAfwAAAM8YIAA/////4BjANz/////SAAABP////9IAAAE/////0gAACz/////oAMCyP////+DYwL8/////ywAAAT/////QYIAFP////9AgAAU/////ywAAAH/////QYIACP////9IAAAI/////0gAAAH8AAADf2PbeP////8oAwAA/////0CC/9T/////P6CAAP////84fQBA/////ziAAAD/////OKAAjP////9IAAAB/AAAAzh9ANT/////OIAAAP////84oAAU/////0gAAAH8AAADOH0A9P////84gAAA/////zigAAT/////SAAAAfwAAAM4fTAA/////ziAAAD/////OKAAwP////9IAAAB/AAAAzh9MMj/////OIAAAP////84oAAM/////0gAAAH8AAADOH0w4v////84gAAA/////zigAAH/////SAAAAfwAAAN/4/t4/////0gAAAH8AAADu0EAKP////+AAQBE/////zghAED/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 632
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 232
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 568
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 608
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: ac317c847b229b78cdfe66824e9b29f7e215c3d1
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////v0EAKP////98eht4/////3ydI3j/////fL4reP////9IAAAB/AAAA0gAAAH8AAADLBoAAv////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fxt4/////0gAAAT/////SAAABP////+DYAAA/+AAADuAAAD/////SAAABP////9IAAAE/////0gAACT/////OGAAAP////+BmwAA/////32IA6b/////ToAAIf////98YAA0/////4N7AAj/////VADZfv////9/nAN4/////ygbAAD/////QYIADP////8sHAAA/////0GC/9T/////SAAAAfwAAAN8YAA0/////1QA2X7/////f5wDeP////8sHAAA/////0GCAAz/////OAAAAP////9IAAAI/////zgAAAH/////LAAAAP////9Bgv+U/////ywaAAH/////QIIAOP////8sHgAA/////0GCADD/////SAAAAfwAAAOIAwAT/////2AAAED/////mAMAE/////84YAAB/////0gAAAH8AAADSAAABP////9IAAAE/////0gAAAH8AAADLAMAAP////9Bgv/4/////0gAAAH8AAADg4AAAP/gAAA7YAAA/////0gAAAT/////SAAABP////9IAAAk/////zhgAAH/////gZwAAP////99iAOm/////06AACH/////fGAANP////+DnAAI/////1QA2X7/////f3sDeP////8oHAAA/////0GCAAz/////LBsAAP////9Bgv/U/////0gAAAH8AAADSAAAAfwAAAMsGgAB/////0CCACj/////SAAAAfwAAAM8YMwA/////zhjIAD/////OAAAAP////+wAwAC/////0gAAAH8AAADV6MYOP////9IAAAB/AAAA0gAAGD/////LBoAAP////9AggBY/////zxggAD/////gGMA3P////9IAAAE/////0gAAAT/////SAAALP////+gAwLI/////4NjAvz/////LAAABP////9BggAU/////0CAABT/////LAAAAf////9BggAI/////0gAAAj/////SAAAAfwAAAN/Y9t4/////ygDAAD/////QIL/1P////9IAAAB/AAAA3+j63j/////f8TzeP////9IAAAB/AAAAzxggAD/////gGMA3P////9IAAAE/////0gAAAT/////SAAALP////+gAwLI/////4NjAvz/////LAAABP////9BggAU/////0CAABT/////LAAAAf////9BggAI/////0gAAAj/////SAAAAfwAAAN/Y9t4/////ygDAAD/////QIL/1P////8/oIAA/////zh9AED/////OIAAAP////84oACM/////0gAAAH8AAADOH0A1P////84gAAA/////zigABT/////SAAAAfwAAAM4fQD0/////ziAAAD/////OKAABP////9IAAAB/AAAAzh9MAD/////OIAAAP////84oADA/////0gAAAH8AAADOH0wyP////84gAAA/////zigAAz/////SAAAAfwAAAM4fTDi/////ziAAAD/////OKAAAf////9IAAAB/AAAA3/j+3j/////SAAAAfwAAAO7QQAo/////4ABAET/////OCEAQP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 648
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 436
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 568
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 624
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 94156e7cb83e84608f4877f27fbe5a09af24dede
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////v0EAKP////98fBt4/////3ydI3j/////fL4reP////9IAAAB/AAAA0gAAAH8AAADLBwAAv////9BggAY/////ywcAAD/////QIIAHP////+AAAAA/+AAACgAAAD/////QYIAEP////84YAAB/////0gAAAH8AAADfH8beP////9IAAAE/////0gAAAT/////g0AAAP/gAAA7YAAA/////0gAAAT/////SAAABP////9IAAAk/////zhgAAD/////gZoAAP////99iAOm/////06AACH/////fGAANP////+DWgAI/////1QA2X7/////f3sDeP////8oGgAA/////0GCAAz/////LBsAAP////9Bgv/U/////0gAAAH8AAADfGAANP////9UANl+/////397A3j/////LBsAAP////9BggAM/////zgAAAD/////SAAACP////84AAAB/////ywAAAD/////QYL/lP////8sHAAB/////0CCADj/////LB4AAP////9BggAw/////0gAAAH8AAADiAMAE/////9gAABA/////5gDABP/////OGAAAf////9IAAAB/AAAA0gAAAT/////SAAABP////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAA4NgAAD/4AAAO0AAAP////9IAAAE/////0gAAAT/////SAAAJP////84YAAB/////4GbAAD/////fYgDpv////9OgAAh/////3xgADT/////g3sACP////9UANl+/////39aA3j/////KBsAAP////9BggAM/////ywaAAD/////QYL/1P////9IAAAB/AAAA0gAAAH8AAADLBwAAf////9AggAo/////0gAAAH8AAADPGDMAP////84YyAA/////zgAAAD/////sAMAAv////9IAAAB/AAAA1ejGDj/////SAAAAfwAAANIAAB8/////ywcAAD/////QIIAdP////+AAAAA/+AAADxggAD/////KAAAAP////+QAzDs/////0GCAAz/////f+P7eP////9IAAAB/AAAAzxggAD/////gGMA3P////9IAAAE/////0gAAAT/////SAAALP////+gAwLI/////4NDAvz/////LAAABP////9BggAU/////0CAABT/////LAAAAf////9BggAI/////0gAAAj/////SAAAAfwAAAN/Q9N4/////ygDAAD/////QIL/1P////9IAAAB/AAAA3+j63j/////f8TzeP////9IAAAB/AAAAzxggAD/////gGMA3P////9IAAAE/////0gAAAT/////SAAALP////+gAwLI/////4NDAvz/////LAAABP////9BggAU/////0CAABT/////LAAAAf////9BggAI/////0gAAAj/////SAAAAfwAAAN/Q9N4/////ygDAAD/////QIL/1P////8/gIAA/////zh8AED/////OIAAAP////84oACM/////0gAAAH8AAADOHwA1P////84gAAA/////zigABT/////SAAAAfwAAAM4fAD0/////ziAAAD/////OKAABP////9IAAAB/AAAAzh8MAD/////OIAAAP////84oADA/////0gAAAH8AAADOHwwyP////84gAAA/////zigAAz/////SAAAAfwAAAM4fDDi/////ziAAAD/////OKAAAf////9IAAAB/AAAA3/j+3j/////SAAAAfwAAAO7QQAo/////4ABAET/////OCEAQP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 696
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootThisDol
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 372
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 632
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 664
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 672
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 3fcbedaed50a717f270e0392e4c9e4a8d9d76af7
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////v0EAKP////98fBt4/////3ydI3j/////fL4reP////9IAAAB/AAAA0gAAAH8AAADLBwAAv////9BggAY/////ywcAAD/////QIIAHP////+AAAAA/+AAACgAAAD/////QYIAEP////84YAAB/////0gAAAH8AAADfH8beP////9IAAAE/////0gAAAT/////g0AAAP/gAAA7YAAA/////0gAAAT/////SAAABP////9IAAAk/////zhgAAD/////gZoAAP////99iAOm/////06AACH/////fGAANP////+DWgAI/////1QA2X7/////f3sDeP////8oGgAA/////0GCAAz/////LBsAAP////9Bgv/U/////0gAAAH8AAADfGAANP////9UANl+/////397A3j/////LBsAAP////9BggAM/////zgAAAD/////SAAACP////84AAAB/////ywAAAD/////QYL/lP////8sHAAB/////0CCADz/////LB4AAP////9BggA0/////0gAAAH8AAADiAMAE/////9gAABA/////5gDABP/////OGAAAf////9IAAAB/AAAA0gAAAT/////SAAABP////9IAAAB/AAAAywDAAD/////QYL/+P////87oAAA/////0gAAAH8AAADg2AAAP/gAAA7QAAA/////0gAAAT/////SAAABP////9IAAAk/////zhgAAH/////gZsAAP////99iAOm/////06AACH/////fGAANP////+DewAI/////1QA2X7/////f1oDeP////8oGwAA/////0GCAAz/////LBoAAP////9Bgv/U/////0gAAAH8AAADSAAAAfwAAAMsHAAB/////0CCACj/////SAAAAfwAAAM8YMwA/////zhjIAD/////OAAAAP////+wAwAC/////0gAAAH8AAADV6MYOP////9IAAAB/AAAA0gAAHz/////LBwAAP////9AggB0/////4AAAAD/4AAAPGCAAP////8oAAAA/////5ADMOz/////QYIADP////9/4/t4/////0gAAAH8AAADPGCAAP////+AYwDc/////0gAAAT/////SAAABP////9IAAAs/////6ADAsj/////g0MC/P////8sAAAE/////0GCABT/////QIAAFP////8sAAAB/////0GCAAj/////SAAACP////9IAAAB/AAAA39D03j/////KAMAAP////9Agv/U/////0gAAAH8AAADf6PreP////9/xPN4/////0gAAAH8AAADPGCAAP////+AYwDc/////0gAAAT/////SAAABP////9IAAAs/////6ADAsj/////g0MC/P////8sAAAE/////0GCABT/////QIAAFP////8sAAAB/////0GCAAj/////SAAACP////9IAAAB/AAAA39D03j/////KAMAAP////9Agv/U/////z+AgAD/////OHwAQP////84gAAA/////zigAIz/////SAAAAfwAAAM4fADU/////ziAAAD/////OKAAFP////9IAAAB/AAAAzh8APT/////OIAAAP////84oAAE/////0gAAAH8AAADOHwwAP////84gAAA/////zigAMD/////SAAAAfwAAAM4fDDI/////ziAAAD/////OKAADP////9IAAAB/AAAAzh8MOL/////OIAAAP////84oAAB/////0gAAAH8AAADf+P7eP////9IAAAB/AAAA7tBACj/////gAEARP////84IQBA/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSResetSystem
+    size: 700
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootThisDol
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Reset
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReboot
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 264
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 392
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 556
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 588
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 604
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 636
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 652
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 676
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

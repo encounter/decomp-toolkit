@@ -1,0 +1,56 @@
+- symbol: 0
+  hash: adc2603b85fc094a88704359450171b0524bd6f1
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////98nyN4/////0gAAAH8AAADf+P7eP////84gAUA/////0gAAAH8AAADg+EADP////84IQAQ/////4ABAAT/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKEXICallBack
+    size: 56
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: TRKLoadContext
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 275dee48926851e503006205088214bed1847031
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98nyN4/////0gAAAH8AAADf+P7eP////84gAUA/////0gAAAH8AAADgAEAFP////+D4QAM/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKEXICallBack
+    size: 56
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: TRKLoadContext
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

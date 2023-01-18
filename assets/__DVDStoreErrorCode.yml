@@ -1,0 +1,520 @@
+- symbol: 0
+  hash: 99ca477477b1d5fc4f94cbccce2d85e9c1c71cfa
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v8EAEP////+QYQAI/////4BhAAj/////SAAAAfwAAAN8fht4/////0gAAAH8AAADfH8beP////+b3wAk/////zhgAAH/////SAAAAfwAAAOAAQAc/////7vBABD/////OCEAGP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Convert
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSLockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: c8e57a9d5a70b387b1fe6a7dc40da10ba331c124
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5BhAAj/////gGEACP////9IAAAB/AAAA3x+G3j/////SAAAAfwAAAN8fxt4/////5vfACT/////OGAAAf////9IAAAB/AAAA4PhABz/////g8EAGP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 80
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Convert
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSLockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: b9e14e602fff127ce4fb0a8f36af0aaf366813e7
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////98niN4/////5B/AAj/////SAAAAfwAAAM8wIAA/////zigAAD/////gAYA+P////9UBvC+/////0gAAAH8AAADPGAAAP//AACQnwAM/////zhjAAD//wAAk8AAAP/gAABIAAAB/AAAA4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 104
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSGetTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __div2i
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: cbForPrepareStatusRegister
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDLowPrepareStatusRegister
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 80baa122cbe1d82d5251840176f883ef024c063a
+  signature: lCH/8P////98CAKm/////5ABABT/////kGEACP////+QgQAM/////4ABAAj/////PGAAAP//AAA4YwAA//8AAJADAAj/////SAAAAfwAAAM8oIAA/////4AFAPj/////VAbwvv////84oAAA/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAJCDAAz/////gAEADP////+QAAAA/+AAADxgAAD//wAAOGMAAP//AABIAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 108
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSGetTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __div2i
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: cbForPrepareStatusRegister
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowPrepareStatusRegister
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 423efa244a0ef0684f1dd3439881ccfb44a51305
+  signature: fAgCpv////+QAQAE/////zwD/t3/////KABFZ/////+UIf/o/////5PhABT/////QIIADP////874AD//////0gAADj/////KABFaP////9AggAM/////zvgAP7/////SAAAKP////9Uf0Y+/////1RjAj7/////SAAAAfwAAAMoHwAG/////0GAAAj/////O+AABv////8cHwAe/////1RjBj7/////f+MCFP////9IAAAB/AAAA5vjACT/////OGAAAf////9IAAAB/AAAA4ABABz/////g+EAFP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 124
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ErrorCode2Num
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSLockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 60
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: a7fb14dc1a07c3695d176a562b09fa8c7343be22
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////98niN4/////5B/AAj/////SAAAAfwAAAM8wIAA/////zigAAD/////gAYA+P////9UBvC+/////0gAAAH8AAADkJ8ADP////88YAAA//8AADzAAAD//wAAPOAAAP//AACTwAAA/+AAADhjAAD//wAAOMYAAP//AAA45wAA//8AADiAAD//////OKAAAP////9IAAAB/AAAAywDAAD/////QYIAIP////+BgAAA/+AAACwMAAD/////QYIAFP////84YAAC/////ziAAAD/////fYkDpv////9OgAQh/////4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 164
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSGetTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __div2i
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1147'
+    size: 15
+    flags: 2
+    section: .data
+  - kind: Function
+    name: cbForNandCreateDir
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: NandCb
+    size: 184
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: NANDPrivateCreateDirAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: f85a79b5aab3120dbe66b265a19c6c5cea492fb1
+  signature: lCH/8P////98CAKm/////5ABABT/////kGEACP////+QgQAM/////4ABAAj/////PGAAAP//AAA4YwAA//8AAJADAAj/////SAAAAfwAAAM8oIAA/////4AFAPj/////VAbwvv////84oAAA/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAJCDAAz/////gAEADP////+QAAAA/+AAADxgAAD//wAAOGMAAP//AAA4gAA//////1SEBj7/////OKAAAP////9UpQY+/////zzAAAD//wAAOMYAAP//AAA84AAA//8AADjnAAD//wAASAAAAfwAAAMsAwAA/////0GCACT/////gAAAAP/gAAAsAAAA/////0GCABj/////OGAAAv////84gAAA/////4GAAAD/4AAAfYkDpv////9OgAQh/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 180
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSGetTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __div2i
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@1080'
+    size: 15
+    flags: 2
+    section: .data
+  - kind: Function
+    name: cbForNandCreateDir
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: NandCb
+    size: 184
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: NANDPrivateCreateDirAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 8fbe291c93359549621eba1367f85738686e3a0a
+  signature: fAgCpv////+QAQAE/////zwD/t3/////KABFZ/////+UIf/g/////5PhABz/////QIIADP////874AD//////0gAART/////KABFaP////9AggAM/////zvgAP7/////SAABBP////84AAAC/////zyAAAD//wAAfAkDpv////84xAAA//8AAFRkRj7/////VGMCPv////84oAAA/////4AGAAD/////fAMAQP////9AggAM/////1SjBj7/////SAAAvP////+EBgAE/////zilAAH/////fAMAQP////9AggAM/////1SjBj7/////SAAApP////+EBgAE/////zilAAH/////fAMAQP////9AggAM/////1SjBj7/////SAAAjP////+EBgAE/////zilAAH/////fAMAQP////9AggAM/////1SjBj7/////SAAAdP////+EBgAE/////zilAAH/////fAMAQP////9AggAM/////1SjBj7/////SAAAXP////+EBgAE/////zilAAH/////fAMAQP////9AggAM/////1SjBj7/////SAAARP////+EBgAE/////zilAAH/////fAMAQP////9AggAM/////1SjBj7/////SAAALP////+EBgAE/////zilAAH/////fAMAQP////9AggAM/////1SjBj7/////SAAAFP////84xgAE/////zilAAH/////QgD/PP////84YAAd/////ygEAAb/////QYAACP////84gAAG/////xwEAB7/////VGMGPv////9/4wIU/////0gAAAH8AAADm+MAJP////84YAAB/////0gAAAH8AAADgAEAJP////+D4QAc/////zghACD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 344
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ErrorTable
+    size: 64
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSLockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnlockSramEx
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 3
+    addend: 0

@@ -1,0 +1,2449 @@
+- symbol: 0
+  hash: e857056b70b33010c834e93286d352ba7a82d8f4
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAAAsAAAA/////0CCAIz/////gGAAAP/gAABIAAAB/AAAAzgAAAH/////kAAAAP/gAABIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAM4AAAA/////5AAAAD/4AAAOGAAAP////9IAAAB/AAAA5BgAAD/4AAAgAAAAP/gAACQAAAA/+AAADhgAAD/4AAASAAAAfwAAANIAAAB/AAAA0gAAAH8AAADgGAAAP/gAACAYwAg/////zwDGuD/////KAB8Iv////9BggAg/////4BgAAD/4AAAgGMAIP////88A/Lr/////ygA6l7/////QYIADP////84AAAB/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADhgAAH/////SAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 176
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowUnmaskStatusInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowMaskCoverInterrupt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDLayoutFormat
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 148
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: 3e7995350b3553ff64922ff5fb07d941fd754c8d
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////+AAAAA/+AAACwAAAD/////QIIAoP////+AYAAA/+AAAEgAAAH8AAADO+AAAf////+T4AAA/+AAAEgAAAH8AAADSAAAAfwAAANIAAAB/AAAAzwAgAD/////PGAAAP//AACQAAAA/+AAADiDAAD//wAAkAAAAP/gAAA4YAAV/////0gAAAH8AAADOGAEAP////9IAAAB/AAAAzhgAAD/4AAASAAAAfwAAAM8YMwA/////zgAACr/////kANgAP////84AAAA/////5ADYAT/////gGAAAP/gAAA4YwAg/////4BjAAD/////PAMa4P////8oAHwi/////0CCABz/////PGAAAP//AABMxjGC/////zhjAAD//wAASAAAAfwAAANIAAAB/AAAA0gAABT/////PAPy6/////8oAOpe/////0GCAAj/////k+AAAP/gAACAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDInitWA
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __DVDInterruptHandler
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@18'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __fstLoad
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: 618231541cdf2fd1ba4cccc768b9c077d0bd198e
+  signature: fAgCpv////+QAQAE/////5Qh//j/////gAAAAP/gAAAsAAAA/////0CCALT/////gGAAAP/gAABIAAAB/AAAAzgAAAH/////kAAAAP/gAABIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAM4YAAA/////0gAAAH8AAADkGAAAP/gAACAAAAA/+AAAJAAAAD/4AAAOGAAFf////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAQA/////0gAAAH8AAADOGAAAP/gAABIAAAB/AAAAzgAACr/////PGDMAP////+QA2AA/////zgAAAD/////PGDMAP////+QA2AE/////4BgAAD/4AAAgGMAIP////88Axrg/////ygAfCL/////QIIAHP////88YAAA//8AADhjAAD//wAATMYxgv////9IAAAB/AAAA0gAAAH8AAADSAAAIP////+AYAAA/+AAAIBjACD/////PAPy6/////8oAOpe/////0GCAAz/////OAAAAf////+QAAAA/+AAAIABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 216
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDInitWA
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDInterruptHandler
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@17'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __fstLoad
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 0d237848e60af1f7d7e300f365ec5ef6fd111095
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////+TwQAI/////4AAAAD/4AAALAAAAP////9AggCk/////4BgAAD/4AAASAAAAfwAAAM7wAAB/////5PAAAD/4AAASAAAAfwAAANIAAAB/AAAA0gAAAH8AAADPACAAP////874AAA/////5AAAAD/4AAAPGAAAP//AAA4gwAA//8AAJPgAAD/4AAAOGAAFf////+QAAAA/+AAAEgAAAH8AAADOGAEAP////9IAAAB/AAAAzhgAAD/4AAASAAAAfwAAAM8YMwA/////zgAACr/////kANgAP////+T42AE/////4BgAAD/4AAAOGMAIP////+AYwAA/////zwDGuD/////KAB8Iv////9AggAc/////zxgAAD//wAATMYxgv////84YwAA//8AAEgAAAH8AAADSAAAAfwAAANIAAAU/////zwD8uv/////KADqXv////9BggAI/////5PAAAD/4AAAgAEAFP////+D4QAM/////4PBAAj/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 216
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDInitWA
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDInterruptHandler
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@18'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __fstLoad
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 188
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: b5b0125277505be3a1046f5f471cf65d174eec43
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QIIAtP////+AYAAA/+AAAEgAAAH8AAADO+AAAf////+T4AAA/+AAAEgAAAH8AAADSAAAAfwAAANIAAAB/AAAAzwAgAD/////OGAAAP////+QYAAA/+AAADhgAAD/4AAAkAAAAP/gAACQAAAA/+AAAEgAAAH8AAADSAAAAfwAAANIAAAB/AAAA4BgAAD/4AAAgGMAIP////88Axrg/////ygAfCL/////QYIAFP////88A/Lr/////ygA6l7/////QYIACP////+T4AAA/+AAAD/gAAD//wAAOIAAAP////84fwAA//8AADigAID/////SAAAAfwAAAM4fwAA//8AADyAgAD/////OKAABP////9IAAAB/AAAAzzAgAD/////OL8AAP//AACIhgAG/////zgAAAD/////OGAAAf////+YhQAE/////4iGAAf/////mIUABf////+QAAAA/+AAAEgAAAH8AAADgAEAFP////+D4QAM/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 224
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowUnmaskStatusInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowMaskCoverInterrupt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: __DVDLayoutFormat
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 124
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: b8371673eea260def09ebd8defad107ff119b9ac
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////5PBAAj/////O8MAAP//AACAAAAA/+AAACwAAAD/////QIIAwP////9IAAAB/AAAAzvgAAH/////k+AAAP/gAABIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAM8AIAA/////zxgAAD//wAAkAAAAP/gAAA4gwAA//8AAJAAAAD/4AAAOGAAFf////9IAAAB/AAAAzhgBAD/////SAAAAfwAAAM4YAAA/+AAAEgAAAH8AAADPGDMAP////84AAAq/////5ADYAD/////OAAAAP////+QA2AE/////4BgAAD/4AAAOGMAIP////+AYwAA/////zwDGuD/////KAB8Iv////9AggAk/////zh+AAD/////TMYxgv////9IAAAB/AAAAzh+ABj/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADSAAAMP////88A/Lr/////ygA6l7/////QIIAFP////84fgAk/////0zGMYL/////SAAAAfwAAANIAAAU/////5PgAAD/4AAAOH4AQP////9MxjGC/////0gAAAH8AAADgAEAFP////+D4QAM/////4PBAAj/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 252
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@13'
+    size: 21
+    flags: 2
+    section: .data
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSInitAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDInitWA
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: currID
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __fstLoad
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+- symbol: 0
+  hash: f55a616e73449a11509ab2a8fa1be1ebffb64a27
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////5PBAAj/////O8MAAP//AACAAAAA/+AAACwAAAD/////QIIAwP////9IAAAB/AAAAzvgAAH/////k+AAAP/gAABIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAM8AIAA/////zxgAAD//wAAkAAAAP/gAAA4gwAA//8AAJAAAAD/4AAAOGAAFf////9IAAAB/AAAAzhgBAD/////SAAAAfwAAAM4YAAA/+AAAEgAAAH8AAADPGDMAP////84AAAq/////5ADYAD/////OAAAAP////+QA2AE/////4BgAAD/4AAAOGMAIP////+AYwAA/////zwDGuD/////KAB8Iv////9AggAk/////zh+AAD/////TMYxgv////9IAAAB/AAAAzh+ABj/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADSAAAMP////88A/Lr/////ygA6l7/////QIIAFP////84fgAk/////0zGMYL/////SAAAAfwAAANIAAAU/////5PgAAD/4AAAOH4AQP////9MxjGC/////0gAAAH8AAADgAEAFP////+D4QAM/////4PBAAj/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 252
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@13'
+    size: 21
+    flags: 2
+    section: .data
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSInitAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDInitWA
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: currID
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __fstLoad
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+- symbol: 0
+  hash: 810a998a85fc079040c4778b8509c671b3705454
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QIIA4P////+AYAAA/+AAAEgAAAH8AAADOAAAAf////+QAAAA/+AAAEgAAAH8AAADSAAAAfwAAANIAAAB/AAAAzgAAAD/////kAAAAP/gAAA4YAAA/////0gAAAH8AAADkGAAAP/gAACAAAAA/+AAAJAAAAD/4AAAOGAAAP/gAABIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAOAYAAA/+AAAIBjACD/////PAMa4P////8oAHwi/////0GCACD/////gGAAAP/gAACAYwAg/////zwD8uv/////KADqXv////9BggAM/////zgAAAH/////kAAAAP/gAAA8YAAA//8AADhjAAD//wAAOIAAAP////84oACA/////0gAAAH8AAADOGAAAP////9IAAAB/AAAA3x/G3j/////PGAAAP//AAA4YwAA//8AAH/k+3j/////OKAABP////9IAAAB/AAAA4gfAAb/////PGAAAP//AAA4YwAA//8AAJgDAAT/////iB8AB/////88YAAA//8AADhjAAD//wAAmAMABf////84AAAA/////5AAAAD/4AAAOGAAAf////9IAAAB/AAAA4PhAAz/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 268
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowUnmaskStatusInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowMaskCoverInterrupt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: __DVDLayoutFormat
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+- symbol: 0
+  hash: ab7e02321201f16438ab7b5599462524f503d39c
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////4AAAAD/4AAALAAAAP////9AggEg/////4BgAAD/4AAASAAAAfwAAAM4AAAB/////5AAAAD/4AAASAAAAfwAAAOAAAAA/+AAACwAAAD/////QIIAYP////88YIAA/////4gDMYf/////KAAAgP////9AggBQ/////0gAAAH8AAADLAMAAP////9AggAU/////zyAAAD//wAAOGAAAP////84hAAA//8AAEgAAAH8AAADLAMAAP////9AggAQ/////zhgAAD/////OIAAAP/gAABIAAAB/AAAAywDAAD/////QIIAFP////88YAAA//8AADiAAAD/4AAAOGMAAP//AABIAAAB/AAAA0gAAAH8AAADSAAAAfwAAANIAAAB/AAAAzwAgAD/////OGAAAP////+QYAAA/+AAADhgAAD/4AAAkAAAAP/gAACQAAAA/+AAAEgAAAH8AAADSAAAAfwAAANIAAAB/AAAA4BgAAD/4AAAgGMAIP////88Axrg/////ygAfCL/////QYIAGP////88A/Lr/////ygA6l7/////QYIADP////84AAAB/////5AAAAD/4AAAP+AAAP//AAA4gAAA/////zh/AAD//wAAOKAAgP////9IAAAB/AAAAz/AgAD/////OH8AAP//AAB/xPN4/////zigAAT/////SAAAAfwAAAOIngAG/////zi/AAD//wAAOAAAAP////84YAAB/////5iFAAT/////iJ4AB/////+YhQAF/////5AAAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////g8EACP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 340
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDTicketViewBuffer
+    size: 224
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDNumTmdBytes
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: ESP_DiGetTmd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDTmdBuffer
+    size: 18944
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowUnmaskStatusInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowMaskCoverInterrupt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: __DVDLayoutFormat
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 22
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 23
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 24
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 25
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 26
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 27
+    addend: 0
+- symbol: 0
+  hash: d4ad2fa64f76b649b5ba03344967c6bdffaad6b5
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////4AAAAD/4AAALAAAAP////9AggEg/////4BgAAD/4AAASAAAAfwAAAM4AAAB/////5AAAAD/4AAASAAAAfwAAAOAAAAA/+AAACwAAAD/////QIIAYP////88YIAA/////4gDMYf/////KAAAgP////9AggBQ/////0gAAAH8AAADLAMAAP////9AggAU/////zyAAAD//wAAOGAAAP////84hAAA//8AAEgAAAH8AAADLAMAAP////9AggAQ/////zhgAAD/////OIAAAP/gAABIAAAB/AAAAywDAAD/////QIIAFP////88YAAA//8AADiAAAD/4AAAOGMAAP//AABIAAAB/AAAA0gAAAH8AAADSAAAAfwAAANIAAAB/AAAAzwAgAD/////OGAAAP////+QYAAA/+AAADhgAAD/4AAAkAAAAP/gAACQAAAA/+AAAEgAAAH8AAADSAAAAfwAAANIAAAB/AAAA4BgAAD/4AAAgGMAIP////88Axrg/////ygAfCL/////QYIAGP////88A/Lr/////ygA6l7/////QYIADP////84AAAB/////5AAAAD/4AAAP+AAAP//AAA4gAAA/////zh/AAD//wAAOKAAgP////9IAAAB/AAAAz/AgAD/////OH8AAP//AAB/xPN4/////zigAAT/////SAAAAfwAAAM4vwAA//8AAIgeAAb/////mAUABP////84AAAA/////zhgAAH/////iJ4AB/////+YhQAF/////5AAAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////g8EACP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 340
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDTicketViewBuffer
+    size: 224
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDNumTmdBytes
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: ESP_DiGetTmd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDTmdBuffer
+    size: 18944
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowUnmaskStatusInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowMaskCoverInterrupt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: __DVDLayoutFormat
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 22
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 23
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 24
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 25
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 26
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 27
+    addend: 0
+- symbol: 0
+  hash: b750a705466c60a773f49f274211c8fdde458235
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////4AAAAD/4AAALAAAAP////9AggFY/////4BgAAD/4AAASAAAAfwAAAM4AAAB/////5AAAAD/4AAASAAAAfwAAAOAAAAA/+AAACwAAAD/////QIIAcP////88YIAA/////4gDMYf/////KAAAgP////9AggBg/////0gAAAH8AAADfH8beP////8sHwAA/////0CCABj/////OGAAAP////88gAAA//8AADiEAAD//wAASAAAAfwAAAN8fxt4/////ywfAAD/////QIIAFP////84YAAA/////ziAAAD/4AAASAAAAfwAAAN8fxt4/////ywfAAD/////QIIAGP////88YAAA//8AADhjAAD//wAAOIAAAP/gAABIAAAB/AAAA3x/G3j/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADOAAAAP////+QAAAA/+AAADhgAAD/////SAAAAfwAAAOQYAAA/+AAAIAAAAD/4AAAkAAAAP/gAAA4YAAA/+AAAEgAAAH8AAADSAAAAfwAAANIAAAB/AAAA4BgAAD/4AAAgGMAIP////88Axrg/////ygAfCL/////QYIAIP////+AYAAA/+AAAIBjACD/////PAPy6/////8oAOpe/////0GCAAz/////OAAAAf////+QAAAA/+AAADxgAAD//wAAOGMAAP//AAA4gAAA/////zigAID/////SAAAAfwAAAM4YAAA/////0gAAAH8AAADfH4beP////88YAAA//8AADhjAAD//wAAf8TzeP////84oAAE/////0gAAAH8AAADiB4ABv////88YAAA//8AADhjAAD//wAAmAMABP////+IHgAH/////zxgAAD//wAAOGMAAP//AACYAwAF/////zgAAAD/////kAAAAP/gAAA4YAAB/////0gAAAH8AAADg+EADP////+DwQAI/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDInit
+    size: 396
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DVDInitialized
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDTicketViewBuffer
+    size: 224
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDNumTmdBytes
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: ESP_DiGetTmd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDTmdBuffer
+    size: 18944
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDFSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IDShouldBe
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __DVDThreadQueue
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowUnmaskStatusInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowMaskCoverInterrupt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FirstTimeInBootrom
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __ErrorInfo
+    size: 128
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: __DVDLayoutFormat
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 208
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 244
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 23
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Ha
+    symbol: 24
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 24
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 25
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 24
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 24
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 26
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 24
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 24
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 24
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 24
+    addend: 0
+  - offset: 360
+    kind: PpcEmbSda21
+    symbol: 27
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 28
+    addend: 0

@@ -1,0 +1,109 @@
+- symbol: 0
+  hash: c4770873fbeb8830db6e9cf29cc8c617d93b6541
+  signature: VIQGPv////8sBAAA/////0GCABz/////VIdALv////9UhsAO/////1SAgB7/////fIQ7eP////98wAN4/////3yEA3j/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: memset
+    size: 40
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset_generic
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 99f9bc34519968d4b7ba83d5f042f2604e4e5896
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////k+EAHP////98fxt4/////0gAAAH8AAADgAEAJP////9/4/t4/////4PhABz/////OCEAIP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: memset
+    size: 48
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __fill_mem
+    size: 0
+    flags: 1
+    section: .init
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: c1eb20ad01fa77413899f4b52d6b0de27675c956
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98fxt4/////0gAAAH8AAADgAEAFP////9/4/t4/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: memset
+    size: 48
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __fill_mem
+    size: 0
+    flags: 1
+    section: .init
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 026973c2277e87b1b44b45a6a03eb6243337d22a
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98fxt4/////0gAAAH8AAADf+P7eP////+D4QAM/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: memset
+    size: 48
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __fill_mem
+    size: 0
+    flags: 1
+    section: .init
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 82ad50abc07914c938bdf3e8390c4b02208921c4
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////v0EAGP////87pQAA/////zuDAAD/////KB0AIP////87/AAA/////1SeBj7/////QIEA4P////84ngAA/////zhgAAD/////OKAAGP////9IAAAB/AAAA1fAQC7/////V8WAHv////9/wAN4/////3ylA3j/////fKD+cP////98mit4/////3x7A3j/////OHsAAP////84mgAA/////zigACD/////SAAAAfwAAANX4Ad+/////yAAAAj/////VAAHfv////98BgN5/////39II3j/////f2cbeP////84pgAA/////3+g6FD/////QYIAUP////9UoOj//////3wJA6b/////QYIANP////+b3wAA/////5vfAAH/////m98AAv////+b3wAD/////5vfAAT/////m98ABf////+b3wAG/////5vfAAf/////O/8ACP////9CAP/c/////3ClAAf/////QYIAFP////98qQOm/////5vfAAD/////O/8AAf////9CAP/4/////1egADj/////OJ8AAP////98HwIU/////3yDI3j/////kQQABP////84hAAI/////3wEAED/////kOMAAP////9BgP/s/////zvkAAD/////V70Hfv////9IAABI/////1fgB7//////QIIAQP////9Xw0Au/////1fEgB7/////f8MbeP////9XoAA6/////3yDG3j/////V8XADv////84nwAA/////3yjG3j/////fB8CFP////+QZAAA/////ziEAAT/////fAQAQP////9BgP/0/////zvkAAD/////V70Hvv////8oHQAA/////zh9AAD/////QYIAUP////9UYOj//////3wJA6b/////QYIANP////+b3wAA/////5vfAAH/////m98AAv////+b3wAD/////5vfAAT/////m98ABf////+b3wAG/////5vfAAf/////O/8ACP////9CAP/c/////3BjAAf/////QYIAFP////98aQOm/////5vfAAD/////O/8AAf////9CAP/4/////3+D43j/////u0EAGP////+AAQA0/////zghADD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: memset
+    size: 440
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __shl2i
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 52
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 801085364ed4cce07634d78594b635b87ecccf86
+  signature: KAUAAf////9Uh4Ie/////1CHBj7/////fGgbeP////9Qh0Qu/////1CHwA7/////QYAAGP////9UYAf//////0GCABD/////mOMAAP////85AwAB/////zil////////KAUAAv////9BgAAY/////1UAB73/////QYIAEP////+w6AAA/////zkIAAL/////OKX//v////8oBQAE/////0GAABj/////VQAHe/////9BggAQ/////5DoAAD/////OQgABP////84pf/8/////ygFAAj/////QYAAHP////9VAAc5/////0GCABT/////kOgAAP////84pf/4/////5DoAAT/////OQgACP////8oBQAQ/////0GAACT/////VQAG9/////9BggAc/////5DoAAD/////OKX/8P////+Q6AAE/////5DoAAj/////kOgADP////85CAAQ/////ygFACD/////VKbZfv////9BgADY/////1TE8L//////VMAoNP////98AADQ/////3yJA6b/////QYIAlP////+Q6AAA/////5DoAAT/////kOgACP////+Q6AAM/////5DoABD/////kOgAFP////+Q6AAY/////5DoABz/////kOgAIP////+Q6AAk/////5DoACj/////kOgALP////+Q6AAw/////5DoADT/////kOgAOP////+Q6AA8/////5DoAED/////kOgARP////+Q6ABI/////5DoAEz/////kOgAUP////+Q6ABU/////5DoAFj/////kOgAXP////+Q6ABg/////5DoAGT/////kOgAaP////+Q6ABs/////5DoAHD/////kOgAdP////+Q6AB4/////5DoAHz/////OQgAgP////9CAP98/////3DGAAP/////QYIAMP////98yQOm/////5DoAAD/////kOgABP////+Q6AAI/////5DoAAz/////kOgAEP////+Q6AAU/////5DoABj/////kOgAHP////85CAAg/////0IA/9z/////fKUCFP////8oBQAQ/////0GAABz/////kOgAAP////84pf/w/////5DoAAT/////kOgACP////+Q6AAM/////zkIABD/////KAUACP////9BgAAU/////5DoAAD/////OKX/+P////+Q6AAE/////zkIAAj/////KAUABP////9BgAAQ/////5DoAAD/////OQgABP////84pf/8/////ygFAAL/////QYAAEP////+w6AAA/////zkIAAL/////OKX//v////8oBQAB/////02AACD/////mOgAAP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: memset
+    size: 512
+    flags: 1
+    section: .text
+  relocations: []

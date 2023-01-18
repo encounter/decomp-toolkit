@@ -1,0 +1,296 @@
+- symbol: 0
+  hash: b20435dd461a594985e0878e651dc429c4c7c97b
+  signature: PGCAAP////+QYAAA/+AAAIBjADj/////kGAAAP/gAAAsAwAA/////02CACD/////gAMACP////+QAAAA/+AAABwAAAz/////fAMCFP////+QAAAA/+AAAE6AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDFSInit
+    size: 48
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStart
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MaxEntryNum
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStringStart
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: ce8cd2dce2f1ac8767ebe275fb3ef9a12e7fce52
+  signature: PGCAAP////+QYAAA/+AAAICDADj/////LAQAAP////+QgAAA/+AAAE2CACD/////gGQACP////8cAwAM/////5BgAAD/4AAAfAQCFP////+QAAAA/+AAAE6AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDFSInit
+    size: 48
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStart
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MaxEntryNum
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStringStart
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 3abc6f023927a3dcd06a16b13c539cac75acee61
+  signature: PGCAAP////+QYAAA/+AAAIADADj/////kAAAAP/gAACAYAAA/+AAACgDAAD/////TYIAIP////+AAwAI/////5AAAAD/4AAAgAAAAP/gAAAcAAAM/////3wDAhT/////kAAAAP/gAABOgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDFSInit
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStart
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MaxEntryNum
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStringStart
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 615921b0bdee5c748e8171c479bb8db8d9c7c408
+  signature: fAgCpv////+QAQAE/////5Qh//j/////OGAAAP////9IAAAB/AAAA5BgAAD/4AAAgGAAAP/gAACAAwA4/////5AAAAD/4AAAgAAAAP/gAAAoAAAA/////0GCACT/////gGAAAP/gAACAAwAI/////5AAAAD/4AAAgGAAAP/gAACAAAAA/+AAABwAAAz/////fAMCFP////+QAAAA/+AAAIABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDFSInit
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStart
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MaxEntryNum
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStringStart
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 4753735f3ee39ac8143ad77e0348fa875d9c34ca
+  signature: lCH/8P////98CAKm/////5ABABT/////OGAAAP////9IAAAB/AAAA5BgAAD/4AAAgGAAAP/gAACAAwA4/////5AAAAD/4AAAgAAAAP/gAAAsAAAA/////0GCACT/////gGAAAP/gAACAAwAI/////5AAAAD/4AAAgGAAAP/gAACAAAAA/+AAABwAAAz/////fAMCFP////+QAAAA/+AAAIABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDFSInit
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BootInfo
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStart
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MaxEntryNum
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: FstStringStart
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0

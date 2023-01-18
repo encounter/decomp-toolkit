@@ -1,0 +1,1488 @@
+- symbol: 0
+  hash: f50bb7bf8eb70d9734efe424a1b3c884bf45104b
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OAAAAv////84gAAQ/////5Qh/+D/////v0EACP////87gwAA//8AADv8BBD/////O6AAAP////84fwLo/////7AcBtj/////OAAAAf////+wHAba/////zgA////////kJwG5P////+QnAbg/////5O8Btz/////kBwG6P////+TvAcA/////0gAAAH8AAADk7wHCP////8/wIAA/////zh/AAD/////k7wHBP////+T/gDY/////0gAAAH8AAADf+P7eP////9IAAAB/AAAAzxgAAD//wAAOAMAAP//AAA8YAAA//8AAJAcBxT/////OAMAAP//AAA4fAcY/////5AcBxj/////PIDerv////87QAAA/////4BjAAD/////OIS6vv////9XQBg4/////5CDAAD/////f3wCFP////+ToAAA/+AAAJP+AOT/////k6AAAP/gAAB/Y9t4/////0gAAAH8AAADO1oAAf////8sGgAf/////zt7AAj/////QIH/7P////8/wIAA/////zh+ANz/////SAAAAfwAAAM4ngDc/////4RkAAT/////KAMAAP////9AggAM/////5P+ANz/////SAAACP////+T4wL8/////5B/AwD/////O8AAAP////84fAcg/////5PfAvz/////k+QAAP////9IAAAB/AAAA5PAAAD/4AAAu0EACP////+AAQAk/////zghACD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 296
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueue
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: f54e9c5419939a018a439359926af087307ede14
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OAAAAv////84gAAQ/////5Qh/+j/////k+EAFP////+TwQAQ/////5OhAAz/////O6AAAP////+TgQAI/////zuDAAD//wAAO/wEGP////+wHAbg/////zgAAAH/////OH8C6P////+wHAbi/////zgA////////kJwG7P////+QnAbo/////5O8BuT/////kBwG8P////+TvAcI/////0gAAAH8AAADk7wHEP////8/wIAA/////zh/AAD/////k7wHDP////+T/gDY/////0gAAAH8AAADf+P7eP////9IAAAB/AAAAzxgAAD//wAAOAMAAP//AAA8YAAA//8AAJAcBxz/////OAMAAP//AACQHAcg/////zxg3q7/////OAO6vv////+AfAcg/////3/k+3j/////kAMAAP////+BgAAA/+AAAIB+AOT/////fYgDpv////9OgAAh/////5P+AOT/////OGAAAP////9IAAAB/AAAA5OgAAD/4AAAO8AAAP////9XwBg4/////5OgAAD/4AAAf7wCFP////9/o+t4/////0gAAAH8AAADO94AAf////8sHgAf/////zu9AAj/////QIH/7P////8/wIAA/////zh+ANz/////SAAAAfwAAAM4ngDc/////4RkAAT/////KAMAAP////9AggAM/////5P+ANz/////SAAACP////+T4wL8/////5B/AwD/////O8AAAP////84fAcw/////5PfAvz/////k+QAAP////9IAAAB/AAAA5PAAAD/4AAAgAEAHP////+D4QAU/////4PBABD/////g6EADP////+DgQAI/////zghABj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 344
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueue
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: SwitchThreadCallback
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSClearStack
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 662f5e0c763eaaa21849bdfb3a8fb1585bc60e76
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v4EACP////88YAAA//8AADvDAAD//wAAO/4EGP////84AAAC/////7AfAsj/////OAAAAf////+wHwLK/////zgAABD/////kB8C1P////+QHwLQ/////zgAAAD/////kB8CzP////84AP///////5AfAtj/////OAAAAP////+QHwLw/////zh/Auj/////SAAAAfwAAAM4fwL0/////0gAAAH8AAADSAAAAfwAAANUYASl/////0CCACD/////PGAAAP//AAA4YwAA//8AADiAAVz/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM8YIAA/////5PjANj/////f+P7eP////9IAAAB/AAAA3/j+3j/////SAAAAfwAAAM8YAAA//8AADgDAAD//wAAkB8DBP////88YAAA//8AADgDAAD//wAAkB8DCP////88gN6u/////ziEur7/////gH8DCP////+QgwAA/////3/j+3j/////SAAAAfwAAAM4YAAA/////0gAAAH8AAADOAAAAP////+QAAAA/+AAADgAAAD/////kAAAAP/gAAA7oAAA/////0gAABT/////V6AYOP////98fgIU/////0gAAAH8AAADO70AAf////8sHQAf/////0CB/+z/////PGCAAP////84YwDc/////0gAAAH8AAADPGCAAP////+DgwDg/////zgAAAD/////fBwAQP////9AggAQ/////zxggAD/////k+MA3P////9IAAAI/////5P8Avz/////k58DAP////84AAAA/////5AfAvz/////PGCAAP////+T4wDg/////zh+BzD/////SAAAAfwAAAM4AAAA/////5AAAAD/4AAAgAEAHP////+7gQAI/////zghABj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 368
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueue
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitMutexQueue
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@18'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@19'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSSetCurrentThread
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSClearStack
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 220
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 344
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 0610270d2e4068ef9b0f8257aac01cbf1c0f5f50
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v4EACP////88YAAA//8AADvDAAD//wAAO/4EGP////84AAAC/////7AfAsj/////OAAAAf////+wHwLK/////zgAABD/////kB8C1P////+QHwLQ/////zgAAAD/////kB8CzP////84AP///////5AfAtj/////OAAAAP////+QHwLw/////zh/Auj/////SAAAAfwAAAM4fwL0/////0gAAAH8AAADSAAAAfwAAANUYASl/////0CCACD/////PGAAAP//AAA4YwAA//8AADiAAV//////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM8YIAA/////5PjANj/////f+P7eP////9IAAAB/AAAA3/j+3j/////SAAAAfwAAAM8YAAA//8AADgDAAD//wAAkB8DBP////88YAAA//8AADgDAAD//wAAkB8DCP////88gN6u/////ziEur7/////gH8DCP////+QgwAA/////3/j+3j/////SAAAAfwAAAM4YAAA/////0gAAAH8AAADOAAAAP////+QAAAA/+AAADgAAAD/////kAAAAP/gAAA7oAAA/////0gAABT/////V6AYOP////98fgIU/////0gAAAH8AAADO70AAf////8sHQAf/////0CB/+z/////PGCAAP////84YwDc/////0gAAAH8AAADPGCAAP////+DgwDg/////zgAAAD/////fBwAQP////9AggAQ/////zxggAD/////k+MA3P////9IAAAI/////5P8Avz/////k58DAP////84AAAA/////5AfAvz/////PGCAAP////+T4wDg/////zh+BzD/////SAAAAfwAAAM4AAAA/////5AAAAD/4AAAgAEAHP////+7gQAI/////zghABj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 368
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueue
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitMutexQueue
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@18'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@19'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSSetCurrentThread
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSClearStack
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 220
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 344
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 548af17bdb6dd51fb3aa888970a54295dce6bbd8
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////PGAAAP//AAA74wAA//8AADgAAAL/////sB8CyP////84AAAB/////7AfAsr/////OAAAEP////+QHwLU/////5AfAtD/////OAAAAP////+QHwLM/////zgA////////kB8C2P////84AAAA/////5AfAvD/////OH8C6P////9IAAAB/AAAAzh/AvT/////SAAAAfwAAAM4AAAB/////5ABAAz/////SAAAAfwAAANUYASk/////ywAAAD/////QIIAPP////88YAAA//8AADhjAAD//wAAOIABbv////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEACP////+AAQAI/////ywAAAD/////QIIADP////84AAAA/////5ABAAz/////PGCAAP////+T4wDY/////3/j+3j/////SAAAAfwAAAN/4/t4/////0gAAAH8AAADPGAAAP//AAA4AwAA//8AAJAfAwT/////PGAAAP//AAA4AwAA//8AAJAfAwj/////PIDerv////84hLq+/////4B/Awj/////kIMAAP////9/4/t4/////0gAAAH8AAADOGAAAP////9UYwY+/////0gAAAH8AAADOAAAAP////+QAAAA/+AAADgAAAD/////kAAAAP/gAAA7wAAA/////0gAABz/////V8QYOP////88YAAA//8AADgDAAD//wAAfGAiFP////9IAAAB/AAAAzveAAH/////LB4AH/////9Agf/k/////zxggAD/////OGMA3P////9IAAAB/AAAAzxggAD/////g6MA4P////84AAAA/////3wdAED/////QIIAEP////88YIAA/////5PjANz/////SAAACP////+T/QL8/////5O/AwD/////OAAAAP////+QHwL8/////zxggAD/////k+MA4P////88YAAA//8AADhjAAD//wAASAAAAfwAAAM4AAAA/////5AAAAD/4AAAg+EAHP////+DwQAY/////4OhABT/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 436
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DefaultThread
+    size: 792
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitMutexQueue
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@533'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@534'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSSetCurrentThread
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSClearStack
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueue
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IdleContext
+    size: 712
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 276
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 392
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 404
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 1c37a57225a61ebd6de8d1092c5431707cdcfef0
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////98Pwt4/////zxgAAD//wAAO8MAAP//AAA4AAAC/////7AeAsj/////OAAAAf////+wHgLK/////zgAABD/////kB4C1P////+QHgLQ/////zgAAAD/////kB4CzP////84AP///////5AeAtj/////OAAAAP////+QHgLw/////zh+Auj/////SAAAAfwAAAM4fgL0/////0gAAAH8AAADOAAAAf////+QHwAM/////0gAAAH8AAADVGAEpP////8sAAAA/////0CCADz/////PGAAAP//AAA4YwAA//8AADiAAW7/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5AfAAj/////gB8ACP////8sAAAA/////0CCAAz/////OAAAAP////+QHwAM/////zxggAD/////k8MA2P////9/w/N4/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAzxgAAD//wAAOAMAAP//AACQHgME/////zxgAAD//wAAOAMAAP//AACQHgMI/////zyA3q7/////OIS6vv////+AfgMI/////5CDAAD/////f8PzeP////9IAAAB/AAAAzhgAAD/////VGMGPv////9IAAAB/AAAAzgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAO6AAAP////9IAAAc/////1ekGDj/////PGAAAP//AAA4AwAA//8AAHxgIhT/////SAAAAfwAAAM7vQAB/////ywdAB//////QIH/5P////88YIAA/////zhjANz/////SAAAAfwAAAM8YIAA/////4ODAOD/////OAAAAP////98HABA/////0CCABD/////PGCAAP////+TwwDc/////0gAAAj/////k9wC/P////+TngMA/////zgAAAD/////kB4C/P////88YIAA/////5PDAOD/////PGAAAP//AAA4YwAA//8AAEgAAAH8AAADOAAAAP////+QAAAA/+AAAH/q+3j/////g+oAHP////+DygAY/////4OqABT/////g4oAEP////+BQQAA/////4AKAAT/////fUFTeP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 456
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DefaultThread
+    size: 792
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitMutexQueue
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@529'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@530'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSSetCurrentThread
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSClearStack
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueue
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IdleContext
+    size: 712
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 396
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 400
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 24d9846114ecd04df3b94e9c9f9480c36907348a
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////98Pwt4/////zxgAAD//wAAO8MAAP//AAA4AAAC/////7AeAsj/////OAAAAf////+wHgLK/////zgAABD/////kB4C1P////+QHgLQ/////zgAAAD/////kB4CzP////84AP///////5AeAtj/////OAAAAP////+QHgLw/////zh+Auj/////SAAAAfwAAAM4fgL0/////0gAAAH8AAADOAAAAf////+QHwAM/////0gAAAH8AAADVGAEpP////8sAAAA/////0CCADz/////PGAAAP//AAA4YwAA//8AADiAAXT/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5AfAAj/////gB8ACP////8sAAAA/////0CCAAz/////OAAAAP////+QHwAM/////zxggAD/////k8MA2P////9/w/N4/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAzxgAAD//wAAOAMAAP//AACQHgME/////zxgAAD//wAAOAMAAP//AACQHgMI/////zyA3q7/////OIS6vv////+AfgMI/////5CDAAD/////f8PzeP////9IAAAB/AAAAzhgAAD/////VGMGPv////9IAAAB/AAAAzgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAO6AAAP////9IAAAc/////1ekGDj/////PGAAAP//AAA4AwAA//8AAHxgIhT/////SAAAAfwAAAM7vQAB/////ywdAB//////QIH/5P////88YIAA/////zhjANz/////SAAAAfwAAAM8YIAA/////4ODAOD/////OAAAAP////98HABA/////0CCABD/////PGCAAP////+TwwDc/////0gAAAj/////k9wC/P////+TngMA/////zgAAAD/////kB4C/P////88YIAA/////5PDAOD/////PGAAAP//AAA4YwAA//8AAEgAAAH8AAADOAAAAP////+QAAAA/+AAAH/q+3j/////g+oAHP////+DygAY/////4OqABT/////g4oAEP////+BQQAA/////4AKAAT/////fUFTeP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 456
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DefaultThread
+    size: 792
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitMutexQueue
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@542'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@543'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSSetCurrentThread
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSClearStack
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueue
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IdleContext
+    size: 712
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 396
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 400
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: b56f1fded09230a98d99a484065c6ffd9339ba0e
+  signature: lCH/4P////98CAKm/////zhgAAL/////OMAAAf////+QAQAk/////ziAAAD/////OKAAEP////84AP///////5PhABz/////P+AAAP//AAA7/wAA//8AAJPBABj/////O98AAP////+ToQAU/////z+ggAD/////sH4CyP////9/w/N4/////7DeAsr/////kL4C1P////+QvgLQ/////5CeAsz/////kB4C2P////+QngLw/////5CeAuz/////kJ4C6P////+QngL4/////5CeAvT/////k90A2P////9IAAAB/AAAA3/D83j/////SAAAAfwAAAM8gAAA//8AADygAAD//wAAOIQAAP//AAA8YN6u/////zilAAD//wAAkJ4DBP////84A7q+/////3/E83j/////kL4DCP////+QBQAA/////4GAAAD/4AAAgH0A5P////99iQOm/////06ABCH/////k90A5P////9IAAAB/AAAA4CdAOT/////gIQDCP////85BAAE/////3yIGED/////QIQAwP////98qBhQ/////zjD/+D/////OIUAA/////98gBZw/////3wAAZT/////LAAACP////9AgQB8/////zjgAAD/////QYUAKP////9UoAAB/////zigAAH/////QIIAEP////9UgAAB/////0GCAAj/////OKAAAP////8sBQAA/////0GCAAj/////OOAAAf////8sBwAA/////0GCAEj/////OAYAH/////84gAAA/////3wIAFD/////VADZfv////98CQOm/////3wIMED/////QIAALP////+QiAAA/////5CIAAT/////kIgACP////+QiAAM/////5CIABD/////kIgAFP////+QiAAY/////5CIABz/////OQgAIP////9CAP/c/////zgDAAP/////OIAAAP////98CABQ/////1QA8L7/////fAkDpv////98CBhA/////0CAABD/////kIgAAP////85CAAE/////0IA//j/////OGAAAP////84AAAC/////5BgAAD/4AAAOJ8DGP////+QYAAA/+AAAHwJA6b/////kGQABP////+QZAAA/////5BkAAz/////kGQACP////+QZAAU/////5BkABD/////kGQAHP////+QZAAY/////5BkACT/////kGQAIP////+QZAAs/////5BkACj/////kGQANP////+QZAAw/////5BkADz/////kGQAOP////+QZABE/////5BkAED/////kGQATP////+QZABI/////5BkAFT/////kGQAUP////+QZABc/////5BkAFj/////kGQAZP////+QZABg/////5BkAGz/////kGQAaP////+QZAB0/////5BkAHD/////kGQAfP////+QZAB4/////ziEAID/////QgD/fP////84gAAA/////zxggAD/////kIMA4P////+QgwDc/////5PDANz/////SAAACP////+TxAL8/////zugAAD/////kJ4DAP////88gIAA/////zh/BBj/////k74C/P////+TxADg/////0gAAAH8AAADk6AAAP/gAACAAQAk/////4PhABz/////g8EAGP////+DoQAU/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 644
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DefaultThread
+    size: 792
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: SwitchThreadCallback
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSGetStackPointer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 404
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 608
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 612
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 3898f4ffbf3dad43feac1ff0265b73b559843f46
+  signature: lCH/4P////98CAKm/////zhgAAL/////OMAAAf////+QAQAk/////ziAAAD/////OKAAEP////84AP///////5PhABz/////P+AAAP//AAA7/wAA//8AAJPBABj/////O98AAP////+ToQAU/////z+ggAD/////sH4CyP////9/w/N4/////7DeAsr/////kL4C1P////+QvgLQ/////5CeAsz/////kB4C2P////+QngLw/////5CeAuz/////kJ4C6P////+QngL4/////5CeAvT/////k90A2P////9IAAAB/AAAA3/D83j/////SAAAAfwAAAM8YAAA//8AADygAAD//wAAOGMAAP//AACQfgME/////zilAAD//wAAf8TzeP////88YN6u/////5C+Awj/////OAO6vv////+QBQAA/////4GAAAD/4AAAgH0A5P////99iQOm/////06ABCH/////k90A5P////9IAAAB/AAAA4CdAOT/////gIQDCP////85BAAE/////3yIGED/////QIQAwP////98qBhQ/////zjD/+D/////OIUAA/////98gBZw/////3wAAZT/////LAAACP////9AgQB8/////zjgAAD/////QYUAKP////9UoAAB/////zigAAH/////QIIAEP////9UgAAB/////0GCAAj/////OKAAAP////8sBQAA/////0GCAAj/////OOAAAf////8sBwAA/////0GCAEj/////OAYAH/////84gAAA/////3wIAFD/////VADZfv////98CQOm/////3wIMED/////QIAALP////+QiAAA/////5CIAAT/////kIgACP////+QiAAM/////5CIABD/////kIgAFP////+QiAAY/////5CIABz/////OQgAIP////9CAP/c/////zgDAAP/////OIAAAP////98CABQ/////1QA8L7/////fAkDpv////98CBhA/////0CAABD/////kIgAAP////85CAAE/////0IA//j/////OAAAAv////84YAAA/////5BgAAD/4AAAOJ8DGP////+QYAAA/+AAAHwJA6b/////kGQABP////+QZAAA/////5BkAAz/////kGQACP////+QZAAU/////5BkABD/////kGQAHP////+QZAAY/////5BkACT/////kGQAIP////+QZAAs/////5BkACj/////kGQANP////+QZAAw/////5BkADz/////kGQAOP////+QZABE/////5BkAED/////kGQATP////+QZABI/////5BkAFT/////kGQAUP////+QZABc/////5BkAFj/////kGQAZP////+QZABg/////5BkAGz/////kGQAaP////+QZAB0/////5BkAHD/////kGQAfP////+QZAB4/////ziEAID/////QgD/fP////88YIAA/////ziAAAD/////kIMA4P////+QgwDc/////5PDANz/////SAAACP////+TxAL8/////zugAAD/////kJ4DAP////88gIAA/////zh/BBj/////k74C/P////+TxADg/////0gAAAH8AAADk6AAAP/gAACAAQAk/////4PhABz/////g8EAGP////+DoQAU/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSThreadInit
+    size: 644
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DefaultThread
+    size: 792
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _stack_end
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: SwitchThreadCallback
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSGetStackPointer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueBits
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 404
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 608
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 612
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0

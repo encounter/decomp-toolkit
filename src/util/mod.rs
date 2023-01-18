@@ -1,5 +1,15 @@
 pub(crate) mod asm;
+pub(crate) mod cfa;
+pub(crate) mod config;
+pub(crate) mod dol;
+pub(crate) mod dwarf;
 pub(crate) mod elf;
+pub(crate) mod executor;
 pub(crate) mod map;
 pub(crate) mod obj;
+pub(crate) mod rel;
+pub(crate) mod sigs;
+pub(crate) mod slices;
 pub(crate) mod split;
+pub(crate) mod tracker;
+pub(crate) mod vm;

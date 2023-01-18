@@ -1,0 +1,368 @@
+- symbol: 0
+  hash: 3b4e8a7f225c30c5449274e9abdc204ee21e3c0d
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////8/4AAA//8AADv/AAD//wAAk8EAGP////98niN4/////ziA////////k6EAFP////98fRt4/////zh/AFD/////SAAAAfwAAAMsAwAA/////0GAAAz/////OGD///////9IAAAc/////zxgAAD//wAAf6XreP////9/xvN4/////zifAFD/////OGMAAP//AABIAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////4OhABT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: vprintf
+    size: 120
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: dc80e3de9af9716a2d906e308bca88db274ea1f3
+  signature: fAgCpv////88oAAA//8AAJABAAT/////OKUAAP//AACUIf/g/////5PhABz/////O+UASP////+TwQAY/////zvEAAD/////OID///////+ToQAU/////zujAAD/////OH8AAP////9IAAAB/AAAAywDAAD/////QYAADP////84YP///////0gAABz/////PGAAAP//AAA4YwAA//8AADifAAD/////OL0AAP////843gAA/////0gAAAH8AAADgAEAJP////+D4QAc/////4PBABj/////fAgDpv////+DoQAU/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: vprintf
+    size: 124
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 216
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 2176403937c686ed6f1358e6b1d5b7b5f2189951
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////8/4AAA//8AADv/AAD//wAAk8EAGP////98niN4/////ziA////////k6EAFP////98fRt4/////zh/AFD/////SAAAAfwAAAMsAwAA/////0GAAAz/////OGD///////9IAAAg/////zxgAAD//wAAf6XreP////9/xvN4/////zifAFD/////OGMAAP//AAA44AAA/////0gAAAH8AAADgAEAJP////+D4QAc/////4PBABj/////g6EAFP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: vprintf
+    size: 124
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: e559aa5fd2ac1600ab39a86fcc5cfaba6d51ab20
+  signature: lCH/4P////98CAKm/////zygAAD//wAAkAEAJP////+T4QAc/////5PBABj/////fJ4jeP////84hQAA//8AAJOhABT/////O+QAUP////98fRt4/////ziA////////f+P7eP////9IAAAB/AAAAywDAAD/////QYAADP////84YP///////0gAABz/////PGAAAP//AAB/5Pt4/////zhjAAD//wAAf6XreP////9/xvN4/////0gAAAH8AAADgAEAJP////+D4QAc/////4PBABj/////g6EAFP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: vprintf
+    size: 124
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 7d02711c0ae8687221526dba590c50461649feac
+  signature: lCH/4P////98CAKm/////zygAAD//wAAkAEAJP////84pQAA//8AAJCBAAz/////OID///////+QYQAI/////zhlAFD/////k+EAHP////9IAAAB/AAAAywDAAD/////QYAADP////84YP///////0gAADz/////OGAAAv////9IAAAB/AAAAzyAAAD//wAAPGAAAP//AAA4hAAA//8AAIChAAj/////gMEADP////84YwAA//8AADiEAFD/////SAAAAfwAAAN8fxt4/////zhgAAL/////SAAAAfwAAAN/4/t4/////4ABACT/////g+EAHP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: vprintf
+    size: 136
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __begin_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __end_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 51a3464f72c3fcf057debbe5d54872178d644c17
+  signature: lCH/4P////98CAKm/////zygAAD//wAAkAEAJP////+T4QAc/////5PBABj/////fJ4jeP////84hQAA//8AAJOhABT/////O+QAUP////98fRt4/////ziA////////f+P7eP////9IAAAB/AAAAywDAAD/////QYAADP////84YP///////0gAADj/////OGAAAv////9IAAAB/AAAAzxgAAD//wAAf+T7eP////84YwAA//8AAH+l63j/////f8bzeP////9IAAAB/AAAA3xgG3j/////OGAAAv////98HwN4/////0gAAAH8AAADf+P7eP////+AAQAk/////4PhABz/////g8EAGP////+DoQAU/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: vprintf
+    size: 152
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __begin_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __end_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

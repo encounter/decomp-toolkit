@@ -1,0 +1,494 @@
+- symbol: 0
+  hash: 79e0fcef1e65005404d892229aad477c71cf3864
+  signature: lCH/4P////98CAKm/////5ABACT/////OGEACP////+T4QAc/////z/gAAD//wAAO/8AAP//AABIAAAB/AAAA4gBAAn/////KAAABP////9AgQBo/////ygAAAn/////QIIACP////9IAABc/////0gAAAH8AAADLAMAAP////9BggA0/////0CAABT/////fGQbeP////84fwAA/////0zGMYL/////SAAAAfwAAANIAAAB/AAAAywDAAD/////QIAAFP////98ZBt4/////zh/ADT/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADLAMAAP////9BggAU/////3xkG3j/////OH8AaP////9MxjGC/////0gAAAH8AAADgAEAJP////+D4QAc/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitNet
+    size: 164
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1039'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NWC24iPrepareShutdown
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: NWC24SuspendScheduler
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: NWC24iSynchronizeRtcCounter
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 17ee28868602b9799d402a4543696098ffc24866
+  signature: lCH/4P////98CAKm/////5ABACT/////OGEACP////+T4QAc/////z/gAAD//wAAO/8AAP//AABIAAAB/AAAA4gBAAn/////KAAABP////9AgQB4/////ygAAAn/////QIIACP////9IAABs/////0gAAAH8AAADLAMAAP////9BggA0/////0CAABT/////fGQbeP////84fwAA/////0zGMYL/////SAAAAfwAAANIAAAB/AAAAywDAAD/////QIAAFP////98ZBt4/////zh/ADT/////TMYxgv////9IAAAB/AAAA4AAAAD/4AAALAAAAP////9AggAk/////zhgAAD/////SAAAAfwAAAMsAwAA/////0GCABT/////fGQbeP////84fwBo/////0zGMYL/////SAAAAfwAAAOAAQAk/////4PhABz/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitNet
+    size: 180
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1040'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NWC24iPrepareShutdown
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: NWC24SuspendScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: NWC24iSynchronizeRtcCounter
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 10d993ca1d041733a2b8c13a38b33ca9fd8f470a
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////PGAAAP//AAA7owAA//8AAEgAAAH8AAADOGEACP////9IAAAB/AAAA4gBAAn/////KAAABP////9AgQAQ/////4gBAAn/////KAAACf////9AggAI/////0gAAGz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QYIAPP////8sHwAA/////0CAABT/////OH0AAP////9/5Pt4/////0zGMYL/////SAAAAfwAAANIAAAB/AAAA3x+G3j/////LB4AAP////9AgAAU/////zh9ADT/////f8TzeP////9MxjGC/////0gAAAH8AAADSAAAAfwAAAN8fxt4/////ywfAAD/////QYIAFP////84fQBo/////3/k+3j/////TMYxgv////9IAAAB/AAAA4PhABz/////g8EAGP////+DoQAU/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitNet
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@654'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Function
+    name: REXInit
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NWC24iPrepareShutdown
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: NWC24SuspendScheduler
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: NWC24iSynchronizeRtcCounter
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 99eab4834fc10dd3c72b1dd2a830a36b5dd992ac
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////PGAAAP//AAA7owAA//8AAEgAAAH8AAADOGEACP////9IAAAB/AAAA4gBAAn/////KAAABP////9AgQAQ/////4gBAAn/////KAAACf////9AggAI/////0gAAHz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QYIAPP////8sHwAA/////0CAABT/////OH0AAP////9/5Pt4/////0zGMYL/////SAAAAfwAAANIAAAB/AAAA3x+G3j/////LB4AAP////9AgAAU/////zh9ADT/////f8TzeP////9MxjGC/////0gAAAH8AAADgAAAAP/gAAAsAAAA/////0CCACj/////OGAAAP////9IAAAB/AAAA3x/G3j/////LB8AAP////9BggAU/////zh9AGj/////f+T7eP////9MxjGC/////0gAAAH8AAADg+EAHP////+DwQAY/////4OhABT/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitNet
+    size: 220
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@671'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Function
+    name: REXInit
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NWC24iPrepareShutdown
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: NWC24SuspendScheduler
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: __OSInIPL
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: NWC24iSynchronizeRtcCounter
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: a9082fc7e6e12f2da297cb33f8d39a685a845a5e
+  signature: lCH/4P////98CAKm/////5ABACT/////OGEACP////+T4QAc/////0gAAAH8AAADiAEACf////8oAAAE/////0CBAQz/////KAAACf////9AggAI/////0gAAQD/////SAAAAfwAAAMsAwAA/////3xkG3j/////QYIAFP////88YAAA//8AADhjAAD//wAATMYxgv////9IAAAB/AAAA4AAAAD/4AAAgGAAAP/gAAB8YAN5/////0GCAEj/////SAAAAfwAAAM8oIAA/////4EAAAD/4AAAgMUA+P////9sZYAA/////4DgAAD/4AAAOAAAAP////9Uw/C+/////xxjADz/////fGgYFP////98BwEU/////2wAgAD/////fGQYEP////98pQEQ/////3ygARD/////fKUA0f////9BggBw/////0gAAAH8AAADKAMAAv////9AggAM/////ziA////////SAAANP////8sAwAA/////0CC/+j/////SAAAAfwAAAN8fxt4/////0gAAAH8AAADPMCAAP////84oAAA/////4AGAPj/////VAbwvv////9IAAAB/AAAA3//IBD/////OIAAAP////8sBAAA/////0GCAAj/////SAAAJP////9IAAAB/AAAA5BgAAD/4AAAf+P7eP////+QgAAA/+AAAEgAAAH8AAADfGQbeP////9IAAAI/////ziAAAD/////LAQAAP////9BggAU/////zxgAAD//wAAOGMAAP//AABMxjGC/////0gAAAH8AAADgAEAJP////+D4QAc/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitNet
+    size: 320
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NWC24iPrepareShutdown
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@955'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: whenCached$660
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SCCheckStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SCGetCounterBias
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __div2i
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NWC24iSetRtcCounter_
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@956'
+    size: 63
+    flags: 2
+    section: .data
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 4
+  - offset: 96
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 4
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 248
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 256
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 4
+  - offset: 260
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

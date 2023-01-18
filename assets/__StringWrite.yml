@@ -1,0 +1,76 @@
+- symbol: 0
+  hash: fd8573d0360049de5abb67c8769f04edfe84d892
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////3x+G3j/////gGMACP////+A3gAE/////3wDKhT/////fAAwQP////9/4zBQ/////0GBAAj/////fL8reP////+AHgAA/////3/l+3j/////fGAaFP////9IAAAB/AAAA4AeAAj/////OGAAAf////98APoU/////5AeAAj/////g+EADP////+DwQAI/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __StringWrite
+    size: 108
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 64
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: aa97d90a13076812a88fc64f1a14c6cfcfd6ee5f
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////k+EAHP////+TwQAY/////3x+G3j/////gGMACP////+A3gAE/////3wDKhT/////fAAwQP////9BgQAM/////3y/K3j/////SAAACP////9/4zBQ/////4AeAAD/////OL8AAP////98YBoU/////0gAAAH8AAADgB4ACP////98APoU/////5AeAAj/////gAEAJP////+D4QAc/////4PBABj/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __StringWrite
+    size: 108
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 68
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 72eb8198fc92efdbce86b4fce4892df09fe3c4cd
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////3x+G3j/////gMMACP////+A4wAE/////3wGKhT/////fAA4QP////9/5jhQ/////0GBAAj/////fL8reP////+AAwAA/////3/l+3j/////fGAyFP////9IAAAB/AAAA4AeAAj/////OGAAAf////98APoU/////5AeAAj/////g+EADP////+DwQAI/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __StringWrite
+    size: 108
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 64
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 433b639615c59c549da93877493f251072c1330f
+  signature: lCH/0P////98CAKm/////5ABADT/////k+EALP////+TwQAo/////5OhACT/////kGEACP////+TgQAg/////3y8K3j/////g+EACP////+QgQAM/////4B/AAj/////gB8ABP////98Y+IU/////3wDAED/////QYEADP////9/neN4/////0gAABD/////gH8ACP////+AHwAE/////3+jAFD/////gH8AAP////9/vut4/////4AfAAj/////f8XzeP////+AgQAM/////3xjAhT/////SAAAAfwAAAOAHwAI/////5BhABD/////OGAAAf////98APIU/////5AfAAj/////gAEANP////+D4QAs/////4PBACj/////g6EAJP////+DgQAg/////3wIA6b/////OCEAMP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __StringWrite
+    size: 164
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 108
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

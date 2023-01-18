@@ -1,0 +1,76 @@
+- symbol: 0
+  hash: 34422147b751d78b7794dfe983eb8d440f7ec77c
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98vyt4/////5PBAAj/////fH4beP////98gyN4/////ziAAAH/////f8bzeP////9IAAAB/AAAA3wfGED/////QIIACP////9IAAAI/////zvAAAD/////f8PzeP////+D4QAM/////4PBAAj/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __FileWrite
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __fwrite
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 77884d217ce414025994f5f4d7e0b9215f11fdab
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////k+EAHP////875QAA/////5PBABj/////O8MAAP////84ZAAA/////zjeAAD/////OIAAAf////9IAAAB/AAAA3wfGED/////QIIADP////9/w/N4/////0gAAAj/////OGAAAP////+AAQAk/////4PhABz/////g8EAGP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __FileWrite
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: fwrite
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 1ac63a780d24250392eb7c4df3c629b47c8d131e
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98vyt4/////5PBAAj/////fH4beP////98gyN4/////ziAAAH/////f8bzeP////9IAAAB/AAAA3wfGED/////QIIADP////9/w/N4/////0gAAAj/////OGAAAP////+AAQAU/////4PhAAz/////g8EACP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __FileWrite
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: fwrite
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 0ceeabe5efdc8527601c657daf2cd2d8178f219b
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////3y+K3j/////kIEACP////84gAAB/////5OhABT/////fH0beP////+AYQAI/////3+m63j/////SAAAAfwAAAN8HhhA/////0CCAAz/////f7/reP////9IAAAI/////zvgAAD/////gAEAJP////9/4/t4/////4PhABz/////g8EAGP////+DoQAU/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __FileWrite
+    size: 104
+    flags: 1
+    section: .text
+  - kind: Function
+    name: fwrite
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

@@ -1,0 +1,366 @@
+- symbol: 0
+  hash: d7240299debc0c71f4259a3a887366b0b99e0a07
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAPKAAAP//AACQAQAU/////ziEAAD//wAAOKUAAP//AACT4QAM/////z/ggAD/////OH8MAP////98pChQ/////0gAAAH8AAADOH8MAP////84gAEA/////0gAAAH8AAADfAAErP////84fwwA/////ziAAQD/////SAAAAfwAAAOAAQAU/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitSystemCall
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: f3bf569ab16e62c64de8f226536d68b196b5d2d8
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88oIAA/////zyAAAD//wAAPGAAAP//AAA75QwA/////zgDAAD//wAAOIQAAP//AAB/4/t4/////3ykAFD/////SAAAAfwAAAN/4/t4/////ziAAQD/////SAAAAfwAAAN8AASs/////3/j+3j/////OIABAP////9IAAAB/AAAA4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSystemCall
+    size: 100
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 6f349ffc8e6076515181f2e352eae43b4b2f0d9e
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////84YAwA/////0gAAAH8AAADfH8beP////9/4/t4/////zygAAD//wAAOIUAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAAN/4/t4/////ziAAQD/////SAAAAfwAAAN8AASs/////3/j+3j/////OIABAP////9IAAAB/AAAA4PhAAz/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSystemCall
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 3b37fb97360c3be364be86fc56a2379e489b636e
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////84YAwA/////0gAAAH8AAADfH8beP////9/4/t4/////zyAAAD//wAAOIQAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAAN/4/t4/////ziAAQD/////SAAAAfwAAAN8AASs/////3/j+3j/////OIABAP////9IAAAB/AAAA4PhAAz/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSystemCall
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 0145ff06131eb846caf2f58cf495e0efb1ba7162
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////84YAwA/////0gAAAH8AAADfH8beP////9/4/t4/////zyAAAD//wAAOIQAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAAN/4/t4/////ziAAQD/////SAAAAfwAAAN8AASs/////3/j+3j/////OIABAP////9IAAAB/AAAA4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSystemCall
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSSystemCallVectorEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

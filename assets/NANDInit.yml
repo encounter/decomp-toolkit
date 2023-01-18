@@ -1,0 +1,1799 @@
+- symbol: 0
+  hash: e5e0191af84508f4740b2fd97d8a37d96a759771
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////8/4AAA//8AADv/AAD//wAAk8EAGP////9IAAAB/AAAA4AAAAD/4AAALAAAAf////9AggAQ/////0gAAAH8AAADOGD//f////9IAADg/////ywAAAL/////QIIAEP////9IAAAB/AAAAzhgAAD/////SAAAzP////84AAAB/////5AAAAD/4AAASAAAAfwAAANIAAAB/AAAAywDAAD/////fH4beP////9AggCY/////0gAAAH8AAADLAMAAP////98fht4/////0CCABD/////OGEACP////9IAAAB/AAAA3x+G3j/////LB4AAP////9AggAc/////zygAAD//wAAgGEACP////+AgQAM/////zilAAD//wAASAAAAfwAAAN8fht4/////yweAAD/////QIIAFP////88gAAA//8AADh/AGD/////OIQAAP//AABIAAAB/AAAA0gAAAH8AAADLB4AAP////9BggAQ/////zh/ATD/////TMYxgv////9IAAAB/AAAAzh/AKD/////SAAAAfwAAANIAAAB/AAAAzgAAAL/////kAAAAP/gAABIAAAB/AAAA4BgAAD/4AAASAAAAfwAAAM4YAAA/////0gAABz/////SAAAAfwAAAM4AAAA/////5AAAAD/4AAASAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEAJP////+D4QAc/////4PBABj/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 300
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2834'
+    size: 73
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_GetTitleId
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_GetDataDir
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 58c9debfd8e44145f203f8452cd005afc4cde90a
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////8/4AAA//8AADv/AAD//wAAk8EAGP////9IAAAB/AAAA4AAAAD/4AAALAAAAf////9AggAQ/////0gAAAH8AAADOGD//f////9IAADo/////ywAAAL/////QIIAEP////9IAAAB/AAAAzhgAAD/////SAAA1P////84AAAB/////5AAAAD/4AAASAAAAfwAAANIAAAB/AAAAywDAAD/////fH4beP////9AggCg/////0gAAAH8AAADLAMAAP////98fht4/////0CCABD/////OGEACP////9IAAAB/AAAA3x+G3j/////LB4AAP////9AggAc/////zygAAD//wAAgGEACP////+AgQAM/////zilAAD//wAASAAAAfwAAAN8fht4/////yweAAD/////QIIAFP////88gAAA//8AADh/AGD/////OIQAAP//AABIAAAB/AAAA0gAAAH8AAADLB4AAP////9BggAQ/////zh/ATD/////TMYxgv////9IAAAB/AAAAzh/AKD/////SAAAAfwAAANIAAAB/AAAAzgAAAL/////kAAAAP/gAABIAAAB/AAAAzhgAAH/////SAAAAfwAAAOAYAAA/+AAAEgAAAH8AAADOGAAAP////9IAAAc/////0gAAAH8AAADOAAAAP////+QAAAA/+AAAEgAAAH8AAADf8PzeP////9IAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 308
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2807'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_GetTitleId
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_GetDataDir
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDSetAutoErrorMessaging
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 244
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: 9a48224f50e3b4da8550b69631b8e4323f2a9a16
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3w/C3j/////PGAAAP//AAA7YwAA//8AAEgAAAH8AAADfH4beP////+AAAAA/+AAACwAAAH/////QIIAFP////9/w/N4/////0gAAAH8AAADOGD//f////9IAAEE/////4AAAAD/4AAALAAAAv////9AggAU/////3/D83j/////SAAAAfwAAAM4YAAA/////0gAAOj/////O4D/i/////84AAAB/////5AAAAD/4AAAf8PzeP////9IAAAB/AAAA0gAAAH8AAADfHwbeP////8sHAAA/////0CCAKD/////SAAAAfwAAAN8fRt4/////ywdAAD/////QIIAEP////84fwAI/////0gAAAH8AAADfH0beP////8sHQAA/////0CCABz/////gH8ACP////+AnwAM/////zygAAD//wAAOKUAAP//AABIAAAB/AAAA3x9G3j/////LB0AAP////9AggAU/////zh7AGD/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADSAAAAfwAAAMsHQAA/////0GCABD/////OHsCgP////9MxjGC/////0gAAAH8AAADOHsAoP////9IAAAB/AAAA0gAAAH8AAADfH4beP////84AAAC/////5AAAAD/4AAAf8PzeP////9IAAAB/AAAA4BgAAD/4AAASAAAAfwAAAM4YAAA/////0gAACj/////SAAAAfwAAAN8fht4/////zgAAAD/////kAAAAP/gAAB/w/N4/////0gAAAH8AAADf4PjeP////9IAAAB/AAAA0gAAAT/////f+r7eP////85agAw/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 356
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2628'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_GetTitleId
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_GetDataDir
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 234dacdbde32146d5b2818de227e12c2fbb4ec6e
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3w/C3j/////PGAAAP//AAA7YwAA//8AAEgAAAH8AAADfH4beP////+AAAAA/+AAACwAAAH/////QIIAFP////9/w/N4/////0gAAAH8AAADOGD//f////9IAAEM/////4AAAAD/4AAALAAAAv////9AggAU/////3/D83j/////SAAAAfwAAAM4YAAA/////0gAAPD/////O4D/i/////84AAAB/////5AAAAD/4AAAf8PzeP////9IAAAB/AAAA0gAAAH8AAADfHwbeP////8sHAAA/////0CCAKj/////SAAAAfwAAAN8fRt4/////ywdAAD/////QIIAEP////84fwAI/////0gAAAH8AAADfH0beP////8sHQAA/////0CCABz/////gH8ACP////+AnwAM/////zygAAD//wAAOKUAAP//AABIAAAB/AAAA3x9G3j/////LB0AAP////9AggAU/////zh7AGD/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADSAAAAfwAAAMsHQAA/////0GCABD/////OHsCvP////9MxjGC/////0gAAAH8AAADOHsAoP////9IAAAB/AAAA0gAAAH8AAADfH4beP////84AAAC/////5AAAAD/4AAAf8PzeP////9IAAAB/AAAAzhgAAH/////SAAAAfwAAAOAYAAA/+AAAEgAAAH8AAADOGAAAP////9IAAAo/////0gAAAH8AAADfH4beP////84AAAA/////5AAAAD/4AAAf8PzeP////9IAAAB/AAAA3+D43j/////SAAAAfwAAANIAAAE/////3/q+3j/////OWoAMP////9IAAAB/AAAA4FBAAD/////gAoABP////99QVN4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 364
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2665'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_GetTitleId
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ESP_GetDataDir
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDSetAutoErrorMessaging
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 280
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: ace08c2138fc21c1708aa8def274a9b5f2fa6abb
+  signature: lCH/0P////98CAKm/////5ABADT/////k+EALP////+TwQAo/////5OhACT/////SAAAAfwAAAN8fxt4/////4AAAAD/4AAALAAAAf////9AggAU/////3/j+3j/////SAAAAfwAAAM4YP/9/////0gAARj/////gAAAAP/gAAAsAAAC/////0CCABT/////f+P7eP////9IAAAB/AAAAzhgAAD/////SAAA/P////87oP+L/////zgAAAH/////kAAAAP/gAAB/4/t4/////0gAAAH8AAADSAAAAfwAAAN8fRt4/////ywdAAD/////QIIAuP////84AP///////5ABAAj/////OGEACP////9IAAAB/AAAA3x+G3j/////LB4AAP////9AggAU/////zhhAAj/////OIEAEP////9IAAAB/AAAA3x+G3j/////LB4AAP////9AggAg/////zhhAAj/////gKEAEP////+AwQAU/////zyAAAD//wAAOOQAAP//AABIAAAB/AAAA3x+G3j/////LB4AAP////9AggAY/////zxgAAD//wAAOGMAAP//AAA8gAAA//8AADiEAAD//wAASAAAAfwAAAM4YQAI/////0gAAAH8AAADLB4AAP////9BggAU/////zxgAAD//wAAOGMAAP//AABMxjGC/////0gAAAH8AAADSAAAAfwAAAN8fxt4/////zgAAAL/////kAAAAP/gAAB/4/t4/////0gAAAH8AAADgGAAAP/gAABIAAAB/AAAAzhgAAD/////SAAAJP////9IAAAB/AAAA3x/G3j/////OAAAAP////+QAAAA/+AAAH/j+3j/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADg+EALP////+DwQAo/////4OhACT/////gAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 364
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: _ES_InitLib
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: _ES_GetTitleId
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: _ES_GetDataDir
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_currentDir
+    size: 64
+    flags: 2
+    section: .data
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: _ES_CloseLib
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@2838'
+    size: 31
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 276
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 316
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 735ed4fcfa27a6e6a4cf927baf1f78e22c10b0a4
+  signature: lCH/0P////98CAKm/////5ABADT/////k+EALP////+TwQAo/////5OhACT/////k4EAIP////98Pwt4/////0gAAAH8AAADfH4beP////+AAAAA/+AAACwAAAH/////QIIAFP////9/w/N4/////0gAAAH8AAADOGD//f////9IAAEo/////4AAAAD/4AAALAAAAv////9AggAU/////3/D83j/////SAAAAfwAAAM4YAAA/////0gAAQz/////O4D/i/////84AAAB/////5AAAAD/4AAAf8PzeP////9IAAAB/AAAA0gAAAH8AAADfHwbeP////8sHAAA/////0CCAMT/////OAD///////+QHwAI/////zh/AAj/////SAAAAfwAAAN8fRt4/////ywdAAD/////QIIAFP////84fwAI/////zifABD/////SAAAAfwAAAN8fRt4/////ywdAAD/////QIIAIP////84fwAI/////4C/ABD/////gN8AFP////88gAAA//8AADjkAAD//wAASAAAAfwAAAN8fRt4/////ywdAAD/////QIIAGP////88YAAA//8AADhjAAD//wAAPIAAAP//AAA4hAAA//8AAEgAAAH8AAADOH8ACP////9IAAAB/AAAAywdAAD/////QYIAFP////88YAAA//8AADhjAAD//wAATMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAA0gAAAH8AAADfH4beP////84AAAC/////5AAAAD/4AAAf8PzeP////9IAAAB/AAAA4BgAAD/4AAASAAAAfwAAAM4YAAA/////0gAACj/////SAAAAfwAAAN8fht4/////zgAAAD/////kAAAAP/gAAB/w/N4/////0gAAAH8AAADf4PjeP////9IAAAB/AAAA0gAAAT/////f+r7eP////+D6gAs/////4PKACj/////g6oAJP////+DigAg/////4FBAAD/////gAoABP////99QVN4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 400
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: _ES_InitLib
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: _ES_GetTitleId
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: _ES_GetDataDir
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_currentDir
+    size: 64
+    flags: 2
+    section: .data
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: _ES_CloseLib
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@2921'
+    size: 31
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: s_shutdownFuncInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 296
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 336
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 4bf2307d73aed4500f9523d42b1b63f0d15ef810
+  signature: VCsG/v////98LAt4/////yFr/UD/////fCFZbv////98CAKm/////5AMAAT/////k+z//P////8/4AAA//8AADv/AAD//wAAk8z/+P////+TrP/0/////5OM//D/////SAAAAfwAAAOAAAAA/+AAACwAAAH/////QIIAEP////9IAAAB/AAAAzhg//3/////SAACAP////8sAAAC/////0CCABD/////SAAAAfwAAAM4YAAA/////0gAAez/////OAAAAf////+QAAAA/+AAAEgAAAH8AAADSAAAAfwAAAMsAwAA/////3x8G3j/////QIIBJP////84YP///////zuAAAD/////kGEAIP////84YAAA/+AAADiAAAD/////SAAAAfwAAAMsAwAA/////5BhACD/////QIAACP////98fBt4/////ywcAAD/////QIIAZP////8sAwAA/////zjhAED/////QYAAFP////84gQAo/////zgAAAD/////fAQAQP////9AggAM/////zhg/Af/////SAAAPP////84gQBg/////zgAAAj/////kIEAQP////84gAAg/////zigAAD/////OMAAAf////+QAQBE/////0gAAAH8AAADLAMAAP////9AggAU/////4ABAGD/////gIEAZP////+QAQAo/////5CBACz/////fHwbeP////8sHAAA/////0CCACD/////POAAAP//AACAoQAo/////4DBACz/////OGEAIP////845wAA//8AAEgAAAH8AAADfHwbeP////8sHAAA/////0CCABT/////PIAAAP//AAA4fwBg/////ziEAAD//wAASAAAAfwAAAOAYQAg/////ywDAAD/////QYAAGP////9IAAAB/AAAAywDAAD/////QIIADP////84YP///////5BhACD/////LBwAAP////9BggAQ/////zh/AOz/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADOAAAAv////+QAAAA/+AAAEgAAAH8AAADgGAAAP/gAABIAAAB/AAAAzhgAAD/////SAAAsP////9IAAAB/AAAAzgAAAD/////kAAAAP/gAABIAAAB/AAAAzxgAAD//wAAOAAAJ/////84YwAA//8AADihAVz/////OIP//P////98CQOm/////4BkAAT/////hAQACP////+QZQAE/////5QFAAj/////QgD/8P////8sHAAA/////zugAAD/////OGAAAP////9BgAAI/////0gAAFz/////OAAAJ/////87wQFg/////3wJA6b/////fB4YLv////98HAAA/////0CCABz/////f4PjeP////9IAAAB/AAAAzgdAAH/////VAAQOv////9/ngAu/////0gAACz/////O70AAv////84YwAI/////0IA/9T/////f4TjeP////84fwC4/////0zGMYL/////SAAAAfwAAAN/g+N4/////0gAAAH8AAADO4D/wP////9/g+N4/////4FBAAD/////gAoABP////+D6v/8/////4PK//j/////g6r/9P////+Div/w/////3wIA6b/////fUFTeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 620
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2587'
+    size: 73
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@3938'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IOS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IOS_Ioctlv
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: _ES_GetDataDir
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IOS_Close
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2852'
+    size: 312
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 396
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 420
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 564
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: 83bc3afb55cb9aa93ef82b8a17df12f610047b5d
+  signature: VCsG/v////98LAt4/////yFr/UD/////fCFZbv////98CAKm/////5AMAAT/////k+z//P////8/4AAA//8AADv/AAD//wAAk8z/+P////+TrP/0/////5OM//D/////SAAAAfwAAAOAAAAA/+AAACwAAAH/////QIIAEP////9IAAAB/AAAAzhg//3/////SAACCP////8sAAAC/////0CCABD/////SAAAAfwAAAM4YAAA/////0gAAfT/////OAAAAf////+QAAAA/+AAAEgAAAH8AAADSAAAAfwAAAMsAwAA/////3x8G3j/////QIIBLP////84YP///////zuAAAD/////kGEAIP////84YAAA/+AAADiAAAD/////SAAAAfwAAAMsAwAA/////5BhACD/////QIAACP////98fBt4/////ywcAAD/////QIIAZP////8sAwAA/////zjhAED/////QYAAFP////84gQAo/////zgAAAD/////fAQAQP////9AggAM/////zhg/Af/////SAAAPP////84gQBg/////zgAAAj/////kIEAQP////84gAAg/////zigAAD/////OMAAAf////+QAQBE/////0gAAAH8AAADLAMAAP////9AggAU/////4ABAGD/////gIEAZP////+QAQAo/////5CBACz/////fHwbeP////8sHAAA/////0CCACD/////POAAAP//AACAoQAo/////4DBACz/////OGEAIP////845wAA//8AAEgAAAH8AAADfHwbeP////8sHAAA/////0CCABT/////PIAAAP//AAA4fwBg/////ziEAAD//wAASAAAAfwAAAOAYQAg/////ywDAAD/////QYAAGP////9IAAAB/AAAAywDAAD/////QIIADP////84YP///////5BhACD/////LBwAAP////9BggAQ/////zh/APz/////TMYxgv////9IAAAB/AAAAzh/AKD/////SAAAAfwAAANIAAAB/AAAAzgAAAL/////kAAAAP/gAABIAAAB/AAAA4BgAAD/4AAASAAAAfwAAAM4YAAA/////0gAALD/////SAAAAfwAAAM4AAAA/////5AAAAD/4AAASAAAAfwAAAM8YAAA//8AADgAACj/////OGMAAP//AAA4oQFc/////ziD//z/////fAkDpv////+AZAAE/////4QEAAj/////kGUABP////+UBQAI/////0IA//D/////LBwAAP////87oAAA/////zhgAAD/////QYAACP////9IAABc/////zgAACj/////O8EBYP////98CQOm/////3weGC7/////fBwAAP////9AggAc/////3+D43j/////SAAAAfwAAAM4HQAB/////1QAEDr/////f54ALv////9IAAAs/////zu9AAL/////OGMACP////9CAP/U/////3+E43j/////OH8AyP////9MxjGC/////0gAAAH8AAADf4PjeP////9IAAAB/AAAAzuA/8D/////f4PjeP////+BQQAA/////4AKAAT/////g+r//P////+Dyv/4/////4Oq//T/////g4r/8P////98CAOm/////31BU3j/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: NANDInit
+    size: 628
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2602'
+    size: 73
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_OpenLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@4010'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IOS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IOS_Ioctlv
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_homeDir
+    size: 64
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: _ES_GetDataDir
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IOS_Close
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __NANDVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2869'
+    size: 320
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 396
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 404
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 428
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 528
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 580
+    kind: PpcRel24
+    symbol: 18
+    addend: 0

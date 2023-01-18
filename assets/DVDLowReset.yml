@@ -1,0 +1,754 @@
+- symbol: 0
+  hash: b8cb8b2f2123504acf22a874a5fd21338c1496ad
+  signature: fAgCpv////88gMwA/////5ABAAT/////OAAAAv////+UIf/g/////79BAAj/////O+QwAP////+QBGAE/////4PEMCT/////V8AHuP////9gAAAB/////5QfACT/////SAAAAfwAAAM8oIAA/////4AFAPj/////PKBDHP////84pd6D/////1QA8L7/////fAUAFv////9UAIv+/////xwAAAz/////O0QAAP////87YwAA/////1Qc6P7/////O6AAAP////9IAAAB/AAAA3y6IBD/////fBsZEP////9sBIAA/////2+jgAD/////fBwoEP////98YyEQ/////3xkIRD/////fGMA0f////9Agv/c/////2PAAAX/////kB8AAP////84AAAB/////5AAAAD/4AAASAAAAfwAAAOQgAAA/+AAAJBgAAD/4AAAu0EACP////+AAQAk/////zghACD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowReset
+    size: 188
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetOccurred
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: LastResetEnd
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 48
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 4
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 841144758c7176d70d48a6d25dc8b9be24d3d6da
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v6EADP////84AAAC/////zxgzAD/////kANgBP////88YMwA/////4PjMCT/////V+AHuP////9gAAAB/////zxgzAD/////kAMwJP////9IAAAB/AAAAzvEAAD/////O6MAAP////9IAAAB/AAAA3zeIBD/////fJ0ZEP////88YIAA/////4ADAPj/////VADwvv////88YAAC/////zhj6Ej/////fAAblv////8cAAAM/////1QF6P7/////OAAAAP////9shIAA/////2wDgAD/////fAUwEP////98YyEQ/////3xkIRD/////fGMA0f////9Agv+4/////2PgAAT/////YAAAAf////88YMwA/////5ADMCT/////OAAAAf////+QAAAA/+AAAEgAAAH8AAADkIAAAP/gAACQYAAA/+AAAIABABz/////u6EADP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDLowReset
+    size: 196
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetOccurred
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: LastResetEnd
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 52
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 4
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 707b98bf5b70a5f5f7b6b7661405ec1e6f49809b
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5BhAAj/////OAAAAf////+YAAAA/+AAAIBhAAj/////OIAAAf////9IAAAB/AAAA3x/G3j/////OGAAAP/gAABIAAAB/AAAAziAAIr/////gGAAAP/gAACAAAAA/+AAAFQAKDT/////fIMBrv////+AgAAA/+AAAIBgAAD/4AAAgAAAAP/gAABUACg0/////3xjAhT/////kIMABP////+AYAAA/+AAADiAAIr/////gKAAAP/gAACAAAAA/+AAAFQAKDT/////fKUCFP////84wAAg/////zjgAAD/////OQAAAP////89IAAA//8AADkpAAD//wAAf+r7eP////9IAAAB/AAAA3x+G3j/////LB4AAP////9BggAo/////zxgAAD//wAAOGMAAP//AAB/xPN4/////0zGMYL/////SAAAAfwAAAM4AAAA/////5gfAAj/////OGAAAP////9IAAAI/////zhgAAH/////g+EAHP////+DwQAY/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDLowReset
+    size: 228
+    flags: 1
+    section: .text
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: newContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: nextCommandBuf
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: spinUpValue
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2624'
+    size: 53
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: b9072f630cbb5cd5b4e331c5fdea416821ce62f3
+  signature: lCH/8P////98CAKm/////zzgAAD//wAAOSAAAf////+QAQAU/////zjnAAD//wAAk+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////+AgAAA/+AAAJkgAAD/4AAAVIgoNP////98x0IU/////4imAAj/////fAUA0P////98ACt4/////1QAD/7/////KAAAAf////9AggAg/////zh/AkD/////TMYxgv////9IAAAB/AAAAzh/Anj/////TMYxgv////9IAAAB/AAAA0gAAAD/////gKYADP////88BQEV/////ygA2u3/////QYIAFP////84fwKo/////0zGMYL/////SAAAAfwAAANIAAAA/////3xnQS7/////OAQAAf////8sAAAE/////5EmAAT/////mSYACP////+QAAAA/+AAAEGAAAz/////OAAAAP////+QAAAA/+AAAIBgAAD/4AAAPKAAAP//AABUhCg0/////zgDAAH/////OKUAAP//AAAsAAAE/////5AAAAD/4AAAf8UiFP////9BgAAM/////zgAAAD/////kAAAAP/gAACAYAAA/+AAAD0gAAD//wAAVAAoNP////84gACK/////3yDAa7/////f8rzeP////85KQAA//8AADiAAIr/////gAAAAP/gAAA4wAAg/////4BgAAD/4AAAOOAAAP////9UACg0/////4CgAAD/4AAAfGMCFP////85AAAA/////5CjAAT/////gAAAAP/gAACAoAAA/+AAAFQAKDT/////gGAAAP/gAAB8pQIU/////0gAAAH8AAADLAMAAP////9BggAk/////3xkG3j/////OH8IYP////9MxjGC/////0gAAAH8AAADOAAAAP////84YAAA/////5geAAj/////SAAACP////84YAAB/////4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowReset
+    size: 380
+    flags: 1
+    section: .text
+  - kind: Object
+    name: dvdContexts
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@3872'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Object
+    name: freeDvdContext
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: spinUpValue
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 252
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 3b8faad0a5bc01fc2d7ba6c6414257b1be48498e
+  signature: lCH/8P////98CAKm/////zzgAAD//wAAOSAAAf////+QAQAU/////zjnAAD//wAAk+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////+AgAAA/+AAAJkgAAD/4AAAVIgoNP////98x0IU/////4imAAj/////fAUA0P////98ACt4/////1QAD/7/////KAAAAf////9AggAg/////zh/AkD/////TMYxgv////9IAAAB/AAAAzh/Anj/////TMYxgv////9IAAAB/AAAA0gAAAD/////gKYADP////88BQEV/////ygA2u3/////QYIAFP////84fwKo/////0zGMYL/////SAAAAfwAAANIAAAA/////3xnQS7/////OAQAAf////8sAAAE/////5EmAAT/////mSYACP////+QAAAA/+AAAEGAAAz/////OAAAAP////+QAAAA/+AAAIBgAAD/4AAAPKAAAP//AABUhCg0/////zgDAAH/////OKUAAP//AAAsAAAE/////5AAAAD/4AAAf8UiFP////9BgAAM/////zgAAAD/////kAAAAP/gAACAYAAA/+AAAD0gAAD//wAAVAAoNP////84gACK/////3yDAa7/////f8rzeP////85KQAA//8AADiAAIr/////gAAAAP/gAAA4wAAg/////4BgAAD/4AAAOOAAAP////9UACg0/////4CgAAD/4AAAfGMCFP////85AAAA/////5CjAAT/////gAAAAP/gAACAoAAA/+AAAFQAKDT/////gGAAAP/gAAB8pQIU/////0gAAAH8AAADLAMAAP////9BggAk/////3xkG3j/////OH8IYP////9MxjGC/////0gAAAH8AAADOAAAAP////+YHgAI/////zhgAAD/////SAAACP////84YAAB/////4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowReset
+    size: 380
+    flags: 1
+    section: .text
+  - kind: Object
+    name: dvdContexts
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@3815'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Object
+    name: freeDvdContext
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: spinUpValue
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 252
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 0dcdd3551cf6699af3b38e58464b76599ebe5ae2
+  signature: lCH/8P////98CAKm/////zzgAAD//wAAOSAAAf////+QAQAU/////zjnAAD//wAAk+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////+AgAAA/+AAAJkgAAD/4AAAVIgoNP////98x0IU/////4imAAj/////fAUA0P////98ACt4/////1QAD/7/////KAAAAf////9AggAg/////zh/Ahj/////TMYxgv////9IAAAB/AAAAzh/AlD/////TMYxgv////9IAAAB/AAAA0gAAAD/////gKYADP////88BQEV/////ygA2u3/////QYIAFP////84fwKA/////0zGMYL/////SAAAAfwAAANIAAAA/////3xnQS7/////OAQAAf////8sAAAE/////5EmAAT/////mSYACP////+QAAAA/+AAAEGAAAz/////OAAAAP////+QAAAA/+AAAIBgAAD/4AAAPKAAAP//AABUhCg0/////zgDAAH/////OKUAAP//AAAsAAAE/////5AAAAD/4AAAf8UiFP////9BgAAM/////zgAAAD/////kAAAAP/gAACAYAAA/+AAAD0gAAD//wAAVAAoNP////84gACK/////3yDAa7/////f8rzeP////85KQAA//8AADiAAIr/////gAAAAP/gAAA4wAAg/////4BgAAD/4AAAOOAAAP////9UACg0/////4CgAAD/4AAAfGMCFP////85AAAA/////5CjAAT/////gAAAAP/gAACAoAAA/+AAAFQAKDT/////gGAAAP/gAAB8pQIU/////0gAAAH8AAADLAMAAP////9BggAk/////3xkG3j/////OH8F4P////9MxjGC/////0gAAAH8AAADOAAAAP////84YAAA/////5geAAj/////SAAACP////84YAAB/////4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowReset
+    size: 380
+    flags: 1
+    section: .text
+  - kind: Object
+    name: dvdContexts
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@3480'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Object
+    name: freeDvdContext
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: spinUpValue
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 252
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 5
+    addend: 0

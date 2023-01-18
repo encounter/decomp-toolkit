@@ -1,0 +1,2710 @@
+- symbol: 0
+  hash: 444fc610641644110607728d8b371b4eb254cec1
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////vyEAHP////874wAA/////zuEAAD/////O0UAAP////9X5DAy/////zxgAAD//wAAOAMAAP//AAB/oCIU/////ywfAAD/////QYAADP////8sHwAD/////0GAACD/////PGAAAP//AAA4YwAA//8AADiABNH/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAMsHwAC/////0CAAHz/////KBwAAP////9AggB0/////3/j+3j/////SAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAP////9IAAHU/////4CdACD/////V+AQOv////88YIAA/////zhjMMD/////fAMALv////98BAAA/////0CCABT/////gB0AHP////+QGgAA/////4B9ACD/////SAABqP////84fwAA/////ziAAAD/////SAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAP////9IAAGM/////1fgEDr/////PGCAAP////84YzDA/////39jAC7/////OH8AAP////84nAAA/////ywfAAL/////QIAAGP////8oHAAA/////0CCABD/////PKAAAP//AAA4pQAA//8AAEgAAAj/////OKAAAP////9IAAAB/AAAA3xgADT/////VB7Zfv////8sHgAA/////0CCALj/////OH8AAP////84nAAA/////zigAAD/////SAAAAfwAAAN8YAA0/////1Qe2X7/////LB4AAP////9AggCQ/////zgAAAD/////kAEAFP////84fwAA/////ziBABT/////OKAAAv////84wAAB/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/4/t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////OH8AAP////84mgAA/////zigAAT/////OMAAAP////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/4/t4/////0gAAAH8AAADLB8AAv////9AgABw/////ygcAAD/////QIIAaP////9/4/t4/////0gAAAH8AAADSAAAAfwAAAN8eRt4/////1fgEDr/////PGCAAP////84YzDA/////3wDAC7/////fHsAUP////8wA////////3wAGRD/////f94DeP////8sHgAA/////0CCABD/////gBoAAP////+QHQAc/////5N9ACD/////fyPLeP////9IAAAB/AAAAyweAAD/////QYIADP////84YAAA/////0gAACD/////gH0AIP////9IAAAY/////yweAAD/////QYIADP////84YAAA/////0gAAAj/////OGAAAf////+AAQA8/////7shABz/////OCEAOP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 612
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@30'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@31'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __EXIAttach
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDetach
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 480
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 544
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 86eb82e88307e1bdcc14dddf36fd33ad2dd3b5b5
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////vyEAHP////874wAA/////zuEAAD/////O0UAAP////9X5DAy/////zxgAAD//wAAOAMAAP//AAB/oCIU/////ywfAAD/////QYAADP////8sHwAD/////0GAACD/////PGAAAP//AAA4YwAA//8AADiABSX/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAMsHwAA/////0CCACj/////KBwAAv////9AggAg/////4AAAAD/4AAAKAAAAP////9BggAU/////4AAAAD/4AAAkBoAAP////84YAAB/////0gAAgz/////LB8AAv////9AgAB8/////ygcAAD/////QIIAdP////9/4/t4/////0gAAAH8AAADLAMAAP////9AggAM/////zhgAAD/////SAAB5P////+AnQAg/////1fgEDr/////PGCAAP////84YzDA/////3wDAC7/////fAQAAP////9AggAU/////4AdABz/////kBoAAP////+AfQAg/////0gAAbj/////OH8AAP////84gAAA/////0gAAAH8AAADLAMAAP////9AggAM/////zhgAAD/////SAABnP////9X4BA6/////zxggAD/////OGMwwP////9/IwAu/////0gAAAH8AAADfHsbeP////84fwAA/////zicAAD/////LB8AAv////9AgAAY/////ygcAAD/////QIIAEP////88oAAA//8AADilAAD//wAASAAACP////84oAAA/////0gAAAH8AAADfGAANP////9UHtl+/////yweAAD/////QIIAuP////84fwAA/////zicAAD/////OKAAAP////9IAAAB/AAAA3xgADT/////VB7Zfv////8sHgAA/////0CCAJD/////OAAAAP////+QAQAU/////zh/AAD/////OIEAFP////84oAAC/////zjAAAH/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////84fwAA/////ziaAAD/////OKAABP////84wAAA/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/4/t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN/Y9t4/////0gAAAH8AAADLB8AAv////9AgABw/////ygcAAD/////QIIAaP////9/4/t4/////0gAAAH8AAADSAAAAfwAAAN8ext4/////1fgEDr/////PGCAAP////84YzDA/////3wDAC7/////fHkAUP////8wA////////3wAGRD/////f94DeP////8sHgAA/////0CCABD/////gBoAAP////+QHQAc/////5M9ACD/////f2PbeP////9IAAAB/AAAAyweAAD/////QYIADP////84YAAA/////0gAACD/////gH0AIP////9IAAAY/////yweAAD/////QYIADP////84YAAA/////0gAAAj/////OGAAAf////+AAQA8/////7shABz/////OCEAOP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 672
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@33'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@34'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __EXIAttach
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDetach
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 540
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 604
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: b2e3964b48fd887411e9339753fae996bde1f2ad
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////vyEAHP////874wAA/////zuEAAD/////O0UAAP////9X5DAy/////zxgAAD//wAAOAMAAP//AAB/oCIU/////ywfAAD/////QYAADP////8sHwAD/////0GAACD/////PGAAAP//AAA4YwAA//8AADiABSj/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAMsHwAA/////0CCACj/////KBwAAv////9AggAg/////4AAAAD/4AAAKAAAAP////9BggAU/////4AAAAD/4AAAkBoAAP////84YAAB/////0gAAgz/////LB8AAv////9AgAB8/////ygcAAD/////QIIAdP////9/4/t4/////0gAAAH8AAADLAMAAP////9AggAM/////zhgAAD/////SAAB5P////+AnQAg/////1fgEDr/////PGCAAP////84YzDA/////3wDAC7/////fAQAAP////9AggAU/////4AdABz/////kBoAAP////+AfQAg/////0gAAbj/////OH8AAP////84gAAA/////0gAAAH8AAADLAMAAP////9AggAM/////zhgAAD/////SAABnP////9X4BA6/////zxggAD/////OGMwwP////9/IwAu/////0gAAAH8AAADfHsbeP////84fwAA/////zicAAD/////LB8AAv////9AgAAY/////ygcAAD/////QIIAEP////88oAAA//8AADilAAD//wAASAAACP////84oAAA/////0gAAAH8AAADfGAANP////9UHtl+/////yweAAD/////QIIAuP////84fwAA/////zicAAD/////OKAAAP////9IAAAB/AAAA3xgADT/////VB7Zfv////8sHgAA/////0CCAJD/////OAAAAP////+QAQAU/////zh/AAD/////OIEAFP////84oAAC/////zjAAAH/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////84fwAA/////ziaAAD/////OKAABP////84wAAA/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/4/t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN/Y9t4/////0gAAAH8AAADLB8AAv////9AgABw/////ygcAAD/////QIIAaP////9/4/t4/////0gAAAH8AAADSAAAAfwAAAN8ext4/////1fgEDr/////PGCAAP////84YzDA/////3wDAC7/////fHkAUP////8wA////////3wAGRD/////f94DeP////8sHgAA/////0CCABD/////gBoAAP////+QHQAc/////5M9ACD/////f2PbeP////9IAAAB/AAAAyweAAD/////QYIADP////84YAAA/////0gAACD/////gH0AIP////9IAAAY/////yweAAD/////QYIADP////84YAAA/////0gAAAj/////OGAAAf////+AAQA8/////7shABz/////OCEAOP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 672
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@33'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@34'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __EXIAttach
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDetach
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 540
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 604
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 420e07bf191e4ff7473140e63a142cd2f556290c
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////vyEAHP////87YwAA/////zxgAAD//wAALBsAAv////87hAAA/////zulAAD/////O+MAAP//AABBggCs/////ygcAAD/////QIIApP////8cGwA4/////39fAhT/////SAAAAfwAAAOAGgAM/////zvDAAD/////VAAHOf////9BggAU/////3/D83j/////SAAAAfwAAAM4AAAA/////0gAAGj/////f2PbeP////9IAAAB/AAAAywDAAD/////QIIAFP////9/w/N4/////0gAAAH8AAADOAAAAP////9IAABI/////zh7AAD/////OIAAAf////84oAAA/////zjAAAD/////SAAAAfwAAAMcGwAD/////ziAAAD/////PGAAEP////+QmgAI/////3xjBDD/////SAAAAfwAAAOAGgAM/////zh+AAD/////YAAACP////+QGgAM/////0gAAAH8AAADOAAAAf////8sAAAA/////0CCAAz/////OGAAAP////9IAAHw/////zh7AAD/////OJwAAP////84oAAA/////0gAAAH8AAADfGAANP////9UANl+/////3weA3n/////QIIBPP////84ewAA/////zicAAD/////OKAAAP////9IAAAB/AAAA3xgADT/////VADZfv////98HgN5/////0CCAJD/////OAAAAP////+QAQAU/////zh7AAD/////OIEAFP////84oAAC/////zjAAAH/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////84ewAA/////3/eA3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////OHsAAP////84nQAA/////3/eA3j/////OKAABP////84wAAA/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////OHsAAP////9/3gN4/////0gAAAH8AAADfGAANP////9UANl+/////zh7AAD/////f94DeP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////xwbADj/////fz8CFP////9IAAAB/AAAA4AZAAz/////O0MAAP////9UAAb3/////0CCABD/////f0PTeP////9IAAAB/AAAA0gAAGj/////gBkADP////84ewAA/////ziZAAD/////VAAHNP////+QGQAM/////0gAAAH8AAADgHkAHP////8sAwAA/////0CBADz/////NAP///////+DuQAk/////5AZABz/////QIEAGP////+AGQAc/////zh5ACD/////OJkAKP////9UBRg4/////0gAAAH8AAADOZ0AAP////99iAOm/////zh7AAD/////OIAAAP////9OgAAh/////39D03j/////SAAAAfwAAAMsGwAC/////0GCAHz/////KBwAAP////9AggB0/////xwbADj/////fz8CFP////9IAAAB/AAAA4AZAAz/////O0MAAP////9UAAc5/////0CCABD/////f0PTeP////9IAAAB/AAAA0gAAEz/////gBkADP////9UAAb3/////0GCABz/////gBkAGP////8oAAAA/////0CCABD/////f0PTeP////9IAAAB/AAAA0gAACj/////gHkADP////8cGwAD/////1RkB3b/////PGAAcP////+QmQAM/////3xjBDD/////SAAAAfwAAAN/Q9N4/////0gAAAH8AAADLB4AAP////9BggAM/////zhgAAD/////SAAACP////84YAAB/////7shABz/////gAEAPP////84IQA4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 724
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 168
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIProbe
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIClearInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetExiInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: memmove
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 524
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 580
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 604
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 640
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 672
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 680
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: d3877f8dc07d98628e93cc4c6c98801a81d8a3a6
+  signature: lCH/sP////98CAKm/////5ABAFT/////OWEAUP////9IAAAB/AAAA3x/G3j/////fJsjeP////98vCt4/////1fkMDL/////PGAAAP//AAA4AwAA//8AAH+gIhT/////OAAAAf////+QAQAg/////zgAAAD/////kAEAHP////8sHwAA/////0GAABT/////LB8AA/////9AgAAM/////zgAAAH/////kAEAHP////+AAQAc/////ywAAAD/////QIIAPP////88YAAA//8AADhjAAD//wAAOIAFrf////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEAGP////+AAQAY/////ywAAAD/////QIIADP////84AAAA/////5ABACD/////LB8AAP////9AggAo/////ygbAAL/////QIIAIP////+AAAAA/+AAACwAAAD/////QYIAFP////+AAAAA/+AAAJAcAAD/////OGAAAf////9IAAJc/////ywfAAL/////QIAAgP////8sGwAA/////0CCAHj/////f+P7eP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAjT/////gJ0AIP////9X4xA6/////zwAgAD/////fGAaFP////+AAzDA/////3wEAAD/////QIIAFP////+AHQAc/////5AcAAD/////gH0AIP////9IAAII/////3/j+3j/////OIAAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAez/////V+MQOv////88AIAA/////3xgGhT/////gAMwwP////+QAQAo/////0gAAAH8AAADkGEAJP////84AAAA/////5ABABT/////LB8AAv////9AgAAU/////ywbAAD/////QIIADP////84AAAB/////5ABABT/////gAEAFP////8sAAAA/////0GCABT/////PGAAAP//AAA4AwAA//8AAJABABD/////SAAADP////84AAAA/////5ABABD/////f+P7eP////9/ZNt4/////4ChABD/////SAAAAfwAAAN8YAA0/////1Qe2X7/////LB4AAP////9AggC4/////3/j+3j/////f2TbeP////84oAAA/////0gAAAH8AAADfGAANP////9UHtl+/////yweAAD/////QIIAkP////84AAAA/////5ABACz/////f+P7eP////84gQAs/////zigAAL/////OMAAAf////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////f4TjeP////84oAAE/////zjAAAD/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/4/t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA4BhACT/////SAAAAfwAAAMsHwAC/////0CAAIj/////LBsAAP////9AggCA/////3/j+3j/////SAAAAfwAAANIAAAB/AAAA5BhACT/////gIEAKP////9X4xA6/////zwAgAD/////fGAaFP////+AAzDA/////3xkAFD/////fAAgUP////98YAN4/////1QAD/7/////f94DeP////8sHgAA/////0CCABT/////gBwAAP////+QHQAc/////4ABACj/////kB0AIP////+AYQAk/////0gAAAH8AAADLB4AAP////9BggAQ/////zgAAAD/////kAEADP////9IAAAM/////4AdACD/////kAEADP////+AYQAM/////0gAACT/////LB4AAP////9BggAQ/////zgAAAD/////kAEACP////9IAAAM/////zgAAAH/////kAEACP////+AYQAI/////zlhAFD/////SAAAAfwAAAOAAQBU/////3wIA6b/////OCEAUP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 824
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@690'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@691'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __EXIAttach
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDetach
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 556
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 576
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 596
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 624
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 652
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 728
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 804
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: 3e61cc342bfa543ed20d786711928e28b458f8ad
+  signature: lCH/sP////98CAKm/////5ABAFT/////OWEAUP////9IAAAB/AAAA3x/G3j/////fJsjeP////98vCt4/////1fkMDL/////PGAAAP//AAA4AwAA//8AAH+gIhT/////OAAAAf////+QAQAg/////zgAAAD/////kAEAHP////8sHwAA/////0GAABT/////LB8AA/////9AgAAM/////zgAAAH/////kAEAHP////+AAQAc/////ywAAAD/////QIIAPP////88YAAA//8AADhjAAD//wAAOIAFs/////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEAGP////+AAQAY/////ywAAAD/////QIIADP////84AAAA/////5ABACD/////LB8AAP////9AggAo/////ygbAAL/////QIIAIP////+AAAAA/+AAACwAAAD/////QYIAFP////+AAAAA/+AAAJAcAAD/////OGAAAf////9IAAJc/////ywfAAL/////QIAAgP////8sGwAA/////0CCAHj/////f+P7eP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAjT/////gJ0AIP////9X4xA6/////zwAgAD/////fGAaFP////+AAzDA/////3wEAAD/////QIIAFP////+AHQAc/////5AcAAD/////gH0AIP////9IAAII/////3/j+3j/////OIAAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAez/////V+MQOv////88AIAA/////3xgGhT/////gAMwwP////+QAQAo/////0gAAAH8AAADkGEAJP////84AAAA/////5ABABT/////LB8AAv////9AgAAU/////ywbAAD/////QIIADP////84AAAB/////5ABABT/////gAEAFP////8sAAAA/////0GCABT/////PGAAAP//AAA4AwAA//8AAJABABD/////SAAADP////84AAAA/////5ABABD/////f+P7eP////9/ZNt4/////4ChABD/////SAAAAfwAAAN8YAA0/////1Qe2X7/////LB4AAP////9AggC4/////3/j+3j/////f2TbeP////84oAAA/////0gAAAH8AAADfGAANP////9UHtl+/////yweAAD/////QIIAkP////84AAAA/////5ABACz/////f+P7eP////84gQAs/////zigAAL/////OMAAAf////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////f4TjeP////84oAAE/////zjAAAD/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/4/t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA4BhACT/////SAAAAfwAAAMsHwAC/////0CAAIj/////LBsAAP////9AggCA/////3/j+3j/////SAAAAfwAAANIAAAB/AAAA5BhACT/////gIEAKP////9X4xA6/////zwAgAD/////fGAaFP////+AAzDA/////3xkAFD/////fAAgUP////98YAN4/////1QAD/7/////f94DeP////8sHgAA/////0CCABT/////gBwAAP////+QHQAc/////4ABACj/////kB0AIP////+AYQAk/////0gAAAH8AAADLB4AAP////9BggAQ/////zgAAAD/////kAEADP////9IAAAM/////4AdACD/////kAEADP////+AYQAM/////0gAACT/////LB4AAP////9BggAQ/////zgAAAD/////kAEACP////9IAAAM/////zgAAAH/////kAEACP////+AYQAI/////zlhAFD/////SAAAAfwAAAOAAQBU/////3wIA6b/////OCEAUP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 824
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@699'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@700'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __EXIAttach
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDetach
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 556
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 576
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 596
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 624
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 652
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 728
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 804
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: 34e6afd24e8e68024016d5fc8a0630941737f731
+  signature: lCH/sP////98CAKm/////5ABAFT/////OWEAUP////9IAAAB/AAAA3x/G3j/////fJsjeP////98vCt4/////1fkMDL/////PGAAAP//AAA4AwAA//8AAH+gIhT/////OAAAAf////+QAQAg/////zgAAAD/////kAEAHP////8sHwAA/////0GAABT/////LB8AA/////9AgAAM/////zgAAAH/////kAEAHP////+AAQAc/////ywAAAD/////QIIAPP////88YAAA//8AADhjAAD//wAAOIAFcf////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEAGP////+AAQAY/////ywAAAD/////QIIADP////84AAAA/////5ABACD/////LB8AAP////9AggAo/////ygbAAL/////QIIAIP////+AAAAA/+AAACwAAAD/////QYIAFP////+AAAAA/+AAAJAcAAD/////OGAAAf////9IAAJc/////ywfAAL/////QIAAgP////8sGwAA/////0CCAHj/////f+P7eP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAjT/////gJ0AIP////9X4xA6/////zwAgAD/////fGAaFP////+AAzDA/////3wEAAD/////QIIAFP////+AHQAc/////5AcAAD/////gH0AIP////9IAAII/////3/j+3j/////OIAAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAez/////V+MQOv////88AIAA/////3xgGhT/////gAMwwP////+QAQAo/////0gAAAH8AAADkGEAJP////84AAAA/////5ABABT/////LB8AAv////9AgAAU/////ywbAAD/////QIIADP////84AAAB/////5ABABT/////gAEAFP////8sAAAA/////0GCABT/////PGAAAP//AAA4AwAA//8AAJABABD/////SAAADP////84AAAA/////5ABABD/////f+P7eP////9/ZNt4/////4ChABD/////SAAAAfwAAAN8YAA0/////1Qe2X7/////LB4AAP////9AggC4/////3/j+3j/////f2TbeP////84oAAA/////0gAAAH8AAADfGAANP////9UHtl+/////yweAAD/////QIIAkP////84AAAA/////5ABACz/////f+P7eP////84gQAs/////zigAAL/////OMAAAf////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////f4TjeP////84oAAE/////zjAAAD/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////3/j+3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/4/t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////f+P7eP////9IAAAB/AAAA4BhACT/////SAAAAfwAAAMsHwAC/////0CAAIj/////LBsAAP////9AggCA/////3/j+3j/////SAAAAfwAAANIAAAB/AAAA5BhACT/////gIEAKP////9X4xA6/////zwAgAD/////fGAaFP////+AAzDA/////3xkAFD/////fAAgUP////98YAN4/////1QAD/7/////f94DeP////8sHgAA/////0CCABT/////gBwAAP////+QHQAc/////4ABACj/////kB0AIP////+AYQAk/////0gAAAH8AAADLB4AAP////9BggAQ/////zgAAAD/////kAEADP////9IAAAM/////4AdACD/////kAEADP////+AYQAM/////0gAACT/////LB4AAP////9BggAQ/////zgAAAD/////kAEACP////9IAAAM/////zgAAAH/////kAEACP////+AYQAI/////zlhAFD/////SAAAAfwAAAOAAQBU/////3wIA6b/////OCEAUP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 824
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@685'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@686'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __EXIAttach
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDetach
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 556
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 576
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 596
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 624
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 652
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 728
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 804
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: dfb3cfad0add5d6e788071239de70316eec36f23
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////vwEAIP////87QwAA/////zxgAAD//wAALBoAAv////9XRjAy/////zgDAAD//wAAf+AyFP////87ZAAA/////zuFAAD/////QIAA4P////8oGwAA/////0CCANj/////f0PTeP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAxj/////PGCAAP////+AnwAg/////1dAEDr/////O8MwwP////9/3gIU/////4AeAAD/////fAQAAP////9AggAU/////4AfABz/////kBwAAP////+AfwAg/////0gAAuj/////SAAAAfwAAAOAHwAM/////zujAAD/////VAAHOf////9AggAU/////39D03j/////SAAAAfwAAAMsAwAA/////0CCABT/////f6PreP////9IAAAB/AAAAzgAAAD/////SAAASP////84egAA/////ziAAAH/////OKAAAP////84wAAA/////0gAAAH8AAADHBoAA/////84gAAA/////zxgABD/////kJ8ACP////98YwQw/////0gAAAH8AAADgB8ADP////84fQAA/////2AAAAj/////kB8ADP////9IAAAB/AAAAzgAAAH/////LAAAAP////9AggAM/////zhgAAD/////SAACYP////+DvgAA/////ywaAAL/////OAAAAP////9AgAAQ/////ygbAAD/////QIIACP////84AAAB/////ywAAAD/////QYIAEP////88YAAA//8AADijAAD//wAASAAACP////84oAAA/////zh6AAD/////OJsAAP////9IAAAB/AAAA3xgADT/////VADZfv////98HgN5/////0CCATT/////OHoAAP////84mwAA/////zigAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////fB4Def////9AggCQ/////zgAAAD/////kAEAHP////84egAA/////ziBABz/////OKAAAv////84wAAB/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////OHoAAP////9/3gN4/////0gAAAH8AAADfGAANP////9UANl+/////zh6AAD/////OJwAAP////9/3gN4/////zigAAT/////OMAAAP////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////zh6AAD/////f94DeP////9IAAAB/AAAA3xgADT/////VADZfv////84egAA/////3/eA3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9IAAAB/AAAA4AfAAz/////OwMAAP////9UAAb3/////0CCABD/////fwPDeP////9IAAAB/AAAA0gAAGj/////gB8ADP////84egAA/////zifAAD/////VAAHNP////+QHwAM/////0gAAAH8AAADgH8AJP////8sAwAA/////0CBADz/////NAP///////+DPwAs/////5AfACT/////QIEAGP////+AHwAk/////zh/ACj/////OJ8AMP////9UBRg4/////0gAAAH8AAADOZkAAP////99iAOm/////zh6AAD/////OIAAAP////9OgAAh/////38Dw3j/////SAAAAfwAAAMsGgAC/////0CAAMT/////KBsAAP////9AggC8/////0gAAAH8AAADgB8ADP////87AwAA/////1QABzn/////QIIAEP////9/A8N4/////0gAAAH8AAADSAAATP////+AHwAM/////1QABvf/////QYIAHP////+AHwAY/////ygAAAD/////QIIAEP////9/A8N4/////0gAAAH8AAADSAAAKP////+AfwAM/////xwaAAP/////VGQHdv////88YABQ/////5CfAAz/////fGMEMP////9IAAAB/AAAA38Dw3j/////SAAAAfwAAANIAAAB/AAAAzyAgAD/////V0AQOv////84hDDA/////3wEAC7/////fJ0AUP////8wBP///////3wAIRD/////f94Def////9AggAQ/////4AcAAD/////kB8AHP////+TvwAg/////0gAAAH8AAADLB4AAP////9BggAM/////zhgAAD/////SAAAIP////+AfwAg/////0gAABj/////LB4AAP////9BggAM/////zhgAAD/////SAAACP////84YAAB/////7sBACD/////gAEARP////84IQBA/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 892
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIClearInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetExiInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: memmove
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 544
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 692
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 728
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 760
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 768
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 772
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 824
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 8a79517d050dbcfe3afd4f639ff93bf54b9c5f1c
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////vwEAIP////87QwAA/////ztkAAD/////O4UAAP////9UZDAy/////zxgAAD//wAAOAMAAP//AAB/4CIU/////ywaAAL/////QIAA4P////8oGwAA/////0CCANj/////f0PTeP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAxj/////gJ8AIP////9XQBA6/////zxggAD/////O8MwwP////9/3gIU/////4AeAAD/////fAQAAP////9AggAU/////4AfABz/////kBwAAP////+AfwAg/////0gAAuj/////SAAAAfwAAAN8fRt4/////4AfAAz/////VAAHOf////9AggAU/////39D03j/////SAAAAfwAAAMsAwAA/////0CCABT/////f6PreP////9IAAAB/AAAAzgAAAD/////SAAASP////84egAA/////ziAAAH/////OKAAAP////84wAAA/////0gAAAH8AAADOAAAAP////+QHwAI/////zxgABD/////HBoAA/////98YwQw/////0gAAAH8AAADgB8ADP////9gAAAI/////5AfAAz/////f6PreP////9IAAAB/AAAAzgAAAH/////LAAAAP////9AggAM/////zhgAAD/////SAACYP////+DvgAA/////zgAAAD/////LBoAAv////9AgAAQ/////ygbAAD/////QIIACP////84AAAB/////ywAAAD/////QYIAEP////88YAAA//8AADijAAD//wAASAAACP////84oAAA/////zh6AAD/////OJsAAP////9IAAAB/AAAA3xgADT/////VADZfv////98HgN5/////0CCATT/////OHoAAP////84mwAA/////zigAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////fB4Def////9AggCQ/////zgAAAD/////kAEAHP////84egAA/////ziBABz/////OKAAAv////84wAAB/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////84egAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////OHoAAP////84nAAA/////zigAAT/////OMAAAP////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////OHoAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////zh6AAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9IAAAB/AAAA3x4G3j/////gB8ADP////9UAAb3/////0CCABD/////fwPDeP////9IAAAB/AAAA0gAAGj/////gB8ADP////9UAAc0/////5AfAAz/////OHoAAP////84nwAA/////0gAAAH8AAADgH8AJP////8sAwAA/////0CBADz/////gz8ALP////80A////////5AfACT/////QIEAGP////84fwAo/////zifADD/////gB8AJP////9UBRg4/////0gAAAH8AAADOHoAAP////84gAAA/////zmZAAD/////fYgDpv////9OgAAh/////38Dw3j/////SAAAAfwAAAMsGgAC/////0CAAMT/////KBsAAP////9AggC8/////0gAAAH8AAADfHgbeP////+AHwAM/////1QABzn/////QIIAEP////9/A8N4/////0gAAAH8AAADSAAATP////+AHwAM/////1QABvf/////QYIAHP////+AHwAY/////ygAAAD/////QIIAEP////9/A8N4/////0gAAAH8AAADSAAAKP////+AHwAM/////1QAB3b/////kB8ADP////88YABQ/////xwaAAP/////fGMEMP////9IAAAB/AAAA38Dw3j/////SAAAAfwAAANIAAAB/AAAA1dAEDr/////PICAAP////84hDDA/////3wEAC7/////fJ0AUP////8wBP///////3wAIRD/////f94Def////9AggAQ/////4AcAAD/////kB8AHP////+TvwAg/////0gAAAH8AAADLB4AAP////9BggAM/////zhgAAD/////SAAAIP////+AfwAg/////0gAABj/////LB4AAP////9BggAM/////zhgAAD/////SAAACP////84YAAB/////4ABAET/////uwEAIP////84IQBA/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 892
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIClearInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetExiInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: memmove
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 544
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 692
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 728
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 760
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 768
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 772
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 824
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: fc43aca60125c92f54584195a45c1a6504f3fe96
+  signature: fAgCpv////+QAQAE/////5Qh/8D/////vwEAIP////87QwAA/////zxgAAD//wAALBoAAv////9XRjAy/////zgDAAD//wAAf+AyFP////87ZAAA/////zuFAAD/////QIAA4P////8oGwAA/////0CCANj/////f0PTeP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAxj/////PGCAAP////+AnwAg/////1dAEDr/////O8MwwP////9/3gIU/////4AeAAD/////fAQAAP////9AggAU/////4AfABz/////kBwAAP////+AfwAg/////0gAAuj/////SAAAAfwAAAOAHwAM/////zujAAD/////VAAHOf////9AggAU/////39D03j/////SAAAAfwAAAMsAwAA/////0CCABT/////f6PreP////9IAAAB/AAAAzgAAAD/////SAAASP////84egAA/////ziAAAH/////OKAAAP////84wAAA/////0gAAAH8AAADHBoAA/////84gAAA/////zxgABD/////kJ8ACP////98YwQw/////0gAAAH8AAADgB8ADP////84fQAA/////2AAAAj/////kB8ADP////9IAAAB/AAAAzgAAAH/////LAAAAP////9AggAM/////zhgAAD/////SAACYP////+DvgAA/////ywaAAL/////OAAAAP////9AgAAQ/////ygbAAD/////QIIACP////84AAAB/////ywAAAD/////QYIAEP////88YAAA//8AADijAAD//wAASAAACP////84oAAA/////zh6AAD/////OJsAAP////9IAAAB/AAAA3xgADT/////VADZfv////98HgN5/////0CCATT/////OHoAAP////84mwAA/////zigAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////fB4Def////9AggCQ/////zgAAAD/////kAEAHP////84egAA/////ziBABz/////OKAAAv////84wAAB/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////OHoAAP////9/3gN4/////0gAAAH8AAADfGAANP////9UANl+/////zh6AAD/////OJwAAP////9/3gN4/////zigAAT/////OMAAAP////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////zh6AAD/////f94DeP////9IAAAB/AAAA3xgADT/////VADZfv////84egAA/////3/eA3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9IAAAB/AAAA4AfAAz/////OwMAAP////9UAAb3/////0CCABD/////fwPDeP////9IAAAB/AAAA0gAAGj/////gB8ADP////84egAA/////zifAAD/////VAAHNP////+QHwAM/////0gAAAH8AAADgH8AJP////8sAwAA/////0CBADz/////NAP///////+DPwAs/////5AfACT/////QIEAGP////+AHwAk/////zh/ACj/////OJ8AMP////9UBRg4/////0gAAAH8AAADOZkAAP////99iAOm/////zh6AAD/////OIAAAP////9OgAAh/////38Dw3j/////SAAAAfwAAAMsGgAC/////0CAAMT/////KBsAAP////9AggC8/////0gAAAH8AAADgB8ADP////87AwAA/////1QABzn/////QIIAEP////9/A8N4/////0gAAAH8AAADSAAATP////+AHwAM/////1QABvf/////QYIAHP////+AHwAY/////ygAAAD/////QIIAEP////9/A8N4/////0gAAAH8AAADSAAAKP////+AfwAM/////xwaAAP/////VGQHdv////88YABw/////5CfAAz/////fGMEMP////9IAAAB/AAAA38Dw3j/////SAAAAfwAAANIAAAB/AAAAzyAgAD/////V0AQOv////84hDDA/////3wEAC7/////fJ0AUP////8wBP///////3wAIRD/////f94Def////9AggAQ/////4AcAAD/////kB8AHP////+TvwAg/////0gAAAH8AAADLB4AAP////9BggAM/////zhgAAD/////SAAAIP////+AfwAg/////0gAABj/////LB4AAP////9BggAM/////zhgAAD/////SAAACP////84YAAB/////7sBACD/////gAEARP////84IQBA/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 892
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIClearInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetExiInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: memmove
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 544
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 692
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 728
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 760
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 768
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 772
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 824
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: d4b99ec44c4c8af84f2beae2b09ad78ffd79bdf6
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3x5G3j/////fJojeP////98uyt4/////1RgMDL/////PMAAAP//AAA4xgAA//8AAH+mAhT/////LAMAAP////9AggAk/////ygEAAL/////QIIAHP////+AAAAA/+AAACwAAAD/////QYIAEP////+QBQAA/////zhgAAH/////SAADPP////8sAwAC/////0CAAOj/////LAQAAP////9AggDg/////38jy3j/////SAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAP////9IAAMU/////1cjEDr/////PACAAP////9/4BoU/////4B9ACD/////gB8wwP////98AwAA/////0CCABT/////gB0AHP////+QGwAA/////4B9ACD/////SAAC6P////9IAAAB/AAAA3x+G3j/////gB0ADP////9UAAc5/////0CCABT/////fyPLeP////9IAAAB/AAAAywDAAD/////QIIAFP////9/w/N4/////0gAAAH8AAADOAAAAP////9IAABU/////xx5ABT/////PADNAP////98YBoU/////4ADaAD/////cAAH9f////9gAAAC/////5ADaAD/////OAAAAP////+QHQAI/////zxgABD/////VyAQOv////98GQBQ/////3xjBDD/////SAAAAfwAAAOAHQAM/////2AAAAj/////kB0ADP////9/w/N4/////0gAAAH8AAADOAAAAf////8sAAAA/////0CCAAz/////OGAAAP////9IAAJU/////4P/MMD/////SAAAAfwAAAN8fBt4/////38jy3j/////f0TTeP////84AAAA/////ywZAAL/////QIAAEP////8sGgAA/////0CCAAj/////OAAAAf////8sAAAA/////zigAAD/////QYIADP////88oAAA//8AADilAAD//wAASAAAAfwAAAN8YAA0/////1Qe2X//////QIIBLP////9/I8t4/////39E03j/////OKAAAP////9IAAAB/AAAA3xgADT/////VB7Zf/////9AggCQ/////zgAAAD/////kAEACP////9/I8t4/////ziBAAj/////OKAAAv////84wAAB/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/I8t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////fyPLeP////9/ZNt4/////zigAAT/////OMAAAP////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////fyPLeP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////38jy3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9IAAAB/AAAA3x3G3j/////gB0ADP////9UAAb3/////0CCAAz/////SAAAAfwAAANIAABo/////4AdAAz/////VAAHNP////+QHQAM/////38jy3j/////f6TreP////9IAAAB/AAAA4B9ACT/////LAMAAP////9AgQA8/////4MdACz/////NAP///////+QHQAk/////0CBABj/////OH0AKP////84nQAw/////4AdACT/////VAUYOP////9IAAAB/AAAA38jy3j/////OIAAAP////9/DMN4/////32JA6b/////ToAEIf////9+47t4/////0gAAAH8AAADf4PjeP////9IAAAB/AAAAywZAAL/////QIAAxP////8sGgAA/////0CCALz/////SAAAAfwAAAN8dxt4/////4AdAAz/////VAAHOf////9AggAM/////0gAAAH8AAADSAAATP////+AHQAM/////1QABvf/////QYIAGP////+AHQAY/////ywAAAD/////QIIADP////9IAAAB/AAAA0gAACz/////gB0ADP////9UAAd2/////5AdAAz/////PGAAUP////9XIBA6/////3wZAFD/////fGMEMP////9IAAAB/AAAA37ju3j/////SAAAAfwAAANIAAAB/AAAA1ckEDr/////PACAAP////98gCIU/////4AEMMD/////fJ8AUP////98APhQ/////3yAA3j/////VAAP/v////9/3gN5/////0CCABD/////gBsAAP////+QHQAc/////5P9ACD/////SAAAAfwAAAMsHgAA/////0GCAAz/////OGAAAP////9IAAAU/////4B9ACD/////SAAADP////9/wAA0/////1QD2X7/////OWEAQP////9IAAAB/AAAA4ABAET/////fAgDpv////84IQBA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 936
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_23
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetExiInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: memmove
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_23
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 376
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 380
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 532
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 568
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 588
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 664
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 692
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 700
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 720
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 740
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 772
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 808
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 816
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 820
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 876
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 916
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: a0d0e68ad00168294d609d9b81e9448b79bc8344
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3x5G3j/////fJojeP////98uyt4/////1RgMDL/////PMAAAP//AAA4xgAA//8AAH+mAhT/////LAMAAP////9AggAk/////ygEAAL/////QIIAHP////+AAAAA/+AAACwAAAD/////QYIAEP////+QBQAA/////zhgAAH/////SAADQP////8sAwAC/////0CAAOj/////LAQAAP////9AggDg/////38jy3j/////SAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAP////9IAAMY/////1cjEDr/////PACAAP////9/4BoU/////4B9ACD/////gB8wwP////98AwAA/////0CCABT/////gB0AHP////+QGwAA/////4B9ACD/////SAAC7P////9IAAAB/AAAA3x+G3j/////gB0ADP////9UAAc5/////0CCABT/////fyPLeP////9IAAAB/AAAAywDAAD/////QIIAFP////9/w/N4/////0gAAAH8AAADOAAAAP////9IAABU/////xx5ABT/////PADNAP////98YBoU/////4ADaAD/////cAAH9f////9gAAAC/////5ADaAD/////OAAAAP////+QHQAI/////zxgABD/////VyAQOv////98GQBQ/////3xjBDD/////SAAAAfwAAAOAHQAM/////2AAAAj/////kB0ADP////9/w/N4/////0gAAAH8AAADOAAAAf////8sAAAA/////0CCAAz/////OGAAAP////9IAAJY/////4P/MMD/////SAAAAfwAAAN8fBt4/////38jy3j/////f0TTeP////84oAAA/////ywZAAL/////QIAAEP////8sGgAA/////0CCAAj/////OKAAAf////98BQDQ/////3wAK3j/////fAD+cP////88oAAA//8AADilAAD//wAAfKUAOP////9IAAAB/AAAA3xgADT/////VB7Zf/////9AggEs/////38jy3j/////f0TTeP////84oAAA/////0gAAAH8AAADfGAANP////9UHtl//////0CCAJD/////OAAAAP////+QAQAI/////38jy3j/////OIEACP////84oAAC/////zjAAAH/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////38jy3j/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/I8t4/////39k23j/////OKAABP////84wAAA/////zjgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////9/I8t4/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////fyPLeP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////0gAAAH8AAADfHcbeP////+AHQAM/////1QABvf/////QIIADP////9IAAAB/AAAA0gAAGj/////gB0ADP////9UAAc0/////5AdAAz/////fyPLeP////9/pOt4/////0gAAAH8AAADgH0AJP////8sAwAA/////0CBADz/////gx0ALP////80A////////5AdACT/////QIEAGP////84fQAo/////zidADD/////gB0AJP////9UBRg4/////0gAAAH8AAADfyPLeP////84gAAA/////38Mw3j/////fYkDpv////9OgAQh/////37ju3j/////SAAAAfwAAAN/g+N4/////0gAAAH8AAADLBkAAv////9AgADE/////ywaAAD/////QIIAvP////9IAAAB/AAAA3x3G3j/////gB0ADP////9UAAc5/////0CCAAz/////SAAAAfwAAANIAABM/////4AdAAz/////VAAG9/////9BggAY/////4AdABj/////LAAAAP////9AggAM/////0gAAAH8AAADSAAALP////+AHQAM/////1QAB3b/////kB0ADP////88YABQ/////1cgEDr/////fBkAUP////98YwQw/////0gAAAH8AAADfuO7eP////9IAAAB/AAAA0gAAAH8AAADVyQQOv////88AIAA/////3yAIhT/////gAQwwP////98nwBQ/////3wA+FD/////fIADeP////9UAA/+/////3/eA3n/////QIIAEP////+AGwAA/////5AdABz/////k/0AIP////9IAAAB/AAAAyweAAD/////QYIADP////84YAAA/////0gAABT/////gH0AIP////9IAAAM/////3/AADT/////VAPZfv////85YQBA/////0gAAAH8AAADgAEARP////98CAOm/////zghAED/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 940
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_23
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetExiInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: memmove
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_23
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 376
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 380
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 460
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 480
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 556
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 696
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 704
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 724
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 744
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 776
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 812
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 820
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 824
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 880
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 920
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: ef429b5d7d3133695833a63a90cba2a5933043ac
+  signature: fAgCpv////+QAQAE/////5Qh/7j/////vuEAJP////98eRt5/////ztEAAD/////O2UAAP////9UZDAy/////zxgAAD//wAAOAMAAP//AAB/4CIU/////0CCACT/////KBoAAv////9AggAc/////4AAAAD/4AAAKAAAAP////9BggAQ/////5AbAAD/////OGAAAf////9IAANQ/////ywZAAL/////QIAA4P////8oGgAA/////0CCANj/////fyPLeP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAyj/////gJ8AIP////9XIBA6/////zxggAD/////O8MwwP////9/3gIU/////4AeAAD/////fAQAAP////9AggAU/////4AfABz/////kBsAAP////+AfwAg/////0gAAvj/////SAAAAfwAAAN8fBt4/////4AfAAz/////VAAHOf////9AggAU/////38jy3j/////SAAAAfwAAAMsAwAA/////0CCABT/////f4PjeP////9IAAAB/AAAAzgAAAD/////SAAASP////84eQAA/////ziAAAH/////OKAAAP////84wAAA/////0gAAAH8AAADOAAAAP////+QHwAI/////zxgABD/////HBkAA/////98YwQw/////0gAAAH8AAADgB8ADP////9gAAAI/////5AfAAz/////f4PjeP////9IAAAB/AAAAzgAAAH/////LAAAAP////9AggAM/////zhgAAD/////SAACcP////+DvgAA/////0gAAAH8AAADO4MAAP////84AAAA/////ywZAAL/////QIAAEP////8oGgAA/////0CCAAj/////OAAAAf////8sAAAA/////0GCABD/////PGAAAP//AAA4owAA//8AAEgAAAj/////OKAAAP////84eQAA/////ziaAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////fB4Def////9AggE0/////zh5AAD/////OJoAAP////84oAAA/////0gAAAH8AAADfGAANP////9UANl+/////3weA3n/////QIIAkP////84AAAA/////5ABABz/////OHkAAP////84gQAc/////zigAAL/////OMAAAf////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////OHkAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////zh5AAD/////OJsAAP////84oAAE/////zjAAAD/////OOAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9/3gN4/////zh5AAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f94DeP////84eQAA/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3j/////SAAAAfwAAAN8dxt4/////4AfAAz/////VAAG9/////9AggAQ/////37ju3j/////SAAAAfwAAANIAABo/////4AfAAz/////VAAHNP////+QHwAM/////zh5AAD/////OJ8AAP////9IAAAB/AAAA4B/ACT/////LAMAAP////9AgQA8/////4MfACz/////NAP///////+QHwAk/////0CBABj/////OH8AKP////84nwAw/////4AfACT/////VAUYOP////9IAAAB/AAAAzh5AAD/////OIAAAP////85mAAA/////32IA6b/////ToAAIf////9+47t4/////0gAAAH8AAADf4PjeP////9IAAAB/AAAAywZAAL/////QIAAxP////8oGgAA/////0CCALz/////SAAAAfwAAAN8dxt4/////4AfAAz/////VAAHOf////9AggAQ/////37ju3j/////SAAAAfwAAANIAABM/////4AfAAz/////VAAG9/////9BggAc/////4AfABj/////KAAAAP////9AggAQ/////37ju3j/////SAAAAfwAAANIAAAo/////4AfAAz/////VAAHdv////+QHwAM/////zxgAFD/////HBkAA/////98YwQw/////0gAAAH8AAADfuO7eP////9IAAAB/AAAA0gAAAH8AAADVyAQOv////88gIAA/////ziEMMD/////fAQALv////98nQBQ/////zAE////////fAAhEP////9/3gN5/////0CCABD/////gBsAAP////+QHwAc/////5O/ACD/////SAAAAfwAAAMsHgAA/////0GCAAz/////OGAAAP////9IAAAg/////4B/ACD/////SAAAGP////8sHgAA/////0GCAAz/////OGAAAP////9IAAAI/////zhgAAH/////gAEATP////+64QAk/////zghAEj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: EXIGetID
+    size: 944
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Ecb
+    size: 192
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IDSerialPort1
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __EXIProbe
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIClearInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockedHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetExiInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: memmove
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 372
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 528
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 564
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 588
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 664
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 692
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 700
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 720
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 744
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 780
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 812
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 820
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 824
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 876
+    kind: PpcRel24
+    symbol: 5
+    addend: 0

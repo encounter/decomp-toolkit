@@ -1,0 +1,794 @@
+- symbol: 0
+  hash: 8be8670363686c6940ad3c7d2d942c910710005b
+  signature: PGCAAP////+AYwDM/////06AACD/////
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 12
+    flags: 1
+    section: .text
+  relocations: []
+- symbol: 0
+  hash: b22d197cabd17d49a2e984ea608aa543d17c1285
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAA4PgAAD/4AAAKB8ACP////9BgQAo/////zyAAAD//wAAV+AQOv////84hAAA//8AAHyEAC7/////fIkDpv////9OgAQg/////zvgAAD/////SAAACP////874AAB/////0gAAAH8AAADf+P7eP////+D4QAM/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@4022'
+    size: 36
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 4038ed6fdc6f59dc5609980d77aad5dba9878865
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAA4PgAAD/4AAAKB8AB/////9BgQAo/////zyAAAD//wAAV+AQOv////84hAAA//8AAHyEAC7/////fIkDpv////9OgAQg/////zvgAAD/////SAAACP////874AAB/////0gAAAH8AAADf+P7eP////+D4QAM/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@3823'
+    size: 32
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 46a6d3f857dd1e9a194ec938be00faf4729f616d
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAA4CgAAD/4AAAKAUABv////9BgQAw/////zyAAAD//wAAOIQAAP//AABUoBA6/////3wEAC7/////fAkDpv////9OgAQg/////zvgAAD/////SAAAEP////874AAB/////0gAAAj/////fL8reP////9IAAAB/AAAA3/j+3j/////gAEAFP////+D4QAM/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 104
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@724'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 44eac8847ec5c491d939c544ec02086cdda274b4
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAA4CgAAD/4AAAKAUAB/////9BgQAw/////zyAAAD//wAAOIQAAP//AABUoBA6/////3wEAC7/////fAkDpv////9OgAQg/////zvgAAD/////SAAAEP////874AAB/////0gAAAj/////fL8reP////9IAAAB/AAAA3/j+3j/////gAEAFP////+D4QAM/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 104
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@740'
+    size: 32
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 48e2910cf049e45bfa29fe26642edf06069d609a
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAA4AAAAD/4AAALAAAAv////9BggA0/////0CAABT/////LAAAAP////9BggAY/////0CAABz/////SAAAJP////8sAAAE/////0GCABD/////QIAAGP////874AAA/////0gAABD/////O+AAAf////9IAAAI/////3wfA3j/////SAAAAfwAAAOAAQAU/////3/j+3j/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: fe598b048cf677864c96a53ab73e70b8094d9b90
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAA4AAAAD/4AAALAAAA/////9BggAw/////0CAABz/////LAAAAf////9BggAs/////0CAADD/////LAAAAP////9AgAAY/////0gAACj/////LAAABf////9BggAc/////0CAABz/////SAAADP////874AAA/////0gAABD/////O+AAAf////9IAAAI/////3wfA3j/////SAAAAfwAAAN/4/t4/////4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 124
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 7ad95b3641dbd1ed42d045d8b76d3cd8628126c5
+  signature: fAgCpv////+QAQAE/////5Qh//D/////v8EACP////9IAAAB/AAAA3x+G3j/////gAAAAP/gAAAoAAAG/////0GBADT/////PGAAAP//AAA4YwAA//8AAFQAEDr/////fGMALv////98aQOm/////06ABCD/////O+AAAP////9IAAAs/////zvgAAH/////SAAAJP////+D4AAA/+AAAEgAABz/////OGAAAP/gAAA4gAmg/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA3/j+3j/////gAEAFP////+7wQAI/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 140
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@264'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@51'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@52'
+    size: 23
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 385ef9d0d020e484540c14ea2ac85a36879e560c
+  signature: fAgCpv////+QAQAE/////5Qh//D/////v8EACP////9IAAAB/AAAA3x+G3j/////gAAAAP/gAAAoAAAG/////0GBADT/////PGAAAP//AAA4YwAA//8AAFQAEDr/////fGMALv////98aQOm/////06ABCD/////O+AAAP////9IAAAs/////zvgAAH/////SAAAJP////+D4AAA/+AAAEgAABz/////OGAAAP/gAAA4gAl8/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA3/j+3j/////gAEAFP////+7wQAI/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 140
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@261'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@49'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@50'
+    size: 23
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 02c781792a46159a4be4878dc330472c70d00bb9
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////SAAAAfwAAAN8fht4/////4AAAAD/4AAAKAAACP////9BgQA0/////zxgAAD//wAAOGMAAP//AABUABA6/////3xjAC7/////fGkDpv////9OgAQg/////zvgAAD/////SAAAPP////874AAB/////0gAADT/////g+AAAP/gAABIAAAs/////zhgAAD/4AAAOIAMfv////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzugAAD/////fB0A0P////98AOt4/////1QAD/7/////f8PzeP////9IAAAB/AAAA3/j+3j/////g+EAHP////+DwQAY/////4OhABT/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@2302'
+    size: 36
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1730'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1731'
+    size: 23
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 0d70fd9435cb3c40791f94d29d2229b7f717133a
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////SAAAAfwAAAN8fht4/////4AAAAD/4AAAKAAACP////9BgQA0/////zxgAAD//wAAOGMAAP//AABUABA6/////3xjAC7/////fGkDpv////9OgAQg/////zvgAAD/////SAAAPP////874AAB/////0gAADT/////g+AAAP/gAABIAAAs/////zhgAAD/4AAAOIAMev////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzugAAD/////fB0A0P////98AOt4/////1QAD/7/////f8PzeP////9IAAAB/AAAA3/j+3j/////g+EAHP////+DwQAY/////4OhABT/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@2279'
+    size: 36
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1707'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1708'
+    size: 23
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: fa09c9e04f243b32a4267985f00a724fff681d40
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////SAAAAfwAAAN8fht4/////4AAAAD/4AAAKAAAB/////9BgQA0/////zxgAAD//wAAOGMAAP//AABUABA6/////3xjAC7/////fGkDpv////9OgAQg/////zvgAAD/////SAAAPP////874AAB/////0gAADT/////g+AAAP/gAABIAAAs/////zhgAAD/4AAAOIALfP////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzugAAD/////fB0A0P////98AOt4/////1QAD/7/////f8PzeP////9IAAAB/AAAA3/j+3j/////g+EAHP////+DwQAY/////4OhABT/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@2260'
+    size: 32
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1674'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1675'
+    size: 23
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 4127404ae2fcdce3597f93bb7067c725b4039327
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////SAAAAfwAAAN8fht4/////4AAAAD/4AAAKAAAB/////9BgQA0/////zxgAAD//wAAOGMAAP//AABUABA6/////3xjAC7/////fGkDpv////9OgAQg/////zvgAAD/////SAAAPP////874AAB/////0gAADT/////g+AAAP/gAABIAAAs/////zhgAAD/4AAAOIAMDf////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzugAAD/////fB0A0P////98AOt4/////1QAD/7/////f8PzeP////9IAAAB/AAAA3/j+3j/////g+EAHP////+DwQAY/////4OhABT/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: VIGetTvFormat
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CurrTvMode
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@2281'
+    size: 32
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1711'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1712'
+    size: 23
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0

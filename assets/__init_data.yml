@@ -1,0 +1,369 @@
+- symbol: 0
+  hash: 097eb7a8edefce000ae2d4f2ed0fa15cdca34d28
+  signature: fAgCpv////+QAQAE/////5Qh//D/////v8EACP////88YAAA//8AADvjAAD//wAAgB8ACP////8oAAAA/////0GCABz/////gH8ABP////+AnwAA/////4C/AAj/////SAAAAfwAAAM7/wAM/////0v//+D/////PGAAAP//AAA7wwAA//8AAIAeAAT/////KAAAAP////9BggAY/////4B+AAD/////gJ4ABP////9IAAAB/AAAAzveAAj/////S///5P////+AAQAU/////7vBAAj/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_data
+    size: 120
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _rom_copy_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __copy_rom_section
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _bss_init_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __init_bss_section
+    size: 0
+    flags: 2
+    section: .init
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: fd5d8172dcd331bc83f8ea33af30ce3bafa00ae4
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////zxgAAD//wAAO+MAAP//AACAHwAI/////ywAAAD/////QYIAHP////+AfwAE/////4CfAAD/////gL8ACP////9IAAAB/AAAAzv/AAz/////S///4P////88YAAA//8AADvDAAD//wAAgB4ABP////8sAAAA/////0GCABj/////gH4AAP////+AngAE/////0gAAAH8AAADO94ACP////9L///k/////4PhAAz/////g8EACP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __init_data
+    size: 128
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _rom_copy_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __copy_rom_section
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _bss_init_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __init_bss_section
+    size: 0
+    flags: 2
+    section: .init
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 034698713805dad78ff2727f65c0b5ceaa0ebe05
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////P6AAAP//AAA7vQAA//8AAIPdAAj/////LB4AAP////9BggA4/////4CdAAD/////g/0ABP////9BggAk/////3wfIED/////QYIAHP////9/4/t4/////3/F83j/////SAAAAfwAAAN/4/t4/////3/E83j/////SAAAAfwAAAM7vQAM/////0v//8T/////P6AAAP//AAA7vQAA//8AAIC9AAT/////LAUAAP////9BggAc/////4B9AAD/////QYIADP////84gAAA/////0gAAAH8AAADO70ACP////9L///g/////4ABACT/////g+EAHP////+DwQAY/////4OhABT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_data
+    size: 168
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _rom_copy_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __flush_cache
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: _bss_init_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 5765eb06899551c5ae2b8f473b87a74ff922737e
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////P6AAAP//AAA7vQAA//8AAIPdAAj/////LB4AAP////9BggA4/////4CdAAD/////g/0ABP////9BggAk/////3wfIED/////QYIAHP////9/4/t4/////3/F83j/////SAAAAfwAAAN/4/t4/////3/E83j/////SAAAAfwAAAM7vQAM/////0v//8T/////P6AAAP//AAA7vQAA//8AAIPdAAT/////LB4AAP////9BggAw/////4P9AAD/////QYIAIP////9/4/t4/////3/F83j/////OIAAAP////9IAAAB/AAAA3/j+3j/////f8TzeP////9IAAAB/AAAAzu9AAj/////S///zP////+AAQAk/////4PhABz/////g8EAGP////+DoQAU/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __init_data
+    size: 188
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _rom_copy_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __flush_cache
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: _bss_init_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __my_flush_cache
+    size: 0
+    flags: 2
+    section: .init
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 552c8d124603af345d784122e589a541abfb4306
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////+TwQAQ/////5OhAAz/////PGAAAP//AAA4AwAA//8AAHwdA3j/////SAAABP////9IAAAE/////4PdAAj/////KB4AAP////9BggA4/////4CdAAD/////g/0ABP////9BggAk/////3wfIED/////QYIAHP////9/4/t4/////3/F83j/////SAAAAfwAAAN/4/t4/////3/E83j/////SAAAAfwAAAM7vQAM/////0v//8T/////PGAAAP//AAA4AwAA//8AAHwdA3j/////SAAABP////9IAAAE/////4C9AAT/////KAUAAP////9BggAc/////4B9AAD/////QYIADP////84gAAA/////0gAAAH8AAADO70ACP////9L///g/////4ABABz/////g+EAFP////+DwQAQ/////3wIA6b/////g6EADP////84IQAY/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_data
+    size: 192
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _rom_copy_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __flush_cache
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: _bss_init_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 13e4fdfe90f3691e15a73fa01abc97141da4dd6f
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////+TwQAQ/////5OhAAz/////PGAAAP//AAA4AwAA//8AAHwdA3j/////SAAABP////9IAAAE/////4PdAAj/////KB4AAP////9BggA4/////4CdAAD/////g/0ABP////9BggAk/////3wfIED/////QYIAHP////9/4/t4/////3/F83j/////SAAAAfwAAAN/4/t4/////3/E83j/////SAAAAfwAAAM7vQAM/////0v//8T/////PGAAAP//AAA4AwAA//8AAHwdA3j/////SAAABP////9IAAAE/////4C9AAT/////KAUAAP////9BggAc/////4B9AAD/////QYIADP////84gAAA/////0gAAAH8AAADO70ACP////9L///g/////4ABABz/////g+EAFP////+DwQAQ/////4OhAAz/////OCEAGP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_data
+    size: 192
+    flags: 2
+    section: .init
+  - kind: Object
+    name: _rom_copy_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __flush_cache
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: _bss_init_info
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 5
+    addend: 0

@@ -1,0 +1,19 @@
+- symbol: 0
+  hash: 9d8737e8fff8fd6d4fdc283b21a9fefce07f432d
+  signature: gYAAAP/gAAAsDAAA/////02CACD/////fYkDpv////9OgAQg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __msl_runtime_constraint_violation_s
+    size: 24
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __msl_constraint_handler
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

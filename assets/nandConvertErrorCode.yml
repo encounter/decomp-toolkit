@@ -1,0 +1,686 @@
+- symbol: 0
+  hash: f9f34b2daa95202bd9ed5e1b95262be479f9be61
+  signature: lCH+sP////98CAKm/////5ABAVT/////k+EBTP////+TwQFI/////3x+G3j/////OKEABP////88YAAA//8AADhjAAD//wAAOIP//P////84AAAo/////3wJA6b/////gGQABP////+EBAAI/////5BlAAT/////lAUACP////9CAP/w/////zvgAAD/////LB4AAP////9BgABA/////3/D83j/////SAAAYP////9X4BA6/////zhhAAj/////fAMALv////98HgAA/////0CCACD/////f8PzeP////9IAAAB/AAAAzgfAAH/////VAAQOv////84YQAI/////3xjAC7/////SAAAMP////87/wAC/////ygfAFD/////QYD/yP////88YAAA//8AADhjAAD//wAAf8TzeP////9MxjGC/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAzhg/8D/////g+EBTP////+DwQFI/////4ABAVT/////fAgDpv////84IQFQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2843'
+    size: 320
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2855'
+    size: 49
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: c1dc186aced6b7d28271508d98b422b02bbf6d79
+  signature: lCH+sP////98CAKm/////5ABAVT/////k+EBTP////+TwQFI/////3x+G3j/////OKEABP////88YAAA//8AADhjAAD//wAAOIP//P////84AAAn/////3wJA6b/////gGQABP////+EBAAI/////5BlAAT/////lAUACP////9CAP/w/////zvgAAD/////LB4AAP////9BgABA/////3/D83j/////SAAAYP////9X4BA6/////zhhAAj/////fAMALv////98HgAA/////0CCACD/////f8PzeP////9IAAAB/AAAAzgfAAH/////VAAQOv////84YQAI/////3xjAC7/////SAAAMP////87/wAC/////ygfAE7/////QYD/yP////88YAAA//8AADhjAAD//wAAf8TzeP////9MxjGC/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAzhg/8D/////g+EBTP////+DwQFI/////4ABAVT/////fAgDpv////84IQFQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2760'
+    size: 312
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2772'
+    size: 49
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: cdaf2c21714014cdd94ace718fca226193054db3
+  signature: lCH+sP////98CAKm/////zyAAAD//wAAkAEBVP////84hAAA//8AADgAACj/////OMEABP////+T4QFM/////zik//z/////k8EBSP////98fht4/////3wJA6b/////gIUABP////+EBQAI/////5CGAAT/////lAYACP////9CAP/w/////ywDAAD/////O+AAAP////9BgAAM/////3/D83j/////SAAAZP////84AAAo/////ziBAAj/////fAkDpv////+ABAAA/////3wDAAD/////QIIAIP////9/w/N4/////0gAAAH8AAADOB8AAf////84YQAI/////1QAEDr/////fGMALv////9IAAAw/////ziEAAj/////O/8AAv////9CAP/Q/////zxgAAD//wAAf8TzeP////84YwAA//8AAEzGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADOGD/wP////+AAQFU/////4PhAUz/////g8EBSP////98CAOm/////zghAVD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 208
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2869'
+    size: 320
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@3970'
+    size: 49
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 760683a26ba69a3a15c214ca2c2d05a89980f60c
+  signature: lCH+sP////98CAKm/////zyAAAD//wAAkAEBVP////84hAAA//8AADgAACf/////OMEABP////+T4QFM/////zik//z/////k8EBSP////98fht4/////3wJA6b/////gIUABP////+EBQAI/////5CGAAT/////lAYACP////9CAP/w/////ywDAAD/////O+AAAP////9BgAAM/////3/D83j/////SAAAZP////84AAAn/////ziBAAj/////fAkDpv////+ABAAA/////3wDAAD/////QIIAIP////9/w/N4/////0gAAAH8AAADOB8AAf////84YQAI/////1QAEDr/////fGMALv////9IAAAw/////ziEAAj/////O/8AAv////9CAP/Q/////zxgAAD//wAAf8TzeP////84YwAA//8AAEzGMYL/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADOGD/wP////+AAQFU/////4PhAUz/////g8EBSP////98CAOm/////zghAVD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 208
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2852'
+    size: 312
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@3899'
+    size: 49
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 3d2150e5f7faac2d13c6d7714b7ae5731b028e33
+  signature: VCsGvv////98LAt4/////yFr/QD/////fCFZbv////98CAKm/////zyAAAD//wAAkAwABP////84hAAA//8AADgAACn/////OMEBPP////+T7P/8/////z/gAAD//wAAO/8AAP//AAA4pP/8/////5PM//j/////k6z/9P////98fRt4/////3wJA6b/////gIUABP////+EBQAI/////5CGAAT/////lAYACP////9CAP/w/////ywDAAD/////O8AAAP////84gAAA/////0GAAAz/////f6PreP////9IAADQ/////zgAACn/////OKEBQP////98CQOm/////3wFIC7/////fAMAAP////9AggBs/////ywD/47/////QYIAJP////8sA/+M/////0GCABz/////LAP/i/////9BggAU/////ywD//f/////QYIADP////8sA//0/////0CCACj/////f6XreP////84YQDA/////zifAMj/////TMYxgv////9IAAAB/AAAAziBAMD/////OGAAAP////9MxjGC/////0gAAAH8AAADf6PreP////9IAAAB/AAAAzgeAAH/////OGEBQP////9UABA6/////3xjAC7/////SAAAUP////873gAC/////ziEAAj/////QgD/hP////9/pOt4/////zh/ANz/////TMYxgv////9IAAAB/AAAA3+l63j/////OGEAQP////84nwEQ/////0zGMYL/////SAAAAfwAAAM4gQBA/////zhgAAD/////TMYxgv////9IAAAB/AAAA3+j63j/////SAAAAfwAAAM4YP/A/////4FBAAD/////gAoABP////+D6v/8/////4PK//j/////g6r/9P////98CAOm/////31BU3j/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 352
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@3094'
+    size: 328
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: '@2834'
+    size: 73
+    flags: 2
+    section: .data
+  - kind: Function
+    name: sprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: ddfb15489993bca4cd6acbb54e2abc32229378b7
+  signature: VCsGvv////8ha/0A/////3wsC3j/////fCFZbv////98CAKm/////5AMAAT/////k+z//P////+TzP/4/////5Os//T/////k4z/8P////98Pwt4/////3x+G3j/////PGAAAP//AAA7gwAA//8AADi/ATz/////PGAAAP//AAA4YwAA//8AADiD//z/////OAAAKf////98CQOm/////4BkAAT/////hAQACP////+QZQAE/////5QFAAj/////QgD/8P////87oAAA/////yweAAD/////QYAAjP////9/w/N4/////0gAAMz/////V6AQOv////84fwFA/////3wDAC7/////fB4AAP////9AggBs/////ywe/47/////QYIAJP////8sHv+M/////0GCABz/////LB7/i/////9BggAU/////ywe//f/////QYIADP////8sHv/0/////0CCACj/////OH8AwP////84nAIY/////3/F83j/////TMYxgv////9IAAAB/AAAAzhgAAD/////OJ8AwP////9MxjGC/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAzgdAAH/////VAAQOv////84fwFA/////3xjAC7/////SAAAUP////87vQAC/////ygdAFL/////QYD/fP////84fAIs/////3/E83j/////TMYxgv////9IAAAB/AAAAzh/AED/////OJwCYP////9/xfN4/////0zGMYL/////SAAAAfwAAAM4YAAA/////zifAED/////TMYxgv////9IAAAB/AAAA3/D83j/////SAAAAfwAAAM4YP/A/////4FBAAD/////g+r//P////+Dyv/4/////4Oq//T/////g4r/8P////+ACgAE/////3wIA6b/////fUFTeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 356
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2628'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2998'
+    size: 328
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: sprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: b153827fc2f8f18756dde7d11aff4b8f8b21c74d
+  signature: VCsGvv////98LAt4/////yFr/QD/////fCFZbv////98CAKm/////zyAAAD//wAAkAwABP////84hAAA//8AADgAACn/////OMEBPP////+T7P/8/////z/gAAD//wAAO/8AAP//AAA4pP/8/////5PM//j/////k6z/9P////98fRt4/////3wJA6b/////gIUABP////+EBQAI/////5CGAAT/////lAYACP////9CAP/w/////ywDAAD/////O8AAAP////84gAAA/////0GAAAz/////f6PreP////9IAADY/////zgAACn/////OKEBQP////98CQOm/////3wFIC7/////fAMAAP////9AggBw/////ywD/47/////QYIAJP////8sA/+M/////0GCABz/////LAP/i/////9BggAU/////ywD//f/////QYIADP////8sA//0/////0CCACj/////f6XreP////84YQDA/////zifAMj/////TMYxgv////9IAAAB/AAAAziBAMD/////OGAAAP////9MxjGC/////0gAAAH8AAADLB3/6f////9AgAAI/////ywd/5z/////OB4AAf////84YQFA/////1QAEDr/////fGMALv////9IAABU/////zveAAL/////OIQACP////9CAP+A/////3+k63j/////OH8A3P////9MxjGC/////0gAAAH8AAADf6XreP////84YQBA/////zifARD/////TMYxgv////9IAAAB/AAAAziBAED/////OGAAAP////9MxjGC/////0gAAAH8AAADLB3/6f////9AgAAI/////ywd/5z/////OGD/wP////+BQQAA/////4AKAAT/////g+r//P////+Dyv/4/////4Oq//T/////fAgDpv////99QVN4/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 360
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@3037'
+    size: 328
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: '@2779'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Function
+    name: sprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 5afc021907e233b71d03301f570876b68a2aead2
+  signature: VCsGvv////8ha/0A/////3wsC3j/////fCFZbv////98CAKm/////5AMAAT/////k+z//P////+TzP/4/////5Os//T/////k4z/8P////98Pwt4/////3x+G3j/////PGAAAP//AAA7gwAA//8AADi/ATz/////PGAAAP//AAA4YwAA//8AADiD//z/////OAAAKf////98CQOm/////4BkAAT/////hAQACP////+QZQAE/////5QFAAj/////QgD/8P////87oAAA/////yweAAD/////QYAAzP////9/w/N4/////0gAART/////V6AQOv////84fwFA/////3wDAC7/////fB4AAP////9AggCs/////ywe/47/////QYIAJP////8sHv+M/////0GCABz/////LB7/i/////9BggAU/////ywe//f/////QYIADP////8sHv/0/////0CCADD/////OH8AwP////84nAJU/////3/F83j/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AAB/xPN4/////zi/AMD/////TMYxgv////9IAAAB/AAAA3/D83j/////SAAAAfwAAAMsHv+U/////0GCACz/////LB7/lf////9BggAk/////ywe/5n/////QYIAHP////8sHv+K/////0GCABT/////LB7/+P////9BggAM/////ywe/+r/////QIIADP////9/w/N4/////0gAAAH8AAADOB0AAf////9UABA6/////zh/AUD/////fGMALv////9IAABY/////zu9AAL/////KB0AUv////9BgP88/////zh8Amj/////f8TzeP////9MxjGC/////0gAAAH8AAADOH8AQP////84nAKc/////3/F83j/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AAB/xPN4/////zi/AED/////TMYxgv////9IAAAB/AAAA3/D83j/////SAAAAfwAAAM4YP/A/////4FBAAD/////g+r//P////+Dyv/4/////4Oq//T/////g4r/8P////+ACgAE/////3wIA6b/////fUFTeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 428
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2665'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@3048'
+    size: 328
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: sprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandLoggingCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandReportErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __NANDPrintErrorMessage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 356
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: f9ff885c66ff805ca074d08b7a77079d86b514c4
+  signature: VCsGvv////98LAt4/////yFr/QD/////fCFZbv////98CAKm/////zyAAAD//wAAkAwABP////84hAAA//8AADgAACn/////OMEBPP////+T7P/8/////z/gAAD//wAAO/8AAP//AAA4pP/8/////5PM//j/////k6z/9P////98fRt4/////3wJA6b/////gIUABP////+EBQAI/////5CGAAT/////lAYACP////9CAP/w/////ywDAAD/////O8AAAP////84gAAA/////0GAAAz/////f6PreP////9IAAEg/////zgAACn/////OKEBQP////98CQOm/////3wFIC7/////fAMAAP////9AggCw/////ywD/47/////QYIAJP////8sA/+M/////0GCABz/////LAP/i/////9BggAU/////ywD//f/////QYIADP////8sA//0/////0CCADD/////f6XreP////84YQDA/////zifAMj/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAf6TreP////84YwAA//8AADihAMD/////TMYxgv////9IAAAB/AAAAywd/+n/////QIAACP////8sHf+c/////ywd/5T/////QYIALP////8sHf+V/////0GCACT/////LB3/mf////9BggAc/////ywd/4r/////QYIAFP////8sHf/4/////0GCAAz/////LB3/6v////9AggAM/////3+j63j/////SAAAAfwAAAM4HgAB/////zhhAUD/////VAAQOv////98YwAu/////0gAAFz/////O94AAv////84hAAI/////0IA/0D/////f6TreP////84fwDc/////0zGMYL/////SAAAAfwAAAN/pet4/////zhhAED/////OJ8BEP////9MxjGC/////0gAAAH8AAADPGAAAP//AAB/pOt4/////zhjAAD//wAAOKEAQP////9MxjGC/////0gAAAH8AAADLB3/6f////9AgAAI/////ywd/5z/////OGD/wP////+BQQAA/////4AKAAT/////g+r//P////+Dyv/4/////4Oq//T/////fAgDpv////99QVN4/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 432
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@3073'
+    size: 328
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: '@2807'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Function
+    name: sprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandLoggingCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __NANDPrintErrorMessage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 368
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 5
+    addend: 0

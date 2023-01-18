@@ -1,0 +1,291 @@
+- symbol: 0
+  hash: 381639cae99d046a39952da55ada36fd90ce5f80
+  signature: gKAAAP/gAACAgAAA/+AAADgFAAH/////kAAAAP/gAAA4BAAB/////5AAAAD/4AAASAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IpcNumPendingReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IpcNumUnIssuedReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: AddReqInfo
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 8be1c16a257153bda86348c6f5d9163c96fa0bab
+  signature: lCH/8P////98CAKm/////5ABABT/////kGEACP////+AYAAA/+AAADgDAAH/////kAAAAP/gAACAYAAA/+AAADgDAAH/////kAAAAP/gAACAYQAI/////0gAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 64
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IpcNumPendingReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IpcNumUnIssuedReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: AddReqInfo
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 8b9e17ee5e144548fe33ecd8fdbf1769c51c8a0c
+  signature: lCH/8P////98CAKm/////5ABABT/////kGEACP////+QgQAM/////4BgAAD/4AAAOAMAAf////+QAAAA/+AAAIBgAAD/4AAAOAMAAf////+QAAAA/+AAAIBhAAj/////gIEADP////9IAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IpcNumPendingReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IpcNumUnIssuedReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: AddReqInfo
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 4fb6d321e54688cb5e472b9a80fbef13021494ae
+  signature: gMAAAP/gAAA9AAAA//8AAICgAAD/4AAAPSAAAP//AAA4xgAB/////zgAACD/////OKUAAf////+QwAAA/+AAADkIAAD//wAAOSkAAP//AACQoAAA/+AAADjgAAD/////fAkDpv////+ACAAA/////ywAAAD/////QIIAMP////+ACQAA/////ywA////////QIIAJP////88wAAA//8AADygAAD//wAAVOAQOv////84xgAA//8AADilAAD//wAAfGYBLv////98hQEu/////06AACD/////OQgABP////85KQAE/////zjnAAH/////QgD/vP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IpcNumPendingReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IpcReqPtrArray
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IpcNumUnIssuedReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IpcFdArray
+    size: 128
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 6e58b8e351f60d86acf6968c34354517d368b8ab
+  signature: gMAAAP/gAAA9AAAA//8AAICgAAD/4AAAPSAAAP//AAA4xgAB/////zgAACD/////OKUAAf////+QwAAA/+AAADkIAAD//wAAOSkAAP//AACQoAAA/+AAADjgAAD/////fAkDpv////9gAAAA/////4AIAAD/////LAAAAP////9AggAw/////4AJAAD/////LAD///////9AggAk/////zzAAAD//wAAPKAAAP//AABU4BA6/////zjGAAD//wAAOKUAAP//AAB8ZgEu/////3yFAS7/////ToAAIP////85CAAE/////zkpAAT/////OOcAAf////9CAP+8/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 132
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IpcNumPendingReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IpcReqPtrArray
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: IpcNumUnIssuedReqs
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: IpcFdArray
+    size: 128
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0

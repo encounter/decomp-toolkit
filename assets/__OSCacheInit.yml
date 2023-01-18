@@ -1,0 +1,986 @@
+- symbol: 0
+  hash: 007af7934e7c63b5e9a0a4896f1712dc73f0563f
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAANUYAQg/////ywAAAD/////QIIACP////9IAAAB/AAAA0gAAAH8AAADVGAEYv////8sAAAA/////0CCAAj/////SAAAAfwAAANIAAAB/AAAA1RgAAD/////LAAAAP////9AggAM/////0gAAAH8AAADSAAAAfwAAAM4YAAB/////1RjBD7/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSCacheInit
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfhid0
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: L2Init
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: L2Enable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DMAErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: affecd3d3a226e09c7128c5bccddb7320a885a9e
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88YAAA//8AADvjAAD//wAASAAAAfwAAANUYAQg/////ygAAAD/////QIIAFP////9IAAAB/AAAAzh/AyD/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADVGAEYv////8oAAAA/////0CCABT/////SAAAAfwAAAM4fwM8/////0zGMYL/////SAAAAfwAAANIAAAB/AAAA1RgAAD/////KAAAAP////9AggAY/////0gAAAH8AAADSAAAAfwAAAM4fwNY/////0zGMYL/////SAAAAfwAAAM4YAAB/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzh/A3D/////TMYxgv////9IAAAB/AAAA4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSCacheInit
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@22'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid0
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: L2Init
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: L2Enable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DMAErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 0215f2fa0611e9c3a4a7f3ac8ed48ee9d4fa0cc8
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////88YAAA//8AADvjAAD//wAASAAAAfwAAANUYAQg/////ywAAAD/////QIIAFP////9IAAAB/AAAAzh/Ayz/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADVGAEYv////8sAAAA/////0CCABT/////SAAAAfwAAAM4fwNI/////0zGMYL/////SAAAAfwAAANIAAAB/AAAA1RgAAD/////LAAAAP////9AggAY/////0gAAAH8AAADSAAAAfwAAAM4fwNk/////0zGMYL/////SAAAAfwAAAM4YAAB/////1RjBD7/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOH8DfP////9MxjGC/////0gAAAH8AAADg+EADP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSCacheInit
+    size: 176
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@659'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid0
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: L2Init
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: L2Enable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DMAErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 773bf382296bcacbd3cd80f040675a7db575a92f
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAA1RgBCH/////QIIACP////9IAAAB/AAAA0gAAAH8AAADVGAEY/////9AggAI/////0gAAAH8AAADSAAAAfwAAANUYAAB/////0CCAIz/////SAAAAfwAAAN8fxt4/////3wABKz/////OGAAMP////9IAAAB/AAAA3wABKz/////fAAErP////9IAAAB/AAAA1RjAH7/////SAAAAfwAAAN8AASs/////3wABKz/////SAAAAfwAAANUYwB+/////0gAAAH8AAADfAAErP////9IAAAB/AAAA2RjACD/////SAAAAfwAAANIAAAB/AAAA1RgB///////QIL/+P////9IAAAB/AAAA1RjAtL/////SAAAAfwAAANIAAAB/AAAA1RgB///////QIL/+P////9/4/t4/////0gAAAH8AAADSAAAAfwAAANkYIAA/////1QDAtL/////SAAAAfwAAAM8gAAA//8AADhgAAH/////OIQAAP//AABIAAAB/AAAA4ABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSCacheInit
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfhid0
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DMAErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: 45cd3e15bbc998e8724def1a030c41fb07f3af40
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////+TwQAI/////zxgAAD//wAAO+MAAP//AABIAAAB/AAAA1RgBCD/////KAAAAP////9AggAU/////0gAAAH8AAADOH8BrP////9MxjGC/////0gAAAH8AAADSAAAAfwAAANUYARi/////ygAAAD/////QIIAFP////9IAAAB/AAAAzh/Acj/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADVGAAAP////8oAAAA/////0CCAFj/////SAAAAfwAAAN8fht4/////3wABKz/////OGAAMP////9IAAAB/AAAA3wABKz/////fAAErP////9IAAAB/AAAA1RjAH7/////SAAAAfwAAAN8AASs/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA0gAAAH8AAADZGCAAP////9UAwLS/////0gAAAH8AAADOH8B5P////9MxjGC/////0gAAAH8AAADPGAAAP//AAA4gwAA//8AADhgAAH/////SAAAAfwAAAM4fwH8/////0zGMYL/////SAAAAfwAAAOAAQAU/////4PhAAz/////g8EACP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSCacheInit
+    size: 244
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@69'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid0
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: L2GlobalInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DMAErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: df3c64f4406274cdeba7435112c75365da10c530
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////+TwQAI/////zxgAAD//wAAO+MAAP//AABIAAAB/AAAA1RgBCD/////KAAAAP////9AggAU/////0gAAAH8AAADOH8BrP////9MxjGC/////0gAAAH8AAADSAAAAfwAAANUYARi/////ygAAAD/////QIIAFP////9IAAAB/AAAAzh/Acj/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADVGAAAP////8oAAAA/////0CCAFj/////SAAAAfwAAAN8fht4/////3wABKz/////OGAAMP////9IAAAB/AAAA3wABKz/////fAAErP////9IAAAB/AAAA1RjAH7/////SAAAAfwAAAN8AASs/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA0gAAAH8AAADZGCAAP////9UAwLS/////0gAAAH8AAADOH8B5P////9MxjGC/////0gAAAH8AAADPGAAAP//AAA4gwAA//8AADhgAAH/////SAAAAfwAAAM4fwH8/////0zGMYL/////SAAAAfwAAAOAAQAU/////4PhAAz/////g8EACP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSCacheInit
+    size: 244
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@69'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid0
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: L2GlobalInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DMAErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 68e07cdf88a793892e5f51626cc1fc096eae23c1
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////9IAAAB/AAAA1RgBCH/////QIIAFP////9IAAAB/AAAAzh/AbT/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADVGAEY/////9AggAU/////0gAAAH8AAADOH8B0P////9MxjGC/////0gAAAH8AAADSAAAAfwAAANUYAAB/////0CCAKj/////SAAAAfwAAAN8fht4/////3wABKz/////OGAAMP////9IAAAB/AAAA3wABKz/////fAAErP////9IAAAB/AAAA1RjAH7/////SAAAAfwAAAN8AASs/////3wABKz/////SAAAAfwAAANUYwB+/////0gAAAH8AAADfAAErP////9IAAAB/AAAA2RjACD/////SAAAAfwAAANIAAAB/AAAA1RgB///////QIL/+P////9IAAAB/AAAA1RjAtL/////SAAAAfwAAANIAAAQ/////zh/AAD/////TMYxgv////9IAAAB/AAAA0gAAAH8AAADVGAH//////9Agv/s/////3/D83j/////SAAAAfwAAANIAAAB/AAAA2RggAD/////VAMC0v////9IAAAB/AAAAzh/Aez/////TMYxgv////9IAAAB/AAAAzyAAAD//wAAOGAAAf////84hAAA//8AAEgAAAH8AAADOH8CBP////9MxjGC/////0gAAAH8AAADgAEAFP////+D4QAM/////4PBAAj/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSCacheInit
+    size: 312
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@878'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: PPCMfhid0
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCEnable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtmsr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtl2cr
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DMAErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetErrorHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

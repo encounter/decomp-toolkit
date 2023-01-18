@@ -4,7 +4,7 @@ use std::{
     io::Write,
 };
 
-use anyhow::{Error, Result};
+use anyhow::{anyhow, bail, ensure, Result};
 use ppc750cl::{disasm_iter, Argument, Ins, Opcode};
 
 use crate::util::obj::{
@@ -97,7 +97,11 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
                     }
                     if let Some(symbol_idx) = target_symbol_idx {
                         relocations.insert(ins.addr, ObjReloc {
-                            kind: ObjRelocKind::PpcRel24,
+                            kind: match ins.op {
+                                Opcode::B => ObjRelocKind::PpcRel24,
+                                Opcode::Bc => ObjRelocKind::PpcRel14,
+                                _ => unreachable!(),
+                            },
                             address: ins.addr as u64,
                             target_symbol: symbol_idx,
                             addend: 0,
@@ -325,9 +329,7 @@ fn write_symbol_entry<W: Write>(
         ObjSymbolKind::Function => "fn",
         ObjSymbolKind::Object => "obj",
         ObjSymbolKind::Unknown => "sym",
-        ObjSymbolKind::Section => {
-            return Err(Error::msg(format!("Attempted to write section symbol: {symbol:?}")))
-        }
+        ObjSymbolKind::Section => bail!("Attempted to write section symbol: {symbol:?}"),
     };
     let scope = if symbol.flags.0.contains(ObjSymbolFlags::Weak) {
         "weak"
@@ -447,14 +449,13 @@ fn write_data<W: Write>(
         let data = &section.data[(current_address - section.address as u32) as usize
             ..(until - section.address as u32) as usize];
         if symbol_kind == ObjSymbolKind::Function {
-            if current_address & 3 != 0 || data.len() & 3 != 0 {
-                return Err(Error::msg(format!(
-                    "Unaligned code write @ {} {:#010X} size {:#X}",
-                    section.name,
-                    current_address,
-                    data.len()
-                )));
-            }
+            ensure!(
+                current_address & 3 == 0 && data.len() & 3 == 0,
+                "Unaligned code write @ {} {:#010X} size {:#X}",
+                section.name,
+                current_address,
+                data.len()
+            );
             write_code_chunk(w, symbols, entries, relocations, section, current_address, data)?;
         } else {
             write_data_chunk(w, data)?;
@@ -476,11 +477,10 @@ fn find_symbol_kind(
             SymbolEntryKind::Start => {
                 let new_kind = symbols[entry.index].kind;
                 if !matches!(new_kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section) {
-                    if found && new_kind != kind {
-                        return Err(Error::msg(format!(
-                            "Conflicting symbol kinds found: {kind:?} and {new_kind:?}"
-                        )));
-                    }
+                    ensure!(
+                        !found || new_kind == kind,
+                        "Conflicting symbol kinds found: {kind:?} and {new_kind:?}"
+                    );
                     kind = new_kind;
                     found = true;
                 }
@@ -546,7 +546,11 @@ fn write_data_reloc<W: Write>(
             writeln!(w)?;
             Ok((reloc.address + 4) as u32)
         }
-        _ => Err(Error::msg(format!("Unsupported data relocation type {:?}", reloc.kind))),
+        _ => Err(anyhow!(
+            "Unsupported data relocation type {:?} @ {:#010X}",
+            reloc.kind,
+            reloc.address
+        )),
     }
 }
 
@@ -634,7 +638,13 @@ fn write_section_header<W: Write>(
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"a\"")?;
         }
-        name => return Err(Error::msg(format!("Unknown section {name}"))),
+        name => {
+            log::warn!("Unknown section {name}");
+            write!(w, ".section {}", section.name)?;
+            if section.kind == ObjSectionKind::Bss {
+                write!(w, ", \"\", @nobits")?;
+            }
+        }
     };
     if subsection != 0 {
         write!(w, ", unique, {subsection}")?;

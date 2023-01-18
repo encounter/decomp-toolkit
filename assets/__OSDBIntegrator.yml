@@ -1,0 +1,10 @@
+- symbol: 0
+  hash: 153c56c0abc7e47a38f4ad0d1c737cdf72cb22e4
+  signature: OKAAQP////98aAKm/////5BlAAz/////gGUACP////9kY4AA/////3xoA6b/////OGAAMP////98YAEk/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSDBIntegrator
+    size: 36
+    flags: 2
+    section: .text
+  relocations: []

@@ -1,0 +1,96 @@
+- symbol: 0
+  hash: 1096e8412ac1a6bc148db28304770dce50786182
+  signature: PGAAAP//AAA4YwAA//8AAEgAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: TRKNubWelcome
+    size: 12
+    flags: 1
+    section: null
+  - kind: Object
+    name: '@stringBase0'
+    size: 29
+    flags: 2
+    section: .data
+  - kind: Function
+    name: TRK_board_display
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: bf1d250aadb41b687ba7d98a7f1a9e3feb36a805
+  signature: lCH/8P////98CAKm/////zxgAAD//wAAkAEAFP////84YwAA//8AAEgAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKNubWelcome
+    size: 40
+    flags: 1
+    section: null
+  - kind: Object
+    name: '@62'
+    size: 27
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: TRK_board_display
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: d3a8cc933a90410913d19aa2c6aa838d0e140218
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OGMAAP//AACUIf/4/////0gAAAH8AAADOCEACP////+AAQAE/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKNubWelcome
+    size: 40
+    flags: 1
+    section: null
+  - kind: Object
+    name: '@40'
+    size: 26
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: TRK_board_display
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

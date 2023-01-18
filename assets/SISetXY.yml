@@ -1,0 +1,508 @@
+- symbol: 0
+  hash: fcb79813708b29a87d6f83af70e191d96aa07e8b
+  signature: lCH/8P////98CAKm/////5ABABT/////VIBALv////+T4QAM/////1R/gB7/////f/8DeP////9IAAAB/AAAAzygAAD//wAAPIDNAP////84pQAA//8AAIAFAAT/////VAAGCv////98H/t4/////5PlAAT/////k+RkMP////9IAAAB/AAAA3/j+3j/////g+EADP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 92
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 360f5bd3e219095416b58ef6724b6ca4fc4db79c
+  signature: fAgCpv////+QAQAE/////1SAQC7/////lCH/6P////+T4QAU/////1R/gB7/////f/8DeP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACEBAAE/////1QABgr/////kAQAAP////+ABAAA/////3wA+3j/////kAQAAP////+D5AAA/////0gAAAH8AAADf+P7eP////+AAQAc/////4PhABT/////OCEAGP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: d1a3970deb92f6711b930996ef06eacf1d6ebc8f
+  signature: fAgCpv////+QAQAE/////1SAQC7/////lCH/6P////+T4QAU/////1R/gB7/////f/8DeP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACEBAAE/////1QABgr/////kAQAAP////+ABAAA/////3wA+3j/////kAQAAP////+D5AAA/////0gAAAH8AAADgAEAHP////9/4/t4/////4PhABT/////OCEAGP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 3235f7e37a71d8b42859850ca153bcf7ba1c524b
+  signature: fAgCpv////+QAQAE/////1SAQC7/////lCH/6P////+T4QAU/////1R/gB7/////f/8DeP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACABAAE/////zikAAT/////PIDMAP////9UAAYK/////5AFAAD/////gAUAAP////98APt4/////5AFAAD/////g+UAAP////+T5GQw/////0gAAAH8AAADf+P7eP////+AAQAc/////4PhABT/////OCEAGP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 108
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 55dfc8f2a47e1f9997f2b08fccde67e264223d96
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v2EAFP////87owAA/////ztkAAD/////PGAAAP//AAA74wAA//8AACgdAAj/////QIAAGP////84fwAk/////ziAAxf/////OL8BpP////9MxjGC/////0gAAAH8AAADKB0D//////9AgQAY/////zh/ACT/////OIADGP////84vwGk/////0zGMYL/////SAAAAfwAAAMoGwD//////0CBABj/////OH8AJP////84gAMZ/////zi/AdT/////TMYxgv////9IAAAB/AAAA1e+gB7/////V2BALv////9/3gN4/////0gAAAH8AAADfHwbeP////+AHwAE/////1QABgr/////kB8ABP////+AHwAE/////3wA83j/////kB8ABP////+D3wAE/////zxgzAD/////k8NkMP////9/g+N4/////0gAAAH8AAADf8PzeP////+AAQAs/////7thABT/////OCEAKP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: abd6bb098c6a93f2fff3d7dc10fb576c5056e5a5
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v2EAFP////87owAA/////ztkAAD/////PGAAAP//AAA74wAA//8AACgdAAj/////QIAAGP////84fwBo/////ziAAyP/////OL8B6P////9MxjGC/////0gAAAH8AAADKB0D//////9AgQAY/////zh/AGj/////OIADJP////84vwHo/////0zGMYL/////SAAAAfwAAAMoGwD//////0CBABj/////OH8AaP////84gAMl/////zi/Ahj/////TMYxgv////9IAAAB/AAAA1e+gB7/////V2BALv////9/3gN4/////0gAAAH8AAADfHwbeP////+AHwBI/////1QABgr/////kB8ASP////+AHwBI/////3wA83j/////kB8ASP////+D3wBI/////zxgzAD/////k8NkMP////9/g+N4/////0gAAAH8AAADf8PzeP////+AAQAs/////7thABT/////OCEAKP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 66
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 519c8ee68ffe90c6163138ba678a2749616e35a3
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3x6G3j/////fJkjeP////88YAAA//8AADvDAAD//wAAO6AAAf////8oGgAI/////0CAADD/////OH4AcP////84gAM1/////zi+AfD/////TMYxgv////9IAAAB/AAAAzgAAAD/////kAEAEP////+AAQAQ/////ywAAAD/////QIIACP////87oAAA/////zuAAAH/////KBoD//////9AgQAw/////zh+AHD/////OIADNv////84vgHw/////0zGMYL/////SAAAAfwAAAM4AAAA/////5ABAAz/////gAEADP////8sAAAA/////0CCAAj/////O4AAAP////87YAAB/////ygZAP//////QIEAMP////84fgBw/////ziAAzf/////OL4CIP////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAI/////4ABAAj/////LAAAAP////9AggAI/////ztgAAD/////V1+AHv////9XIEAu/////3//A3j/////SAAAAfwAAAOQYQAU/////zh+AEj/////gAMABP////9UAAYK/////5ADAAT/////OH4ASP////+AAwAE/////3wA+3j/////kAMABP////84fgBI/////4PjAAT/////PGDNAP////+T42Qw/////4BhABT/////SAAAAfwAAAN/4/t4/////zlhAED/////SAAAAfwAAAOAAQBE/////3wIA6b/////OCEAQP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 308
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_25
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_25
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 2313315e44c034fc501641d79e3d6bffbc8bca20
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3x5G3j/////fJgjeP////88YAAA//8AADvDAAD//wAAO4AAAf////8oGQAI/////0CAADD/////OH4AaP////84gAM1/////zi+Aej/////TMYxgv////9IAAAB/AAAAzgAAAD/////kAEAEP////+AAQAQ/////ywAAAD/////QIIACP////87gAAA/////ztgAAH/////KBkD//////9AgQAw/////zh+AGj/////OIADNv////84vgHo/////0zGMYL/////SAAAAfwAAAM4AAAA/////5ABAAz/////gAEADP////8sAAAA/////0CCAAj/////O2AAAP////87QAAB/////ygYAP//////QIEAMP////84fgBo/////ziAAzf/////OL4CGP////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAI/////4ABAAj/////LAAAAP////9AggAI/////ztAAAD/////Vz+AHv////9XAEAu/////3//A3j/////SAAAAfwAAAN8fRt4/////zh+AET/////gAMABP////9UAAYK/////5ADAAT/////OH4ARP////+AAwAE/////3wA+3j/////kAMABP////84fgBE/////4PjAAT/////PGDNAP////+T42Qw/////3+j63j/////SAAAAfwAAAN/4/t4/////zlhAED/////SAAAAfwAAAOAAQBE/////3wIA6b/////OCEAQP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 308
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 67
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: e9bd338fae6f31975d9898894cc3178865675f95
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3x5G3j/////fJgjeP////88YAAA//8AADvDAAD//wAAO4AAAf////8oGQAI/////0CAADD/////OH4AcP////84gAM1/////zi+AfD/////TMYxgv////9IAAAB/AAAAzgAAAD/////kAEAEP////+AAQAQ/////ywAAAD/////QIIACP////87gAAA/////ztgAAH/////KBkD//////9AgQAw/////zh+AHD/////OIADNv////84vgHw/////0zGMYL/////SAAAAfwAAAM4AAAA/////5ABAAz/////gAEADP////8sAAAA/////0CCAAj/////O2AAAP////87QAAB/////ygYAP//////QIEAMP////84fgBw/////ziAAzf/////OL4CIP////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAI/////4ABAAj/////LAAAAP////9AggAI/////ztAAAD/////Vz+AHv////9XAEAu/////3//A3j/////SAAAAfwAAAN8fRt4/////zh+AEj/////gAMABP////9UAAYK/////5ADAAT/////OH4ASP////+AAwAE/////3wA+3j/////kAMABP////84fgBI/////4PjAAT/////PGDNAP////+T42Qw/////3+j63j/////SAAAAfwAAAN/4/t4/////zlhAED/////SAAAAfwAAAOAAQBE/////3wIA6b/////OCEAQP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SISetXY
+    size: 308
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

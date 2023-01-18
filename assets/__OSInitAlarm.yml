@@ -1,0 +1,236 @@
+- symbol: 0
+  hash: 6b7164126039f02bdb1903822e905e828627e400
+  signature: lCH/8P////98CAKm/////zhgAAj/////kAEAFP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AAB8AyBA/////0GCACj/////OGAAAP/gAAA4AAAA/////5ADAAT/////OGAACP////+QAAAA/+AAAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitAlarm
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: d1f54774110ff87672d7647c1cf4484aed816e18
+  signature: lCH/8P////98CAKm/////zhgAAj/////kAEAFP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AAB8AyBA/////0GCACj/////OAAAAP////84YAAA/+AAAJADAAT/////OGAACP////+QAAAA/+AAAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitAlarm
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 6edc364aaaa815065b97cf656ecbde6f715c40c8
+  signature: lCH/8P////98CAKm/////5ABABT/////OGAACP////9UYwY+/////0gAAAH8AAADPIAAAP//AAA4BAAA//8AAHwDAED/////QYIANP////84AAAA/////zhgAAD/4AAAkAMABP////+QAAAA/+AAADhgAAj/////VGMGPv////88gAAA//8AADiEAAD//wAASAAAAfwAAAM8YAAA//8AADhjAAD//wAASAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitAlarm
+    size: 104
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

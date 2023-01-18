@@ -1,0 +1,394 @@
+- symbol: 0
+  hash: b2f354b6b821c6f6f2185c5ee06519a79920d634
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////98nyN4/////5PBAHj/////fH4beP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////5CBAAz/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////SAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAP////9IAABw/////ziBAIj/////OAEACP////88oAIA/////zxgAAD//wAAkKEAaP////84wQBo/////3/l+3j/////OGMAAP//AACQgQBs/////ziAAQD/////kAEAcP////9IAAAB/AAAAzgAAAH/////PGAAAP//AAA8oAAA//8AAJPAAAD/4AAAOGMAAP//AAA4gAAD/////5AAAAD/4AAAOKUAAP//AAA4wAAA/////0gAAAH8AAADLAMAAP////9AggAM/////zhgAAH/////SAAACP////84YAAA/////4ABAIT/////g+EAfP////+DwQB4/////3wIA6b/////OCEAgP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 248
+    flags: 1
+    section: .text
+  - kind: Function
+    name: reserveFileDescriptor
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_message
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1208'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Function
+    name: asyncRoutine
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: s_stage
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 96
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 188
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: d43166fc1209ee67bcaca26927eb7ee9fd0db452
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////5BhAGj/////fJ4jeP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////5CBAAz/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////O+D/i/////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAHz/////OGEAbP////88AAIA/////5ADAAD/////OAEAiP////+QAwAE/////zgBAAj/////kAMACP////88YAAA//8AADhjAAD//wAAOIABAP////9/xfN4/////zjBAGz/////SAAAAfwAAAOAAQBo/////5AAAAD/4AAAOAAAAf////+QAAAA/+AAADxgAAD//wAAOGMAAP//AAA4gAAD/////zygAAD//wAAOKUAAP//AAA4wAAA/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////OGAAAf////9IAAAI/////zhgAAD/////g+EAfP////+DwQB4/////4ABAIT/////fAgDpv////84IQCA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 264
+    flags: 1
+    section: .text
+  - kind: Function
+    name: reserveFileDescriptor
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_message
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: s_stage
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@756'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Function
+    name: asyncRoutine
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 100
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: eb049a828382dc849b8408fdb561b0c796f0d6bf
+  signature: lCH/cP////98CAKm/////5ABAJT/////k+EAjP////98vyt4/////5PBAIj/////fJ4jeP////+ToQCE/////3x9G3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////kGEACP////+QgQAM/////5ChABD/////kMEAFP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////0gAAAH8AAADLAMAAP////9AggAM/////zhgAAD/////SAAAhP////84gQCY/////zgBAAj/////PKADAP////88YAAA//8AAJChAGj/////OMEAaP////9/5ft4/////zhjAAD//wAAkIEAbP////84gAEA/////5ABAHD/////SAAAAfwAAAMsHv+L/////zgAAAH/////k6AAAP/gAACQAAAA/+AAAEGCAAz/////LB7/9/////9AggAI/////5PAAAD/4AAAPGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAAA/////84pQAA//8AADjAAAD/////SAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAf////9IAAAI/////zhgAAD/////gAEAlP////+D4QCM/////4PBAIj/////g6EAhP////98CAOm/////zghAJD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 280
+    flags: 1
+    section: .text
+  - kind: Function
+    name: reserveFileDescriptor
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_message
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: s_stage
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: s_err
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1150'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Function
+    name: asyncRoutine
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 104
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: a8db8d80d97d0798e08115696faac63d749619c2
+  signature: lCH/cP////98CAKm/////5ABAJT/////k+EAjP////+TwQCI/////5OhAIT/////kGEAaP////98niN4/////3y9K3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////kGEACP////+QgQAM/////5ChABD/////kMEAFP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////zvg/4v/////SAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAP////9IAACQ/////zhhAGz/////PAADAP////+QAwAA/////zgBAJj/////kAMABP////84AQAI/////5ADAAj/////PGAAAP//AAA4YwAA//8AADiAAQD/////f6XreP////84wQBs/////0gAAAH8AAADgAEAaP////+QAAAA/+AAADgAAAH/////kAAAAP/gAAAsHv+L/////0GCAAz/////LB7/9/////9AggAI/////5PAAAD/4AAAPGAAAP//AAA4YwAA//8AADiAAAP/////PKAAAP//AAA4pQAA//8AADjAAAD/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIADP////84YAAB/////0gAAAj/////OGAAAP////+D4QCM/////4PBAIj/////g6EAhP////+AAQCU/////3wIA6b/////OCEAkP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: NANDLoggingAddMessageAsync
+    size: 296
+    flags: 1
+    section: .text
+  - kind: Function
+    name: reserveFileDescriptor
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: s_message
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: s_stage
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: s_err
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@699'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Function
+    name: asyncRoutine
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 108
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 9
+    addend: 0

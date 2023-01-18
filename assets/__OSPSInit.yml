@@ -1,0 +1,185 @@
+- symbol: 0
+  hash: 55501e7ff9d0ab23b2a372b677851bb22407f77e
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAAfwAAANkY6AA/////0gAAAH8AAADSAAAAfwAAAN8AASs/////zhgAAD/////fHDjpv////+AAQAM/////zghAAj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSPSInit
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 1d636c81969d879287e983398ea76012331f22c5
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAANkY6AA/////0gAAAH8AAADSAAAAfwAAAN8AASs/////zhgAAD/////fHDjpv////98ceOm/////3xy46b/////fHPjpv////98dOOm/////3x146b/////fHbjpv////98d+Om/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSPSInit
+    size: 84
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 526401573cbdad808b82874ea2bdd5c2c2836e8b
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAAfwAAANkY6AA/////0gAAAH8AAADSAAAAfwAAAN8AASs/////zhgAAD/////fHDjpv////98ceOm/////3xy46b/////fHPjpv////98dOOm/////3x146b/////fHbjpv////98d+Om/////4ABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSPSInit
+    size: 84
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: cfcffaaa029dfc85862f38fe65012d1d218d6845
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAAfwAAANkYIAA/////2QDIAD/////SAAAAfwAAANIAAAB/AAAA3wABKz/////OGAAAP////98cOOm/////3xx46b/////fHLjpv////98c+Om/////3x046b/////fHXjpv////98duOm/////3x346b/////gAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSPSInit
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 3cfdf51ef44901013e3981d5088f69ea9403b64e
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAANkYIAA/////2QDIAD/////SAAAAfwAAANIAAAB/AAAA3wABKz/////OGAAAP////98cOOm/////3xx46b/////fHLjpv////98c+Om/////3x046b/////fHXjpv////98duOm/////3x346b/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSPSInit
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMfhid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMthid2
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICFlashInvalidate
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0

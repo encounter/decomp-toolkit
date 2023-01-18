@@ -1,0 +1,153 @@
+- symbol: 0
+  hash: 32811594987a3c813878178e497723a6061b5a34
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAAAsAP/+/////0CCABj/////PGAAAP//AAB8RBN4/////zhjAAD//wAASAAAAfwAAAOQYAAA/+AAAIABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_cpp_exceptions
+    size: 60
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentID
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: _eti_init_info
+    size: 0
+    flags: 1
+    section: extabindex
+  - kind: Function
+    name: __register_fragment
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 8dab18ebf1c6b105f1337147795a5b941c6449a9
+  signature: fAgCpv////+QAQAE/////5Qh//j/////gAAAAP/gAAAsAP/+/////0CCABz/////SAAAAfwAAAM8oAAA//8AAHxkG3j/////OGUAAP//AABIAAAB/AAAA5BgAAD/4AAAgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __init_cpp_exceptions
+    size: 64
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentID
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: GetR2__Fv
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _eti_init_info
+    size: 0
+    flags: 1
+    section: extabindex
+  - kind: Function
+    name: __register_fragment
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 732ff119307c8e04731f6be4218a43fb4f2de023
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAAAsAP/+/////0CCABz/////SAAAAfwAAAM8oAAA//8AAHxkG3j/////OGUAAP//AABIAAAB/AAAA5BgAAD/4AAAgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __init_cpp_exceptions
+    size: 64
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentID
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: GetR2__Fv
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _eti_init_info
+    size: 0
+    flags: 1
+    section: extabindex
+  - kind: Function
+    name: __register_fragment
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

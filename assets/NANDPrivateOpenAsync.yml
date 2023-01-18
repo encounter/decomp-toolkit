@@ -1,0 +1,415 @@
+- symbol: 0
+  hash: acab046e51fe1bca3e1406866134c508bf70180c
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x7G3j/////fJwjeP////98vSt4/////3zeM3j/////fP87eP////9IAAAB/AAAAywDAAD/////QIIADP////84YP+A/////0gAACj/////k98ABP////9/Y9t4/////3+k63j/////f+X7eP////+TnwAI/////zjAAAH/////OOAAAf////9IAAAB/AAAA0gAAAH8AAADOWEAIP////9IAAAB/AAAA4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 120
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsInitialized
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpen
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: bff1ee12621b5359722778317c8e6061af10d253
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA5BhAAj/////fJsjeP////+YoQAM/////5DBABD/////fP87eP////87wP+L/////zugAAH/////LBsAAP////9AggAw/////zxgAAD//wAAOGMAAP//AAA4gADJ/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADO4AAAP////8sHAAA/////0CCAAj/////O6AAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YP+A/////0gAADT/////gAEAEP////+QHwAE/////5N/AAj/////gGEACP////+IgQAM/////3/l+3j/////OMAAAf////844AAB/////0gAAAH8AAADfH4beP////9/w/N4/////0gAAAH8AAADOWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2382'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2383'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: nandIsInitialized
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpen
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 3f0b713345bbd8f9c3175f4df0b1d6efa184dd1b
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA5BhAAj/////fJsjeP////+YoQAM/////5DBABD/////fP87eP////87wP+L/////zugAAH/////LBsAAP////9AggAw/////zxgAAD//wAAOGMAAP//AAA4gAEt/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADO4AAAP////8sHAAA/////0CCAAj/////O6AAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YP+A/////0gAADT/////gAEAEP////+QHwAE/////5N/AAj/////gGEACP////+IgQAM/////3/l+3j/////OMAAAf////844AAB/////0gAAAH8AAADfH4beP////9/w/N4/////0gAAAH8AAADOWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2384'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2385'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: nandIsInitialized
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpen
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 5d18c32335f1c22d493ee5315437544b59e97699
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA5BhAAj/////fJsjeP////+YoQAM/////5DBABD/////fP87eP////87wP+L/////zugAAH/////LBsAAP////9AggAw/////zxgAAD//wAAOGMAAP//AAA4gAET/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADO4AAAP////8sHAAA/////0CCAAj/////O6AAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YP+A/////0gAADT/////gAEAEP////+QHwAE/////5N/AAj/////gGEACP////+IgQAM/////3/l+3j/////OMAAAf////844AAB/////0gAAAH8AAADfH4beP////9/w/N4/////0gAAAH8AAADOWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2424'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2425'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: nandIsInitialized
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpen
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: c6c44174d817dad1eaad21aeee27dffc0fe96387
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA5BhAAj/////fJsjeP////+YoQAM/////5DBABD/////fP87eP////87wP+L/////zugAAH/////LBsAAP////9AggAw/////zxgAAD//wAAOGMAAP//AAA4gAEz/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADO4AAAP////8sHAAA/////0CCAAj/////O6AAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YP+A/////0gAADT/////gAEAEP////+QHwAE/////5N/AAj/////gGEACP////+IgQAM/////3/l+3j/////OMAAAf////844AAB/////0gAAAH8AAADfH4beP////9/w/N4/////0gAAAH8AAADOWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2479'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2480'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: nandIsInitialized
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpen
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: nandConvertErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0

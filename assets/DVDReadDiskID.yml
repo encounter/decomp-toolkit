@@ -1,0 +1,386 @@
+- symbol: 0
+  hash: 297ac0d032954e2b7fb8a245d7cc32ecfe7504b3
+  signature: fAgCpv////+QAQAE/////zgAAAX/////lCH/2P////+T4QAk/////zvjAAD/////k8EAIP////+QAwAI/////zhgACD/////OAAAAP////+QnwAY/////5B/ABT/////kB8AEP////+QHwAg/////5C/ACj/////gAAAAP/gAAAsAAAA/////0GCADD/////gH8ACP////8oAwAB/////0GCABj/////OAP//P////8oAAAB/////0CBAAz/////KAMADv////9AggAQ/////4B/ABj/////gJ8AFP////9IAAAB/AAAA0gAAAH8AAADOAAAAv////+QHwAM/////zvDAAD/////OJ8AAP////84YAAC/////0gAAAH8AAADgAAAAP/gAAA74wAA/////ygAAAD/////QIIAFP////+AAAAA/+AAACwAAAD/////QIIACP////9IAAAB/AAAA3/D83j/////SAAAAfwAAAN/4/t4/////4ABACz/////g+EAJP////+DwQAg/////zghACj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDReadDiskID
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Object
+    name: autoInvalidation
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPushWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 9edf2da295c8aad931b52829ca7ca1a157011fb5
+  signature: fAgCpv////+QAQAE/////zgAAAX/////lCH/2P////+T4QAk/////zvjAAD/////k8EAIP////+QAwAI/////zhgACD/////OAAAAP////+QnwAY/////5B/ABT/////kB8AEP////+QHwAg/////5C/ACj/////gAAAAP/gAAAsAAAA/////0GCADD/////gH8ACP////8oAwAB/////0GCABj/////OAP//P////8oAAAB/////0CBAAz/////KAMADv////9AggAQ/////4B/ABj/////gJ8AFP////9IAAAB/AAAA0gAAAH8AAADOAAAAv////+QHwAM/////zvDAAD/////OJ8AAP////84YAAC/////0gAAAH8AAADgAAAAP/gAAA74wAA/////ygAAAD/////QIIAFP////+AAAAA/+AAACwAAAD/////QIIACP////9IAAAB/AAAA3/D83j/////SAAAAfwAAAOAAQAs/////3/j+3j/////g+EAJP////+DwQAg/////3wIA6b/////OCEAKP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDReadDiskID
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Object
+    name: autoInvalidation
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPushWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 607798584b6b8ee58c075d19fbbc6e3338c23a2a
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v4EAGP////874wAA/////zuEAAD/////kKEAEP////88YAAA//8AADvDAAD//wAAKB8AAP////9AggAY/////zhgAAD/4AAAOIAI6f////84vgbc/////0zGMYL/////SAAAAfwAAAMoHAAA/////0CCABj/////OGAAAP/gAAA4gAjq/////zi+ByT/////TMYxgv////9IAAAB/AAAA1eABv//////QYIAGP////84YAAA/+AAADiACOz/////OL4HYP////9MxjGC/////0gAAAH8AAADOAAABf////+QHwAI/////5OfABj/////OAAAIP////+QHwAU/////zgAAAD/////kB8AEP////84AAAA/////5AfACD/////gAEAEP////+QHwAo/////zhgAAL/////OJ8AAP////9IAAAB/AAAA3x9G3j/////LB0AAP////9AggAY/////zhgAAD/4AAAOIAI9v////84vgec/////0zGMYL/////SAAAAfwAAAN/o+t4/////4ABACz/////u4EAGP////84IQAo/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDReadDiskID
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 67
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@21'
+    size: 6
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: issueCommand
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 188
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 83406834191f788a479d3fd9734d9c9b79425a04
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v4EAGP////874wAA/////zuEAAD/////kKEAEP////88YAAA//8AADvDAAD//wAAKB8AAP////9AggAY/////zhgAAD/4AAAOIAI2/////84vgbc/////0zGMYL/////SAAAAfwAAAMoHAAA/////0CCABj/////OGAAAP/gAAA4gAjc/////zi+ByT/////TMYxgv////9IAAAB/AAAA1eABv//////QYIAGP////84YAAA/+AAADiACN7/////OL4HYP////9MxjGC/////0gAAAH8AAADOAAABf////+QHwAI/////5OfABj/////OAAAIP////+QHwAU/////zgAAAD/////kB8AEP////84AAAA/////5AfACD/////gAEAEP////+QHwAo/////zhgAAL/////OJ8AAP////9IAAAB/AAAA3x9G3j/////LB0AAP////9AggAY/////zhgAAD/4AAAOIAI6P////84vgec/////0zGMYL/////SAAAAfwAAAN/o+t4/////4ABACz/////u4EAGP////84IQAo/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDReadDiskID
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 67
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@21'
+    size: 6
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: issueCommand
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 188
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: d66b17a1a8deb836fa044f317aac53e5420e0bc9
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v4EAGP////874wAA/////zuEAAD/////kKEAEP////88YAAA//8AADvDAAD//wAAKB8AAP////9AggAY/////zhgAAD/4AAAOIAI7P////84vgbc/////0zGMYL/////SAAAAfwAAAMoHAAA/////0CCABj/////OGAAAP/gAAA4gAjt/////zi+ByT/////TMYxgv////9IAAAB/AAAA1eABv//////QYIAGP////84YAAA/+AAADiACO//////OL4HYP////9MxjGC/////0gAAAH8AAADOAAABf////+QHwAI/////5OfABj/////OAAAIP////+QHwAU/////zgAAAD/////kB8AEP////84AAAA/////5AfACD/////gAEAEP////+QHwAo/////zhgAAL/////OJ8AAP////9IAAAB/AAAA3x9G3j/////LB0AAP////9AggAY/////zhgAAD/4AAAOIAI+f////84vgec/////0zGMYL/////SAAAAfwAAAN/o+t4/////4ABACz/////u4EAGP////84IQAo/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDReadDiskID
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 67
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@21'
+    size: 6
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: issueCommand
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 188
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 3
+    addend: 0

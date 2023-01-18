@@ -1,0 +1,205 @@
+- symbol: 0
+  hash: ee5c55472633eaf5f94d727bf4350ce336bd16f8
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAA4PgAAD/4AAAOB8AAf////+QAAAA/+AAAEgAAAH8AAADf+P7eP////+D4QAM/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSDisableScheduler
+    size: 60
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 2e405f9ac24bac0d3459f4bf5339c412ecdc979e
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAA4CAAAD/4AAAOAQAAf////+QAAAA/+AAAHyfI3j/////SAAAAfwAAAOAAQAU/////3/j+3j/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSDisableScheduler
+    size: 64
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: e9f10d6ae89fde5544b275e4fc3952fb56956333
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAA4CAAAD/4AAAOAQAAf////+QAAAA/+AAAHyfI3j/////SAAAAfwAAAN/4/t4/////4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSDisableScheduler
+    size: 64
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 6f529c59daa6ba4d07b95a8ab888943ba2236349
+  signature: fAgCpv////+QAQAE/////5Qh//D/////v8EACP////9IAAAB/AAAA3x/G3j/////g8AAAP/gAAA4HgAB/////5AAAAD/4AAAf+P7eP////9IAAAB/AAAA3/D83j/////gAEAFP////+7wQAI/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSDisableScheduler
+    size: 68
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 0148739b5c101c6e675b8640b1ecc249e22dd5aa
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////0gAAAH8AAADfH8beP////+DwAAA/+AAADgeAAH/////kAAAAP/gAAB/4/t4/////0gAAAH8AAADf8PzeP////+D4QAM/////4PBAAj/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSDisableScheduler
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Reschedule
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0

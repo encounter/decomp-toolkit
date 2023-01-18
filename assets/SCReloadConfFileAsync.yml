@@ -1,0 +1,1617 @@
+- symbol: 0
+  hash: c7cf070e299b6e7c98eb3e54590ec4c874a36ac6
+  signature: lCH/4P////98CAKm/////ygEQAD/////kAEAJP////+T4QAc/////5PBABj/////k6EAFP////98fRt4/////0CAAAz/////OGD/gP////9IAADQ/////z/AAAD//wAAPSAAAP//AAA73gAA//8AAD0AAAD//wAAO+AAAP////88gIAA/////zjkOAD/////kL4BXP////85KQAA//8AADkIAAD//wAAOIAAAf////84wEAA/////zgAAQD/////mIAAAP/gAAA4gAAA/////zigQAD/////k/4BYP////+b/gFa/////5P+AXz/////k/4BgP////+RPgFk/////5EeAWj/////kH4BbP////+Q/gFw/////5DeAXT/////kB4BeP////9IAAAB/AAAA3+j63j/////OIAAAP/gAAA4oAAE/////0gAAAH8AAADOH0//P////84gAAA/+AAADigAAT/////SAAAAfwAAAM4AAAI/////7AdAAb/////PMAAAP//AAA4ngAI/////4geAVr/////OMYAAP//AACb/gFZ/////zj+AJT/////VAAQOv////84oAAB/////3x+AhT/////k+AAAP/gAACAYwFk/////5PgAAD/4AAAk+AAAP/gAABIAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////4OhABT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 276
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Control
+    size: 400
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: ConfFileName
+    size: 21
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: ProductInfoFileName
+    size: 42
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: BgJobStatus
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: '@2434'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: '@2435'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OpenCallbackFromReload
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ItemIDOffsetTblOffset
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemNumTotal
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemRestSize
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+- symbol: 0
+  hash: 12293a71b60fd6cabfded9f07df2e555628f3bd6
+  signature: lCH/4P////98CAKm/////ygEQAD/////kAEAJP////+T4QAc/////5PBABj/////k6EAFP////98fRt4/////0CAAAz/////OGD/gP////9IAADQ/////z/AAAD//wAAPSAAAP//AAA73gAA//8AADvgAAD/////PQAAAP//AAA8gIAA/////zjkOAD/////OSkAAP//AAA5QAAB/////zkIAAD//wAAOMBAAP////84AAEA/////5C+AVz/////OIAAAP////84oEAA/////5lAAAD/4AAAk/4BYP////+b/gFa/////5P+AXz/////k/4BgP////+RPgFk/////5EeAWj/////kH4BbP////+Q/gFw/////5DeAXT/////kB4BeP////9IAAAB/AAAA3+j63j/////OIAAAP/gAAA4oAAE/////0gAAAH8AAADOH0//P////84gAAA/+AAADigAAT/////SAAAAfwAAAM4AAAI/////zzAAAD//wAAsB0ABv////84ngAI/////zjGAAD//wAAOP4AlP////+IHgFa/////zigAAH/////m/4BWf////9UABA6/////3x+AhT/////k+AAAP/gAACAYwFk/////5PgAAD/4AAAk+AAAP/gAABIAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////4OhABT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 276
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Control
+    size: 400
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: ConfFileName
+    size: 21
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: ProductInfoFileName
+    size: 42
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: BgJobStatus
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@2159'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@2160'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OpenCallbackFromReload
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ItemIDOffsetTblOffset
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemNumTotal
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemRestSize
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+- symbol: 0
+  hash: 5d386645a2f3d2367ef8d79714df578ed66689da
+  signature: lCH/4P////98CAKm/////ygEQAD/////kAEAJP////+T4QAc/////5PBABj/////k6EAFP////98fRt4/////0CAAAz/////OGD/gP////9IAADQ/////z/AAAD//wAAPSAAAP//AAA73gAA//8AADvgAAD/////PQAAAP//AAA8gIAA/////zjkOAD/////OSkAAP//AAA5QAAB/////zkIAAD//wAAOMBAAP////84AAEA/////5C+AVj/////OIAAAP////84oEAA/////5lAAAD/4AAAk/4BXP////+b/gFW/////5P+AXj/////k/4BfP////+RPgFg/////5EeAWT/////kH4BaP////+Q/gFs/////5DeAXD/////kB4BdP////9IAAAB/AAAA3+j63j/////OIAAAP/gAAA4oAAE/////0gAAAH8AAADOH0//P////84gAAA/+AAADigAAT/////SAAAAfwAAAM4AAAI/////zzAAAD//wAAsB0ABv////84ngAI/////zjGAAD//wAAOP4AlP////+IHgFW/////zigAAH/////m/4BVf////9UABA6/////3x+AhT/////k+AAAP/gAACAYwFg/////5PgAAD/4AAAk+AAAP/gAABIAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////4OhABT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 276
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Control
+    size: 396
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: ConfFileName
+    size: 21
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: ProductInfoFileName
+    size: 42
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: BgJobStatus
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@2118'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@2119'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OpenCallbackFromReload
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ItemIDOffsetTblOffset
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemNumTotal
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemRestSize
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+- symbol: 0
+  hash: 5444a3630859116069a6043409872398a7d61076
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x+G3j/////kIEACP////+QoQAM/////zxgAAD//wAAO6MAAP//AAA7gAAB/////zgAAAD/////fB4AQP////9AggAo/////zh9Aaj/////OIABdf////84vQG0/////0zGMYL/////SAAAAfwAAAM7QAAA/////ywaAAD/////QIIACP////87gAAA/////ztgAAH/////V8AG/v////8sAAAA/////0GCACj/////OH0BqP////84gAF2/////zi9AdT/////TMYxgv////9IAAAB/AAAAzsgAAD/////LBkAAP////9AggAI/////ztgAAD/////SAAAAfwAAAOAAQAI/////3wAGED/////QIAADP////84YP+A/////0gAAUz/////OGAAAf////9IAAAB/AAAA4ABAAz/////PGAAAP//AAA4YwAA//8AAJADAVj/////OAAAAP////88YAAA//8AADhjAAD//wAAkAMBXP////84AAAA/////zxgAAD//wAAOGMAAP//AACYAwFW/////zvgAAD/////SAAAIP////84gAAA/////zxgAAD//wAAOGMAAP//AABX4BA6/////3xjAhT/////kIMBeP////87/wAB/////ygfAAL/////QYD/4P////88YAAA//8AADgDAAD//wAAPGAAAP//AAA4YwAA//8AAJADAWD/////PGAAAP//AAA4AwAA//8AADxgAAD//wAAOGMAAP//AACQAwFk/////zxgAAD//wAAOGMAAP//AACTwwFo/////zhgOAD/////SAAAAfwAAAM8gAAA//8AADiEAAD//wAAkGQBbP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACQZAFw/////zgAAQD/////PIAAAP//AAA4hAAA//8AAJAEAXT/////f8PzeP////9IAAAB/AAAAzgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADgAAAD/////POAAAP//AAA45wAA//8AAJgHAVX/////POAAAP//AAA45wAA//8AADzgAAD//wAAOOcAAP//AACIBwFW/////1QAEDr/////fGcCFP////+AYwFg/////zzgAAD//wAAOOcAAP//AAA4hwAI/////zigAAH/////VKUGPv////88wAAA//8AADjGAAD//wAAPOAAAP//AAA45wAA//8AADjnAJT/////SAAAAfwAAAM5YQAw/////0gAAAH8AAADgAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 520
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_25
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __SCGetConfBufSize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetBgJobStatus
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Control
+    size: 396
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: ConfFileName
+    size: 21
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: ProductInfoFileName
+    size: 42
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ClearConfBuf
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ItemIDOffsetTblOffset
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemNumTotal
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemRestSize
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OpenCallbackFromReload
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_25
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 364
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 392
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 408
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 452
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 492
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 5e2fadd396f43c9712d06ee5b49eeefa368227a7
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x+G3j/////kIEACP////+QoQAM/////zxgAAD//wAAO6MAAP//AAA7gAAB/////zgAAAD/////fB4AQP////9AggAo/////zh9AVj/////OIABV/////84vQFk/////0zGMYL/////SAAAAfwAAAM7QAAA/////ywaAAD/////QIIACP////87gAAA/////ztgAAH/////V8AG/v////8sAAAA/////0GCACj/////OH0BWP////84gAFY/////zi9AYT/////TMYxgv////9IAAAB/AAAAzsgAAD/////LBkAAP////9AggAI/////ztgAAD/////SAAAAfwAAAOAAQAI/////3wAGED/////QIAADP////84YP+A/////0gAAUz/////OGAAAf////9IAAAB/AAAA4ABAAz/////PGAAAP//AAA4YwAA//8AAJADAVj/////OAAAAP////88YAAA//8AADhjAAD//wAAkAMBXP////84AAAA/////zxgAAD//wAAOGMAAP//AACYAwFW/////zvgAAD/////SAAAIP////84gAAA/////zxgAAD//wAAOGMAAP//AABX4BA6/////3xjAhT/////kIMBeP////87/wAB/////ygfAAL/////QYD/4P////88YAAA//8AADgDAAD//wAAPGAAAP//AAA4YwAA//8AAJADAWD/////PGAAAP//AAA4AwAA//8AADxgAAD//wAAOGMAAP//AACQAwFk/////zxgAAD//wAAOGMAAP//AACTwwFo/////zhgOAD/////SAAAAfwAAAM8gAAA//8AADiEAAD//wAAkGQBbP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACQZAFw/////zgAAQD/////PGAAAP//AAA4YwAA//8AAJADAXT/////f8PzeP////9IAAAB/AAAAzgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADgAAAD/////PGAAAP//AAA4YwAA//8AAJgDAVX/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOGMAAP//AACIAwFW/////1QAEDr/////fGQCFP////+AYwFg/////zyAAAD//wAAOIQAAP//AAA4hAAI/////zigAAH/////VKUGPv////88wAAA//8AADjGAAD//wAAPOAAAP//AAA45wAA//8AADjnAJT/////SAAAAfwAAAM5YQAw/////0gAAAH8AAADgAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 520
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_25
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __SCGetConfBufSize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetBgJobStatus
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Control
+    size: 396
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: ConfFileName
+    size: 21
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: ProductInfoFileName
+    size: 42
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ClearConfBuf
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ItemIDOffsetTblOffset
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemNumTotal
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemRestSize
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OpenCallbackFromReload
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_25
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 364
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 392
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 408
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 452
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 492
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 4eedf503e565cb05387a06c153f4971e9e055afa
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x+G3j/////kIEACP////+QoQAM/////zxgAAD//wAAO6MAAP//AAA7gAAB/////zgAAAD/////fB4AQP////9AggAo/////zh9AbD/////OIABef////84vQG8/////0zGMYL/////SAAAAfwAAAM7QAAA/////ywaAAD/////QIIACP////87gAAA/////ztgAAH/////V8AG/v////8sAAAA/////0GCACj/////OH0BsP////84gAF6/////zi9Adz/////TMYxgv////9IAAAB/AAAAzsgAAD/////LBkAAP////9AggAI/////ztgAAD/////SAAAAfwAAAOAAQAI/////3wAGED/////QIAADP////84YP+A/////0gAAUz/////OGAAAf////9IAAAB/AAAA4ABAAz/////PGAAAP//AAA4YwAA//8AAJADAVz/////OAAAAP////88YAAA//8AADhjAAD//wAAkAMBYP////84AAAA/////zxgAAD//wAAOGMAAP//AACYAwFa/////zvgAAD/////SAAAIP////84gAAA/////zxgAAD//wAAOGMAAP//AABX4BA6/////3xjAhT/////kIMBfP////87/wAB/////ygfAAL/////QYD/4P////88YAAA//8AADgDAAD//wAAPGAAAP//AAA4YwAA//8AAJADAWT/////PGAAAP//AAA4AwAA//8AADxgAAD//wAAOGMAAP//AACQAwFo/////zxgAAD//wAAOGMAAP//AACTwwFs/////zhgOAD/////SAAAAfwAAAM8gAAA//8AADiEAAD//wAAkGQBcP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACQZAF0/////zgAAQD/////PIAAAP//AAA4hAAA//8AAJAEAXj/////f8PzeP////9IAAAB/AAAAzgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADgAAAD/////POAAAP//AAA45wAA//8AAJgHAVn/////POAAAP//AAA45wAA//8AADzgAAD//wAAOOcAAP//AACIBwFa/////1QAEDr/////fGcCFP////+AYwFk/////zzgAAD//wAAOOcAAP//AAA4hwAI/////zigAAH/////VKUGPv////88wAAA//8AADjGAAD//wAAPOAAAP//AAA45wAA//8AADjnAJT/////SAAAAfwAAAM5YQAw/////0gAAAH8AAADgAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 520
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_25
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __SCGetConfBufSize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetBgJobStatus
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Control
+    size: 400
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: ConfFileName
+    size: 21
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: ProductInfoFileName
+    size: 42
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ClearConfBuf
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ItemIDOffsetTblOffset
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemNumTotal
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemRestSize
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OpenCallbackFromReload
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_25
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 364
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 392
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 408
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 452
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 492
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 3f5400572e0a7e33354a9daeb5ac1f3c7528f508
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x+G3j/////kIEACP////+QoQAM/////zxgAAD//wAAO6MAAP//AAA7gAAB/////zgAAAD/////fB4AQP////9AggAo/////zh9Acj/////OIABiP////84vQHU/////0zGMYL/////SAAAAfwAAAM7QAAA/////ywaAAD/////QIIACP////87gAAA/////ztgAAH/////V8AG/v////8sAAAA/////0GCACj/////OH0ByP////84gAGJ/////zi9AfT/////TMYxgv////9IAAAB/AAAAzsgAAD/////LBkAAP////9AggAI/////ztgAAD/////SAAAAfwAAAOAAQAI/////3wAGED/////QIAADP////84YP+A/////0gAAUz/////OGAAAf////9IAAAB/AAAA4ABAAz/////PGAAAP//AAA4YwAA//8AAJADAVz/////OAAAAP////88YAAA//8AADhjAAD//wAAkAMBYP////84AAAA/////zxgAAD//wAAOGMAAP//AACYAwFa/////zvgAAD/////SAAAIP////84gAAA/////zxgAAD//wAAOGMAAP//AABX4BA6/////3xjAhT/////kIMBfP////87/wAB/////ygfAAL/////QYD/4P////88YAAA//8AADgDAAD//wAAPGAAAP//AAA4YwAA//8AAJADAWT/////PGAAAP//AAA4AwAA//8AADxgAAD//wAAOGMAAP//AACQAwFo/////zxgAAD//wAAOGMAAP//AACTwwFs/////zhgOAD/////SAAAAfwAAAM8gAAA//8AADiEAAD//wAAkGQBcP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACQZAF0/////zgAAQD/////PIAAAP//AAA4hAAA//8AAJAEAXj/////f8PzeP////9IAAAB/AAAAzgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADgAAAD/////POAAAP//AAA45wAA//8AAJgHAVn/////POAAAP//AAA45wAA//8AADzgAAD//wAAOOcAAP//AACIBwFa/////1QAEDr/////fGcCFP////+AYwFk/////zzgAAD//wAAOOcAAP//AAA4hwAI/////zigAAH/////VKUGPv////88wAAA//8AADjGAAD//wAAPOAAAP//AAA45wAA//8AADjnAJT/////SAAAAfwAAAM5YQAw/////0gAAAH8AAADgAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 520
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_25
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 67
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __SCGetConfBufSize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetBgJobStatus
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: Control
+    size: 400
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: ConfFileName
+    size: 21
+    flags: 2
+    section: .rodata
+  - kind: Object
+    name: ProductInfoFileName
+    size: 42
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ClearConfBuf
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ItemIDOffsetTblOffset
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemNumTotal
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ItemRestSize
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OpenCallbackFromReload
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: NANDPrivateOpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_25
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 364
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 392
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 408
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 452
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 492
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 16
+    addend: 0

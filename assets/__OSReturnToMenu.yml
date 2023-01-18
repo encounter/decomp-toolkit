@@ -1,0 +1,1492 @@
+- symbol: 0
+  hash: cf957af6c21fd74323c094cb803f555ea40017a1
+  signature: lCH/0P////98CAKm/////5ABADT/////mGEACP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAM4YQAQ/////0gAAAH8AAADiGEAFv////9IAAAB/AAAA5hhABb/////OAAAA/////+YAQAV/////4gBAAj/////mAEAF/////9IAAAB/AAAAzhhABD/////SAAAAfwAAANIAAAB/AAAAzhgAAX/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADgAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSReturnToMenu
+    size: 124
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSStopPlayRecord
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnRegisterStateEvent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPrepareReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReadStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetDiscState
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSClearRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLaunchMenu
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __VISetRGBModeImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSHotResetForError
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+- symbol: 0
+  hash: f02f86434734ab3f10b80e6452288a7b05b45ddf
+  signature: lCH/wP////98CAKm/////5ABAET/////k+EAPP////+TwQA4/////3x+G3j/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADOGEAEP////9IAAAB/AAAA4vhABb/////SAAAAfwAAAMoAwAC/////0GCAAz/////OGAAA/////9IAAA0/////ygfAAH/////QIIAKP////84YQAI/////0gAAAH8AAADLAMAAP////9BggAY/////4ABAAj/////LAAAAP////9AggAM/////zhgAAH/////SAAACP////84YAAC/////zgAAAP/////mGEAFv////+YAQAV/////5vBABf/////SAAAAfwAAAM4YQAQ/////0gAAAH8AAADSAAAAfwAAAM4YAAF/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAOAAAAA/+AAACwAAAD/////QIIAEP////+AAAAA/+AAACwAAAD/////QYIACP////9IAAAB/AAAA0gAAAH8AAADPGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAD0P////84pQAA//8AAEzGMYL/////SAAAAfwAAAOAAQBE/////4PhADz/////g8EAOP////98CAOm/////zghAED/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSReturnToMenu
+    size: 256
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSStopPlayRecord
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnRegisterStateEvent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPrepareReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReadStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDGetCoverStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSClearRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLaunchMenu
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __VISetRGBModeImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInNandBoot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSInReboot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __OSInitSTM
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSHotReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1719'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1720'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+- symbol: 0
+  hash: 24b73577d2f5a1003049ddb04117e59db74f044b
+  signature: lCH/wP////98CAKm/////5ABAET/////k+EAPP////+TwQA4/////3x+G3j/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADOGEAEP////9IAAAB/AAAA4vhABb/////SAAAAfwAAAMoAwAC/////0GCAAz/////OGAAA/////9IAAA0/////ygfAAH/////QIIAKP////84YQAI/////0gAAAH8AAADLAMAAP////9BggAY/////4ABAAj/////LAAAAP////9AggAM/////zhgAAH/////SAAACP////84YAAC/////zgAAAP/////mGEAFv////+YAQAV/////5vBABf/////SAAAAfwAAAM4YQAQ/////0gAAAH8AAADSAAAAfwAAAM4YAAF/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAOAAAAA/+AAACwAAAD/////QIIAEP////+AAAAA/+AAACwAAAD/////QYIACP////9IAAAB/AAAA0gAAAH8AAADPGAAAP//AAA8oAAA//8AADhjAAD//wAAOIAD0/////84pQAA//8AAEzGMYL/////SAAAAfwAAAOAAQBE/////4PhADz/////g8EAOP////98CAOm/////zghAED/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSReturnToMenu
+    size: 256
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSStopPlayRecord
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnRegisterStateEvent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPrepareReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReadStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDGetCoverStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSClearRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLaunchMenu
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __VISetRGBModeImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInNandBoot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSInReboot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __OSInitSTM
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSHotReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1720'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1721'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+- symbol: 0
+  hash: 70e0b73123cd4b750696fb17c4643049afebb5ad
+  signature: lCH/sP////98CAKm/////5ABAFT/////k+EATP////+TwQBI/////5OhAET/////fD8LeP////+YfwAI/////zvAAAD/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADOH8AGP////9IAAAB/AAAA4h/AB7/////SAAAAfwAAAOYfwAe/////zgAAAP/////mB8AHf////+IHwAI/////5gfAB//////SAAAAfwAAAM4fwAY/////0gAAAH8AAADPGCBKP////9IAAAB/AAAAzxggS//////SAAAAfwAAANIAAAB/AAAA3x9G3j/////LB0AAP////9BggAI/////0gAAAH8AAADOGAA4P////84gAAg/////0gAAAH8AAADfH4beP////8sHgAA/////0CCAAj/////SAAAAfwAAAN/w/N4/////ziAAAD/////OKAA4P////9IAAAB/AAAAzhgAAD/////f8TzeP////9IAAAB/AAAA3x9G3j/////LB0AAP////9AggBA/////0gAAAH8AAADLAMAAP////9BggA0/////zgAAAD/////kB8AEP////84AP///////5AfAAz/////f8PzeP////84nwAQ/////zi/AAz/////SAAAAfwAAAOAHwAM/////ywAAAD/////QIIACP////9IAAAB/AAAA0gAAAH8AAADOGAABf////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAN/6vt4/////4PqAEz/////g8oASP////+DqgBE/////4FBAAD/////gAoABP////99QVN4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSReturnToMenu
+    size: 328
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSStopPlayRecord
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnRegisterStateEvent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPrepareReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReadStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetDiscState
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSClearRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetArenaLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReturnToMenuForError
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSAllocFromMEM1ArenaLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPlayTimeIsLimited
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteExpiredFlagIfSet
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLaunchMenu
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __VISetRGBModeImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSHotResetForError
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 23
+    addend: 0
+- symbol: 0
+  hash: 676082f0116ec70a726f71a229fb433e3d975989
+  signature: lCH/cP////98CAKm/////5ABAJT/////k+EAjP////+TwQCI/////z/AAAD//wAAO94AAP//AACToQCE/////3x9G3j/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADOGEAWP////9IAAAB/AAAA4vhAF7/////SAAAAfwAAAMoAwAC/////0GCAAz/////OAAAA/////9IAAA0/////ygfAAH/////QIIAKP////84YQAI/////0gAAAH8AAADLAMAAP////9BggAY/////4ABAAj/////LAAAAP////9AggAM/////zgAAAH/////SAAACP////84AAAC/////zvgAAP/////mAEAXv////+b4QBd/////5uhAF//////SAAAAfwAAAM4YQBY/////0gAAAH8AAADPGCBKP////9IAAAB/AAAAzxggS//////SAAAAfwAAANIAAAB/AAAAywDAAD/////QYIAeP////84YQA4/////0gAAAH8AAADOAAAAv////+YAQA+/////5vhAD3/////SAAAAfwAAAM4YQA4/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADgAAAAP/gAAAsAAAA/////0CCABD/////gAAAAP/gAAAsAAAA/////0GCAAj/////SAAAAfwAAANIAAAB/AAAAzh+AAD/////OL4ADP////84gAQK/////0zGMYL/////SAAAAfwAAAM4fgAA/////zi+ADj/////OIAD8v////9MxjGC/////0gAAAH8AAADOGAA4P////84gAAg/////0gAAAH8AAADLAMAAP////98fxt4/////0CCAHz/////OGEAGP////9IAAAB/AAAAzhgAAL/////OAAAA/////+YYQAe/////5gBAB3/////SAAAAfwAAAM4YQAY/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADgAAAAP/gAAAsAAAA/////0CCABD/////gAAAAP/gAAAsAAAA/////0GCAAj/////SAAAAfwAAANIAAAB/AAAAzh+AAD/////OL4ADP////84gAQK/////0zGMYL/////SAAAAfwAAAM4fgAA/////zi+ADj/////OIAD8v////9MxjGC/////0gAAAH8AAADf+P7eP////84gAAA/////zigAOD/////SAAAAfwAAAN/5Pt4/////zhgAAD/////SAAAAfwAAAMsAwAA/////0CCAED/////SAAAAfwAAAMsAwAA/////0GCADT/////OGAAAP////84AP///////5BhABD/////f+P7eP////84gQAQ/////zihAAz/////kAEADP////9IAAAB/AAAA4ABAAz/////LAAAAP////9AggAI/////0gAAAH8AAADSAAAAfwAAAM4YAAF/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAOAAAAA/+AAACwAAAD/////QIIAEP////+AAAAA/+AAACwAAAD/////QYIACP////9IAAAB/AAAA0gAAAH8AAADOH4AAP////84vgAM/////ziABAr/////TMYxgv////9IAAAB/AAAA4ABAJT/////g+EAjP////+DwQCI/////4OhAIT/////fAgDpv////84IQCQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSReturnToMenu
+    size: 648
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@2083'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSStopPlayRecord
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnRegisterStateEvent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPrepareReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReadStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDGetCoverStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSClearRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetArenaLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLaunchMenu
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __VISetRGBModeImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInNandBoot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSInReboot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __OSInitSTM
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSHotReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSAllocFromMEM1ArenaLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPlayTimeIsLimited
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteExpiredFlagIfSet
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 23
+    addend: 0
+  - offset: 480
+    kind: PpcRel24
+    symbol: 24
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 25
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 26
+    addend: 0
+  - offset: 540
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 27
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 28
+    addend: 0
+  - offset: 556
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 560
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 564
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 568
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 580
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 596
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+- symbol: 0
+  hash: d2d916eaf5fcd9e848305e62e19ad8e198b511e3
+  signature: lCH/cP////98CAKm/////5ABAJT/////k+EAjP////+TwQCI/////z/AAAD//wAAO94AAP//AACToQCE/////3x9G3j/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADOGEAWP////9IAAAB/AAAA4vhAF7/////SAAAAfwAAAMoAwAC/////0GCAAz/////OAAAA/////9IAAA0/////ygfAAH/////QIIAKP////84YQAI/////0gAAAH8AAADLAMAAP////9BggAY/////4ABAAj/////LAAAAP////9AggAM/////zgAAAH/////SAAACP////84AAAC/////zvgAAP/////mAEAXv////+b4QBd/////5uhAF//////SAAAAfwAAAM4YQBY/////0gAAAH8AAADPGCBKP////9IAAAB/AAAAzxggS//////SAAAAfwAAANIAAAB/AAAAywDAAD/////QYIAeP////84YQA4/////0gAAAH8AAADOAAAAv////+b4QA9/////5gBAD7/////SAAAAfwAAAM4YQA4/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADgAAAAP/gAAAsAAAA/////0CCABD/////gAAAAP/gAAAsAAAA/////0GCAAj/////SAAAAfwAAANIAAAB/AAAAzh+AAD/////OL4ADP////84gAQK/////0zGMYL/////SAAAAfwAAAM4fgAA/////zi+ADj/////OIAD8v////9MxjGC/////0gAAAH8AAADOGAA4P////84gAAg/////0gAAAH8AAADLAMAAP////98fxt4/////0CCAHz/////OGEAGP////9IAAAB/AAAAzhgAAL/////OAAAA/////+YYQAe/////5gBAB3/////SAAAAfwAAAM4YQAY/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADgAAAAP/gAAAsAAAA/////0CCABD/////gAAAAP/gAAAsAAAA/////0GCAAj/////SAAAAfwAAANIAAAB/AAAAzh+AAD/////OL4ADP////84gAQK/////0zGMYL/////SAAAAfwAAAM4fgAA/////zi+ADj/////OIAD8v////9MxjGC/////0gAAAH8AAADf+P7eP////84gAAA/////zigAOD/////SAAAAfwAAAN/5Pt4/////zhgAAD/////SAAAAfwAAAMsAwAA/////0CCAED/////SAAAAfwAAAMsAwAA/////0GCADT/////OGAAAP////84AP///////5BhABD/////f+P7eP////84gQAQ/////zihAAz/////kAEADP////9IAAAB/AAAA4ABAAz/////LAAAAP////9AggAI/////0gAAAH8AAADSAAAAfwAAAM4YAAF/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA0gAAAH8AAADSAAAAfwAAAOAAAAA/+AAACwAAAD/////QIIAEP////+AAAAA/+AAACwAAAD/////QYIACP////9IAAAB/AAAA0gAAAH8AAADOH4AAP////84vgAM/////ziABAr/////TMYxgv////9IAAAB/AAAA4ABAJT/////g+EAjP////+DwQCI/////4OhAIT/////fAgDpv////84IQCQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSReturnToMenu
+    size: 648
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@2061'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSStopPlayRecord
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnRegisterStateEvent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPrepareReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReadStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDGetCoverStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSClearRTCFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteStateFlags
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetArenaLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSLaunchMenu
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __VISetRGBModeImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSInNandBoot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSInReboot
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __OSInitSTM
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSHotReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSAllocFromMEM1ArenaLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPlayTimeIsLimited
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSWriteExpiredFlagIfSet
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 23
+    addend: 0
+  - offset: 480
+    kind: PpcRel24
+    symbol: 24
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 25
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 26
+    addend: 0
+  - offset: 540
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 27
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 28
+    addend: 0
+  - offset: 556
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 560
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 564
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 568
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 580
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 596
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 20
+    addend: 0

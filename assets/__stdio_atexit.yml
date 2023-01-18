@@ -1,0 +1,74 @@
+- symbol: 0
+  hash: c33febb49422cf93193217b85050688499bba101
+  signature: ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __stdio_atexit
+    size: 4
+    flags: 1
+    section: .text
+  relocations: []
+- symbol: 0
+  hash: fa600b3dbea6e43098448e26ae05503d7d26ce45
+  signature: PGAAAP//AAA4YwAA//8AAJBgAAD/4AAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __stdio_atexit
+    size: 16
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __close_all
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __stdio_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 5379a24e31fc4aa0bbcd90a4d8a2ca3309dfaf43
+  signature: PGAAAP//AAA4AwAA//8AAJAAAAD/4AAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __stdio_atexit
+    size: 16
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __close_all
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __stdio_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0

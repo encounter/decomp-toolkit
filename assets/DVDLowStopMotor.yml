@@ -1,0 +1,885 @@
+- symbol: 0
+  hash: 268a245de697b30376d82e8cd4de5429042873fb
+  signature: fAgCpv////+QAQAE/////5Qh//D/////kGEACP////+AAQAI/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADwA4wD/////PGDMAP////+QA2AI/////zgAAAH/////PGDMAP////+QA2Ac/////zxggAD/////gAMA+P////9UAPC+/////xyAAAr/////OGAAAP////9IAAAB/AAAAzhgAAH/////gAEAFP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 100
+    flags: 5
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: StopAtNextInt
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: SetTimeoutAlarm
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 3680b9d1d2c3e4051efdfc4b32f79404442f5083
+  signature: fAgCpv////+QAQAE/////zgAAAD/////lCH/6P////+T4QAU/////5PBABD/////kGAAAP/gAAA8YMwA/////ziDYAD/////kAAAAP/gAAA8AOMA/////5ADYAj/////OAAAAf////88YAAA//8AAJAEABz/////PICAAP////874wAA//8AAIAEAPj/////OH8AAP////9UAPC+/////x/AAAr/////SAAAAfwAAAM8YAAA//8AADjjAAD//wAAOH8AAP////843gAA/////zigAAD/////SAAAAfwAAAOAAQAc/////zhgAAH/////g+EAFP////+DwQAQ/////zghABj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 140
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: StopAtNextInt
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: AlarmForTimeout
+    size: 40
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AlarmHandlerForTimeout
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 8c2240eb6aae2260342fcd673616bb0e2872aedf
+  signature: fAgCpv////+QAQAE/////zgAAAD/////lCH/6P////+T4QAU/////5PBABD/////kGAAAP/gAAA8YMwA/////ziDYAD/////kAAAAP/gAAA8AOMA/////5ADYAj/////OAAAAf////88YAAA//8AAJAEABz/////PICAAP////874wAA//8AAIAEAPj/////OH8AAP////9UAPC+/////x/AAAr/////SAAAAfwAAAM8YAAA//8AADjjAAD//wAAOH8AAP////843gAA/////zigAAD/////SAAAAfwAAAOAAQAc/////zhgAAH/////g+EAFP////+DwQAQ/////3wIA6b/////OCEAGP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 140
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: StopAtNextInt
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: AlarmForTimeout
+    size: 40
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AlarmHandlerForTimeout
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 53b33d6866491294c6327de842773d430b34e9bc
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5hhAAj/////mIEACf////+QoQAM/////zgAAAH/////mAAAAP/gAACAYQAM/////ziAAAH/////SAAAAfwAAAN8fxt4/////zhgAAD/4AAASAAAAfwAAAM4gADj/////4BgAAD/4AAAgAAAAP/gAABUACg0/////3yDAa7/////iIEACP////+AYAAA/+AAAIAAAAD/4AAAVAAoNP////98YwIU/////5CDAAT/////iIEACf////+AYAAA/+AAAIAAAAD/4AAAVAAoNP////98YwIU/////5CDAAj/////gGAAAP/gAAA4gADj/////4CgAAD/4AAAgAAAAP/gAABUACg0/////3ylAhT/////OMAAIP////884AAA//8AADjnAAD//wAAOQAAIP////89IAAA//8AADkpAAD//wAAf+r7eP////9IAAAB/AAAA3x+G3j/////LB4AAP////9BggAo/////zxgAAD//wAAOGMAAP//AAB/xPN4/////0zGMYL/////SAAAAfwAAAM4AAAA/////5gfAAj/////OGAAAP////9IAAAI/////zhgAAH/////g+EAHP////+DwQAY/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 264
+    flags: 1
+    section: .text
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: newContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: nextCommandBuf
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Object
+    name: diRegValCache
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2565'
+    size: 57
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 980b20d223c1c2b16630d52b6883db023fdd0928
+  signature: lCH/8P////98CAKm/////z0AAAD//wAAOWAAAf////+QAQAU/////zkIAAD//wAAk+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////+BQAAA/+AAAJlgAAD/4AAAVUkoNP////986EoU/////4jHAAj/////fAYA0P////98ADN4/////1QAD/7/////KAAAAf////9AggAk/////31EU3j/////OH8CQP////9MxjGC/////0gAAAH8AAADOH8CeP////9MxjGC/////0gAAAH8AAADSAAAAP////+AxwAM/////zwGARX/////KADa7f////9BggAU/////zh/Aqj/////TMYxgv////9IAAAB/AAAA0gAAAD/////fKhJLv////84CgAB/////ywAAAT/////kWcABP////+ZZwAI/////5AAAAD/4AAAQYAADP////84AAAA/////5AAAAD/4AAAgKAAAP/gAAA8wAAA//8AAFVHKDT/////OAUAAf////84xgAA//8AACwAAAT/////kAAAAP/gAAB/xjoU/////0GAAAz/////OAAAAP////+QAAAA/+AAAICgAAD/4AAAPOAAAP//AABUACg0/////zjAAOP/////fMUBrv////89IAAA//8AAH/K83j/////OOcAAP//AACAAAAA/+AAADkpAAD//wAAgKAAAP/gAAA4wAAg/////1QAKDT/////OQAAIP////98pQIU/////5BlAAT/////gAAAAP/gAACAYAAA/+AAAFQAKDT/////fGMCFP////+QgwAI/////ziAAOP/////gAAAAP/gAACAoAAA/+AAAFQAKDT/////gGAAAP/gAAB8pQIU/////0gAAAH8AAADLAMAAP////9BggAk/////3xkG3j/////OH8G6P////9MxjGC/////0gAAAH8AAADOAAAAP////84YAAA/////5geAAj/////SAAACP////84YAAB/////4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 404
+    flags: 1
+    section: .text
+  - kind: Object
+    name: dvdContexts
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@3872'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Object
+    name: freeDvdContext
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diRegValCache
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 256
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 264
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 312
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 316
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 324
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: c602f1d867ef5453ce5450f0b2a1fdbd1d566bc6
+  signature: lCH/8P////98CAKm/////z0AAAD//wAAOWAAAf////+QAQAU/////zkIAAD//wAAk+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////+BQAAA/+AAAJlgAAD/4AAAVUkoNP////986EoU/////4jHAAj/////fAYA0P////98ADN4/////1QAD/7/////KAAAAf////9AggAk/////31EU3j/////OH8CGP////9MxjGC/////0gAAAH8AAADOH8CUP////9MxjGC/////0gAAAH8AAADSAAAAP////+AxwAM/////zwGARX/////KADa7f////9BggAU/////zh/AoD/////TMYxgv////9IAAAB/AAAA0gAAAD/////fKhJLv////84CgAB/////ywAAAT/////kWcABP////+ZZwAI/////5AAAAD/4AAAQYAADP////84AAAA/////5AAAAD/4AAAgKAAAP/gAAA8wAAA//8AAFVHKDT/////OAUAAf////84xgAA//8AACwAAAT/////kAAAAP/gAAB/xjoU/////0GAAAz/////OAAAAP////+QAAAA/+AAAICgAAD/4AAAPOAAAP//AABUACg0/////zjAAOP/////fMUBrv////89IAAA//8AAH/K83j/////OOcAAP//AACAAAAA/+AAADkpAAD//wAAgKAAAP/gAAA4wAAg/////1QAKDT/////OQAAIP////98pQIU/////5BlAAT/////gAAAAP/gAACAYAAA/+AAAFQAKDT/////fGMCFP////+QgwAI/////ziAAOP/////gAAAAP/gAACAoAAA/+AAAFQAKDT/////gGAAAP/gAAB8pQIU/////0gAAAH8AAADLAMAAP////9BggAk/////3xkG3j/////OH8EaP////9MxjGC/////0gAAAH8AAADOAAAAP////84YAAA/////5geAAj/////SAAACP////84YAAB/////4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 404
+    flags: 1
+    section: .text
+  - kind: Object
+    name: dvdContexts
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@3480'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Object
+    name: freeDvdContext
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diRegValCache
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 256
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 264
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 312
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 316
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 324
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: d3ba4b4517a4940bb41871cc3ed2ba1a1bc98f38
+  signature: lCH/8P////98CAKm/////z0AAAD//wAAOWAAAf////+QAQAU/////zkIAAD//wAAk+EADP////8/4AAA//8AADv/AAD//wAAk8EACP////+BQAAA/+AAAJlgAAD/4AAAVUkoNP////986EoU/////4jHAAj/////fAYA0P////98ADN4/////1QAD/7/////KAAAAf////9AggAo/////31EU3j/////OH8CQP////9MxjGC/////0gAAAH8AAADOH8CeP////9MxjGC/////0gAAAH8AAADYAAAAP////9IAAAA/////4DHAAz/////PAYBFf////8oANrt/////0GCABT/////OH8CqP////9MxjGC/////0gAAAH8AAADSAAAAP////98qEku/////zgKAAH/////LAAABP////+RZwAE/////5lnAAj/////kAAAAP/gAABBgAAM/////zgAAAD/////kAAAAP/gAACAoAAA/+AAADzAAAD//wAAVUcoNP////84BQAB/////zjGAAD//wAALAAABP////+QAAAA/+AAAH/GOhT/////QYAADP////84AAAA/////5AAAAD/4AAAgKAAAP/gAAA84AAA//8AAFQAKDT/////OMAA4/////98xQGu/////z0gAAD//wAAf8rzeP////845wAA//8AAIAAAAD/4AAAOSkAAP//AACAoAAA/+AAADjAACD/////VAAoNP////85AAAg/////3ylAhT/////kGUABP////+AAAAA/+AAAIBgAAD/4AAAVAAoNP////98YwIU/////5CDAAj/////OIAA4/////+AAAAA/+AAAICgAAD/4AAAVAAoNP////+AYAAA/+AAAHylAhT/////SAAAAfwAAAMsAwAA/////0GCACT/////fGQbeP////84fwbo/////0zGMYL/////SAAAAfwAAAM4AAAA/////5geAAj/////OGAAAP////9IAAAI/////zhgAAH/////gAEAFP////+D4QAM/////4PBAAj/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 408
+    flags: 1
+    section: .text
+  - kind: Object
+    name: dvdContexts
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@3815'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Object
+    name: freeDvdContext
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: requestInProgress
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: freeCommandBuf
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: diRegValCache
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: doTransactionCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: DiFD
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 208
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 296
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 316
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 328
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 5
+    addend: 0

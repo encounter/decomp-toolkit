@@ -1,0 +1,38 @@
+- symbol: 0
+  hash: 6c977557abdae5d2f6839f329a69540fb67dd446
+  signature: kAQAAP////+QJAAE/////5BEAAj/////vMQAGP////98EeKm/////5AEAaj/////fBLipv////+QBAGs/////3wT4qb/////kAQBsP////98FOKm/////5AEAbT/////fBXipv////+QBAG4/////3wW4qb/////kAQBvP////98F+Km/////5AEAcD/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 76
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 72
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: e4dc0b95d3d525555dd48d098822461b33b5b1a8
+  signature: kAQAAP////+QJAAE/////5BEAAj/////vMQAGP////98EeKm/////5AEAaj/////fBLipv////+QBAGs/////3wT4qb/////kAQBsP////98FOKm/////5AEAbT/////fBXipv////+QBAG4/////3wW4qb/////kAQBvP////98F+Km/////5AEAcD/////lCH/+P////9IAAAA/AAAAw==
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 80
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 76
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

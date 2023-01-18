@@ -1,0 +1,938 @@
+- symbol: 0
+  hash: 5fcd736d47487cbff4fe0166ac828c3a34e8972d
+  signature: VCsG/v////98LAt4/////yFr/sD/////fCFZbv////98CAKm/////zhgAAD/////kAwABP////84AAAB/////5Ps//z/////kGAAAP/gAACQYAAA/+AAAJBgAAD/4AAAkAAAAP/gAABIAAAB/AAAAywDAAD/////QYIACP////9IAAD8/////ziBAED/////OGAAAP////9IAAAB/AAAAywD/Af/////QYIAIP////8sAwAA/////0GCAAj/////SAAAFP////84YQBA/////ziBACD/////OKEAJP////9IAAAB/AAAAywDAAD/////QYIAEP////8sA/wH/////0GCALz/////SAAAuP////+AAQAg/////ywAAAD/////QYIArP////8sAAAB/////0CCAKT/////gAEAJP////8sAAAA/////0CCABz/////PGAAAP//AAA4gALh/////zhjAAD//wAAOKAAAP/gAABMxjGC/////0gAAAH8AAADP+AAAP//AAA4fwAA//8AAEgAAAH8AAADPGCAAP////884AAA//8AAIADAPj/////OIAAFP////+AoQAk/////zkgAAD/////VAbwvv////84fwAA//8AAH0FIBT/////OOcAAP//AAB8CUkU/////3ygMdb/////fIgwFv////98CEnW/////3yEKhT/////fMgx1v////98pAIU/////0gAAAH8AAADOJ8AAP//AAA8YAAA//8AAIAEAAj/////OGMAAP//AACApAAM/////5AAAAD/4AAAgIEAJP////+QoAAA/+AAAEzGMYL/////SAAAAfwAAANIAAAB/AAAA4FBAAD/////gAoABP////+D6v/8/////3wIA6b/////fUFTeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitPlayTime
+    size: 344
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSExpireTime
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireCallback
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireSetExpiredFlag
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1506'
+    size: 13
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1507'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: __OSExpireAlarm
+    size: 48
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSPlayTimeAlarmExpired
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1508'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 4
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 296
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 304
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 4
+  - offset: 312
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 17826a0fa418284cc4a8e32ce6671f275665b1c1
+  signature: VCsG/v////98LAt4/////yFr/sD/////fCFZbv////98CAKm/////zhgAAD/////kAwABP////84AAAB/////5Ps//z/////kGAAAP/gAACQYAAA/+AAAJBgAAD/4AAAkAAAAP/gAABIAAAB/AAAAywDAAD/////QYIACP////9IAAD8/////ziBAED/////OGAAAP////9IAAAB/AAAAywD/Af/////QYIAIP////8sAwAA/////0GCAAj/////SAAAFP////84YQBA/////ziBACD/////OKEAJP////9IAAAB/AAAAywDAAD/////QYIAEP////8sA/wH/////0GCALz/////SAAAuP////+AAQAg/////ywAAAD/////QYIArP////8sAAAB/////0CCAKT/////gAEAJP////8sAAAA/////0CCABz/////PGAAAP//AAA4gAMH/////zhjAAD//wAAOKAAAP/gAABMxjGC/////0gAAAH8AAADP+AAAP//AAA4fwAA//8AAEgAAAH8AAADPGCAAP////884AAA//8AAIADAPj/////OIAAAf////+AoQAk/////zkgAAD/////VAbwvv////84fwAA//8AAH0FIBT/////OOcAAP//AAB8CUkU/////3ygMdb/////fIgwFv////98CEnW/////3yEKhT/////fMgx1v////98pAIU/////0gAAAH8AAADOJ8AAP//AAA8YAAA//8AAIAEAAj/////OGMAAP//AACApAAM/////5AAAAD/4AAAgIEAJP////+QoAAA/+AAAEzGMYL/////SAAAAfwAAANIAAAB/AAAA4FBAAD/////gAoABP////+D6v/8/////3wIA6b/////fUFTeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitPlayTime
+    size: 344
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSExpireTime
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireThread
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireSetExpiredFlag
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1547'
+    size: 13
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1548'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: __OSExpireAlarm
+    size: 48
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSPlayTimeAlarmExpired
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1549'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 4
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 296
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 304
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 4
+  - offset: 312
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: e3a386e02a9785ad08c80bf268575ef9e30ce530
+  signature: VCsG/v////98LAt4/////yFr/sD/////fCFZbv////98CAKm/////zhgAAD/////kAwABP////84AAAB/////5Ps//z/////kGAAAP/gAACQYAAA/+AAAJBgAAD/4AAAkAAAAP/gAABIAAAB/AAAAywDAAD/////QYIACP////9IAAD8/////ziBAED/////OGAAAP////9IAAAB/AAAAywD/Af/////QYIAIP////8sAwAA/////0GCAAj/////SAAAFP////84YQBA/////ziBACD/////OKEAJP////9IAAAB/AAAAywDAAD/////QYIAEP////8sA/wH/////0GCALz/////SAAAuP////+AAQAg/////ywAAAD/////QYIArP////8sAAAB/////0CCAKT/////gAEAJP////8sAAAA/////0CCABz/////PGAAAP//AAA4gALh/////zhjAAD//wAAOKAAAP/gAABMxjGC/////0gAAAH8AAADP+AAAP//AAA4fwAA//8AAEgAAAH8AAADPGCAAP////884AAA//8AAIADAPj/////OIAAFP////+AoQAk/////zkgAAD/////VAbwvv////84fwAA//8AAH0FIBT/////OOcAAP//AAB8CUkU/////3ygMdb/////fIgwFv////98CEnW/////3yEKhT/////fMgx1v////98pAIU/////0gAAAH8AAADOJ8AAP//AAA8YAAA//8AAIAEAAj/////OGMAAP//AACAhAAM/////5CAAAD/4AAAgIEAJP////+QAAAA/+AAAEzGMYL/////SAAAAfwAAANIAAAB/AAAA4FBAAD/////gAoABP////+D6v/8/////3wIA6b/////fUFTeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitPlayTime
+    size: 344
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSExpireTime
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireCallback
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireSetExpiredFlag
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_DiGetTicketView
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1519'
+    size: 13
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1520'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: __OSExpireAlarm
+    size: 48
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSPlayTimeAlarmExpired
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1521'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 4
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 296
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 4
+  - offset: 304
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 2b59a5795f87179a292757ccbc2315f8151804be
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////88YAAA//8AADvDAAD//wAAOGAAAP////84AAAA/////5BgAAD/4AAAkAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAf////+QAAAA/+AAAEgAAAH8AAADfH8beP////8sHwAA/////0GCADD/////OH4AFP////84gALs/////zi+AED/////f+b7eP////9MxjGC/////0gAAAH8AAADO6AAAP////98HQDQ/////3wA63j/////VAAP/v////9IAAEQ/////zhhAAj/////OIEADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9BggA4/////ywf/Af/////QYIA8P////84fgAU/////ziAAvf/////OL4AQP////9/5vt4/////0zGMYL/////SAAAAfwAAAM7gAAA/////3wcAND/////fADjeP////9UAA/+/////0gAAMT/////gAEACP////8sAAAA/////0GCALj/////gAEACP////8sAAAB/////0CCAKz/////gAEADP////8sAAAA/////0CCABj/////OH4AFP////84gAMH/////zigAAD/4AAATMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAAzxgAAD//wAAOGMAAP//AACAwQAM/////zigAAD/////OIAAAf////84AAAA/////30GIBT/////fOUBFP////88gIAA/////4AEAPj/////VAbwvv////84oAAA/////3wIMBb/////fIcx1v////98gCIU/////3wIKdb/////fMgx1v////98pAIU/////zyAAAD//wAAOOQAAP//AABIAAAB/AAAAzxgAAD//wAAOGMAAP//AACAAwAI/////4BjAAz/////kGAAAP/gAACQAAAA/+AAADh+ALj/////gIEADP////9MxjGC/////0gAAAH8AAADSAAAAfwAAAOD4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitPlayTime
+    size: 432
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1170'
+    size: 17
+    flags: 2
+    section: .data
+  - kind: Object
+    name: __OSExpireTime
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireThread
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireSetExpiredFlag
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTimeCurrent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1357'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: __OSExpireAlarm
+    size: 48
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSPlayTimeAlarmExpired
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 4
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 248
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 356
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 4
+  - offset: 376
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+- symbol: 0
+  hash: 80da8ecadb1fc0367e720540d28508b83dca99c7
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////88YAAA//8AADvDAAD//wAAOGAAAP////84AAAA/////5BgAAD/4AAAkAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAf////+QAAAA/+AAAEgAAAH8AAADfH8beP////8sHwAA/////0GCADD/////OH4AFP////84gALG/////zi+AED/////f+b7eP////9MxjGC/////0gAAAH8AAADO6AAAP////98HQDQ/////3wA63j/////VAAP/v////9IAAEQ/////zhhAAj/////OIEADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9BggA4/////ywf/Af/////QYIA8P////84fgAU/////ziAAtH/////OL4AQP////9/5vt4/////0zGMYL/////SAAAAfwAAAM7gAAA/////3wcAND/////fADjeP////9UAA/+/////0gAAMT/////gAEACP////8sAAAA/////0GCALj/////gAEACP////8sAAAB/////0CCAKz/////gAEADP////8sAAAA/////0CCABj/////OH4AFP////84gALh/////zigAAD/4AAATMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAAzxgAAD//wAAOGMAAP//AACAwQAM/////zigAAD/////OIAAFP////84AAAA/////30GIBT/////fOUBFP////88gIAA/////4AEAPj/////VAbwvv////84oAAA/////3wIMBb/////fIcx1v////98gCIU/////3wIKdb/////fMgx1v////98pAIU/////zyAAAD//wAAOOQAAP//AABIAAAB/AAAAzxgAAD//wAAOGMAAP//AACAAwAI/////4BjAAz/////kGAAAP/gAACQAAAA/+AAADh+ALj/////gIEADP////9MxjGC/////0gAAAH8AAADSAAAAfwAAAOD4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitPlayTime
+    size: 432
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1187'
+    size: 17
+    flags: 2
+    section: .data
+  - kind: Object
+    name: __OSExpireTime
+    size: 8
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireCallback
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __OSExpireSetExpiredFlag
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: ESP_InitLib
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetPlayTimeCurrent
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1365'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: __OSExpireAlarm
+    size: 48
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSPlayTimeAlarmExpired
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: ESP_CloseLib
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 4
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 248
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 356
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 4
+  - offset: 376
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 14
+    addend: 0

@@ -1,0 +1,138 @@
+- symbol: 0
+  hash: 642f55af2878d23c75243dbcc9a63ff1bf3fe552
+  signature: fAgCpv////84YAAA/////5ABAAT/////lCH/+P////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAANIAAAB/AAAAzhgAAD/////OCEACP////+AAQAE/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKTargetContinue
+    size: 52
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetStopped
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: UnreserveEXI2Port
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKSwapAndGo
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ReserveEXI2Port
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 25c012dcebb107cca87399fe5836bb3152931ad6
+  signature: lCH/8P////98CAKm/////5ABABT/////OGAAAP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAANIAAAB/AAAAzhgAAD/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKTargetContinue
+    size: 52
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetStopped
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: UnreserveEXI2Port
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKSwapAndGo
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ReserveEXI2Port
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: c5ceb6c0acf128cbb6c089d79fb0c41eb8688748
+  signature: lCH/8P////98CAKm/////zhgAAD/////kAEAFP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA4ABABT/////OGAAAP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKTargetContinue
+    size: 52
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetStopped
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: UnreserveEXI2Port
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKSwapAndGo
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ReserveEXI2Port
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

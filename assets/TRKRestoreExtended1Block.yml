@@ -1,0 +1,72 @@
+- symbol: 0
+  hash: 188f59e23dc0ef4c474149b14f299ba5a3d2abd4
+  signature: PEAAAP//AABgQgAA//8AADygAAD//wAAYKUAAP//AACIZQAA/////4jFAAH/////OAAAAP////+YBQAA/////5gFAAH/////LAMAAP////9BggAU/////4MCAej/////gyIB7P////9/HEOm/////389Q6b/////uoIC/P////9+kOOm/////36x46b/////ftLjpv////9+8+Om/////38U46b/////fzXjpv////9/VuOm/////39346b/////f5jjpv////9/2uOm/////3/746b/////SAAABP////+6YgKE/////351+6b/////fpnrpv////9+uuum/////37d66b/////fv7rpv////9/G+um/////38466b/////f1zrpv////9/2/um/////3/5+6b/////SAAABP////+6AgGo/////34AAaT/////fiEBpP////9+QgGk/////35jAaT/////foQBpP////9+pQGk/////37GAaT/////fucBpP////9/CAGk/////38pAaT/////f0oBpP////9/awGk/////3+MAaT/////f60BpP////9/zgGk/////3/vAaT/////uYIB8P////99kPum/////32x+6b/////fdsDpv////99/0Om/////34Qg6b/////fjGDpv////9+UoOm/////35zg6b/////fpSDpv////9+tYOm/////37Wg6b/////fveDpv////9/GIOm/////385g6b/////f1qDpv////9/e4Om/////3+cg6b/////f72Dpv////9/3oOm/////3//g6b/////usICXP////9+2QOm/////37zA6b/////fxIDpv////9/MEOm/////39RQ6b/////f3JDpv////9/k0Om/////3/S+6b/////f/pDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKRestoreExtended1Block
+    size: 356
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  - kind: Object
+    name: gTRKRestoreFlags
+    size: 9
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Hi
+    symbol: 2
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 993dfd86ff97aa08c6ad8934c69d8d6029fbe63b
+  signature: PEAAAP//AABgQgAA//8AADygAAD//wAAYKUAAP//AACIZQAA/////4jFAAH/////OAAAAP////+YBQAA/////5gFAAH/////LAMAAP////9BggAU/////4MCAej/////gyIB7P////9/HEOm/////389Q6b/////uoIC/P////9+kOOm/////36x46b/////ftLjpv////9+8+Om/////38U46b/////fzXjpv////9/VuOm/////39346b/////f5jjpv////9/2uOm/////3/746b/////SAAAHP////+7QgLg/////39Q66b/////f3frpv////9/tvum/////3/X+6b/////f//7pv////+6YgKE/////351+6b/////fpnrpv////9+uuum/////37d66b/////fv7rpv////9/G+um/////38466b/////f1zrpv////9/fPum/////3+d+6b/////f777pv////9/2/um/////3/5+6b/////SAAANP////8sBgAA/////0GCAAz/////g0ICeP////9/VgOm/////7siAkD/////fzDzpv////9/UfOm/////39y86b/////f5Pzpv////9/tPOm/////3/V86b/////f/bzpv////+6AgGo/////34AAaT/////fiEBpP////9+QgGk/////35jAaT/////foQBpP////9+pQGk/////37GAaT/////fucBpP////9/CAGk/////38pAaT/////f0oBpP////9/awGk/////3+MAaT/////f60BpP////9/zgGk/////3/vAaT/////uYIB8P////99kPum/////32x+6b/////fdsDpv////99/0Om/////34Qg6b/////fjGDpv////9+UoOm/////35zg6b/////fpSDpv////9+tYOm/////37Wg6b/////fveDpv////9/GIOm/////385g6b/////f1qDpv////9/e4Om/////3+cg6b/////f72Dpv////9/3oOm/////3//g6b/////usICXP////9+2QOm/////37zA6b/////fxIDpv////9/MEOm/////39RQ6b/////f3JDpv////9/k0Om/////3/S+6b/////f/pDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKRestoreExtended1Block
+    size: 440
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  - kind: Object
+    name: gTRKRestoreFlags
+    size: 9
+    flags: 1
+    section: .data
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Hi
+    symbol: 2
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0

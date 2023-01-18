@@ -1,0 +1,38 @@
+- symbol: 0
+  hash: 4ad80274e02f917e972ea9c1eff1247e22bc4803
+  signature: kGAAAP/gAABOgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSSetArenaHi
+    size: 8
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSArenaHi
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 23860b6bb06db3b2406b4046270c6fae85b8eed4
+  signature: lCH/8P////98CAKm/////5ABABT/////kGEACP////+AYQAI/////0gAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSSetArenaHi
+    size: 40
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetMEM1ArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

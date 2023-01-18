@@ -1,0 +1,42 @@
+- symbol: 0
+  hash: 9d8737e8fff8fd6d4fdc283b21a9fefce07f432d
+  signature: gYAAAP/gAAAsDAAA/////02CACD/////fYkDpv////9OgAQg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __NANDPrintErrorMessage
+    size: 24
+    flags: 1
+    section: .text
+  - kind: Object
+    name: NANDErrorFunc
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 0273343b6f26a6e4eb239320408ace8404320669
+  signature: lCH/8P////98CAKm/////5ABABT/////kGEACP////+AAAAA/+AAACwAAAD/////QYIAFP////+AYQAI/////4GAAAD/4AAAfYkDpv////9OgAQh/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __NANDPrintErrorMessage
+    size: 60
+    flags: 1
+    section: .text
+  - kind: Object
+    name: NANDErrorFunc
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

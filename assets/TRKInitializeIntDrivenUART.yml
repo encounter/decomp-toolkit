@@ -1,0 +1,196 @@
+- symbol: 0
+  hash: 33fce890e83eea94a6c777ab58da804107a405f5
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAPGAAAP//AACQAQAU/////ziEAAD//wAAgYMAAP//AAB8wzN4/////32JA6b/////ToAEIf////+AAQAU/////zhgAAD/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 60
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKEXICallBack
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gDBCommTable
+    size: 28
+    flags: 1
+    section: .data
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 9c78e3f67eaba576ca74e616ea4a805fe28b09bc
+  signature: fAgCpv////+QAQAE/////5Qh//j/////PGAAAP//AAA4YwAA//8AADyAAAD//wAAgYMAAP////84hAAA//8AAHzDM3j/////fYgDpv////9OgAAh/////zhgAAD/////OCEACP////+AAQAE/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 64
+    flags: 1
+    section: null
+  - kind: Object
+    name: gDBCommTable
+    size: 28
+    flags: 1
+    section: .data
+  - kind: Function
+    name: TRKEXICallBack
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 5a03fd9b9149fe7a7552f6817f24b15b16ed9796
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAPGAAAP//AACQAQAU/////ziEAAD//wAAgYMAAP//AAB8wzN4/////32JA6b/////ToAEIf////88YAAA//8AADhjAAD//wAAgYMAGP////99iQOm/////06ABCH/////gAEAFP////84YAAA/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 80
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKEXICallBack
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gDBCommTable
+    size: 40
+    flags: 1
+    section: .data
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: daac0bb86870ed2fdee919472ee374758a3faf48
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////8/4AAA//8AADyAAAD//wAAgZ8AAP//AAB8wzN4/////ziEAAD//wAAfYkDpv////9OgAQh/////zh/AAD//wAAgYMAGP////99iQOm/////06ABCH/////OGAAAP////+AAQAU/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 84
+    flags: 1
+    section: null
+  - kind: Object
+    name: gDBCommTable
+    size: 40
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKEXICallBack
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 1f834e30ffebd610c9629d1cd596a2299f7fb729
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAfKMreP////+QAQAU/////ziEAAD//wAAk+EADP////8/4AAA//8AAIGfAAD//wAAfYkDpv////9OgAQh/////zh/AAD//wAAgYMAGP////99iQOm/////06ABCH/////g+EADP////84YAAA/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 84
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKEXICallBack
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gDBCommTable
+    size: 40
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0

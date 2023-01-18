@@ -1,0 +1,32 @@
+- symbol: 0
+  hash: ad1e363a52dd88252a4e726dce6f01c658f34869
+  signature: PEAAAP//AABgQgAA//8AAIACAIz/////fAAErP////98AAEk/////3wABKz/////gAIAgP////98CAOm/////4ACAIT/////fAkDpv////+AAgCI/////3wBA6b/////gAIAlP////98EgOm/////4ACAJD/////fBMDpv////+4YgAM/////4ACAAD/////gCIABP////+AQgAI/////0gAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: TRKInterruptHandlerEnableInterrupts
+    size: 84
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKState
+    size: 164
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKPostInterruptEvent
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

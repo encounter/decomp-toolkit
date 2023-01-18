@@ -1,0 +1,138 @@
+- symbol: 0
+  hash: bd48f655dc42b87dc741aa4b19512f10d3d7643a
+  signature: PMAAAP//AAA4xgAA//8AADimAAj/////kMYAAP////84hgAQ/////zhmABj/////kMYABP////+QpgAI/////5CmAAz/////kIYAEP////+QhgAU/////5BmABj/////kGYAHP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WaitingQueue
+    size: 32
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: f534174f0af041aa45324839acb2a3c80d4bfa69
+  signature: PMAAAP//AAA4xgAA//8AAJDGAAD/////OKYACP////84hgAQ/////zhmABj/////kMYABP////+QpQAA/////5ClAAT/////kIQAAP////+QhAAE/////5BjAAD/////kGMABP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WaitingQueue
+    size: 32
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 47aa68f54b90ec7a94b163fe6b46173b2a10f3e2
+  signature: PGAAAP//AAA4YwAA//8AAJBjAAD/////OKMACP////84gwAQ/////5BjAAT/////OGMAGP////+QpQAA/////5ClAAT/////kIQAAP////+QhAAE/////5BjAAD/////kGMABP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WaitingQueue
+    size: 32
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 0894f45ca5499ebb63edf1cb27afc09872021bef
+  signature: lCH/8P////+/wQAI/////zvAAAD/////SAAAIP////9XxBg4/////zxgAAD//wAAOAMAAP//AAB/4CIU/////5P/AAD/////k/8ABP////873gAB/////ygeAAT/////QYD/4P////+7wQAI/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 64
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WaitingQueue
+    size: 32
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: a8762d7ac69d76b8b49606cca201d493908db962
+  signature: lCH/8P////+T4QAM/////5PBAAj/////O8AAAP////9IAAAg/////1fEGDj/////PGAAAP//AAA4AwAA//8AAH/gIhT/////k/8AAP////+T/wAE/////zveAAH/////KB4ABP////9BgP/g/////4PhAAz/////g8EACP////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WaitingQueue
+    size: 32
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: fbfc5459db5330544113db2527b99c54028ee40c
+  signature: lCH/4P////+T4QAc/////5PBABj/////k6EAFP////98Pwt4/////zugAAD/////SAAAIP////9XpBg4/////zxgAAD//wAAOAMAAP//AAB/wCIU/////5PeAAD/////k94ABP////87vQAB/////ygdAAT/////QYD/4P////9/6vt4/////4PqABz/////g8oAGP////+DqgAU/////4AhAAD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WaitingQueue
+    size: 32
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

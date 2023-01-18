@@ -1,0 +1,222 @@
+- symbol: 0
+  hash: 123de856cb46af3254274bf3b26a3296b05cff57
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAAywDAAD/////fHobeP////98myN4/////3y8K3j/////fN0zeP////9BggAY/////ziAAED/////SAAAAfwAAAMoAwBA/////3x/G3j/////QIIADP////84YP+b/////0gAAFz/////gGAAAP/gAAA4gAFA/////zigACD/////SAAAAfwAAAMsAwAA/////3x+G3j/////QIIADP////84YP+K/////0gAADj/////k4MBAP////84AAAA/////39E03j/////OL8AAf////+TowEE/////5ADAQj/////SAAAAfwAAAM8oAAA//8AAH/D83j/////f2TbeP////9/xvN4/////zilAAD//wAASAAAAfwAAAM5YQAg/////0gAAAH8AAADgAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 184
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strnlen
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hId
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: iosAllocAligned
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: _isfsFuncCb
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: IOS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 90d12e5b3884f9c68abc145aac7af8746af13eea
+  signature: lCH/0P////98CAKm/////5ABADT/////k+EALP////+TwQAo/////5OhACT/////k4EAIP////98fBt4/////5CBAAj/////kKEADP////+QwQAQ/////zvAAAD/////OAAAAP////98HABA/////0GCABz/////f4PjeP////84gABA/////0gAAAH8AAADfH0beP////8oHQBA/////0CCAAz/////O8D/m/////9IAABs/////4BgAAD/4AAAOIABQP////84oAAg/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////O8D/iv////9IAABI/////4ABAAz/////kB8BAP////+AAQAQ/////5AfAQT/////OAAAAP////+QHwEI/////3/j+3j/////f4TjeP////84vQAB/////0gAAAH8AAADf+P7eP////+AgQAI/////zygAAD//wAAOKUAAP//AAB/5vt4/////0gAAAH8AAADfH4beP////9/w/N4/////4PhACz/////g8EAKP////+DoQAk/////4OBACD/////gAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strnlen
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hId
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: iosAllocAligned
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: _isfsFuncCb
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: IOS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 68
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 15ef32caab55ef4363c52b76b6f782b73627607c
+  signature: lCH/0P////98CAKm/////5ABADT/////k+EALP////+TwQAo/////5OhACT/////k4EAIP////98fRt4/////5CBAAj/////kKEADP////+QwQAQ/////zvAAAD/////OAAAAP////98HQBA/////0GCABz/////f6PreP////84gABA/////0gAAAH8AAADfHwbeP////8oHABA/////0CCAAz/////O8D/m/////9IAABs/////4BgAAD/4AAAOIABQP////84oAAg/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////O8D/iv////9IAABI/////4ABAAz/////kB8BAP////+AAQAQ/////5AfAQT/////OAAAAP////+QHwEI/////3/j+3j/////f6TreP////84vAAB/////0gAAAH8AAADf+P7eP////+AgQAI/////zygAAD//wAAOKUAAP//AAB/5vt4/////0gAAAH8AAADfH4beP////9/w/N4/////4PhACz/////g8EAKP////+DoQAk/////4OBACD/////gAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strnlen
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hId
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: iosAllocAligned
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: _isfsFuncCb
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: IOS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 68
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

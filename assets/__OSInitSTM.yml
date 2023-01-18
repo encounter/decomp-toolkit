@@ -1,0 +1,633 @@
+- symbol: 0
+  hash: bf1cdeefc70e3f0ce3148a0fa14a9084fb5ddb45
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////88YAAA//8AADvjAAD//wAAPGAAAP//AAA4AwAA//8AAJAAAAD/4AAAPGAAAP//AAA4AwAA//8AAJAAAAD/4AAAOAAAAP////+QAAAA/+AAAIAAAAD/4AAALAAAAP////9BggAM/////zhgAAH/////SAAAjP////84AAAA/////5AAAAD/4AAAOH8AAP////84gAAA/////0gAAAH8AAADkGAAAP/gAACAAAAA/+AAACwAAAD/////QIAAIP////84fwAU/////0zGMYL/////SAAAAfwAAAM4AAAA/////5AAAAD/4AAAOGAAAP////9IAABM/////zh/AEj/////OIAAAP////9IAAAB/AAAA5BgAAD/4AAAgAAAAP/gAAAsAAAA/////0CAACD/////OH8AFP////9MxjGC/////0gAAAH8AAADOAAAAP////+QAAAA/+AAADhgAAD/////SAAAFP////9IAAAB/AAAAzgAAAH/////kAAAAP/gAAA4YAAB/////4PhAAz/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSTM
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@641'
+    size: 19
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSDefaultPowerCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: PowerCallback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSDefaultResetCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ResetCallback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResetDown
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: StmReady
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: StmVdInUse
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IOS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: StmImDesc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: StmEhDesc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSRegisterStateEvent
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: d9b8ce41d60e0dabe37163fbd657509a35c27e53
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAPGAAAP//AACQAQAU/////ziEAAD//wAAOGMAAP//AACT4QAM/////zvgAAD/////k8EACP////+AAAAA/+AAAJCAAAD/4AAALAAAAP////+QYAAA/+AAAJPgAAD/4AAAQYIADP////84YAAB/////0gAALz/////PGAAAP//AACT4AAA/+AAADiAAAD/////OGMAAP//AABIAAAB/AAAAywDAAD/////kGAAAP/gAABAgAAQ/////5PgAAD/4AAAOGAAAP////9IAACQ/////zxgAAD//wAAOIAAAP////84YwAA//8AAEgAAAH8AAADLAMAAP////+QYAAA/+AAAECAABD/////k+AAAP/gAAA4YAAA/////0gAAGj/////SAAAAfwAAAN8fht4/////zygAAD//wAAPOAAAP//AAA9IAAA//8AAIBgAAD/4AAAOKUAAP//AAA45wAA//8AADkpAAD//wAAOIAQAP////84wAAg/////zkAACD/////OUAAAP////9IAAAB/AAAAywDAAD/////QIIAEP////84AAAB/////5AAAAD/4AAASAAACP////+T4AAA/+AAAH/D83j/////SAAAAfwAAAM4AAAB/////zhgAAH/////kAAAAP/gAACAAQAU/////4PhAAz/////g8EACP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSTM
+    size: 280
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSDefaultPowerCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSDefaultResetCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: StmReady
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PowerCallback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResetCallback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResetDown
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@955'
+    size: 19
+    flags: 2
+    section: .data
+  - kind: Object
+    name: StmVdInUse
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IOS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: StmImDesc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@956'
+    size: 19
+    flags: 2
+    section: .data
+  - kind: Object
+    name: StmEhDesc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: StmEhInBuf
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: StmEhOutBuf
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __OSStateEventHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: StmEhRegistered
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 232
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 252
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: e6c6276f82c73d6083a4947bff2b763ccae19431
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAPGAAAP//AACQAQAU/////ziEAAD//wAAOGMAAP//AACT4QAM/////zvgAAD/////k8EACP////+AAAAA/+AAAJCAAAD/4AAALAAAAP////+QYAAA/+AAAJPgAAD/4AAAQYIADP////84YAAB/////0gAALz/////PGAAAP//AACT4AAA/+AAADiAAAD/////OGMAAP//AABIAAAB/AAAAywDAAD/////kGAAAP/gAABAgAAQ/////5PgAAD/4AAAOGAAAP////9IAACQ/////zxgAAD//wAAOIAAAP////84YwAA//8AAEgAAAH8AAADLAMAAP////+QYAAA/+AAAECAABD/////k+AAAP/gAAA4YAAA/////0gAAGj/////SAAAAfwAAAN8fht4/////zygAAD//wAAPOAAAP//AAA9IAAA//8AAIBgAAD/4AAAOKUAAP//AAA45wAA//8AADkpAAD//wAAOIAQAP////84wAAg/////zkAACD/////OUAAAP////9IAAAB/AAAAywDAAD/////QIIAEP////84AAAB/////5AAAAD/4AAASAAACP////+T4AAA/+AAAH/D83j/////SAAAAfwAAAM4AAAB/////5AAAAD/4AAAOGAAAf////+AAQAU/////4PhAAz/////g8EACP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSTM
+    size: 280
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSDefaultPowerCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSDefaultResetCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: StmReady
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PowerCallback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResetCallback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResetDown
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@980'
+    size: 19
+    flags: 2
+    section: .data
+  - kind: Object
+    name: StmVdInUse
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IOS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: StmImDesc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@981'
+    size: 19
+    flags: 2
+    section: .data
+  - kind: Object
+    name: StmEhDesc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: StmEhInBuf
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: StmEhOutBuf
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __OSStateEventHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: IOS_IoctlAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: StmEhRegistered
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 232
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 248
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0

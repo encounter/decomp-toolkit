@@ -1,0 +1,65 @@
+- symbol: 0
+  hash: 580e1014d29d5d2a34f6a7da1ea99fbf29edc89c
+  signature: fAAApv////9gACAA/////3wAAST/////f+gCpv////9IAAAB/AAAA0gAAAH8AAADf+gDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __init_hardware
+    size: 32
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __OSPSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCacheInit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: ad769b173a1a17656958bd4dafa7dafde73e6c55
+  signature: fAAApv////9gACAA/////3wAAST/////f+gCpv////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAN/6AOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_hardware
+    size: 36
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __OSPSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSFPRInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCacheInit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0

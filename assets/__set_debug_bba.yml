@@ -1,0 +1,19 @@
+- symbol: 0
+  hash: a34eda2a630deec55eb36b098f554d192ef184aa
+  signature: OAAAAf////+YAAAA/+AAAE6AACD/////
+  symbols:
+  - kind: Function
+    name: __set_debug_bba
+    size: 12
+    flags: 2
+    section: .init
+  - kind: Object
+    name: Debug_BBA
+    size: 1
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

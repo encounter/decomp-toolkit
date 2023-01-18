@@ -1,0 +1,241 @@
+- symbol: 0
+  hash: 0cc2704c2734b37fa89aa8c037758f1602f9779d
+  signature: gKAAAP/gAABIAAAI/////4ClAAj/////KAUAAP////9BggAU/////4CFAAT/////gAMABP////98BABA/////0CB/+j/////KAUAAP////9AggA0/////zigAAD/4AAAhIUABP////8oBAAA/////0CCAAz/////kGAAAP/gAABIAAAI/////5BkAAj/////kIMADP////84AAAA/////5ADAAj/////kGUAAP////9OgAAg/////5CjAAj/////gIUADP////+QZQAM/////ygEAAD/////kIMADP////9AggAM/////5BgAAD/4AAAToAAIP////+QZAAI/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 132
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 0d785a9e7e52a91563789e572d1ecbc434ea18de
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////v4EAEP////98fxt4/////4AfAAD/////KAAAAP////9AggAg/////zxgAAD//wAAOGMAAP//AAA4gAC4/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADg8AAAP/gAABIAAAI/////4PeAAj/////KB4AAP////9BggAU/////4B+AAT/////gB8ABP////98AwBA/////0CB/+j/////KB4AAP////9AggA4/////zhgAAD/4AAAg4MABP////8oHAAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P8AAj/////k58ADP////84AAAA/////5AfAAj/////OGAAAP/gAACT4wAE/////0gAACj/////k98ACP////+DvgAM/////5P+AAz/////k78ADP////8oHQAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P9AAj/////gAEAJP////+7gQAQ/////zghACD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@27'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@28'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: a20085c18d4012ea4adbba85493918535d2cd204
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////v4EAEP////98fxt4/////4AfAAD/////KAAAAP////9AggAg/////zxgAAD//wAAOGMAAP//AAA4gADT/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADg8AAAP/gAABIAAAI/////4PeAAj/////KB4AAP////9BggAU/////4B+AAT/////gB8ABP////98AwBA/////0CB/+j/////KB4AAP////9AggA4/////zhgAAD/4AAAg4MABP////8oHAAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P8AAj/////k58ADP////84AAAA/////5AfAAj/////OGAAAP/gAACT4wAE/////0gAACj/////k98ACP////+DvgAM/////5P+AAz/////k78ADP////8oHQAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P9AAj/////gAEAJP////+7gQAQ/////zghACD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@27'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@28'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: a0af3ba0af7c71da659ac072d179c47827ba7d7c
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////v4EAEP////98fxt4/////4AfAAD/////KAAAAP////9AggAg/////zxgAAD//wAAOGMAAP//AAA4gAC8/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADg8AAAP/gAABIAAAI/////4PeAAj/////KB4AAP////9BggAU/////4B+AAT/////gB8ABP////98AwBA/////0CB/+j/////KB4AAP////9AggA4/////zhgAAD/4AAAg4MABP////8oHAAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P8AAj/////k58ADP////84AAAA/////5AfAAj/////OGAAAP/gAACT4wAE/////0gAACj/////k98ACP////+DvgAM/////5P+AAz/////k78ADP////8oHQAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P9AAj/////gAEAJP////+7gQAQ/////zghACD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@27'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@28'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0

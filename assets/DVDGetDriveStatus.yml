@@ -1,0 +1,399 @@
+- symbol: 0
+  hash: e20b3d4c079ef22787f8b7e843a3a7471b5d2712
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////0gAAAH8AAADgAAAAP/gAAB8fxt4/////ywAAAD/////QYIADP////87wP///////0gAAEz/////gAAAAP/gAAAsAAAA/////0GCAAz/////O8AACP////9IAAA4/////4BgAAD/4AAALAMAAP////9AggAM/////zvAAAD/////SAAAJP////88gAAA//8AADiEAAD//wAAfAMgQP////9AggAM/////zhgAAD/////SAAACP////9IAAAB/AAAA3x+G3j/////f+P7eP////9IAAAB/AAAA3/D83j/////g+EADP////+DwQAI/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 156
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: DVDGetCommandBlockStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 0ac52963aaaf1d548f05cbd59e1d6758d0598a78
+  signature: fAgCpv////+QAQAE/////5Qh//D/////v8EACP////9IAAAB/AAAA3x+G3j/////gAAAAP/gAAAsAAAA/////0GCAAz/////O+D///////9IAABY/////4AAAAD/4AAALAAAAP////9BggAM/////zvgAAj/////SAAARP////+AYAAA/+AAADgAAAD/////fAMAQP////9AggAM/////zvgAAD/////SAAALP////+AgAAA/+AAADxgAAD//wAAOAMAAP//AAB8BABA/////0CCAAz/////O+AAAP////9IAAAQ/////4BgAAD/4AAASAAAAfwAAAN8fxt4/////3/D83j/////SAAAAfwAAAN/4/t4/////4ABABT/////u8EACP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 160
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: DVDGetCommandBlockStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: cf9ced6928740f390b565bc341e850825d8d3b14
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////0gAAAH8AAADfH4beP////+AAAAA/+AAACwAAAD/////QYIADP////874P///////0gAAFj/////gAAAAP/gAAAsAAAA/////0GCAAz/////O+AACP////9IAABE/////4BgAAD/4AAAOAAAAP////98AwBA/////0CCAAz/////O+AAAP////9IAAAs/////4CAAAD/4AAAPGAAAP//AAA4AwAA//8AAHwEAED/////QIIADP////874AAA/////0gAABD/////gGAAAP/gAABIAAAB/AAAA3x/G3j/////f8PzeP////9IAAAB/AAAA3/j+3j/////g+EADP////+DwQAI/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 168
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: DVDGetCommandBlockStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 72f4460376f2ae246d867bfc11b0490ea93017cd
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////+TwQAQ/////0gAAAH8AAADgAAAAP/gAAA7wwAA/////ywAAAD/////QYIADP////874P///////0gAAFz/////gAAAAP/gAAAsAAAA/////0GCAAz/////O+AACP////9IAABI/////4PgAAD/4AAAKB8AAP////9AggAM/////zvgAAD/////SAAANP////88YAAA//8AADgDAAD//wAAfB8AQP////9AggAM/////zvgAAD/////SAAAHP////9IAAAB/AAAA4P/AAz/////LB8AA/////9AggAI/////zvgAAH/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEAHP////9/4/t4/////4PhABT/////g8EAEP////98CAOm/////zghABj/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: f28dec79c41f6e88a242ae40b73ffd319efd40f6
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////+TwQAQ/////0gAAAH8AAADgAAAAP/gAAA7wwAA/////ywAAAD/////QYIADP////874P///////0gAAFz/////gAAAAP/gAAAsAAAA/////0GCAAz/////O+AACP////9IAABI/////4PgAAD/4AAAKB8AAP////9AggAM/////zvgAAD/////SAAANP////88YAAA//8AADgDAAD//wAAfB8AQP////9AggAM/////zvgAAD/////SAAAHP////9IAAAB/AAAA4P/AAz/////LB8AA/////9AggAI/////zvgAAH/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADf+P7eP////+AAQAc/////4PhABT/////g8EAEP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

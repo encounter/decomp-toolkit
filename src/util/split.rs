@@ -1,6 +1,6 @@
 use std::{cmp::min, collections::HashMap};
 
-use anyhow::{Error, Result};
+use anyhow::{anyhow, bail, ensure, Result};
 
 use crate::util::obj::{
     ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjSection, ObjSectionKind, ObjSymbol,
@@ -8,9 +8,7 @@ use crate::util::obj::{
 
 /// Split an executable object into relocatable objects.
 pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
-    if obj.kind != ObjKind::Executable {
-        return Err(Error::msg(format!("Expected executable object, got {:?}", obj.kind)));
-    }
+    ensure!(obj.kind == ObjKind::Executable, "Expected executable object");
 
     let mut objects: Vec<ObjInfo> = vec![];
     let mut object_symbols: Vec<Vec<Option<usize>>> = vec![];
@@ -19,12 +17,15 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
         name_to_obj.insert(unit.clone(), objects.len());
         object_symbols.push(vec![None; obj.symbols.len()]);
         objects.push(ObjInfo {
+            module_id: 0,
             kind: ObjKind::Relocatable,
             architecture: ObjArchitecture::PowerPc,
             name: unit.clone(),
             symbols: vec![],
             sections: vec![],
             entry: 0,
+            sda2_base: None,
+            sda_base: None,
             stack_address: None,
             stack_end: None,
             db_stack_addr: None,
@@ -32,6 +33,8 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
             arena_hi: None,
             splits: Default::default(),
             link_order: vec![],
+            known_functions: Default::default(),
+            unresolved_relocations: vec![],
         });
     }
 
@@ -58,14 +61,16 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
 
             let (file_addr, unit) = match file_iter.next() {
                 Some((&addr, unit)) => (addr, unit),
-                None => return Err(Error::msg("No file found")),
+                None => bail!("No file found"),
             };
-            if file_addr > current_address {
-                return Err(Error::msg(format!(
-                    "Gap in files: {} @ {:#010X}, {} @ {:#010X}",
-                    section.name, section.address, unit, file_addr
-                )));
-            }
+            ensure!(
+                file_addr <= current_address,
+                "Gap in files: {} @ {:#010X}, {} @ {:#010X}",
+                section.name,
+                section.address,
+                unit,
+                file_addr
+            );
             let mut file_end = section_end;
             if let Some(&(&next_addr, _)) = file_iter.peek() {
                 file_end = min(next_addr, section_end);
@@ -74,17 +79,11 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
             let file = name_to_obj
                 .get(unit)
                 .and_then(|&idx| objects.get_mut(idx))
-                .ok_or_else(|| Error::msg(format!("Unit '{unit}' not in link order")))?;
+                .ok_or_else(|| anyhow!("Unit '{unit}' not in link order"))?;
             let symbol_idxs = name_to_obj
                 .get(unit)
                 .and_then(|&idx| object_symbols.get_mut(idx))
-                .ok_or_else(|| Error::msg(format!("Unit '{unit}' not in link order")))?;
-            let data = match section.kind {
-                ObjSectionKind::Bss => vec![],
-                _ => section.data[(current_address as u64 - section.address) as usize
-                    ..(file_end as u64 - section.address) as usize]
-                    .to_vec(),
-            };
+                .ok_or_else(|| anyhow!("Unit '{unit}' not in link order"))?;
 
             // Calculate & verify section alignment
             let mut align = default_section_align(section);
@@ -96,14 +95,20 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     align,
                     current_address
                 );
-                align = 4;
+                while align > 4 {
+                    align /= 2;
+                    if current_address & (align as u32 - 1) == 0 {
+                        break;
+                    }
+                }
             }
-            if current_address & (align as u32 - 1) != 0 {
-                return Err(Error::msg(format!(
-                    "Invalid alignment for split: {} {} {:#010X}",
-                    unit, section.name, current_address
-                )));
-            }
+            ensure!(
+                current_address & (align as u32 - 1) == 0,
+                "Invalid alignment for split: {} {} {:#010X}",
+                unit,
+                section.name,
+                current_address
+            );
 
             // Collect relocations; target_symbol will be updated later
             let out_relocations = relocations
@@ -116,21 +121,8 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 })
                 .collect();
 
-            let out_section_idx = file.sections.len();
-            file.sections.push(ObjSection {
-                name: section.name.clone(),
-                kind: section.kind,
-                address: 0,
-                size: file_end as u64 - current_address as u64,
-                data,
-                align,
-                index: out_section_idx,
-                relocations: out_relocations,
-                original_address: current_address as u64,
-                file_offset: section.file_offset + (current_address as u64 - section.address),
-            });
-
             // Add section symbols
+            let out_section_idx = file.sections.len();
             for &symbol_idx in symbols.range(current_address..file_end).flat_map(|(_, vec)| vec) {
                 if symbol_idxs[symbol_idx].is_some() {
                     continue; // should never happen?
@@ -148,6 +140,27 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     kind: symbol.kind,
                 });
             }
+
+            let data = match section.kind {
+                ObjSectionKind::Bss => vec![],
+                _ => section.data[(current_address as u64 - section.address) as usize
+                    ..(file_end as u64 - section.address) as usize]
+                    .to_vec(),
+            };
+            file.sections.push(ObjSection {
+                name: section.name.clone(),
+                kind: section.kind,
+                address: 0,
+                size: file_end as u64 - current_address as u64,
+                data,
+                align,
+                index: out_section_idx,
+                elf_index: out_section_idx + 1,
+                relocations: out_relocations,
+                original_address: current_address as u64,
+                file_offset: section.file_offset + (current_address as u64 - section.address),
+                section_known: true,
+            });
 
             current_address = file_end;
         }

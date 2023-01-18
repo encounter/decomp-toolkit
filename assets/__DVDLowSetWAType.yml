@@ -1,0 +1,254 @@
+- symbol: 0
+  hash: 07e34a9054642b8039c368f5ccf359a0b83943b0
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////875AAA/////5PBABD/////O8MAAP////9IAAAB/AAAA5PAAAD/4AAAk+AAAP/gAABIAAAB/AAAA4ABABz/////g+EAFP////+DwQAQ/////3wIA6b/////OCEAGP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDLowSetWAType
+    size: 68
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WorkAroundType
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WorkAroundSeekLocation
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 360b4f798c4e8f4114af865d76ac1b2981d9133a
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////875AAA/////5PBABD/////O8MAAP////9IAAAB/AAAA5PAAAD/4AAAk+AAAP/gAABIAAAB/AAAA4ABABz/////g+EAFP////+DwQAQ/////zghABj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __DVDLowSetWAType
+    size: 68
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: WorkAroundType
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WorkAroundSeekLocation
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 1c0ade36acd13fbdca06dee8edc0019c311ce454
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v8EAEP////98fht4/////5CBAAz/////SAAAAfwAAAN8fxt4/////ygeAAL/////QYAAIP////88YAAA//8AADhjAAD//wAAOIAFzv////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAA5PAAAD/4AAAgAEADP////+QAAAA/+AAAH/j+3j/////SAAAAfwAAAOAAQAc/////7vBABD/////OCEAGP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDLowSetWAType
+    size: 108
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@11'
+    size: 9
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@136'
+    size: 39
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: WorkAroundType
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WorkAroundSeekLocation
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 27eb9070efc7441e4905cfb1303bb8d9fc8217a1
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v8EAEP////98fht4/////5CBAAz/////SAAAAfwAAAN8fxt4/////ygeAAL/////QYAAIP////88YAAA//8AADhjAAD//wAAOIAF1v////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAA5PAAAD/4AAAgAEADP////+QAAAA/+AAAH/j+3j/////SAAAAfwAAAOAAQAc/////7vBABD/////OCEAGP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDLowSetWAType
+    size: 108
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@11'
+    size: 9
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@136'
+    size: 39
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: WorkAroundType
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WorkAroundSeekLocation
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 7
+    addend: 0

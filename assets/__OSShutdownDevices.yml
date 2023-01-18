@@ -1,0 +1,928 @@
+- symbol: 0
+  hash: 1d1a504ea6354a16dec828d22a96013ea0e47dfc
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////v6EAFP////98fRt4/////0gAAAH8AAADLB0AAP////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fht4/////zhgAAD/////SAAAAfwAAAMsAwAA/////0GC//T/////SAAAAfwAAAMsAwAA/////0GC//j/////SAAAAfwAAAM4YAAB/////0gAAAH8AAADfH8beP////84AAAA/////ywfAAD/////QIIALP////88YAAA//8AADhjAAD//wAAOIABm/////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////LAAAAP////9BggAI/////zgAAAH/////SAAAAfwAAAMsHQAA/////0CCAAz/////f8PzeP////9IAAAB/AAAA0gAAAH8AAADgAEAJP////+7oQAU/////zghACD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 188
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCallResetFunctions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@27'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@82'
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: KillThreads
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 80608b10d7e0773d3e9f2def6249f75ea37dd6c5
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x7G3j/////LBsABf////9AgAAQ/////ywbAAD/////QYIAFP////9IAAAY/////ywbAAf/////QIAAEP////9IAAAE/////zvgAAD/////SAAACP////874AAB/////0gAAAH8AAADLB8AAP////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fRt4/////zhgAAD/////f2TbeP////9IAAAB/AAAAywDAAD/////QYL/8P////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAAzhgAAH/////f2TbeP////9IAAAB/AAAA3x+G3j/////O4AAAf////8sHgAA/////0CCADD/////PGAAAP//AAA4YwAA//8AADiAAdn/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM7QAAA/////ywaAAD/////QIIACP////87gAAA/////0gAAAH8AAADLB8AAP////9AggAM/////3+j63j/////SAAAAfwAAANIAAAB/AAAAzlhACD/////SAAAAfwAAAOAAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 248
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCallShutdownFunctions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1276'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1354'
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: KillThreads
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 2d3c7bbd36e115a7574a7f84a039389ca54bf057
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x7G3j/////LBsABf////9AgAAQ/////ywbAAD/////QYIAFP////9IAAAY/////ywbAAf/////QIAAEP////9IAAAE/////zvgAAD/////SAAACP////874AAB/////0gAAAH8AAADLB8AAP////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fRt4/////zhgAAD/////f2TbeP////9IAAAB/AAAAywDAAD/////QYL/8P////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAAzhgAAH/////f2TbeP////9IAAAB/AAAA3x+G3j/////O4AAAf////8sHgAA/////0CCADD/////PGAAAP//AAA4YwAA//8AADiAAev/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM7QAAA/////ywaAAD/////QIIACP////87gAAA/////0gAAAH8AAADLB8AAP////9AggAM/////3+j63j/////SAAAAfwAAANIAAAB/AAAAzlhACD/////SAAAAfwAAAOAAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 248
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCallShutdownFunctions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1581'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1659'
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: KillThreads
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 5050beee0481f7c53bdfa96933bc7deee5c2b9dd
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x7G3j/////LBsABP////9AgAAQ/////ywbAAD/////QYIAFP////9IAAAY/////ywbAAf/////QIAAEP////9IAAAE/////zvgAAD/////SAAACP////874AAB/////0gAAAH8AAADLB8AAP////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fRt4/////zhgAAD/////f2TbeP////9IAAAB/AAAAywDAAD/////QYL/8P////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAAzhgAAH/////f2TbeP////9IAAAB/AAAA3x+G3j/////O4AAAf////8sHgAA/////0CCADD/////PGAAAP//AAA4YwAA//8AADiAAa3/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM7QAAA/////ywaAAD/////QIIACP////87gAAA/////0gAAAH8AAADLB8AAP////9AggAM/////3+j63j/////SAAAAfwAAANIAAAB/AAAAzlhACD/////SAAAAfwAAAOAAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 248
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSCallShutdownFunctions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1181'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1259'
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: KillThreads
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 456dfec0df3e66a7a5bee921edcf3b62226a34ec
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAAzgD//v/////fH8beP////8oAAAB/////0CBAAz/////LAMAAP////9AggAM/////ztgAAD/////SAAACP////87YAAB/////0gAAAH8AAADLBsAAP////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fBt4/////4OgAAD/4AAAOGAAAP////87wAAA/////0gAAED/////LB4AAP////9BggAQ/////4AdAAT/////fAMAQP////9AggA0/////4GdAAD/////f+T7eP////84YAAA/////32JA6b/////ToAEIf////98YAA0/////4B9AAT/////VADZfv////+DvQAI/////3/eA3j/////LB0AAP////9Agv/A/////0gAAAH8AAADfGAANP////9UANl+/////3/eA3n/////QIL/nP////9IAAAB/AAAAywDAAD/////QYL/+P////9IAAAB/AAAA4PAAAD/4AAAOGAAAP////87oAAA/////0gAAED/////LB0AAP////9BggAQ/////4AeAAT/////fAMAQP////9AggA0/////4GeAAD/////f+T7eP////84YAAB/////32JA6b/////ToAEIf////98YAA0/////4B+AAT/////VADZfv////+D3gAI/////3+9A3j/////LB4AAP////9Agv/A/////0gAAAH8AAADSAAAAfwAAAMsGwAA/////0CCAAz/////f4PjeP////9IAAAB/AAAAzxggAD/////gGMA3P////9IAAAk/////6ADAsj/////g6MC/P////8sAAAB/////0GCAAz/////LAAABP////9AggAI/////0gAAAH8AAADf6PreP////8sAwAA/////0CC/9z/////OWEAIP////9IAAAB/AAAA4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 384
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: e18bd5d8e8fb0f367e461236913470e96aef2309
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAAywDAAX/////fHsbeP////9AgAAQ/////ywDAAD/////QYIAEP////9IAAAU/////ywDAAf/////QIAADP////87gAAA/////0gAAAj/////O4AAAf////9IAAAB/AAAAywcAAD/////QIIAEP////84YAAB/////0gAAAH8AAADfH0beP////+DwAAA/+AAADhgAAD/////O+AAAP////9IAABA/////ywfAAD/////QYIAEP////+AHgAE/////3wDAED/////QIIANP////+BngAA/////39k23j/////OGAAAP////99iQOm/////06ABCH/////fGAANP////+AfgAE/////1QA2X7/////g94ACP////9//wN4/////yweAAD/////QIL/wP////9IAAAB/AAAA3xgADT/////VADZfv////9//wN5/////0CC/5z/////SAAAAfwAAAMsAwAA/////0GC//j/////SAAAAfwAAAOD4AAA/+AAADhgAAD/////O8AAAP////9IAABA/////yweAAD/////QYIAEP////+AHwAE/////3wDAED/////QIIANP////+BnwAA/////39k23j/////OGAAAf////99iQOm/////06ABCH/////fGAANP////+AfwAE/////1QA2X7/////g/8ACP////9/3gN4/////ywfAAD/////QIL/wP////9IAAAB/AAAA0gAAAH8AAADLBwAAP////9AggAM/////3+j63j/////SAAAAfwAAAM8YIAA/////4BjANz/////SAAALP////+gAwLI/////4PDAvz/////LAAABP////9BggAU/////0CAABT/////LAAAAf////9BggAI/////0gAAAj/////SAAAAfwAAAN/w/N4/////ywDAAD/////QIL/1P////85YQAg/////0gAAAH8AAADgAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 400
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 208
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: 842cd14e56f959ea83a0b045bffae7444505024e
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAAywDAAT/////fHsbeP////9AgAAQ/////ywDAAD/////QYIAEP////9IAAAU/////ywDAAf/////QIAADP////87gAAA/////0gAAAj/////O4AAAf////9IAAAB/AAAAywcAAD/////QIIAEP////84YAAB/////0gAAAH8AAADfH0beP////+DwAAA/+AAADhgAAD/////O+AAAP////9IAABA/////ywfAAD/////QYIAEP////+AHgAE/////3wDAED/////QIIANP////+BngAA/////39k23j/////OGAAAP////99iQOm/////06ABCH/////fGAANP////+AfgAE/////1QA2X7/////g94ACP////9//wN4/////yweAAD/////QIL/wP////9IAAAB/AAAA3xgADT/////VADZfv////9//wN5/////0CC/5z/////SAAAAfwAAAMsAwAA/////0GC//j/////SAAAAfwAAAOD4AAA/+AAADhgAAD/////O8AAAP////9IAABA/////yweAAD/////QYIAEP////+AHwAE/////3wDAED/////QIIANP////+BnwAA/////39k23j/////OGAAAf////99iQOm/////06ABCH/////fGAANP////+AfwAE/////1QA2X7/////g/8ACP////9/3gN4/////ywfAAD/////QIL/wP////9IAAAB/AAAA0gAAAH8AAADLBwAAP////9AggAM/////3+j63j/////SAAAAfwAAAM8YIAA/////4BjANz/////SAAALP////+gAwLI/////4PDAvz/////LAAABP////9BggAU/////0CAABT/////LAAAAf////9BggAI/////0gAAAj/////SAAAAfwAAAN/w/N4/////ywDAAD/////QIL/1P////85YQAg/////0gAAAH8AAADgAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 400
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 208
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: a2eabeeb5a488a3ba263ec8c14e6741324d561ce
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////k+EAJP////+TwQAg/////5OhABz/////k4EAGP////98fBt4/////0gAAAH8AAADLBwAAP////9AggAQ/////zhgAAH/////SAAAAfwAAAN8fRt4/////0gAAAT/////SAAABP////84YAAA/////4PAAAD/4AAAfH8beP////9IAAAE/////0gAAAT/////SAAAPP////8sHwAA/////0GCABD/////gB4ABP////98AwBA/////0CCADD/////OGAAAP////+BngAA/////32IA6b/////ToAAIf////98YAA0/////4B+AAT/////VADZfv////+D3gAI/////3//A3j/////KB4AAP////9Agv/E/////0gAAAH8AAADfGAANP////9UANl+/////3//A3j/////LB8AAP////9BggAM/////zgAAAD/////SAAACP////84AAAB/////ywAAAD/////QYL/gP////9IAAAE/////0gAAAT/////SAAAAfwAAAMsAwAA/////0GC//j/////SAAAAfwAAAM4YAAA/////4PgAAD/4AAAfH4beP////9IAAAE/////0gAAAT/////SAAAPP////8sHgAA/////0GCABD/////gB8ABP////98AwBA/////0CCADD/////OGAAAf////+BnwAA/////32IA6b/////ToAAIf////98YAA0/////4B/AAT/////VADZfv////+D/wAI/////3/eA3j/////KB8AAP////9Agv/E/////0gAAAH8AAADSAAAAfwAAAMsHAAA/////0CCAAz/////f6PreP////9IAAAB/AAAAzxggAD/////gGMA3P////9IAAAE/////0gAAAT/////SAAALP////+gAwLI/////4PDAvz/////LAAABP////9BggAU/////0CAABT/////LAAAAf////9BggAI/////0gAAAj/////SAAAAfwAAAN/w/N4/////ygDAAD/////QIL/1P////+AAQAs/////4PhACT/////g8EAIP////+DoQAc/////4OBABj/////OCEAKP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSShutdownDevices
+    size: 432
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSStopAudioSystem
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __PADDisableRecalibration
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSyncSram
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: LCDisable
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCancelThread
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 7
+    addend: 0

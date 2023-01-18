@@ -1,0 +1,276 @@
+- symbol: 0
+  hash: 3103f04a41ff8065012de10fee61921c6d6700e1
+  signature: fAgCpv////84YAAI/////5ABAAT/////lCH/+P////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AAB8AyBA/////0GCABz/////OAAAAP////84YAAA/+AAAJADAAT/////OGAACP////+QAAAA/+AAAEgAAAH8AAADgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSInitAlarm
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: a6fd8724a0e0d9f7ebc75e073eee60cd9d278871
+  signature: fAgCpv////+QAQAE/////5Qh//j/////OGAACP////9IAAAB/AAAAzyAAAD//wAAOAQAAP//AAB8AwBA/////0GCACT/////OAAAAP////84YAAA/+AAAJADAAT/////kAAAAP/gAAA4YAAI/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAA4ABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSInitAlarm
+    size: 84
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: cd0c2c0c5c1f967e73b67bd54df2e9e60637cc45
+  signature: fAgCpv////84YAAI/////5ABAAT/////lCH/+P////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AAB8AyBA/////0GCACj/////OAAAAP////84YAAA/+AAAJADAAT/////OGAACP////+QAAAA/+AAAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSInitAlarm
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 00dd13efaab34b9738d60c71e2a000a2c72fc1a2
+  signature: fAgCpv////+QAQAE/////5Qh//j/////OGAACP////9IAAAB/AAAAzyAAAD//wAAOAQAAP//AAB8AwBA/////0GCADD/////OAAAAP////84YAAA/+AAAJADAAT/////kAAAAP/gAAA4YAAI/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAA4ABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSInitAlarm
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DecrementerExceptionHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

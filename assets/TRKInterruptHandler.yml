@@ -1,0 +1,175 @@
+- symbol: 0
+  hash: 940bb7f21ab18bce281eaa10d24739d5325075b7
+  signature: fFoDpv////98mwOm/////3yTQqb/////fEAAJv////98U0Om/////zxAAAD//wAAYEIAAP//AACAQgCM/////2BCgAL/////aEKAAv////98AASs/////3xAAST/////fAAErP////88QAAA//8AAGBCAAD//wAAsGIAAP////8sAwUA/////0CCAIT/////PEAAAP//AABgQgAA//8AAHxoAqb/////kGIELP////9IAAAB/AAAAzxAAAD//wAAYEIAAP//AACAYgQs/////3xoA6b/////PEAAAP//AABgQgAA//8AAIBCAKD/////iEIAAP////8sAgAA/////0GCACz/////PEAAAP//AABgQgAA//8AAIhCAAz/////LAIAAf////9BggAY/////zxAAAD//wAAYEIAAP//AAA4YAAB/////5hiAJz/////SAAAIP////88QAAA//8AAGBCAAD//wAAgGIAiP////98b/Eg/////4BiAAz/////gEIACP////9MAABk/////zxAAAD//wAAYEIAAP//AACgYgAA/////zxAAAD//wAAYEIAAP//AACIQgAM/////ywCAAD/////QIIAAP//AAM8QAAA//8AAGBCAAD//wAAkAIAAP////+QIgAE/////3wRQqb/////kAIACP////+wYgL4/////7BiAvr/////fBJCpv////+QAgAM/////7yCABD/////f3oCpv////9/iAKm/////3+zQqb/////f8kCpv////9/4QKm/////79iAID/////SAAAAfwAAAM8QAAA//8AAGBCAAD//wAAOGAAAf////+YYgAM/////zxAAAD//wAAYEIAAP//AACAAgCM/////3wABKz/////fAABJP////98AASs/////4ACAID/////fAgDpv////+AAgCE/////3wJA6b/////gAIAiP////98AQOm/////4ACAJT/////fBIDpv////+AAgCQ/////3wTA6b/////uGIADP////+AAgAA/////4AiAAT/////gEIACP////9IAAAA/AAAAw==
+  symbols:
+  - kind: Function
+    name: TRKInterruptHandler
+    size: 404
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKState
+    size: 164
+    flags: 1
+    section: .bss
+  - kind: Object
+    name: TRK_saved_exceptionID
+    size: 2
+    flags: 2
+    section: null
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKUARTInterruptHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKExceptionStatus
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: gTRKSaveState
+    size: 148
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKExceptionHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKSaveExtended1Block
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKPostInterruptEvent
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Hi
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Hi
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Hi
+    symbol: 6
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Hi
+    symbol: 2
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Hi
+    symbol: 5
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 228
+    kind: PpcRel14
+    symbol: 7
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Hi
+    symbol: 5
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 324
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 9
+    addend: 0

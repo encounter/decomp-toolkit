@@ -1,0 +1,2002 @@
+- symbol: 0
+  hash: a94c5ebf2a43b844625f4d295ac08073b5100a21
+  signature: lCH/8P////98CAKm/////ywDAAH/////kAEAFP////9AggBk/////0gAAAH8AAADPWAAAP//AAA9IAAA//8AADlrAAD//wAAPUAAAP//AAA9AAAA//8AADzgAAD//wAAPMAAAP//AAA8oAAA//8AADyAAAD//wAAlWoAAP//AAA5KQAA//8AADkIAAD//wAAOOcAAP//AAA4xgAA//8AADilAAD//wAAOAQAAP//AACRKgAE/////5EKAAj/////kOoADP////+QygAQ/////5CqABT/////kAoAGP////9IAABg/////0gAAAH8AAADPWAAAP//AAA9IAAA//8AADlrAAD//wAAPUAAAP//AAA9AAAA//8AADzgAAD//wAAPMAAAP//AAA8oAAA//8AADyAAAD//wAAlWoAAP//AAA5KQAA//8AADkIAAD//wAAOOcAAP//AAA4xgAA//8AADilAAD//wAAOAQAAP//AACRKgAE/////5EKAAj/////kOoADP////+QygAQ/////5CqABT/////kAoAGP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 224
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Hu_IsStub
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: DBInitComm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBInitInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: gDBCommTable
+    size: 28
+    flags: 1
+    section: .data
+  - kind: Function
+    name: DBQueryData
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBRead
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBOpen
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBClose
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AMC_IsStub
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Init
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_EnableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Poll
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_ReadN
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_WriteN
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Reserve
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Unreserve
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: 162778d79cd4249e130b7109f83a5567e3cdf955
+  signature: fAgCpv////+QAQAE/////5Qh//j/////LAMAAf////9AggBo/////0gAAAH8AAADPKAAAP//AAA8gAAA//8AADgFAAD//wAAOKQAAP//AAA8gAAA//8AAJAFAAD/////OAQAAP//AAA8gAAA//8AAJAFAAT/////OAQAAP//AAA8gAAA//8AAJAFAAj/////OAQAAP//AAA8gAAA//8AAJAFAAz/////OAQAAP//AAA8gAAA//8AAJAFABD/////OAQAAP//AAA8gAAA//8AAJAFABT/////OAQAAP//AACQBQAY/////0gAAGT/////SAAAAfwAAAM8oAAA//8AADyAAAD//wAAOAUAAP//AAA4pAAA//8AADyAAAD//wAAkAUAAP////84BAAA//8AADyAAAD//wAAkAUABP////84BAAA//8AADyAAAD//wAAkAUACP////84BAAA//8AADyAAAD//wAAkAUADP////84BAAA//8AADyAAAD//wAAkAUAEP////84BAAA//8AADyAAAD//wAAkAUAFP////84BAAA//8AAJAFABj/////OCEACP////+AAQAE/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Hu_IsStub
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: DBInitComm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: gDBCommTable
+    size: 28
+    flags: 1
+    section: .data
+  - kind: Function
+    name: DBInitInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBQueryData
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBRead
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBOpen
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBClose
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AMC_IsStub
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Init
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_EnableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Poll
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_ReadN
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_WriteN
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Reserve
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Unreserve
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: 655302feb7299c0eb0904aebe322acc97249e7a0
+  signature: lCH/8P////98CAKm/////ywDAAH/////kAEAFP////9AggB0/////zxgAAD//wAAOGMAAP//AABMxjGC/////0gAAAH8AAADSAAAAfwAAAM9YAAA//8AAD0gAAD//wAAOWsAAP//AAA9QAAA//8AAD0AAAD//wAAPOAAAP//AAA8wAAA//8AADygAAD//wAAPIAAAP//AACVagAA//8AADkpAAD//wAAOQgAAP//AAA45wAA//8AADjGAAD//wAAOKUAAP//AAA4BAAA//8AAJEqAAT/////kQoACP////+Q6gAM/////5DKABD/////kKoAFP////+QCgAY/////0gAAHD/////PGAAAP//AAA4YwAA//8AAEzGMYL/////SAAAAfwAAANIAAAB/AAAAz1gAAD//wAAPSAAAP//AAA5awAA//8AAD1AAAD//wAAPQAAAP//AAA84AAA//8AADzAAAD//wAAPKAAAP//AAA8gAAA//8AAJVqAAD//wAAOSkAAP//AAA5CAAA//8AADjnAAD//wAAOMYAAP//AAA4pQAA//8AADgEAAD//wAAkSoABP////+RCgAI/////5DqAAz/////kMoAEP////+QqgAU/////5AKABj/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 256
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@154'
+    size: 33
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: Hu_IsStub
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: DBInitComm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBInitInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: gDBCommTable
+    size: 28
+    flags: 1
+    section: .data
+  - kind: Function
+    name: DBQueryData
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBRead
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBOpen
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBClose
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@155'
+    size: 36
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: AMC_IsStub
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Init
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_EnableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Poll
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_ReadN
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_WriteN
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Reserve
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXI2_Unreserve
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+- symbol: 0
+  hash: 75b5d5df65134de9fae582e86c5b939f133e2cab
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98fxt4/////3/k+3j/////k8EACP////8/wAAA//8AADh+AAD//wAATMYxgv////9IAAAB/AAAAzveAAD//wAAOIAAQP////84fgAV/////0zGMYL/////SAAAAfwAAAMsHwAC/////zgAAAD/////mAAAAP/gAABAggAM/////zhgAAD/////SAAAzP////8sHwAB/////0CCAJj/////OH4AOv////9MxjGC/////0gAAAH8AAADPGAAAP//AAA/wAAA//8AAD/gAAD//wAAPWAAAP//AAA9QAAA//8AAD0gAAD//wAAPQAAAP//AAA84AAA//8AADzAAAD//wAAPKAAAP//AAA8gAAA//8AADveAAD//wAAOYMAAP//AAA7/wAA//8AADlrAAD//wAAOUoAAP//AAA5KQAA//8AADkIAAD//wAAOOcAAP//AAA4xgAA//8AADilAAD//wAAOIQAAP//AACTwwAA//8AADhgAAD/////k+wAGP////+RbAAc/////5FMABD/////kSwAFP////+RDAAI/////5DsAAz/////kMwAIP////+QrAAk/////5CMAAT/////SAAAMP////9/5Pt4/////zh+AFv/////TMYxgv////9IAAAB/AAAAzh+AIb/////TMYxgv////9IAAAB/AAAAzh+ALX/////TMYxgv////9IAAAB/AAAAzhgAAH/////gAEAFP////+D4QAM/////4PBAAj/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 312
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@stringBase0'
+    size: 225
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: TRK_Use_BBA
+    size: 1
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: gDBCommTable
+    size: 40
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: gdev_cc_initialize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_close
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_read
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_write
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_shutdown
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_peek
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_pre_continue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_post_stop
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_initinterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 0b26523864adec8bc90d529e4cf3355475192346
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////3x/G3j/////P8AAAP//AAB/5Pt4/////zh+AAD//wAATMYxgv////9IAAAB/AAAAzveAAD//wAAOIAAQP////84fgAV/////0zGMYL/////SAAAAfwAAAM4AAAA/////ywfAAL/////mAAAAP/gAABAggAM/////zhgAAD/////SAAAzP////8sHwAB/////0CCAJj/////OH4AOv////9MxjGC/////0gAAAH8AAADPYAAAP//AAA9QAAA//8AAD0gAAD//wAAPQAAAP//AAA84AAA//8AADzAAAD//wAAPKAAAP//AAA8gAAA//8AADxgAAD//wAAP+AAAP//AAA7zAAA//8AAD1gAAD//wAAOYsAAP//AAA4AwAA//8AADl/AAD//wAAOUoAAP//AAA5KQAA//8AADkIAAD//wAAOOcAAP//AAA4xgAA//8AADilAAD//wAAOIQAAP//AACT3wAA//8AADhgAAD/////kYsAGP////+RSwAc/////5ErABD/////kQsAFP////+Q6wAI/////5DLAAz/////kKsAIP////+QiwAk/////5ALAAT/////SAAAMP////9/5Pt4/////zh+AFv/////TMYxgv////9IAAAB/AAAAzh+AIb/////TMYxgv////9IAAAB/AAAAzh+ALX/////TMYxgv////9IAAAB/AAAAzhgAAH/////gAEAFP////+D4QAM/////4PBAAj/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 312
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@stringBase0'
+    size: 225
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: TRK_Use_BBA
+    size: 1
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: gdev_cc_initialize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_close
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_read
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_write
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_shutdown
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_peek
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_pre_continue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_post_stop
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_initinterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: gDBCommTable
+    size: 40
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: gdev_cc_open
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 64a70a635a98c7571d4448eb0f625fbd9765e5f7
+  signature: lCH/4P////98CAKm/////zyAAAD//wAAkAEAJP////+T4QAc/////5PBABj/////fH4beP////+ToQAU/////zukAAD//wAAf8TzeP////84fQAI/////0zGMYL/////SAAAAfwAAAM4fQAg/////ziAAED/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAOAAAAP////8sHgAC/////5gDAAD//wAAQIIAoP////84fQBI/////0zGMYL/////SAAAAfwAAAM9gAAA//8AAD1gAAD//wAAO+wAAP//AAA9QAAA//8AADmLAAD//wAAOAAAAP////85agAA//8AAD0gAAD//wAAOUkAAP//AAA9AAAA//8AADkoAAD//wAAPOAAAP//AAA5BwAA//8AADzAAAD//wAAOOYAAP//AAA8oAAA//8AADjFAAD//wAAPIAAAP//AAA4pAAA//8AADxgAAD//wAAOIMAAP//AAA/wAAA//8AADugAAH/////k+wAAP////84YAAA/////5u+AAD//wAAkWwAGP////+RTAAc/////5EsABD/////kQwAFP////+Q7AAI/////5DMAAz/////kKwAIP////+QjAAk/////5AMAAT/////SAAAyP////8sHgAB/////0CCAJT/////OH0AYP////9MxjGC/////0gAAAH8AAADP+AAAP//AAA9YAAA//8AADv/AAD//wAAPYAAAP//AAA9QAAA//8AAD0gAAD//wAAPQAAAP//AAA84AAA//8AADzAAAD//wAAPKAAAP//AAA8gAAA//8AADxgAAD//wAAOAMAAP//AACX7AAA//8AADlrAAD//wAAOUoAAP//AAA5KQAA//8AADkIAAD//wAAOOcAAP//AAA4xgAA//8AADilAAD//wAAOIQAAP//AACRbAAY/////zhgAAD/////kUwAHP////+RLAAQ/////5EMABT/////kOwACP////+QzAAM/////5CsACD/////kIwAJP////+QDAAE/////0gAADD/////f8TzeP////84fQCE/////0zGMYL/////SAAAAfwAAAM4fQCw/////0zGMYL/////SAAAAfwAAAM4fQDg/////0zGMYL/////SAAAAfwAAAM4YAAB/////4ABACT/////g+EAHP////+DwQAY/////4OhABT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 468
+    flags: 1
+    section: .text
+  - kind: Object
+    name: EndofProgramInstruction$159
+    size: 4
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: TRK_Use_BBA
+    size: 1
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: udp_cc_initialize
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: gDBCommTable
+    size: 40
+    flags: 1
+    section: .data
+  - kind: Function
+    name: udp_cc_open
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: udp_cc_close
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: udp_cc_read
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: udp_cc_write
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: udp_cc_shutdown
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: udp_cc_peek
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: udp_cc_pre_continue
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: udp_cc_post_stop
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: gdev_cc_initialize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_close
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_read
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_write
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_shutdown
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_peek
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_pre_continue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_post_stop
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: gdev_cc_initinterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Ha
+    symbol: 21
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 22
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Ha
+    symbol: 23
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 316
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 324
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 340
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Lo
+    symbol: 21
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Lo
+    symbol: 22
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: c52023aad3079648f485435cd6363adbf36e4995
+  signature: lCH/4P////98CAKm/////zyAAAD//wAAkAEAJP////+T4QAc/////zvgAAH/////k8EAGP////98fht4/////5OhABT/////O6QAAP//AAB/xPN4/////zh9AAj/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAOAAAAP////8sHgAC/////5gDAAD//wAAQIIApP////84fQAg/////0zGMYL/////SAAAAfwAAAM/wAAA//8AAD2AAAD//wAAPWAAAP//AAA9QAAA//8AAD0gAAD//wAAPQAAAP//AAA84AAA//8AADzAAAD//wAAPKAAAP//AAA8gAAA//8AADxgAAD//wAAO/4AAP//AAA7oAAB/////zvMAAD//wAAOYsAAP//AAA5agAA//8AADlJAAD//wAAOSgAAP//AAA5BwAA//8AADjmAAD//wAAOMUAAP//AAA4pAAA//8AADiDAAD//wAAOAAAAP////+bvwAA/////zhgAAD/////k8wAAP////+RbAAY/////5FMABz/////kSwAEP////+RDAAU/////5DsAAj/////kMwADP////+QrAAg/////5CMACT/////kAwABP////9IAAFo/////yweAAH/////QIIAmP////84fQA4/////0zGMYL/////SAAAAfwAAANIAAAB/AAAAz/gAAD//wAAPYAAAP//AAA7/wAA//8AAD/AAAD//wAAPWAAAP//AAA9QAAA//8AAD0gAAD//wAAPQAAAP//AAA84AAA//8AADzAAAD//wAAPKAAAP//AAA8gAAA//8AAJf+AAD//wAAOYwAAP//AAA5awAA//8AADlKAAD//wAAOSkAAP//AAA5CAAA//8AADjnAAD//wAAOMYAAP//AAA4pQAA//8AADgEAAD//wAAkZ4AGP////98fxt4/////5F+ABz/////kV4AEP////+RPgAU/////5EeAAj/////kP4ADP////+Q3gAg/////5C+ACT/////kB4ABP////9IAADI/////yweAAD/////QIIAmP////84fQBc/////0zGMYL/////SAAAAfwAAANIAAAB/AAAAz/gAAD//wAAPYAAAP//AAA7/wAA//8AAD/AAAD//wAAPWAAAP//AAA9QAAA//8AAD0gAAD//wAAPQAAAP//AAA84AAA//8AADzAAAD//wAAPKAAAP//AAA8gAAA//8AAJf+AAD//wAAOYwAAP//AAA5awAA//8AADlKAAD//wAAOSkAAP//AAA5CAAA//8AADjnAAD//wAAOMYAAP//AAA4pQAA//8AADgEAAD//wAAkZ4AGP////98fxt4/////5F+ABz/////kV4AEP////+RPgAU/////5EeAAj/////kP4ADP////+Q3gAg/////5C+ACT/////kB4ABP////9IAAAs/////3/E83j/////OH0AgP////9MxjGC/////0gAAAH8AAADOH0ArP////9MxjGC/////0gAAAH8AAADOH0A3P////9MxjGC/////0gAAAH8AAADf+P7eP////+AAQAk/////4PhABz/////g8EAGP////+DoQAU/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 620
+    flags: 1
+    section: null
+  - kind: Object
+    name: EndofProgramInstruction$162
+    size: 4
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: TRK_Use_BBA
+    size: 1
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: udp_cc_initialize
+    size: 0
+    flags: 5
+    section: null
+  - kind: Object
+    name: gDBCommTable
+    size: 40
+    flags: 1
+    section: .data
+  - kind: Function
+    name: udp_cc_open
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: udp_cc_close
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: udp_cc_read
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: udp_cc_write
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: udp_cc_shutdown
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: udp_cc_peek
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: udp_cc_pre_continue
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: udp_cc_post_stop
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: Hu_IsStub
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: gdev_cc_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_open
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_close
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_read
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_write
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_shutdown
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_peek
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_pre_continue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_post_stop
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: gdev_cc_initinterrupts
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: AMC_IsStub
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ddh_cc_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_open
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_close
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_read
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_write
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_shutdown
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_peek
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_pre_continue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_post_stop
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: ddh_cc_initinterrupts
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 21
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Ha
+    symbol: 22
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Ha
+    symbol: 23
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 24
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 316
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 324
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 21
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Lo
+    symbol: 22
+    addend: 0
+  - offset: 340
+    kind: PpcAddr16Lo
+    symbol: 23
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Lo
+    symbol: 24
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 25
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Ha
+    symbol: 26
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 27
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 26
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Ha
+    symbol: 28
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 29
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Ha
+    symbol: 30
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Ha
+    symbol: 31
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Ha
+    symbol: 32
+    addend: 0
+  - offset: 452
+    kind: PpcAddr16Ha
+    symbol: 33
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Ha
+    symbol: 34
+    addend: 0
+  - offset: 460
+    kind: PpcAddr16Ha
+    symbol: 35
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Lo
+    symbol: 27
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Lo
+    symbol: 28
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 29
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Lo
+    symbol: 30
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 31
+    addend: 0
+  - offset: 488
+    kind: PpcAddr16Lo
+    symbol: 32
+    addend: 0
+  - offset: 492
+    kind: PpcAddr16Lo
+    symbol: 33
+    addend: 0
+  - offset: 496
+    kind: PpcAddr16Lo
+    symbol: 34
+    addend: 0
+  - offset: 500
+    kind: PpcAddr16Lo
+    symbol: 35
+    addend: 0
+  - offset: 560
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

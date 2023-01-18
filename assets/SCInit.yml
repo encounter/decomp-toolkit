@@ -1,0 +1,299 @@
+- symbol: 0
+  hash: 2397c01ccc7d246c742a75130818c3be1614777e
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAA4gAAAD/4AAALAAAAP////9BggAM/////0gAAAH8AAADSAAAaP////874AAB/////5vgAAD/4AAAm+AAAP/gAABIAAAB/AAAA4BgAAD/4AAASAAAAfwAAAM8YAAA//8AADhjAAD//wAASAAAAfwAAANIAAAB/AAAA1RgAMf/////QYIACP////+b4AAA/+AAAEgAAAH8AAADLAMAAP////9AggAg/////zxgAAD//wAAOIBAAP////84YwAA//8AADigAAD/////SAAAAfwAAAMsAwAA/////0GCAAz/////OAAAAv////+YAAAA/+AAAIABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SCInit
+    size: 160
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Initialized
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BgJobStatus
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __SCVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Control
+    size: 400
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetConsoleType
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IsDevKit
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: NANDInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ConfBuf
+    size: 16384
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: b265411c8590c058d105391be620a33d03b3c83f
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////0gAAAH8AAADfH8beP////+IAAAA/+AAACwAAAD/////QYIAEP////9/4/t4/////0gAAAH8AAADSAAAfP////84AAAB/////5gAAAD/4AAAOGAAAf////9IAAAB/AAAA3/j+3j/////SAAAAfwAAAOAYAAA/+AAAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADSAAAAfwAAANUYADG/////ywAAAD/////QYIADP////84AAAB/////5gAAAD/4AAASAAAAfwAAAMsAwAA/////0CCACT/////SAAAAfwAAAN8fht4/////0gAAAH8AAADf8TzeP////84oAAA/////0gAAAH8AAADLAMAAP////9BggAM/////zhgAAL/////SAAAAfwAAAOD4QAM/////4PBAAj/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SCInit
+    size: 196
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Initialized
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetBgJobStatus
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: __SCVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Control
+    size: 400
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetConsoleType
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IsDevKit
+    size: 1
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: NANDInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __SCGetConfBufSize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __SCGetConfBuf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SCReloadConfFileAsync
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

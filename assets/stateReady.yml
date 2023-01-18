@@ -1,0 +1,3796 @@
+- symbol: 0
+  hash: 156ab58a382fe4aff4f6427932f93fdff78d004b
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAAywDAAD/////QIIAEP////84AAAA/////5AAAAD/4AAASAABSP////+AAAAA/+AAACwAAAD/////QYIAGP////84AAAB/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAAEgAASj/////SAAAAfwAAAOQYAAA/+AAAIAAAAD/4AAALAAAAP////9BggBI/////zgA////////gGAAAP/gAACQAwAM/////4PgAAD/4AAAPGAAAP//AAA4AwAA//8AAJAAAAD/4AAAgB8AKP////8oAAAA/////0GCABj/////OGD///////84nwAA/////4GfACj/////fYgDpv////9OgAAh/////0gAAAH8AAADSAAA0P////+AYAAA/+AAAIADAAj/////kAAAAP/gAACAAAAA/+AAACgAAAD/////QYIApP////+AAAAA/+AAACwAAAT/////QYIAXP////9AgAAc/////ywAAAL/////QYIAKP////9AgAA4/////ywAAAH/////QIAAWP////9IAABw/////ywAAAj/////QIAAaP////8sAAAG/////0CAAET/////SAAAVP////84AAAL/////4BgAAD/4AAAkAMADP////9IAAAB/AAAA0gAAEj/////OAAABP////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAAA0/////zgAAAX/////gGAAAP/gAACQAwAM/////0gAAAH8AAADSAAAIP////84AAAD/////4BgAAD/4AAAkAMADP////9IAAAB/AAAA0gAAAz/////gGAAAP/gAABIAAAB/AAAAzgAAAD/////kAAAAP/gAABIAAAY/////zgAAAH/////gGAAAP/gAACQAwAM/////4BgAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 384
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: stateCoverClosed
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 324
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 336
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 348
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 356
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+- symbol: 0
+  hash: 23053a8cb3b5b8b35486229bd625c78cbb9cca73
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAB/AAAAywDAAD/////QIIAEP////84AAAA/////5AAAAD/4AAASAABVP////+AAAAA/+AAACwAAAD/////QYIAGP////84AAAB/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAAEgAATT/////SAAAAfwAAAOQYAAA/+AAAIAAAAD/4AAALAAAAP////9BggBI/////zgA////////gGAAAP/gAACQAwAM/////4PgAAD/4AAAPGAAAP//AAA4AwAA//8AAJAAAAD/4AAAgB8AKP////8oAAAA/////0GCABj/////OGD///////84nwAA/////4GfACj/////fYgDpv////9OgAAh/////0gAAAH8AAADSAAA3P////+AYAAA/+AAAIADAAj/////kAAAAP/gAACAAAAA/+AAACgAAAD/////QYIAsP////+AAAAA/+AAACwAAAT/////QYIAXP////9AgAAc/////ywAAAL/////QYIAKP////9AgAA4/////ywAAAH/////QIAAWP////9IAAB8/////ywAAAj/////QIAAdP////8sAAAG/////0CAAET/////SAAAVP////84AAAL/////4BgAAD/4AAAkAMADP////9IAAAB/AAAA0gAAFT/////OAAABP////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAABA/////zgAAAX/////gGAAAP/gAACQAwAM/////0gAAAH8AAADSAAALP////84AAAD/////4BgAAD/4AAAkAMADP////9IAAAB/AAAA0gAABj/////OAD///////+AYAAA/+AAAJADAAz/////gGAAAP/gAABIAAAB/AAAAzgAAAD/////kAAAAP/gAABIAAAY/////zgAAAH/////gGAAAP/gAACQAwAM/////4BgAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 396
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: stateCoverClosed
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 328
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 336
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 348
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 360
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 368
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 372
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+- symbol: 0
+  hash: 2807308193226aee54b846edde8786bf9ad14067
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QYIAGP////84AAAB/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAAEgAAcz/////SAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAAbT/////SAAAAfwAAAOQYAAA/+AAAIAAAAD/4AAALAAAAP////9BggBI/////zgA////////gGAAAP/gAACQAwAM/////4PgAAD/4AAAPGAAAP//AAA4AwAA//8AAJAAAAD/4AAAgB8AKP////8sAAAA/////0GCABj/////OGD///////9/5Pt4/////4GfACj/////fYkDpv////9OgAQh/////0gAAAH8AAADSAABXP////+AYAAA/+AAAIADAAj/////kAAAAP/gAACAAAAA/+AAACgAACD/////QYIAHP////+AAAAA/+AAACgAAA7/////QYIAEP////+AAAAA/+AAACgAACP/////QIIADP////84AAAA/////5AAAAD/4AAAgAAAAP/gAAAsAAAA/////0GCAKT/////gAAAAP/gAAAsAAAE/////0GCAFz/////QIAAHP////8sAAAC/////0GCACj/////QIAAOP////8sAAAB/////0CAAFj/////SAAAcP////8sAAAI/////0CAAGj/////LAAABv////9AgABE/////0gAAFT/////OAAAC/////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAABI/////zgAAAT/////gGAAAP/gAACQAwAM/////0gAAAH8AAADSAAANP////84AAAF/////4BgAAD/4AAAkAMADP////9IAAAB/AAAA0gAACD/////OAAAA/////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAAAM/////4BgAAD/4AAASAAAAfwAAAM4AAAA/////5AAAAD/4AAASAAAeP////+AAAAA/+AAACwAAAH/////QYIAaP////9AgAAQ/////ywAAAD/////QIAARP////9IAABY/////ywAAAP/////QIAAUP////9IAAAE/////4AAAAD/4AAALAAAAP////9BggAU/////zgAAAz/////gGAAAP/gAACQAwAM/////0gAADT/////OAAAA/////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAAAg/////zgAAAH/////gGAAAP/gAACQAwAM/////4BgAAD/4AAASAAAAfwAAANIAAAI/////0gAAAH8AAADg+EADP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 524
+    flags: 2
+    section: .text
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: stateCoverClosed
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MotorStopped
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 312
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 332
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 352
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 368
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 372
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 428
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 444
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 460
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 480
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 488
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 492
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 3fc4b589e6589fd946b4bb9b6cd4ecefb38a5f3a
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAAywDAAD/////QIIAEP////84AAAA/////5AAAAD/4AAASAAB1P////+AAAAA/+AAACwAAAD/////QYIAGP////84AAAB/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAAEgAAbT/////SAAAAfwAAAOQYAAA/+AAAIAAAAD/4AAALAAAAP////9BggBI/////zgA////////gGAAAP/gAACQAwAM/////4PgAAD/4AAAPGAAAP//AAA4AwAA//8AAJAAAAD/4AAAgB8AKP////8sAAAA/////0GCABj/////OGD///////9/5Pt4/////4GfACj/////fYkDpv////9OgAQh/////0gAAAH8AAADSAABXP////+AYAAA/+AAAIADAAj/////kAAAAP/gAACAAAAA/+AAACgAACD/////QYIAHP////+AAAAA/+AAACgAAA7/////QYIAEP////+AAAAA/+AAACgAACP/////QIIADP////84AAAA/////5AAAAD/4AAAgAAAAP/gAAAsAAAA/////0GCAKT/////gAAAAP/gAAAsAAAE/////0GCAFz/////QIAAHP////8sAAAC/////0GCACj/////QIAAOP////8sAAAB/////0CAAFj/////SAAAcP////8sAAAI/////0CAAGj/////LAAABv////9AgABE/////0gAAFT/////OAAAC/////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAABI/////zgAAAT/////gGAAAP/gAACQAwAM/////0gAAAH8AAADSAAANP////84AAAF/////4BgAAD/4AAAkAMADP////9IAAAB/AAAA0gAACD/////OAAAA/////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAAAM/////4BgAAD/4AAASAAAAfwAAAM4AAAA/////5AAAAD/4AAASAAAeP////+AAAAA/+AAACwAAAH/////QYIAaP////9AgAAQ/////ywAAAD/////QIAARP////9IAABY/////ywAAAP/////QIAAUP////9IAAAE/////4AAAAD/4AAALAAAAP////9BggAU/////zgAAAz/////gGAAAP/gAACQAwAM/////0gAADT/////OAAAA/////+AYAAA/+AAAJADAAz/////SAAAAfwAAANIAAAg/////zgAAAH/////gGAAAP/gAACQAwAM/////4BgAAD/4AAASAAAAfwAAANIAAAI/////0gAAAH8AAADg+EADP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 524
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: stateCoverClosed
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MotorStopped
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 312
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 332
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 352
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 368
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 372
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 428
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 444
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 460
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 480
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 488
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 492
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 05b265d9ddba929732299aec83c8979d9d05e171
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////zvjAAD//wAASAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAAej/////gAAAAP/gAAAsAAAA/////0GCABj/////OGAAAf////84AAAA/////5BgAAD/4AAAkAAAAP/gAABIAAHI/////0gAAAH8AAADgAAAAP/gAACQYAAA/+AAACwAAAD/////QYIAPP////+AYAAA/+AAADiA////////OB8AQP////+QgwAM/////4CAAAD/4AAAkAAAAP/gAACBhAAo/////ygMAAD/////QYIAEP////99iAOm/////zhg////////ToAAIf////9IAAAB/AAAA0gAAXz/////gIAAAP/gAACABAAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAA/////0GCAVT/////gAAAAP/gAAAsAAAE/////0GCAGT/////QIAAHP////8sAAAC/////0GCACj/////QIAAPP////8sAAAB/////0CAAGT/////SAABIP////8sAAAI/////0CAARj/////LAAABv////9AgABQ/////0gAAPj/////OAAAC/////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAPT/////OAAABP////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAANz/////OAAABf////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAMT/////OAAAA/////+QBAAM/////4AAAAD/4AAALAAADf////9BggAo/////0CAABj/////LAAABv////9AgABM/////ywAAAT/////QIAAFP////9IAABA/////ywAAA//////QYIACP////9IAAA0/////0gAAAH8AAADgIAAAP/gAAA4HwBA/////5AAAAD/4AAAgYQAKP////8oDAAA/////0GCABD/////fYgDpv////84YP/8/////06AACH/////SAAAAfwAAANIAABc/////0gAAAH8AAADOH8AcP////9IAAAB/AAAAzxggAD/////gAMA+P////88gBBi/////zxgAAD//wAAVADwvv////84hE3T/////3wEABb/////VADRvv////8cwAR+/////zjjAAD//wAAOH8AcP////84oAAA/////0gAAAH8AAADSAAAGP////+AYAAA/+AAAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADOAAAAP////+QAAAA/+AAAEgAABT/////OAAAAf////+QBAAM/////4BgAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 552
+    flags: 2
+    section: .text
+  - kind: Object
+    name: BB2
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: cbForStateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowWaitCoverClose
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: cbForStateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 484
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 492
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 496
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 508
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 524
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 528
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+- symbol: 0
+  hash: d7d7a0037a25fc132562014d1304fb2ebd240435
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////zvjAAD//wAASAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAAfD/////gAAAAP/gAAAsAAAA/////0GCABj/////OGAAAf////84AAAA/////5BgAAD/4AAAkAAAAP/gAABIAAHQ/////0gAAAH8AAADgAAAAP/gAACQYAAA/+AAACwAAAD/////QYIAPP////+AYAAA/+AAADiA////////OB8AQP////+QgwAM/////4CAAAD/4AAAkAAAAP/gAACBhAAo/////ygMAAD/////QYIAEP////99iAOm/////zhg////////ToAAIf////9IAAAB/AAAA0gAAYT/////gIAAAP/gAACABAAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAA/////0GCAVz/////gAAAAP/gAAAsAAAE/////0GCAGT/////QIAAHP////8sAAAC/////0GCACj/////QIAAPP////8sAAAB/////0CAAGT/////SAABKP////8sAAAI/////0CAASD/////LAAABv////9AgABQ/////0gAAPj/////OAAAC/////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAPz/////OAAABP////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAOT/////OAAABf////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAMz/////OAAAA/////+QBAAM/////4AAAAD/4AAALAAADf////9BggAo/////0CAABj/////LAAABv////9AgABM/////ywAAAT/////QIAAFP////9IAABA/////ywAAA//////QYIACP////9IAAA0/////0gAAAH8AAADgIAAAP/gAAA4HwBA/////5AAAAD/4AAAgYQAKP////8oDAAA/////0GCABD/////fYgDpv////84YP/8/////06AACH/////SAAAAfwAAANIAABk/////0gAAAH8AAADOH8AcP////9IAAAB/AAAAzxggAD/////gAMA+P////88gBBi/////zxgAAD//wAAVADwvv////84hE3T/////3wEABb/////VADRvv////8cwAR+/////zjjAAD//wAAOH8AcP////84oAAA/////0gAAAH8AAADSAAAIP////84AP///////5AEAAz/////gGAAAP/gAABIAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAAzgAAAD/////kAAAAP/gAABIAAAU/////zgAAAH/////kAQADP////+AYAAA/+AAAEgAAAH8AAADgAEAFP////+D4QAM/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 560
+    flags: 2
+    section: .text
+  - kind: Object
+    name: BB2
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: cbForStateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowWaitCoverClose
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: cbForStateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 492
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 500
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 504
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 516
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 532
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+- symbol: 0
+  hash: 988594a56f1a1d537c6cebc018e2dcb4d0c3184c
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////zvjAAD//wAASAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAAgj/////gAAAAP/gAAAsAAAA/////0GCABj/////OGAAAf////84AAAA/////5BgAAD/4AAAkAAAAP/gAABIAAHo/////0gAAAH8AAADgAAAAP/gAACQYAAA/+AAACwAAAD/////QYIAPP////+AYAAA/+AAADiA////////OB8AgP////+QgwAM/////4CAAAD/4AAAkAAAAP/gAACBhAAo/////ygMAAD/////QYIAEP////99iAOm/////zhg////////ToAAIf////9IAAAB/AAAA0gAAZz/////gIAAAP/gAACABAAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAA/////0GCAXT/////gAAAAP/gAAAoAAAH/////0GBAVz/////PGAAAP//AAA4YwAA//8AAFQAEDr/////fAMALv////98CQOm/////06ABCD/////OAAABv////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAASz/////OAAAC/////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAART/////OAAABP////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAPz/////OAAAB/////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAOT/////OAAABf////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAMz/////OAAAA/////+QBAAM/////4AAAAD/4AAALAAADf////9BggAo/////0CAABj/////LAAABv////9AgABM/////ywAAAT/////QIAAFP////9IAABA/////ywAAA//////QYIACP////9IAAA0/////0gAAAH8AAADgIAAAP/gAAA4HwCA/////5AAAAD/4AAAgYQAKP////8oDAAA/////0GCABD/////fYgDpv////84YP/8/////06AACH/////SAAAAfwAAANIAABk/////0gAAAH8AAADOH8AsP////9IAAAB/AAAAzxggAD/////gAMA+P////88gBBi/////zxgAAD//wAAVADwvv////84hE3T/////3wEABb/////VADRvv////8cwAR+/////zjjAAD//wAAOH8AsP////84oAAA/////0gAAAH8AAADSAAAIP////84AP///////5AEAAz/////gGAAAP/gAABIAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAAzgAAAD/////kAAAAP/gAABIAAAU/////zgAAAH/////kAQADP////+AYAAA/+AAAEgAAAH8AAADgAEAFP////+D4QAM/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 584
+    flags: 2
+    section: .text
+  - kind: Object
+    name: tmpBuffer
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: '@293'
+    size: 32
+    flags: 2
+    section: .data
+  - kind: Function
+    name: cbForStateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowWaitCoverClose
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: cbForStateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 316
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 324
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 344
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 396
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 404
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 488
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 516
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Ha
+    symbol: 21
+    addend: 0
+  - offset: 528
+    kind: PpcAddr16Lo
+    symbol: 21
+    addend: 0
+  - offset: 532
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 540
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 556
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 560
+    kind: PpcRel24
+    symbol: 23
+    addend: 0
+- symbol: 0
+  hash: 421e53c306ab2d210f6060f3857a846de9a4e962
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////zvjAAD//wAASAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAApz/////gAAAAP/gAAAsAAAA/////0GCABj/////OGAAAf////84AAAA/////5BgAAD/4AAAkAAAAP/gAABIAAJ8/////0gAAAH8AAADgAAAAP/gAACQYAAA/+AAACwAAAD/////QYIAPP////+AYAAA/+AAADiA////////OB8AQP////+QgwAM/////4CAAAD/4AAAkAAAAP/gAACBhAAo/////ygMAAD/////QYIAEP////99iAOm/////zhg////////ToAAIf////9IAAAB/AAAA0gAAjD/////gIAAAP/gAACABAAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAA/////0GCAgj/////gAAAAP/gAAAsAAAE/////0GCARD/////QIAAHP////8sAAAC/////0GCANT/////QIAA6P////8sAAAB/////0CAABz/////SAAB1P////8sAAAI/////0CAAcz/////LAAABv////9AgAD8/////0gAAaT/////OAAAAf////+QBAAM/////4AAAAD/4AAALAAADf////9BggAo/////0CAABj/////LAAABv////9AgABM/////ywAAAT/////QIAAFP////9IAABA/////ywAAA//////QYIACP////9IAAA0/////0gAAAH8AAADgIAAAP/gAAA4HwBA/////5AAAAD/4AAAgYQAKP////8oDAAA/////0GCABD/////fYgDpv////84YP/8/////06AACH/////SAAAAfwAAANIAAFY/////0gAAAH8AAADOH8AcP////9IAAAB/AAAAzxggAD/////gAMA+P////88gBBi/////zxgAAD//wAAVADwvv////84hE3T/////3wEABb/////VADRvv////8cwAR+/////zjjAAD//wAAOH8AcP////84oAAA/////0gAAAH8AAADSAABFP////84AAAL/////zxgAAD//wAAkAQADP////84YwAA//8AAEgAAAH8AAADSAAA/P////84AAAE/////zxgAAD//wAAkAQADP////84YwAA//8AAEgAAAH8AAADSAAA5P////84AAAF/////zxgAAD//wAAkAQADP////84YwAA//8AAEgAAAH8AAADSAAAzP////84AAAD/////5AEAAz/////gAAAAP/gAAAsAAAN/////0GCACj/////QIAAGP////8sAAAG/////0CAAEz/////LAAABP////9AgAAU/////0gAAED/////LAAAD/////9BggAI/////0gAADT/////SAAAAfwAAAOAgAAA/+AAADgfAED/////kAAAAP/gAACBhAAo/////ygMAAD/////QYIAEP////99iAOm/////zhg//z/////ToAAIf////9IAAAB/AAAA0gAAGT/////SAAAAfwAAAM4fwBw/////0gAAAH8AAADPGCAAP////+AAwD4/////zyAEGL/////PGAAAP//AABUAPC+/////ziETdP/////fAQAFv////9UANG+/////xzABH7/////OOMAAP//AAA4fwBw/////zigAAD/////SAAAAfwAAANIAAAg/////zgA////////kAQADP////+AYAAA/+AAAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADOAAAAP////+QAAAA/+AAAEgAABT/////OAAAAf////+QBAAM/////4BgAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 732
+    flags: 2
+    section: .text
+  - kind: Object
+    name: BB2
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: cbForStateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowWaitCoverClose
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: cbForStateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 368
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 392
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 492
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 540
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 544
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 552
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 580
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 588
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 596
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 612
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 636
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 648
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 664
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 672
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 676
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 680
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 688
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 704
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 708
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+- symbol: 0
+  hash: 8080f590b7adb753efa75463a5bae04498a6d3d5
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////zvjAAD//wAASAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAAqj/////gAAAAP/gAAAsAAAA/////0GCABj/////OGAAAf////84AAAA/////5BgAAD/4AAAkAAAAP/gAABIAAKI/////0gAAAH8AAADgAAAAP/gAACQYAAA/+AAACwAAAD/////QYIAPP////+AYAAA/+AAADiA////////OB8AQP////+QgwAM/////4CAAAD/4AAAkAAAAP/gAACBhAAo/////ygMAAD/////QYIAEP////99iAOm/////zhg////////ToAAIf////9IAAAB/AAAA0gAAjz/////gIAAAP/gAACABAAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAA/////0GCAVz/////gAAAAP/gAAAsAAAE/////0GCAGT/////QIAAHP////8sAAAC/////0GCACj/////QIAAPP////8sAAAB/////0CAAGT/////SAABKP////8sAAAI/////0CAASD/////LAAABv////9AgABQ/////0gAAQD/////OAAAC/////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAPz/////OAAABP////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAOT/////OAAABf////88YAAA//8AAJAEAAz/////OGMAAP//AABIAAAB/AAAA0gAAMz/////OAAAA/////+QBAAM/////4AAAAD/4AAALAAADf////9BggAo/////0CAABj/////LAAABv////9AgABM/////ywAAAT/////QIAAFP////9IAABA/////ywAAA//////QYIACP////9IAAA0/////0gAAAH8AAADgIAAAP/gAAA4HwBA/////5AAAAD/4AAAgYQAKP////8oDAAA/////0GCABD/////fYgDpv////84YP/8/////06AACH/////SAAAAfwAAANIAABk/////zgAAAD/////kAAAAP/gAABIAAAB/AAAAzh/AHD/////SAAAAfwAAAM8YIAA/////4ADAPj/////PIAQYv////88YAAA//8AAFQA8L7/////OIRN0/////98BAAW/////1QA0b7/////HMAEfv////844wAA//8AADh/AHD/////OKAAAP////9IAAAB/AAAA0gAABj/////gGAAAP/gAABIAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAAzgAAAD/////kAAAAP/gAABIAADM/////4AAAAD/4AAAKAAAAP////9AggAY/////zgAAAH/////kAQADP////+AYAAA/+AAAEgAAAH8AAADSAAArP////+AAAAA/+AAACwAAA3/////QYIAKP////9AgAAY/////ywAAAb/////QIAATP////8sAAAE/////0CAABT/////SAAAQP////8sAAAP/////0GCAAj/////SAAANP////9IAAAB/AAAA4CAAAD/4AAAOB8AQP////+QAAAA/+AAAIGEACj/////KAwAAP////9BggAQ/////32IA6b/////OGD//P////9OgAAh/////0gAAAH8AAADSAAATP////84AAAA/////5AAAAD/4AAASAAAAfwAAAM4fwBw/////0gAAAH8AAADPGCAAP////+AAwD4/////zyAEGL/////PGAAAP//AABUAPC+/////ziETdP/////fAQAFv////9UANG+/////xzABH7/////OOMAAP//AAA4fwBw/////zigAAD/////SAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 744
+    flags: 2
+    section: .text
+  - kind: Object
+    name: BB2
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: cbForStateMotorStopped
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowWaitCoverClose
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __DVDClearWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: AlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: cbForStateError
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowStopMotor
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 300
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 372
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 408
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 420
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 492
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 500
+    kind: PpcAddr16Ha
+    symbol: 21
+    addend: 0
+  - offset: 504
+    kind: PpcAddr16Lo
+    symbol: 21
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 516
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 524
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 544
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 23
+    addend: 0
+  - offset: 556
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 604
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 608
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 616
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 644
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 656
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 660
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 684
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 708
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 720
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 287a71c25050dc67264e995e1d5a185fd24c403d
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QYIAGP////84YAAB/////zgAAAD/////kGAAAP/gAACQAAAA/+AAAEgAAtz/////SAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAAsT/////SAAAAfwAAAOAAAAA/+AAAJBgAAD/4AAALAAAAP////9BggA8/////zgA////////kAMADP////88YAAA//8AAICAAAD/4AAAOGMAAP//AACQYAAA/+AAAIGEACj/////LAwAAP////9BggAQ/////zhg////////fYkDpv////9OgAQh/////0gAAAH8AAADSAACeP////+AAwAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAg/////0GCABz/////gAAAAP/gAAAoAAAO/////0GCABD/////gAAAAP/gAAAoAAAj/////0CCAAz/////OAAAAP////+QAAAA/+AAAIAAAAD/4AAALAAAAP////9BggHg/////4CAAAD/4AAAOAT/+v////8oAAAB/////0CBAaT/////KAQAAv////9BggAo/////ygEAAP/////QYIAnP////8oBAAE/////0GCARD/////KAQAAf////9BggGE/////ygEAAX/////QYIBjP////9IAAGY/////zgAAAv/////kAMADP////84YAAB/////4AAAAD/4AAAkGAAAP/gAAAsAAAA/////0CCAXz/////gAAAAP/gAAAsAAAA/////0CCAXD/////P+AAAP//AACQYAAA/+AAADh/AAD//wAASAAAAfwAAANIAAAB/AAAAzyggAD/////PIAQYv////+ABQD4/////z0gAAD//wAAfGYbeP////84hE3T/////1QA8L7/////OH8AAP//AAB8BAAW/////zkpAAD//wAAOKAAAP////844AAA/////1QA0b7/////HQAAZP////9IAAAB/AAAA0gAARz/////OAAABP////+QAwAM/////zhgAAH/////gAAAAP/gAACQYAAA/+AAACwAAAD/////QIIBAP////+AAAAA/+AAACwAAAD/////QIIA9P////8/4AAA//8AAJBgAAD/4AAAOH8AAP//AABIAAAB/AAAA0gAAAH8AAADPKCAAP////88gBBi/////4AFAPj/////PSAAAP//AAB8Zht4/////ziETdP/////VADwvv////84fwAA//8AAHwEABb/////OSkAAP//AAA4oAAA/////zjgAAD/////VADRvv////8dAABk/////0gAAAH8AAADSAAAoP////84AAAF/////5ADAAz/////OGAAAf////+AAAAA/+AAAJBgAAD/4AAALAAAAP////9AggCE/////4AAAAD/4AAALAAAAP////9AggB4/////z/gAAD//wAAkGAAAP/gAAA4fwAA//8AAEgAAAH8AAADSAAAAfwAAAM8oIAA/////zyAEGL/////gAUA+P////89IAAA//8AAHxmG3j/////OIRN0/////9UAPC+/////zh/AAD//wAAfAQAFv////85KQAA//8AADigAAD/////OOAAAP////9UANG+/////x0AAGT/////SAAAAfwAAANIAAAk/////zgAAAP/////kAMADP////9IAAAB/AAAA0gAABT/////PIAAAP//AACAYAAA/+AAADiEAAD//wAASAAAAfwAAAM4AAAA/////5AAAAD/4AAASAAAXP////+AAAAA/+AAACgAAAL/////QYIAEP////8sAAAA/////0GCADD/////SAAAQP////+AAAAA/+AAACwAAAD/////QYIAEP////84AAAM/////5ADAAz/////SAAALP////84AAAD/////5ADAAz/////SAAAAfwAAANIAAAc/////zgAAAH/////kAMADP////+AYAAA/+AAAEgAAAH8AAADSAAACP////9IAAAB/AAAA4ABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 796
+    flags: 2
+    section: .text
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingForCoverOpen
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingForCoverClose
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: CoverAlarm
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: CoverAlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetPeriodicAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: stateCoverClosed
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: cbForStoreErrorCode1
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorStopped
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 316
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 368
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 408
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 424
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 440
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 492
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 532
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 536
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 560
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 564
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 568
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 576
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 592
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 608
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 616
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 636
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 652
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 660
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 664
+    kind: PpcEmbSda21
+    symbol: 21
+    addend: 0
+  - offset: 668
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 672
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 680
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 688
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 712
+    kind: PpcEmbSda21
+    symbol: 23
+    addend: 0
+  - offset: 744
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 760
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 764
+    kind: PpcRel24
+    symbol: 24
+    addend: 0
+  - offset: 772
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: 4d8ee32a48cbe3bc4e6870f7f422096d81ec8de8
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QYIAGP////84YAAB/////zgAAAD/////kGAAAP/gAACQAAAA/+AAAEgAAuj/////SAAAAfwAAAMsAwAA/////0CCABD/////OAAAAP////+QAAAA/+AAAEgAAtD/////SAAAAfwAAAOAAAAA/+AAAJBgAAD/4AAALAAAAP////9BggA8/////zgA////////PKAAAP//AACQAwAM/////zilAAD//wAAgIAAAP/gAACQoAAA/+AAAIGEACj/////LAwAAP////9BggAQ/////zhg////////fYkDpv////9OgAQh/////0gAAAH8AAADSAAChP////+AAwAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAg/////0GCABz/////gAAAAP/gAAAoAAAO/////0GCABD/////gAAAAP/gAAAoAAAj/////0CCAAz/////OAAAAP////+QAAAA/+AAAIAAAAD/4AAALAAAAP////9BggHg/////4AAAAD/4AAALAAABP////9BggEs/////0CAABz/////LAAAAv////9BggAo/////0CAAKD/////LAAAAf////9AgAGQ/////0gAAaz/////LAAACP////9AgAGk/////ywAAAb/////QIABfP////9IAAGI/////zgAAAv/////OIAAAf////+QAwAM/////4AAAAD/4AAAkIAAAP/gAAAsAAAA/////0CCAXz/////gAAAAP/gAAAsAAAA/////0CCAXD/////P+AAAP//AACQgAAA/+AAADh/AAD//wAASAAAAfwAAANIAAAB/AAAAzyggAD/////PIAQYv////+ABQD4/////z0gAAD//wAAfGYbeP////84hE3T/////1QA8L7/////OH8AAP//AAB8BAAW/////zkpAAD//wAAOKAAAP////844AAA/////1QA0b7/////HQAAZP////9IAAAB/AAAA0gAARz/////OAAABP////84gAAB/////5ADAAz/////gAAAAP/gAACQgAAA/+AAACwAAAD/////QIIBAP////+AAAAA/+AAACwAAAD/////QIIA9P////8/4AAA//8AAJCAAAD/4AAAOH8AAP//AABIAAAB/AAAA0gAAAH8AAADPKCAAP////88gBBi/////4AFAPj/////PSAAAP//AAB8Zht4/////ziETdP/////VADwvv////84fwAA//8AAHwEABb/////OSkAAP//AAA4oAAA/////zjgAAD/////VADRvv////8dAABk/////0gAAAH8AAADSAAAoP////84AAAF/////ziAAAH/////kAMADP////+AAAAA/+AAAJCAAAD/4AAALAAAAP////9AggCE/////4AAAAD/4AAALAAAAP////9AggB4/////z/gAAD//wAAkIAAAP/gAAA4fwAA//8AAEgAAAH8AAADSAAAAfwAAAM8oIAA/////zyAEGL/////gAUA+P////89IAAA//8AAHxmG3j/////OIRN0/////9UAPC+/////zh/AAD//wAAfAQAFv////85KQAA//8AADigAAD/////OOAAAP////9UANG+/////x0AAGT/////SAAAAfwAAANIAAAk/////zgAAAP/////kAMADP////9IAAAB/AAAA0gAABT/////PIAAAP//AACAYAAA/+AAADiEAAD//wAASAAAAfwAAAM4AAAA/////5AAAAD/4AAASAAAaP////+AAAAA/+AAACwAAAH/////QYIAWP////9AgAAQ/////ywAAAD/////QIAAOP////9IAABI/////ywAAAP/////QIAAQP////+AAAAA/+AAACwAAAD/////QYIAEP////84AAAM/////5ADAAz/////SAAALP////84AAAD/////5ADAAz/////SAAAAfwAAANIAAAc/////zgAAAH/////kAMADP////+AYAAA/+AAAEgAAAH8AAADSAAACP////9IAAAB/AAAA4ABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 808
+    flags: 2
+    section: .text
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingForCoverOpen
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingForCoverClose
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: CoverAlarm
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: CoverAlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetPeriodicAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: stateCoverClosed
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: cbForStoreErrorCode1
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorStopped
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 316
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 368
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 408
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 424
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 440
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 492
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 532
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 536
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 560
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 564
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 568
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 576
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 592
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 608
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 616
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 636
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 652
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 660
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 664
+    kind: PpcEmbSda21
+    symbol: 21
+    addend: 0
+  - offset: 668
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 672
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 680
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 688
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 724
+    kind: PpcEmbSda21
+    symbol: 23
+    addend: 0
+  - offset: 756
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 772
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 776
+    kind: PpcRel24
+    symbol: 24
+    addend: 0
+  - offset: 784
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: 1f96cf073f2218dbaab1abea75082bd868d34f31
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAAywDAAD/////QIIAEP////84AAAA/////5AAAAD/4AAASAAC8P////+AAAAA/+AAACwAAAD/////QYIAGP////84YAAB/////zgAAAD/////kGAAAP/gAACQAAAA/+AAAEgAAtD/////SAAAAfwAAAOAAAAA/+AAAJBgAAD/4AAALAAAAP////9BggA8/////zgA////////PKAAAP//AACQAwAM/////zilAAD//wAAgIAAAP/gAACQoAAA/+AAAIGEACj/////LAwAAP////9BggAQ/////zhg////////fYkDpv////9OgAQh/////0gAAAH8AAADSAAChP////+AAwAI/////5AAAAD/4AAAgAAAAP/gAAAoAAAg/////0GCABz/////gAAAAP/gAAAoAAAO/////0GCABD/////gAAAAP/gAAAoAAAj/////0CCAAz/////OAAAAP////+QAAAA/+AAAIAAAAD/4AAALAAAAP////9BggHg/////4AAAAD/4AAALAAABP////9BggEs/////0CAABz/////LAAAAv////9BggAo/////0CAAKD/////LAAAAf////9AgAGQ/////0gAAaz/////LAAACP////9AgAGk/////ywAAAb/////QIABfP////9IAAGI/////zgAAAv/////OIAAAf////+QAwAM/////4AAAAD/4AAAkIAAAP/gAAAsAAAA/////0CCAXz/////gAAAAP/gAAAsAAAA/////0CCAXD/////P+AAAP//AACQgAAA/+AAADh/AAD//wAASAAAAfwAAANIAAAB/AAAAzyggAD/////PIAQYv////+ABQD4/////z0gAAD//wAAfGYbeP////84hE3T/////1QA8L7/////OH8AAP//AAB8BAAW/////zkpAAD//wAAOKAAAP////844AAA/////1QA0b7/////HQAAZP////9IAAAB/AAAA0gAARz/////OAAABP////84gAAB/////5ADAAz/////gAAAAP/gAACQgAAA/+AAACwAAAD/////QIIBAP////+AAAAA/+AAACwAAAD/////QIIA9P////8/4AAA//8AAJCAAAD/4AAAOH8AAP//AABIAAAB/AAAA0gAAAH8AAADPKCAAP////88gBBi/////4AFAPj/////PSAAAP//AAB8Zht4/////ziETdP/////VADwvv////84fwAA//8AAHwEABb/////OSkAAP//AAA4oAAA/////zjgAAD/////VADRvv////8dAABk/////0gAAAH8AAADSAAAoP////84AAAF/////ziAAAH/////kAMADP////+AAAAA/+AAAJCAAAD/4AAALAAAAP////9AggCE/////4AAAAD/4AAALAAAAP////9AggB4/////z/gAAD//wAAkIAAAP/gAAA4fwAA//8AAEgAAAH8AAADSAAAAfwAAAM8oIAA/////zyAEGL/////gAUA+P////89IAAA//8AAHxmG3j/////OIRN0/////9UAPC+/////zh/AAD//wAAfAQAFv////85KQAA//8AADigAAD/////OOAAAP////9UANG+/////x0AAGT/////SAAAAfwAAANIAAAk/////zgAAAP/////kAMADP////9IAAAB/AAAA0gAABT/////PIAAAP//AACAYAAA/+AAADiEAAD//wAASAAAAfwAAAM4AAAA/////5AAAAD/4AAASAAAaP////+AAAAA/+AAACwAAAH/////QYIAWP////9AgAAQ/////ywAAAD/////QIAAOP////9IAABI/////ywAAAP/////QIAAQP////+AAAAA/+AAACwAAAD/////QYIAEP////84AAAM/////5ADAAz/////SAAALP////84AAAD/////5ADAAz/////SAAAAfwAAANIAAAc/////zgAAAH/////kAMADP////+AYAAA/+AAAEgAAAH8AAADSAAACP////9IAAAB/AAAA4ABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: stateReady
+    size: 808
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __DVDCheckWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: executing
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PauseFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PausingFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDPopWaitingQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalErrorFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: DummyCommandBlock
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: stateReady
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CurrCommand
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingForCoverOpen
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: MotorState
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingForCoverClose
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: CoverAlarm
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetTick
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: CoverAlarmHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSetPeriodicAlarm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: stateCoverClosed
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: cbForStoreErrorCode1
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: CancelLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDStoreErrorCode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: MotorStopped
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: stateBusy
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 316
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 344
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 368
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 408
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 424
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 440
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 484
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 492
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 532
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 536
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 560
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 564
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 568
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 576
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 592
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 608
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 616
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 636
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+  - offset: 652
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 660
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 664
+    kind: PpcEmbSda21
+    symbol: 21
+    addend: 0
+  - offset: 668
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 672
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+  - offset: 680
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 688
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 724
+    kind: PpcEmbSda21
+    symbol: 23
+    addend: 0
+  - offset: 756
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+  - offset: 772
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 776
+    kind: PpcRel24
+    symbol: 24
+    addend: 0
+  - offset: 784
+    kind: PpcRel24
+    symbol: 19
+    addend: 0

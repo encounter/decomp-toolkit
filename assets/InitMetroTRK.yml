@@ -1,0 +1,144 @@
+# If this is in a separate section, it's .dbgtext
+# Otherwise .text
+- symbol: 0
+  hash: 208efe0e06985ffb4916ba3ac472dd2d8144f108
+  signature: OCH//P////+QYQAA/////zxgAAD//wAAYGMAAP//AAC8AwAA/////4CBAAD/////OCEABP////+QIwAE/////5CDAAz/////fIgCpv////+QgwCE/////5CDAID/////fIAAJv////+QgwCI/////3yAAKb/////YIOAAP////9oY4AA/////3xgAST/////fJsDpv////9IAAAB/AAAAzxgAAD//wAAYGMAAP//AAC4AwAA/////zgAAAD/////fBL7pv////98Ffum/////zwgAAD//wAAYCEAAP//AAB8oyt4/////0gAAAH8AAADLAMAAf////9AggAU/////4CDAIT/////fIgDpv////+4AwAA/////06AACD/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: InitMetroTRK
+    size: 148
+    flags: 1
+    section: .dbgtext
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKSaveExtended1Block
+    size: 0
+    flags: 1
+    section: .dbgtext
+  - kind: Unknown
+    name: _db_stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 0
+    flags: 1
+    section: .dbgtext
+  - kind: Function
+    name: TRK_main
+    size: 0
+    flags: 1
+    section: .dbgtext
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 23fc7c31e89a118810ba6c673e78695dc1cb1de9
+  signature: OCH//P////+QYQAA/////zxgAAD//wAAYGMAAP//AAC8AwAA/////4CBAAD/////OCEABP////+QIwAE/////5CDAAz/////fIgCpv////+QgwCE/////5CDAID/////fIAAJv////+QgwCI/////3yAAKb/////YIOAAP////9oY4AA/////3xgAST/////fJsDpv////9IAAAB/AAAAzxgAAD//wAAYGMAAP//AAC4AwAA/////zgAAAD/////fBL7pv////98Ffum/////zwgAAD//wAAYCEAAP//AAB8oyt4/////0gAAAH8AAADLAMAAf////9AggAU/////4CDAIT/////fIgDpv////+4AwAA/////06AACD/////SAAAAPwAAANOgAAg/////w==
+  symbols:
+  - kind: Function
+    name: InitMetroTRK
+    size: 152
+    flags: 1
+    section: .dbgtext
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKSaveExtended1Block
+    size: 0
+    flags: 1
+    section: .dbgtext
+  - kind: Unknown
+    name: _db_stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: InitMetroTRKCommTable
+    size: 0
+    flags: 1
+    section: .dbgtext
+  - kind: Function
+    name: TRK_main
+    size: 0
+    flags: 1
+    section: .dbgtext
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 5
+    addend: 0

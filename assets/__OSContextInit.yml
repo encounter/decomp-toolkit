@@ -1,0 +1,334 @@
+- symbol: 0
+  hash: 81d7c237180a2a6b91f8139386bd973dd12b4f5d
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAOGAAB/////+QAQAU/////ziEAAD//wAASAAAAfwAAAM8YIAA/////zgAAAD/////kAMA2P////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSContextInit
+    size: 56
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: bf46ebec1eb5a0966dde89755f6bfcf6b8c90942
+  signature: lCH/8P////98CAKm/////5ABABT/////OGAAB/////9UYwY+/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzgAAAD/////PGCAAP////+QAwDY/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSContextInit
+    size: 60
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 8b8c23526ecf21ec91a28ae9add29f080687b3a0
+  signature: fAgCpv////+QAQAE/////5Qh//j/////PGAAAP//AAA4gwAA//8AADhgAAf/////SAAAAfwAAAM4AAAA/////0zGMYL/////PICAAP////88YAAA//8AAJAEANj/////OGMAAP//AABIAAAB/AAAA4ABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSContextInit
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@74'
+    size: 35
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 323a3b5a73f19b4355d281d2ffc85d48d7794a55
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAOGAAB/////+QAQAU/////ziEAAD//wAASAAAAfwAAAM8gIAA/////zgAAAD/////PGAAAP//AACQBADY/////zhjAAD//wAATMYxgv////9IAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSContextInit
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@733'
+    size: 35
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 986f9f49d9e88ebe068ce8be8004a5130186f67f
+  signature: fAgCpv////+QAQAE/////5Qh//j/////OGAAB/////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4AAAA/////zxggAD/////kAMA2P////88YAAA//8AADhjAAD//wAATMYxgv////9IAAAB/AAAA4ABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSContextInit
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@59'
+    size: 35
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 5b61e7e9a6ee95a5ff95eebd711075424c3144b8
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAOGAAB/////+QAQAU/////ziEAAD//wAASAAAAfwAAAM4AAAA/////zyAgAD/////PGAAAP//AACQBADY/////zhjAAD//wAATMYxgv////9IAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSContextInit
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@721'
+    size: 35
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 1d1e031c9173588d91f92a0d7d27f34a4f5c2dee
+  signature: lCH/8P////98CAKm/////5ABABT/////OGAAB/////9UYwY+/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzgAAAD/////PGCAAP////+QAwDY/////zxgAAD//wAAOGMAAP//AABMxjGC/////0gAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSContextInit
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@632'
+    size: 35
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

@@ -1,0 +1,542 @@
+- symbol: 0
+  hash: 5118bed851c820288cf20bb024b5794f97677cbd
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x7G3j/////fJwjeP////98vSt4/////3y/K3j/////O8AAAP////9IAACE/////4gfAAD/////fAAHdP////8sAAAv/////0CCAET/////f2PbeP////9/pOt4/////3/F83j/////SAAAAfwAAAN8nuoU/////zhgAAD/////iAQAAf////98e/Gu/////3wAB3X/////QIIADP////+YfAAA/////0gAAFT/////f4PjeP////84hAAB/////0gAAAH8AAADSAAARP////8sAAAA/////0CCACT/////f2PbeP////9/pOt4/////3/F83j/////SAAAAfwAAAM4AAAA/////3wb8a7/////mBwAAP////9IAAAc/////zveAAH/////O/8AAf////9/o+t4/////0gAAAH8AAADfB4YQP////9Agf90/////zlhACD/////SAAAAfwAAAOAAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: nandGetHeadToken
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strncpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: ff156bd31eb24a5504a64df6587b40c1a4cd52b5
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3x9G3j/////fJwjeP////98vyt4/////zxgAAD//wAAO2MAAP//AAA7wAAA/////ztAAAH/////OyAAAP////87AAAA/////ywdAAD/////QYIAEP////8sHAAA/////0GCAAj/////OwAAAf////8sGAAA/////0GCABD/////LB8AAP////9BggAI/////zsgAAH/////LBkAAP////9AggAw/////zh7AKD/////OIAAtP////84uwEw/////0zGMYL/////SAAAAfwAAAM4AAAA/////5ABABD/////gAEAEP////8sAAAA/////0CCAAj/////O0AAAP////864AAB/////3/j+3j/////SAAAAfwAAAMsAwAA/////0CCADD/////OHsAoP////84gAC1/////zi7AUj/////TMYxgv////9IAAAB/AAAAzgAAAD/////kAEADP////+AAQAM/////ywAAAD/////QIIACP////864AAA/////zrAAAH/////iB8AAP////98AAd0/////ywAAC//////QIIAMP////84ewCg/////ziAALb/////OLsBZP////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAI/////4ABAAj/////LAAAAP////9AggAI/////zrAAAD/////O8AAAP////9IAACY/////3wf8K7/////fAAHdP////8sAAAv/////0CCAFD/////f6PreP////9/5Pt4/////3/F83j/////SAAAAfwAAAM4AAAA/////3wd8a7/////fH76FP////+IAwAB/////3wAB3T/////LAAAAP////9AggAQ/////zgAAAD/////mBwAAP////9IAABg/////3+D43j/////fJ/yFP////84hAAB/////0gAAAH8AAADSAAATP////98H/Cu/////3wAB3T/////LAAAAP////9AggAo/////3+j63j/////f+T7eP////9/xfN4/////0gAAAH8AAADOAAAAP////98HfGu/////zgAAAD/////mBwAAP////9IAAAY/////zveAAH/////f+P7eP////9IAAAB/AAAA3weGED/////QIH/YP////85YQBA/////0gAAAH8AAADgAEARP////98CAOm/////zghAED/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: nandGetHeadToken
+    size: 472
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_22
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2387'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: strncpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_22
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 436
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 9d21077156768bd49d06f63e30588e53800eff4b
+  signature: lCH/wP////98CAKm/////5ABAET/////k+EAPP////+TwQA4/////5OhADT/////k4EAMP////98fRt4/////3ycI3j/////fL4reP////874AAA/////zgAAAH/////kAEAJP////84AAAA/////5ABACD/////OAAAAP////+QAQAc/////ywdAAD/////QYIAFP////8sHAAA/////0GCAAz/////OAAAAf////+QAQAc/////4ABABz/////LAAAAP////9BggAU/////yweAAD/////QYIADP////84AAAB/////5ABACD/////gAEAIP////8sAAAA/////0CCADz/////PGAAAP//AAA4YwAA//8AADiAAOD/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABABj/////gAEAGP////8sAAAA/////0CCAAz/////OAAAAP////+QAQAk/////zgAAAH/////kAEAFP////9/w/N4/////0gAAAH8AAADLAMAAP////9AggA8/////zxgAAD//wAAOGMAAP//AAA4gADh/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QAQAQ/////4ABABD/////LAAAAP////9AggAM/////zgAAAD/////kAEAFP////84AAAB/////5ABAAz/////iB4AAP////98AAd0/////ywAAC//////QIIAPP////88YAAA//8AADhjAAD//wAAOIAA4v////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEACP////+AAQAI/////ywAAAD/////QIIADP////84AAAA/////5ABAAz/////O+AAAP////9IAACY/////3we+K7/////fAAHdP////8sAAAv/////0CCAFD/////f6PreP////9/xPN4/////3/l+3j/////SAAAAfwAAAM4AAAA/////3wd+a7/////fH/yFP////+IAwAB/////3wAB3T/////LAAAAP////9AggAQ/////zgAAAD/////mBwAAP////9IAABg/////3+D43j/////fJ76FP////84hAAB/////0gAAAH8AAADSAAATP////98Hviu/////3wAB3T/////LAAAAP////9AggAo/////3+j63j/////f8TzeP////9/5ft4/////0gAAAH8AAADOAAAAP////98Hfmu/////zgAAAD/////mBwAAP////9IAAAY/////zv/AAH/////f8PzeP////9IAAAB/AAAA3wfGED/////QIH/YP////+D4QA8/////4PBADj/////g6EANP////+DgQAw/////4ABAET/////fAgDpv////84IQBA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandGetHeadToken
+    size: 552
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2712'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2760'
+    size: 24
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2761'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2762'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: strncpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 4f25c7c201c77679a9a94712051e877b37472c31
+  signature: lCH/wP////98CAKm/////5ABAET/////k+EAPP////+TwQA4/////5OhADT/////k4EAMP////98fRt4/////3ycI3j/////fL4reP////874AAA/////zgAAAH/////kAEAJP////84AAAA/////5ABACD/////OAAAAP////+QAQAc/////ywdAAD/////QYIAFP////8sHAAA/////0GCAAz/////OAAAAf////+QAQAc/////4ABABz/////LAAAAP////9BggAU/////yweAAD/////QYIADP////84AAAB/////5ABACD/////gAEAIP////8sAAAA/////0CCADz/////PGAAAP//AAA4YwAA//8AADiAANP/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABABj/////gAEAGP////8sAAAA/////0CCAAz/////OAAAAP////+QAQAk/////zgAAAH/////kAEAFP////9/w/N4/////0gAAAH8AAADLAMAAP////9AggA8/////zxgAAD//wAAOGMAAP//AAA4gADU/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QAQAQ/////4ABABD/////LAAAAP////9AggAM/////zgAAAD/////kAEAFP////84AAAB/////5ABAAz/////iB4AAP////98AAd0/////ywAAC//////QIIAPP////88YAAA//8AADhjAAD//wAAOIAA1f////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEACP////+AAQAI/////ywAAAD/////QIIADP////84AAAA/////5ABAAz/////O+AAAP////9IAACY/////3we+K7/////fAAHdP////8sAAAv/////0CCAFD/////f6PreP////9/xPN4/////3/l+3j/////SAAAAfwAAAM4AAAA/////3wd+a7/////fH/yFP////+IAwAB/////3wAB3T/////LAAAAP////9AggAQ/////zgAAAD/////mBwAAP////9IAABg/////3+D43j/////fJ76FP////84hAAB/////0gAAAH8AAADSAAATP////98Hviu/////3wAB3T/////LAAAAP////9AggAo/////3+j63j/////f8TzeP////9/5ft4/////0gAAAH8AAADOAAAAP////98Hfmu/////zgAAAD/////mBwAAP////9IAAAY/////zv/AAH/////f8PzeP////9IAAAB/AAAA3wfGED/////QIH/YP////+D4QA8/////4PBADj/////g6EANP////+DgQAw/////4ABAET/////fAgDpv////84IQBA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandGetHeadToken
+    size: 552
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2520'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2568'
+    size: 24
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2569'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2570'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: strncpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 27d09a4d65488f644b98cb95a66b69689a0dd2e9
+  signature: lCH/wP////98CAKm/////5ABAET/////k+EAPP////+TwQA4/////5OhADT/////k4EAMP////98fRt4/////3ycI3j/////fL4reP////874AAA/////zgAAAH/////kAEAJP////84AAAA/////5ABACD/////OAAAAP////+QAQAc/////ywdAAD/////QYIAFP////8sHAAA/////0GCAAz/////OAAAAf////+QAQAc/////4ABABz/////LAAAAP////9BggAU/////yweAAD/////QYIADP////84AAAB/////5ABACD/////gAEAIP////8sAAAA/////0CCADz/////PGAAAP//AAA4YwAA//8AADiAANz/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABABj/////gAEAGP////8sAAAA/////0CCAAz/////OAAAAP////+QAQAk/////zgAAAH/////kAEAFP////9/w/N4/////0gAAAH8AAADLAMAAP////9AggA8/////zxgAAD//wAAOGMAAP//AAA4gADd/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QAQAQ/////4ABABD/////LAAAAP////9AggAM/////zgAAAD/////kAEAFP////84AAAB/////5ABAAz/////iB4AAP////98AAd0/////ywAAC//////QIIAPP////88YAAA//8AADhjAAD//wAAOIAA3v////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEACP////+AAQAI/////ywAAAD/////QIIADP////84AAAA/////5ABAAz/////O+AAAP////9IAACY/////3we+K7/////fAAHdP////8sAAAv/////0CCAFD/////f6PreP////9/xPN4/////3/l+3j/////SAAAAfwAAAM4AAAA/////3wd+a7/////fH/yFP////+IAwAB/////3wAB3T/////LAAAAP////9AggAQ/////zgAAAD/////mBwAAP////9IAABg/////3+D43j/////fJ76FP////84hAAB/////0gAAAH8AAADSAAATP////98Hviu/////3wAB3T/////LAAAAP////9AggAo/////3+j63j/////f8TzeP////9/5ft4/////0gAAAH8AAADOAAAAP////98Hfmu/////zgAAAD/////mBwAAP////9IAAAY/////zv/AAH/////f8PzeP////9IAAAB/AAAA3wfGED/////QIH/YP////+D4QA8/////4PBADj/////g6EANP////+DgQAw/////4ABAET/////fAgDpv////84IQBA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandGetHeadToken
+    size: 552
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2675'
+    size: 11
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2723'
+    size: 24
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2724'
+    size: 27
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2725'
+    size: 41
+    flags: 2
+    section: .data
+  - kind: Function
+    name: strncpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

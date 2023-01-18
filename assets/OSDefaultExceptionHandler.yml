@@ -1,0 +1,38 @@
+- symbol: 0
+  hash: 1f40a0e9104d8a3d93a7d76126d0214d7f4f1a9c
+  signature: kAQAAP////+QJAAE/////5BEAAj/////vMQAGP////98EeKm/////5AEAaj/////fBLipv////+QBAGs/////3wT4qb/////kAQBsP////98FOKm/////5AEAbT/////fBXipv////+QBAG4/////3wW4qb/////kAQBvP////98F+Km/////5AEAcD/////fLICpv////980wKm/////0gAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 84
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnhandledException
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 80
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 9d37c8031b331d5e70bf7c323ab01cc75101dc04
+  signature: kAQAAP////+QJAAE/////5BEAAj/////vMQAGP////98EeKm/////5AEAaj/////fBLipv////+QBAGs/////3wT4qb/////kAQBsP////98FOKm/////5AEAbT/////fBXipv////+QBAG4/////3wW4qb/////kAQBvP////98F+Km/////5AEAcD/////fLICpv////980wKm/////5Qh//j/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnhandledException
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 84
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

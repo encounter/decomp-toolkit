@@ -1,0 +1,38 @@
+- symbol: 0
+  hash: f817c1799784a6f7f1dadfff8b09e273cbce09f8
+  signature: gGAAAP/gAAA4A//+/////3wAADT/////VAPZfv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: nandIsInitialized
+    size: 20
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 75990b74647c490ee769808824dd3bb9f9265b94
+  signature: gAAAAP/gAAAsAAAC/////0CCAAz/////OGAAAf////9IAAAI/////zhgAAD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: nandIsInitialized
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_libState
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

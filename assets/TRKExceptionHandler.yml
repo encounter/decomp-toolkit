@@ -1,0 +1,31 @@
+- symbol: 0
+  hash: ab3e7b03efa016969a69a81f64e665638cd3cfc4
+  signature: PEAAAP//AABgQgAA//8AALBiAAj/////fHoCpv////+QYgAA/////6BiAAj/////LAMCAP////9BggBQ/////ywDAwD/////QYIASP////8sAwQA/////0GCAED/////LAMGAP////9BggA4/////ywDBwD/////QYIAMP////8sAwgA/////0GCACj/////LAMQAP////9BggAg/////ywDEQD/////QYIAGP////8sAxIA/////0GCABD/////LAMTAP////9BggAI/////0gAABD/////fHoCpv////84YwAE/////3x6A6b/////PEAAAP//AABgQgAA//8AADhgAAH/////mGIADf////98c0Km/////3xv8SD/////fFFCpv////98ckKm/////0wAAGT/////
+  symbols:
+  - kind: Function
+    name: TRKExceptionHandler
+    size: 156
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKExceptionStatus
+    size: 16
+    flags: 2
+    section: .data
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

@@ -1,0 +1,23 @@
+- symbol: 0
+  hash: 07f36a5bf4a942f32b49d5a1ab42709d0e58b6dc
+  signature: PGAAAP//AAA4YwAA//8AAIBjAEz/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSSyncSram
+    size: 16
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

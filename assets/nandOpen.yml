@@ -1,0 +1,668 @@
+- symbol: 0
+  hash: 2fa8b1d66d1937a2595188a1696f79ac39e3414d
+  signature: lCH/oP////98CAKm/////5ABAGT/////OWEAYP////9IAAAB/AAAAzgAAAD/////kAEACP////98myN4/////3xkG3j/////kAEADP////98vCt4/////3zdM3j/////fP47eP////+QAQAQ/////zhhAAj/////O+AAAP////+QAQAU/////5ABABj/////kAEAHP////+QAQAg/////5ABACT/////kAEAKP////+QAQAs/////5ABADD/////kAEANP////+QAQA4/////5ABADz/////kAEAQP////+QAQBE/////0gAAAH8AAADLB4AAP////9AggAc/////zhhAAj/////SAAAAfwAAAMsAwAA/////0GCAAz/////OGD/mv////9IAABk/////ywbAAP/////QYIAGP////8sGwAB/////0GCABj/////LBsAAv////9BggAY/////0gAABj/////O+AAA/////9IAAAQ/////zvgAAH/////SAAACP////874AAC/////ywdAAD/////QYIAIP////88oAAA//8AAH/k+3j/////f4bjeP////84YQAI/////zilAAD//wAASAAAAfwAAANIAAAQ/////3/k+3j/////OGEACP////9IAAAB/AAAAzlhAGD/////SAAAAfwAAAOAAQBk/////3wIA6b/////OCEAYP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: nandOpen
+    size: 272
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsPrivatePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpenCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 3e518d60d77af74f35552c8c07c74ac3e8d678bf
+  signature: lCH/oP////98CAKm/////5ABAGT/////OWEAYP////9IAAAB/AAAAzgAAAD/////fJsjeP////+QAQAI/////3xkG3j/////fLwreP////983TN4/////5ABAAz/////fP47eP////84YQAI/////zvgAAD/////kAEAEP////+QAQAU/////5ABABj/////kAEAHP////+QAQAg/////5ABACT/////kAEAKP////+QAQAs/////5ABADD/////kAEANP////+QAQA4/////5ABADz/////kAEAQP////+QAQBE/////0gAAAH8AAADLB4AAP////9AggAc/////zhhAAj/////SAAAAfwAAAMsAwAA/////0GCAAz/////OGD/mv////9IAABo/////ywbAAL/////QYIALP////9AgAAQ/////ywbAAH/////QIAAGP////9IAAAg/////ywbAAT/////QIAAGP////874AAD/////0gAABD/////O+AAAf////9IAAAI/////zvgAAL/////LB0AAP////9BggAg/////zygAAD//wAAf+T7eP////9/huN4/////zhhAAj/////OKUAAP//AABIAAAB/AAAA0gAABD/////f+T7eP////84YQAI/////0gAAAH8AAADOWEAYP////9IAAAB/AAAA4ABAGT/////fAgDpv////84IQBg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandOpen
+    size: 276
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsPrivatePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpenCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: db01b3329a0185e64b11ffab9c841cbcdd660a9d
+  signature: lCH/cP////98CAKm/////5ABAJT/////OWEAkP////9IAAAB/AAAA3x1G3j/////fJ0jeP////+QoQAI/////5DBAAz/////kOEAEP////88YAAA//8AADuDAAD//wAAO8D/i/////84AAAA/////5ABABj/////kAEAHP////+QAQAg/////5ABACT/////kAEAKP////+QAQAs/////5ABADD/////kAEANP////+QAQA4/////5ABADz/////kAEAQP////+QAQBE/////5ABAEj/////kAEATP////+QAQBQ/////5ABAFT/////O+AAAP////87YAAB/////ywVAAD/////QIIAKP////84fAAA/////ziAAFr/////OLwAEP////9MxjGC/////0gAAAH8AAADOuAAAP////8sFwAA/////0CCAAj/////O2AAAP////87QAAB/////zsgAAH/////OwAAAf////9XoAY+/////ygAAAH/////QYIAFP////9XoAY+/////ygAAAL/////QYIACP////87AAAA/////ywYAAD/////QIIAFP////9XoAY+/////ygAAAP/////QYIACP////87IAAA/////ywZAAD/////QIIAKP////84fAAA/////ziAAF7/////OLwAMP////9MxjGC/////0gAAAH8AAADOsAAAP////8sFgAA/////0CCAAj/////O0AAAP////84YQAY/////36kq3j/////SAAAAfwAAAOAAQAQ/////ywAAAD/////QIIAHP////84YQAY/////0gAAAH8AAADLAMAAP////9BggAM/////zhg/5r/////SAAAhP////9XoAY+/////ywAAAL/////QYIAMP////9AgAAQ/////ywAAAH/////QIAAHP////9IAAAo/////ywAAAT/////QIAAIP////9IAAAE/////zvgAAP/////SAAAFP////874AAB/////0gAAAz/////O+AAAv////9IAAAE/////4ABAAz/////LAAAAP////9BggAk/////zhhABj/////f+T7eP////88oAAA//8AADilAAD//wAAgMEACP////9IAAAB/AAAA3x+G3j/////SAAAFP////84YQAY/////3/k+3j/////SAAAAfwAAAN8fht4/////3/D83j/////OWEAkP////9IAAAB/AAAA4ABAJT/////fAgDpv////84IQCQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandOpen
+    size: 480
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_21
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2382'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsPrivatePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpenCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_21
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 460
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: fb99e5e16bfb99044a360929a4e05aa9ac6f1770
+  signature: lCH/gP////98CAKm/////5ABAIT/////OWEAgP////9IAAAB/AAAA3x4G3j/////fJ0jeP////+QoQAI/////5DBAAz/////kOEAEP////87wP+L/////zgAAAD/////kAEAIP////+QAQAk/////5ABACj/////kAEALP////+QAQAw/////5ABADT/////kAEAOP////+QAQA8/////5ABAED/////kAEARP////+QAQBI/////5ABAEz/////kAEAUP////+QAQBU/////5ABAFj/////kAEAXP////874AAA/////zuAAAH/////LBgAAP////9AggA4/////zxgAAD//wAAOGMAAP//AAA4gADC/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QAQAY/////4ABABj/////LAAAAP////9AggAI/////zuAAAD/////O2AAAf////87QAAB/////zsgAAH/////V6AGPv////8oAAAB/////0GCABT/////V6AGPv////8oAAAC/////0GCAAj/////OyAAAP////8sGQAA/////0CCABT/////V6AGPv////8oAAAD/////0GCAAj/////O0AAAP////8sGgAA/////0CCADj/////PGAAAP//AAA4YwAA//8AADiAAMb/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABABT/////gAEAFP////8sAAAA/////0CCAAj/////O2AAAP////84YQAg/////38Ew3j/////SAAAAfwAAAOAAQAQ/////ywAAAD/////QIIAHP////84YQAg/////0gAAAH8AAADLAMAAP////9BggAM/////zhg/5r/////SAAAhP////9XoAY+/////ywAAAL/////QYIAMP////9AgAAQ/////ywAAAH/////QIAAHP////9IAAAo/////ywAAAT/////QIAAIP////9IAAAE/////zvgAAP/////SAAAFP////874AAB/////0gAAAz/////O+AAAv////9IAAAE/////4ABAAz/////LAAAAP////9BggAk/////zhhACD/////f+T7eP////88oAAA//8AADilAAD//wAAgMEACP////9IAAAB/AAAA3x+G3j/////SAAAFP////84YQAg/////3/k+3j/////SAAAAfwAAAN8fht4/////3/D83j/////OWEAgP////9IAAAB/AAAA4ABAIT/////fAgDpv////84IQCA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandOpen
+    size: 504
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2479'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2480'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2481'
+    size: 24
+    flags: 2
+    section: .data
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsPrivatePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpenCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: da16ae1b5d5dad36c5433f2717fea4f7c8388c23
+  signature: lCH/gP////98CAKm/////5ABAIT/////OWEAgP////9IAAAB/AAAA3x4G3j/////fJ0jeP////+QoQAI/////5DBAAz/////kOEAEP////87wP+L/////zgAAAD/////kAEAIP////+QAQAk/////5ABACj/////kAEALP////+QAQAw/////5ABADT/////kAEAOP////+QAQA8/////5ABAED/////kAEARP////+QAQBI/////5ABAEz/////kAEAUP////+QAQBU/////5ABAFj/////kAEAXP////874AAA/////zuAAAH/////LBgAAP////9AggA4/////zxgAAD//wAAOGMAAP//AAA4gAC8/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QAQAY/////4ABABj/////LAAAAP////9AggAI/////zuAAAD/////O2AAAf////87QAAB/////zsgAAH/////V6AGPv////8oAAAB/////0GCABT/////V6AGPv////8oAAAC/////0GCAAj/////OyAAAP////8sGQAA/////0CCABT/////V6AGPv////8oAAAD/////0GCAAj/////O0AAAP////8sGgAA/////0CCADj/////PGAAAP//AAA4YwAA//8AADiAAMD/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABABT/////gAEAFP////8sAAAA/////0CCAAj/////O2AAAP////84YQAg/////38Ew3j/////SAAAAfwAAAOAAQAQ/////ywAAAD/////QIIAHP////84YQAg/////0gAAAH8AAADLAMAAP////9BggAM/////zhg/5r/////SAAAhP////9XoAY+/////ywAAAL/////QYIAMP////9AgAAQ/////ywAAAH/////QIAAHP////9IAAAo/////ywAAAT/////QIAAIP////9IAAAE/////zvgAAP/////SAAAFP////874AAB/////0gAAAz/////O+AAAv////9IAAAE/////4ABAAz/////LAAAAP////9BggAk/////zhhACD/////f+T7eP////88oAAA//8AADilAAD//wAAgMEACP////9IAAAB/AAAA3x+G3j/////SAAAFP////84YQAg/////3/k+3j/////SAAAAfwAAAN8fht4/////3/D83j/////OWEAgP////9IAAAB/AAAA4ABAIT/////fAgDpv////84IQCA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandOpen
+    size: 504
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2384'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2385'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2386'
+    size: 24
+    flags: 2
+    section: .data
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsPrivatePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpenCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 5365d89fb6e693e96b62ae79bdfba2e082d26014
+  signature: lCH/gP////98CAKm/////5ABAIT/////OWEAgP////9IAAAB/AAAA3x4G3j/////fJ0jeP////+QoQAI/////5DBAAz/////kOEAEP////87wP+L/////zgAAAD/////kAEAIP////+QAQAk/////5ABACj/////kAEALP////+QAQAw/////5ABADT/////kAEAOP////+QAQA8/////5ABAED/////kAEARP////+QAQBI/////5ABAEz/////kAEAUP////+QAQBU/////5ABAFj/////kAEAXP////874AAA/////zuAAAH/////LBgAAP////9AggA4/////zxgAAD//wAAOGMAAP//AAA4gACi/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QAQAY/////4ABABj/////LAAAAP////9AggAI/////zuAAAD/////O2AAAf////87QAAB/////zsgAAH/////V6AGPv////8oAAAB/////0GCABT/////V6AGPv////8oAAAC/////0GCAAj/////OyAAAP////8sGQAA/////0CCABT/////V6AGPv////8oAAAD/////0GCAAj/////O0AAAP////8sGgAA/////0CCADj/////PGAAAP//AAA4YwAA//8AADiAAKb/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABABT/////gAEAFP////8sAAAA/////0CCAAj/////O2AAAP////84YQAg/////38Ew3j/////SAAAAfwAAAOAAQAQ/////ywAAAD/////QIIAHP////84YQAg/////0gAAAH8AAADLAMAAP////9BggAM/////zhg/5r/////SAAAhP////9XoAY+/////ywAAAL/////QYIAMP////9AgAAQ/////ywAAAH/////QIAAHP////9IAAAo/////ywAAAT/////QIAAIP////9IAAAE/////zvgAAP/////SAAAFP////874AAB/////0gAAAz/////O+AAAv////9IAAAE/////4ABAAz/////LAAAAP////9BggAk/////zhhACD/////f+T7eP////88oAAA//8AADilAAD//wAAgMEACP////9IAAAB/AAAA3x+G3j/////SAAAFP////84YQAg/////3/k+3j/////SAAAAfwAAAN8fht4/////3/D83j/////OWEAgP////9IAAAB/AAAA4ABAIT/////fAgDpv////84IQCA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: nandOpen
+    size: 504
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@2424'
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@2425'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2426'
+    size: 24
+    flags: 2
+    section: .data
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsPrivatePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandOpenCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: ISFS_OpenAsync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ISFS_Open
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 332
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 11
+    addend: 0

@@ -1,0 +1,1060 @@
+- symbol: 0
+  hash: da86da7c0054db8d036733f3952fe1433fd1272f
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x/G3j/////fJwjeP////87wAAA/////ywfAAD/////QIIADP////87wP/8/////0gAAJD/////f/37eP////8sHAAA/////0CCAAz/////OH8ALP////9IAAAB/AAAA3+j63j/////OIAAIP////9IAAAB/AAAA0gAAAH8AAADfHsbeP////9/o+t4/////0gAAAH8AAADfH4beP////8sHgAA/////0GCACD/////f2PbeP////9IAAAB/AAAAywcAAD/////QYIARP////9/4/t4/////0gAAAH8AAADSAAAOP////+AAAAA/+AAACwAAAD/////QIEACP////9IAAAB/AAAAywcAAD/////QIIADP////84fwAs/////0gAAAH8AAADf2PbeP////9IAAAB/AAAAywcAAD/////QIIACP////+D3QAE/////ywfAAD/////QYIAFP////8sHAAA/////0CCAAz/////f+P7eP////9IAAAB/AAAA3/D83j/////OWEAIP////9IAAAB/AAAA4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __ios_Ipc2
+    size: 240
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __ipcQueueRequest
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ipcFree
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: __mailboxAck
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: __ipcSendRequest
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSleepThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: bad1464f788ffce800dbf5561caf1c85302219b1
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x+G3j/////fJwjeP////874AAA/////yweAAD/////QIIADP////874P/8/////0gAAJD/////f93zeP////8sHAAA/////0CCAAz/////OH4ALP////9IAAAB/AAAA3+j63j/////OIAAIP////9IAAAB/AAAA0gAAAH8AAADfHsbeP////9/o+t4/////0gAAAH8AAADfH8beP////8sHwAA/////0GCACD/////f2PbeP////9IAAAB/AAAAywcAAD/////QYIARP////9/w/N4/////0gAAAH8AAADSAAAOP////+AAAAA/+AAACwAAAD/////QIEACP////9IAAAB/AAAAywcAAD/////QIIADP////84fgAs/////0gAAAH8AAADf2PbeP////9IAAAB/AAAAywcAAD/////QIIACP////+D/QAE/////yweAAD/////QYIAFP////8sHAAA/////0CCAAz/////f8PzeP////9IAAAB/AAAA3/j+3j/////OWEAIP////9IAAAB/AAAA4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __ios_Ipc2
+    size: 240
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __ipcQueueRequest
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ipcFree
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: __mailboxAck
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: __ipcSendRequest
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSSleepThread
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 9c286a85e2e08e4087b61936038b3d6d0a3466fd
+  signature: lCH/4P////98CAKm/////ywDAAD/////kAEAJP////+T4QAc/////5PBABj/////k6EAFP////98nSN4/////5OBABD/////fHwbeP////9AggAM/////zvg//z/////SAAB0P////8sBAAA/////0CCAAz/////OGMALP////9IAAAB/AAAA3+D43j/////OIAAIP////9IAAAB/AAAA0gAAAH8AAADPIAAAP//AAB8fht4/////zhkAAD//wAAgIQAAP//AACAAwAE/////zvgAAD/////fAAgQP////9AgAAM/////3wEAFD/////SAAAIP////98hABQ/////zhgABD/////OAT/8P////98gxs4/////1QA+H7/////fAAYUP////9UAA/+/////ywAAAD/////QYIADP////874P/4/////0gAAET/////PMAAAP//AAB/g+N4/////zjGAAD//wAAgAYADP////9UABA6/////3yGAhT/////k4QAEP////+ApgAM/////4CGAAT/////OAUAAf////9UBQc+/////5CmAAz/////OAQAAf////+QBgAE/////4CcAAj/////SAAAAfwAAAMsHwAA/////0GCACT/////f8PzeP////9IAAAB/AAAAywdAAD/////QYIBBP////+AYAAA/+AAAH+E43j/////SAAAAfwAAANIAAD0/////4AAAAD/4AAALAAAAP////9AgQDE/////zyAAAD//wAAOGQAAP//AACAhAAA//8AAIADAAT/////fAAgQP////9AgAAM/////3wEAFD/////SAAAEP////98BABQ/////3wAADT/////VADZfv////8sAAAA/////0CCAJD/////PGAAAP//AAA4YwAA//8AAIADAAj/////VAAQOv////98YwIU/////4CDABD/////LAQAAP////9BggBw/////4AEACj/////LAAAAP////9BggAQ/////4BgAAD/4AAAOAP///////+QAAAA/+AAADyEgAD/////OGAAAP////9IAAAB/AAAAzzgAAD//wAAgGAAAP/gAAA4xwAA//8AAICHAAD//wAAgKYACP////84A////////zhkAAH/////kGcAAP//AAA4hQAB/////1SEBz7/////kIYACP////84YAAB/////5AAAAD/4AAASAAAAfwAAANUYAa2/////zhgAAH/////YAQAAf////9IAAAB/AAAAywdAAD/////QIIADP////84fAAs/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAywdAAD/////QIIACP////+D/AAE/////ywcAAD/////QYIAGP////8sHQAA/////0CCABD/////gGAAAP/gAAB/hON4/////0gAAAH8AAADf+P7eP////+D4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __ios_Ipc2
+    size: 576
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __responses
+    size: 80
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: iosFree
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __mailboxAck
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCReadReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSleepThread
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 64
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 256
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 340
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 404
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 408
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 528
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 364945d3dbda149a3bf004a0a92110966817d9c2
+  signature: lCH/4P////98CAKm/////ywDAAD/////kAEAJP////+T4QAc/////5PBABj/////k6EAFP////98nSN4/////5OBABD/////fHwbeP////9AggAM/////zvg//z/////SAAB0P////8sBAAA/////0CCAAz/////OGMALP////9IAAAB/AAAA3+D43j/////OIAAIP////9IAAAB/AAAA0gAAAH8AAADPIAAAP//AAB8fht4/////zhkAAD//wAAgIQAAP//AACAAwAE/////zvgAAD/////fAAgQP////9AgAAM/////3wEAFD/////SAAAIP////98hABQ/////zhgABD/////OAT/8P////98gxs4/////1QA+H7/////fAAYUP////9UAA/+/////ywAAAD/////QYIADP////874P/4/////0gAAET/////PMAAAP//AAB/g+N4/////zjGAAD//wAAgAYADP////9UABA6/////3yGAhT/////k4QAEP////+ApgAM/////4CGAAT/////OAUAAf////9UBQc+/////zgEAAH/////kKYADP////+QBgAE/////4CcAAj/////SAAAAfwAAAMsHwAA/////0GCACT/////f8PzeP////9IAAAB/AAAAywdAAD/////QYIBBP////+AYAAA/+AAAH+E43j/////SAAAAfwAAANIAAD0/////4AAAAD/4AAALAAAAP////9AgQDE/////zyAAAD//wAAOGQAAP//AACAhAAA//8AAIADAAT/////fAAgQP////9AgAAM/////3wEAFD/////SAAAEP////98BABQ/////3wAADT/////VADZfv////8sAAAA/////0CCAJD/////PGAAAP//AAA4YwAA//8AAIADAAj/////VAAQOv////98YwIU/////4CDABD/////LAQAAP////9BggBw/////4AEACj/////LAAAAP////9BggAQ/////4BgAAD/4AAAOAP///////+QAAAA/+AAADyEgAD/////OGAAAP////9IAAAB/AAAAzzgAAD//wAAgGAAAP/gAAA4xwAA//8AAICHAAD//wAAgKYACP////84A////////5AAAAD/4AAAOIQAAf////84BQAB/////zhgAAH/////VAAHPv////+QhwAA//8AAJAGAAj/////SAAAAfwAAANUYAa2/////zhgAAH/////YAQAAf////9IAAAB/AAAAywdAAD/////QIIADP////84fAAs/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAywdAAD/////QIIACP////+D/AAE/////ywcAAD/////QYIAGP////8sHQAA/////0CCABD/////gGAAAP/gAAB/hON4/////0gAAAH8AAADf+P7eP////+D4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __ios_Ipc2
+    size: 576
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __responses
+    size: 80
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: iosFree
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __mailboxAck
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCReadReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSleepThread
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 64
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 256
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 340
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 404
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 408
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 428
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 528
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: a11e24eac95eff0b010e09d36af6d71f5419b377
+  signature: lCH/4P////98CAKm/////ywDAAD/////kAEAJP////+T4QAc/////5PBABj/////k6EAFP////98nSN4/////5OBABD/////fHwbeP////9AggAM/////zvg//z/////SAAB3P////8sBAAA/////0CCAAz/////OGMALP////9IAAAB/AAAA3+D43j/////OIAAIP////9IAAAB/AAAA0gAAAH8AAADPIAAAP//AAB8fht4/////zhkAAD//wAAgIQAAP//AACAAwAE/////zvgAAD/////fAAgQP////9AgAAM/////3wEAFD/////SAAAIP////98hABQ/////zhgABD/////OAT/8P////98gxs4/////1QA+H7/////fAAYUP////9UAA/+/////ywAAAD/////QYIADP////874P/4/////0gAAET/////PMAAAP//AAB/g+N4/////zjGAAD//wAAgAYADP////9UABA6/////3yGAhT/////k4QAEP////+ApgAM/////4CGAAT/////OAUAAf////9UBQc+/////zgEAAH/////kKYADP////+QBgAE/////4CcAAj/////SAAAAfwAAAMsHwAA/////0GCACT/////f8PzeP////9IAAAB/AAAAywdAAD/////QYIBEP////+AYAAA/+AAAH+E43j/////SAAAAfwAAANIAAEA/////4AAAAD/4AAALAAAAP////9AgQDQ/////zyAAAD//wAAOGQAAP//AACAhAAA//8AAIADAAT/////fAAgQP////9AgAAM/////3wEAFD/////SAAAEP////98BABQ/////3wAADT/////VADZfv////8sAAAA/////0CCAJz/////PGAAAP//AAA4YwAA//8AAIADAAj/////VAAQOv////98YwIU/////4CDABD/////LAQAAP////9BggB8/////4AEACj/////LAAAAP////9BggAc/////4BgAAD/4AAAOAAAAf////+QAAAA/+AAADgD////////kIAAAP/gAACQAAAA/+AAADyEgAD/////OGAAAP////9IAAAB/AAAAzzgAAD//wAAgGAAAP/gAAA4xwAA//8AAICHAAD//wAAgKYACP////84A////////5AAAAD/4AAAOIQAAf////84BQAB/////zhgAAH/////VAAHPv////+QhwAA//8AAJAGAAj/////SAAAAfwAAANUYAa2/////zhgAAH/////YAQAAf////9IAAAB/AAAAywdAAD/////QIIADP////84fAAs/////0gAAAH8AAADf8PzeP////9IAAAB/AAAAywdAAD/////QIIACP////+D/AAE/////ywcAAD/////QYIAGP////8sHQAA/////0CCABD/////gGAAAP/gAAB/hON4/////0gAAAH8AAADf+P7eP////+D4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __ios_Ipc2
+    size: 588
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __responses
+    size: 80
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: iosFree
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __mailboxAck
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: __relnchFl
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __relnchRpc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCReadReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSleepThread
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 64
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 256
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 340
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 396
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 420
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 440
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 460
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 540
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: bac2ee9b94f004aa06600a50f3c765ee70a6bd61
+  signature: lCH/4P////98CAKm/////ywDAAD/////kAEAJP////+T4QAc/////5PBABj/////k6EAFP////98nSN4/////5OBABD/////fHwbeP////9AggAM/////zvg//z/////SAAB+P////8sBAAA/////0CCAAz/////OGMALP////9IAAAB/AAAA3+D43j/////OIAAIP////9IAAAB/AAAA0gAAAH8AAADPIAAAP//AAB8fht4/////zhkAAD//wAAgIQAAP//AACAAwAE/////zvgAAD/////fAAgQP////9AgAAM/////3wEAFD/////SAAAIP////98hABQ/////zhgADD/////OAT/0P////98gxs4/////1QA+H7/////fAAYUP////9UAA/+/////ywAAAD/////QYIADP////874P/4/////0gAAFj/////POAAAP//AAA8gKqr/////zjnAAD//wAAf4PjeP////+ApwAM/////zgEqqv/////VKQQOv////98hyIU/////5OEABD/////gKcADP////+AhwAE/////zjFAAH/////fKAwFv////84BAAB/////5AHAAT/////VKXZfv////8cBQAw/////3wAMFD/////kAcADP////+AnAAI/////0gAAAH8AAADLB8AAP////9BggAk/////3/D83j/////SAAAAfwAAAMsHQAA/////0GCARj/////gGAAAP/gAAB/hON4/////0gAAAH8AAADSAABCP////+AAAAA/+AAACwAAAD/////QIEA2P////88gAAA//8AADhkAAD//wAAgIQAAP//AACAAwAE/////3wAIED/////QIAADP////98BABQ/////0gAABD/////fAQAUP////98AAA0/////1QA2X7/////LAAAAP////9AggCk/////zxgAAD//wAAOGMAAP//AACAAwAI/////1QAEDr/////fGMCFP////+AgwAQ/////ywEAAD/////QYIAhP////+ABAAo/////ywAAAD/////QYIAEP////+AYAAA/+AAADgD////////kAAAAP/gAAA8hIAA/////zhgAAD/////SAAAAfwAAAM9AAAA//8AADxgqqv/////OOgAAP//AACAiAAA//8AAIDHAAj/////OKOqq/////84BAAB/////4BgAAD/4AAAOMYAAf////+QCAAA//8AAHyFMBb/////OAP///////+QAAAA/+AAADhgAAH/////VITZfv////8cBAAw/////3wAMFD/////kAcACP////9IAAAB/AAAA1RgBrb/////OGAAAf////9gBAAB/////0gAAAH8AAADLB0AAP////9AggAM/////zh8ACz/////SAAAAfwAAAN/w/N4/////0gAAAH8AAADLB0AAP////9AggAI/////4P8AAT/////LBwAAP////9BggAY/////ywdAAD/////QIIAEP////+AYAAA/+AAAH+E43j/////SAAAAfwAAAN/4/t4/////4PhABz/////g8EAGP////+DoQAU/////4OBABD/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __ios_Ipc2
+    size: 616
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSInitThreadQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __responses
+    size: 208
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: IPCiProfQueueReq
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: iosFree
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __mailboxAck
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCReadReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSleepThread
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 64
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 276
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 356
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 408
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 460
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 472
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 528
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 536
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 568
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 576
+    kind: PpcRel24
+    symbol: 8
+    addend: 0

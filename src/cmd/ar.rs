@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::{Context, Error, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use argh::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
 
@@ -45,9 +45,9 @@ fn create(args: CreateArgs) -> Result<()> {
     // Process response files (starting with '@')
     let mut files = Vec::with_capacity(args.files.len());
     for path in args.files {
-        let path_str = path.to_str().ok_or_else(|| {
-            Error::msg(format!("'{}' is not valid UTF-8", path.to_string_lossy()))
-        })?;
+        let path_str = path
+            .to_str()
+            .ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
         match path_str.strip_prefix('@') {
             Some(rsp_file) => {
                 let reader = BufReader::new(
@@ -71,25 +71,23 @@ fn create(args: CreateArgs) -> Result<()> {
     let mut identifiers = Vec::with_capacity(files.len());
     let mut symbol_table = BTreeMap::new();
     for path in &files {
-        let file_name = path.file_name().ok_or_else(|| {
-            Error::msg(format!("'{}' is not a file path", path.to_string_lossy()))
-        })?;
-        let file_name = file_name.to_str().ok_or_else(|| {
-            Error::msg(format!("'{}' is not valid UTF-8", file_name.to_string_lossy()))
-        })?;
+        let file_name = path
+            .file_name()
+            .ok_or_else(|| anyhow!("'{}' is not a file path", path.display()))?;
+        let file_name = file_name
+            .to_str()
+            .ok_or_else(|| anyhow!("'{}' is not valid UTF-8", file_name.to_string_lossy()))?;
         let identifier = file_name.as_bytes().to_vec();
         identifiers.push(identifier.clone());
 
         let entries = match symbol_table.entry(identifier) {
             Entry::Vacant(e) => e.insert(Vec::new()),
-            Entry::Occupied(_) => {
-                return Err(Error::msg(format!("Duplicate file name '{file_name}'")))
-            }
+            Entry::Occupied(_) => bail!("Duplicate file name '{file_name}'"),
         };
         let object_file = File::open(path)
-            .with_context(|| format!("Failed to open object file '{}'", path.to_string_lossy()))?;
+            .with_context(|| format!("Failed to open object file '{}'", path.display()))?;
         let map = unsafe { memmap2::MmapOptions::new().map(&object_file) }
-            .with_context(|| format!("Failed to mmap object file: '{}'", path.to_string_lossy()))?;
+            .with_context(|| format!("Failed to mmap object file: '{}'", path.display()))?;
         let obj = object::File::parse(map.as_ref())?;
         for symbol in obj.symbols() {
             if symbol.scope() == SymbolScope::Dynamic {

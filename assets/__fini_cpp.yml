@@ -1,0 +1,23 @@
+- symbol: 0
+  hash: 734078ce2ac4f80b15cf23707c7151557348f30d
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////88YAAA//8AADvjAAD//wAASAAAFP////+BnwAA/////32JA6b/////ToAEIf////87/wAE/////4AfAAD/////LAAAAP////9Agv/o/////4PhAAz/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __fini_cpp
+    size: 76
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _dtors
+    size: 0
+    flags: 1
+    section: .dtors
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

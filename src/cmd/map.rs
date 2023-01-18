@@ -1,6 +1,6 @@
-use std::{fs::File, io::BufReader, ops::Range};
+use std::{fs::File, io::BufReader};
 
-use anyhow::{Context, Error, Result};
+use anyhow::{bail, ensure, Context, Result};
 use argh::FromArgs;
 
 use crate::util::map::{process_map, resolve_link_order, SymbolEntry, SymbolRef};
@@ -103,12 +103,7 @@ fn entries(args: EntriesArgs) -> Result<()> {
                 }
             }
         }
-        None => {
-            return Err(Error::msg(format!(
-                "Failed to find entries for TU '{}' in map",
-                args.unit
-            )));
-        }
+        None => bail!("Failed to find entries for TU '{}' in map", args.unit),
     }
     Ok(())
 }
@@ -122,9 +117,7 @@ fn symbol(args: SymbolArgs) -> Result<()> {
     let mut opt_ref: Option<(SymbolRef, SymbolEntry)> = None;
     for (symbol_ref, entry) in &entries.symbols {
         if symbol_ref.name == args.symbol {
-            if opt_ref.is_some() {
-                return Err(Error::msg(format!("Symbol '{}' found in multiple TUs", args.symbol)));
-            }
+            ensure!(opt_ref.is_none(), "Symbol '{}' found in multiple TUs", args.symbol);
             opt_ref = Some((symbol_ref.clone(), entry.clone()));
         }
     }
@@ -140,7 +133,7 @@ fn symbol(args: SymbolArgs) -> Result<()> {
                             reference.demangled.as_ref().unwrap_or(&reference.name),
                             reference.kind,
                             reference.visibility,
-                            reference.unit
+                            reference.unit.as_deref().unwrap_or("[generated]")
                         );
                     } else {
                         println!(">>> {} (NOT FOUND)", x.name);
@@ -156,7 +149,7 @@ fn symbol(args: SymbolArgs) -> Result<()> {
                             reference.demangled.as_ref().unwrap_or(&reference.name),
                             reference.kind,
                             reference.visibility,
-                            reference.unit
+                            reference.unit.as_deref().unwrap_or("[generated]")
                         );
                     } else {
                         println!(">>> {} (NOT FOUND)", x.name);
@@ -165,9 +158,7 @@ fn symbol(args: SymbolArgs) -> Result<()> {
             }
             println!("\n");
         }
-        None => {
-            return Err(Error::msg(format!("Failed to find symbol '{}' in map", args.symbol)));
-        }
+        None => bail!("Failed to find symbol '{}' in map", args.symbol),
     }
     Ok(())
 }
@@ -201,19 +192,19 @@ fn slices(args: SlicesArgs) -> Result<()> {
             unit.clone()
         };
         println!("{unit_path}:");
-        let mut ranges = Vec::<(String, Range<u32>)>::new();
-        match entries.unit_section_ranges.get(&unit) {
-            Some(sections) => {
-                for (name, range) in sections {
-                    ranges.push((name.clone(), range.clone()));
-                }
-            }
-            None => return Err(Error::msg(format!("Failed to locate sections for unit '{unit}'"))),
-        }
-        ranges.sort_by(|(_, a), (_, b)| a.start.cmp(&b.start));
-        for (name, range) in ranges {
-            println!("\t{}: [{:#010x}, {:#010x}]", name, range.start, range.end);
-        }
+        // let mut ranges = Vec::<(String, Range<u32>)>::new();
+        // match entries.unit_section_ranges.get(&unit) {
+        //     Some(sections) => {
+        //         for (name, range) in sections {
+        //             ranges.push((name.clone(), range.clone()));
+        //         }
+        //     }
+        //     None => bail!("Failed to locate sections for unit '{unit}'"),
+        // }
+        // ranges.sort_by(|(_, a), (_, b)| a.start.cmp(&b.start));
+        // for (name, range) in ranges {
+        //     println!("\t{}: [{:#010x}, {:#010x}]", name, range.start, range.end);
+        // }
     }
     Ok(())
 }
@@ -223,12 +214,12 @@ fn symbols(args: SymbolsArgs) -> Result<()> {
         File::open(&args.map_file)
             .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
     );
-    let entries = process_map(reader)?;
-    for (address, symbol) in entries.address_to_symbol {
-        if symbol.name.starts_with('@') {
-            continue;
-        }
-        println!("{:#010x}: {}", address, symbol.name);
-    }
+    let _entries = process_map(reader)?;
+    // for (address, symbol) in entries.address_to_symbol {
+    //     if symbol.name.starts_with('@') {
+    //         continue;
+    //     }
+    //     println!("{:#010x}: {}", address, symbol.name);
+    // }
     Ok(())
 }

@@ -1,0 +1,273 @@
+- symbol: 0
+  hash: ddc488f9a689915b426dc5f0c9cb4a90a86079da
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAAMsAwAA/////0CCADD/////OAAAAP////+QAAAA/+AAADhgAAD/////OIAAAP////+QAAAA/+AAAJAAAAD/4AAAkAAAAP/gAACQAAAA/+AAAJAAAAD/4AAAkAAAAP/gAABIAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSStartPlayRecord
+    size: 84
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: PlayRecordTerminate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordGet
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordState
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: PlayRecordError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordRetry
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordTerminated
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: PlayRecordCallback
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: cf93ecf1a130c8a300396defb475481a4a8ded54
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAAMsAwAA/////0CCADD/////OAAAAP////84YAAA/////5AAAAD/4AAAOIAAAP////+QAAAA/+AAAJAAAAD/4AAAkAAAAP/gAACQAAAA/+AAAJAAAAD/4AAAkAAAAP/gAABIAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSStartPlayRecord
+    size: 84
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: PlayRecordTerminate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordGet
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordState
+    size: 4
+    flags: 2
+    section: null
+  - kind: Object
+    name: PlayRecordError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordRetry
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordTerminated
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: PlayRecordCallback
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: 16220cc28b28f92f5cb549563bf633c2aec649c6
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAAMsAwAA/////0CCAEj/////OAAAAP////+QAAAA/+AAADgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADhgAAD/////OIAAAP////9IAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSStartPlayRecord
+    size: 108
+    flags: 1
+    section: .text
+  - kind: Function
+    name: NANDInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: PlayRecordGet
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordState
+    size: 4
+    flags: 2
+    section: null
+  - kind: Object
+    name: PlayRecordError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordRetry
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordTerminate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordTerminated
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: PlayRecordLastError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: PlayRecordCallback
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 9
+    addend: 0

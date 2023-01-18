@@ -1,0 +1,388 @@
+- symbol: 0
+  hash: 20b945d3a882e9e01b303bf2bdeccbc2aaec7979
+  signature: gIAAAP/gAABUYBW6/////3xkAC7/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 16
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 34073d3fa1b841c616ec632e7dbf67b9f8a9eee3
+  signature: VGAGPv////+AYAAA/+AAAFQAEDr/////fGMALv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 20
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 1e9eed97ea000fe85b972c0aac4b6aa71067a779
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////98fxt4/////zgAAAD/////V+AGPv////8oAAAP/////0GAACj/////OGAAAP/gAAA4gATP/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////8sAAAA/////0GCAAj/////OAAAAf////+AYAAA/+AAAFfgBj7/////VAAQOv////98YwAu/////4ABABz/////g+EAFP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@26'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@129'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: e9e5bcb35aabd7f0a309bb746265cda6bf92ae82
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////98fxt4/////zgAAAD/////V+AGPv////8oAAAP/////0GAACj/////OGAAAP/gAAA4gATS/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////8sAAAA/////0GCAAj/////OAAAAf////+AYAAA/+AAAFfgBj7/////VAAQOv////98YwAu/////4ABABz/////g+EAFP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@26'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@129'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 65e0ab7b3744c3780ad4489d575017a4ba0a0f64
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////fH0beP////874AAB/////1egBj7/////KAAAD/////9BgAAs/////zhgAAD/4AAAOIAHbP////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzvAAAD/////LB4AAP////9AggAI/////zvgAAD/////gGAAAP/gAABXoAY+/////1QAEDr/////fGMALv////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@961'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1224'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 9a90603f62d10f0ce42710310f47824b21a07247
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////fH0beP////874AAB/////1egBj7/////KAAAD/////9BgAAs/////zhgAAD/4AAAOIAHp/////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzvAAAD/////LB4AAP////9AggAI/////zvgAAD/////gGAAAP/gAABXoAY+/////1QAEDr/////fGMALv////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@976'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1252'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: a4e6b847d5ccc8496dfe9af0b05985ea5b10fb42
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////fH0beP////874AAB/////1egBj7/////KAAAD/////9BgAAs/////zhgAAD/4AAAOIAHwf////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzvAAAD/////LB4AAP////9AggAI/////zvgAAD/////gGAAAP/gAABXoAY+/////1QAEDr/////fGMALv////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@990'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1292'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 71d30276efb7f70140e024635f488993787e14a6
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////fH0beP////874AAB/////1egBj7/////KAAAD/////9BgAAs/////zhgAAD/4AAAOIAHYP////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzvAAAD/////LB4AAP////9AggAI/////zvgAAD/////gGAAAP/gAABXoAY+/////1QAEDr/////fGMALv////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@963'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1226'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 4f5daef11e9745afc39757b52751e8b8c2be8517
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////fH0beP////874AAB/////1egBj7/////KAAAD/////9BgAAs/////zhgAAD/4AAAOIAHzf////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzvAAAD/////LB4AAP////9AggAI/////zvgAAD/////gGAAAP/gAABXoAY+/////1QAEDr/////fGMALv////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSGetExceptionHandler
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@991'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1287'
+    size: 46
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0

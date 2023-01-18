@@ -1,0 +1,64 @@
+- symbol: 0
+  hash: aa319246ce3e68bc50ec5ab978571665c68e92b9
+  signature: fAgCpv////+QAQAE/////5Qh//j/////gGAAAP/gAAAsA//+/////0GCABD/////SAAAAfwAAAM4AP/+/////5AAAAD/4AAAgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __fini_cpp_exceptions
+    size: 52
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentID
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: __unregister_fragment
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: ba270ea9cddc44daa54826c05efd14480ef99b21
+  signature: lCH/8P////98CAKm/////5ABABT/////gGAAAP/gAAAsA//+/////0GCABD/////SAAAAfwAAAM4AP/+/////5AAAAD/4AAAgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __fini_cpp_exceptions
+    size: 52
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentID
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: __unregister_fragment
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

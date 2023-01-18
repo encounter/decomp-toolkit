@@ -1,4 +1,4 @@
-use anyhow::{Error, Result};
+use anyhow::{anyhow, Result};
 use argh::FromArgs;
 use cwdemangle::{demangle, DemangleOptions};
 
@@ -21,6 +21,6 @@ pub fn run(args: Args) -> Result<()> {
             println!("{symbol}");
             Ok(())
         }
-        None => Err(Error::msg("Failed to demangle symbol")),
+        None => Err(anyhow!("Failed to demangle symbol")),
     }
 }

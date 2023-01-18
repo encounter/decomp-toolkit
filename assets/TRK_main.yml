@@ -1,0 +1,282 @@
+- symbol: 0
+  hash: e1daf2391cc53d775f7708e25790fa16a210aa57
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAAMsAwAA/////5BgAAD/4AAAQIIADP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAOQYAAA/+AAAIABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRK_main
+    size: 60
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeNub
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: TRK_mainError
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: TRKNubWelcome
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTerminateNub
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 3208aae6729a3c91c53c80ca22a6358744790b89
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAAM8gAAA//8AACwDAAD/////kGQAAP//AABAggAM/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAAzyAAAD//wAAkGQAAP//AACAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRK_main
+    size: 68
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeNub
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: TRK_mainError
+    size: 4
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: TRKNubWelcome
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTerminateNub
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 4180966dcf7bc3cf9195c40a44474ca5a43a1ac9
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAAfwAAAM8gAAA//8AAJRkAAD//wAAgAQAAP////8sAAAA/////0CCAAz/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADPIAAAP//AACQZAAA//8AADghAAj/////gAEABP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRK_main
+    size: 72
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeNub
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: TRK_mainError
+    size: 4
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: TRKNubWelcome
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTerminateNub
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: e7deef4b27bcba51af98c2fb70cee701cc7f6c9e
+  signature: lCH/8P////98CAKm/////zyAAAD//wAAOGAAAf////+QAQAU/////ziEAAD//wAATMYxgv////9IAAAB/AAAA0gAAAH8AAADPIAAAP//AAAsAwAA/////5BkAAD//wAAQIIADP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAM8gAAA//8AAJBkAAD//wAAgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRK_main
+    size: 88
+    flags: 1
+    section: null
+  - kind: Object
+    name: '@80'
+    size: 11
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: MWTRACE
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeNub
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: TRK_mainError
+    size: 4
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: TRKNubWelcome
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTerminateNub
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0

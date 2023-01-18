@@ -1,0 +1,357 @@
+- symbol: 0
+  hash: 282f9bf3b1f14c056739e1880b6e3484b82030b6
+  signature: lCH/kP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////zhgAAD/////kIEADP////+QoQAQ/////5DBABT/////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////84IQBw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: printf
+    size: 84
+    flags: 1
+    section: .text
+  relocations: []
+- symbol: 0
+  hash: 33ed179a917b9d636d66364f578ab12c4b3cb9dd
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////3x+G3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////P+AAAP//AACQgQAM/////zv/AAD//wAAOID///////+QYQAI/////zh/AFD/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////SAAAAfwAAAMsAwAA/////0GAAAz/////OGD///////9IAAA0/////ziBAIj/////OAEACP////88oAEA/////zxgAAD//wAAkKEAaP////84wQBo/////3/F83j/////OGMAAP//AACQgQBs/////zifAFD/////kAEAcP////9IAAAB/AAAA4ABAIT/////g+EAfP////+DwQB4/////3wIA6b/////OCEAgP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: printf
+    size: 200
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: faa186bb0ef24f099b8fc0c591d085bb595c7ca6
+  signature: fAgCpv////+QAQAE/////5Qh/4D/////k+EAfP////+TwQB4/////0CGACT/////2CEAKP/////YQQAw/////9hhADj/////2IEAQP/////YoQBI/////9jBAFD/////2OEAWP/////ZAQBg/////5BhAAj/////O8MAAP////+QgQAM/////zyAAAD//wAAOIQAAP//AACQoQAQ/////zvkAEj/////OH8AAP////+QwQAU/////ziA////////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////9IAAAB/AAAAywDAAD/////QYAADP////84YP///////0gAADT/////PAABAP////+QAQBs/////zgBAIj/////PGAAAP//AACQAQBw/////zgBAAj/////OMEAbP////+QAQB0/////zhjAAD//wAAOJ8AAP////84vgAA/////0gAAAH8AAADgAEAhP////+D4QB8/////4PBAHj/////fAgDpv////84IQCA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: printf
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 216
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: df851647f6a324a4203eda8f0dd4617eb9db14fa
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////3x+G3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////P+AAAP//AACQgQAM/////zv/AAD//wAAOID///////+QYQAI/////zh/AFD/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////SAAAAfwAAAMsAwAA/////0GAAAz/////OGD///////9IAAA4/////ziBAIj/////OAEACP////88oAEA/////zxgAAD//wAAkKEAaP////84wQBo/////3/F83j/////OGMAAP//AACQgQBs/////zifAFD/////OOAAAP////+QAQBw/////0gAAAH8AAADgAEAhP////+D4QB8/////4PBAHj/////fAgDpv////84IQCA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: printf
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: c95409a1b2096447096e76589d0ab09f4bd72ba3
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////3x+G3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////PWAAAP//AACQgQAM/////zlrAAD//wAAOID///////+QYQAI/////zvrAFD/////f+P7eP////+QoQAQ/////5DBABT/////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////9IAAAB/AAAAywDAAD/////QYAADP////84YP///////0gAADT/////OKEAiP////84AQAI/////zyAAQD/////PGAAAP//AACQgQBo/////zjBAGj/////OGMAAP//AAB/5Pt4/////5ChAGz/////f8XzeP////+QAQBw/////0gAAAH8AAADgAEAhP////+D4QB8/////4PBAHj/////fAgDpv////84IQCA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: printf
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 1f6e6162f2d464ba3e379888e212a0087f516422
+  signature: lCH7gP////98CAKm/////5ABBIT/////k+EEfP////98fxt4/////0CGACT/////2CEAKP/////YQQAw/////9hhADj/////2IEAQP/////YoQBI/////9jBAFD/////2OEAWP/////ZAQBg/////5BhAAj/////kIEADP////+QoQAQ/////5DBABT/////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////9IAAAB/AAAAywDAAD/////QYIAGP////88YAAA//8AADhjAAD//wAASAAAAfwAAAMsAwAA/////0CCAAz/////OGAAAP////9IAAA8/////zihAGj/////PAABAP////+QAQBo/////zgBBIj/////kAEAbP////84AQAI/////5ABAHD/////OGEAdP////9/5Pt4/////0gAAAH8AAADOGEAdP////9MxjGC/////0gAAAH8AAADOGAAAP////+D4QR8/////4ABBIT/////fAgDpv////84IQSA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: printf
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Function
+    name: VAR_isInitialized
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@775'
+    size: 15
+    flags: 2
+    section: .data
+  - kind: Function
+    name: VAR_getInt
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: vsprintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 88
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 86ae9e130b0f71dd799117031c530b64a6fd9b3f
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////3x+G3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////PWAAAP//AACQgQAM/////zlrAAD//wAAOID///////+QYQAI/////zvrAFD/////f+P7eP////+QoQAQ/////5DBABT/////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////9IAAAB/AAAAywDAAD/////QYAADP////84YP///////0gAAFD/////OGAAAv////9IAAAB/AAAAzihAIj/////OAEACP////88gAEA/////zxgAAD//wAAkIEAaP////84wQBo/////zhjAAD//wAAf+T7eP////+QoQBs/////3/F83j/////kAEAcP////9IAAAB/AAAA3xgG3j/////OGAAAv////98HwN4/////0gAAAH8AAADf+P7eP////+AAQCE/////4PhAHz/////g8EAeP////98CAOm/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: printf
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __files
+    size: 320
+    flags: 1
+    section: .data
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __begin_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __FileWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __end_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

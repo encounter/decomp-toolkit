@@ -1,0 +1,881 @@
+- symbol: 0
+  hash: dae26f3fdfdf650f99ee4dc333906dd782738083
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/oP////+T4QBc/////zvjAAD//wAAk8EAWP////+ToQBU/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AADiBACv/////OAMAH/////9UgwA0/////1QAADT/////kGAAAP/gAACQAAAA/+AAAEgAAAH8AAADPGAAAP//AACAgAAA/+AAADygAAD//wAAOGMAAP//AAA4pQAA//8AAEgAAAH8AAADSAAAAfwAAAMsAwAA/////0CC//j/////gGAAAP/gAAA/oIAA/////z/AgAD/////gAMAEP////84fQAA/////zigACD/////kB4AOP////+AgAAA/+AAAIAEAAz/////kB4APP////+AgAAA/+AAAEgAAAH8AAADOGAAAP/gAABMxjGC/////0gAAAH8AAADiJ0AAP////9/4/t4/////4i9AAH/////TMYxgv////+I3QAC/////4j9AAP/////SAAAAfwAAAOInQAE/////zh/ABz/////iL0ABf////9MxjGC/////0gAAAH8AAADiJ0ABv////84fwA0/////0zGMYL/////SAAAAfwAAAOInQAH/////zh/AEj/////TMYxgv////9IAAAB/AAAA4geAAj/////KAAAAP////9AggAM/////ziAAAD/4AAASAAACP////84gAAA/+AAAEzGMYL/////OH8AXP////9IAAAB/AAAAzhgAAD/4AAATMYxgv////9IAAAB/AAAA4BgAAD/4AAAgGMAEP////9IAAAB/AAAA4ABAGT/////g+EAXP////+DwQBY/////3wIA6b/////g6EAVP////84IQBg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __fstLoad
+    size: 336
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@36'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bb2Buf
+    size: 63
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: idTmp
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: bb2
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: block$16
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: cb
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDReadDiskID
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@35'
+    size: 2
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@40'
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@41'
+    size: 3
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSSetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 108
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 260
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 268
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 296
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 0eeb94e54c7031df86874b9f1c05205c86f72996
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/oP////+T4QBc/////zvjAAD//wAAk8EAWP////+ToQBU/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AADiBACv/////OAMAH/////9UgwA0/////1QAADT/////kGAAAP/gAACQAAAA/+AAAEgAAAH8AAADPGAAAP//AACAgAAA/+AAADygAAD//wAAOGMAAP//AAA4pQAA//8AAEgAAAH8AAADSAAAAfwAAAMsAwAA/////0CC//j/////gGAAAP/gAAA/oIAA/////z/AgAD/////gAMAEP////84fQAA/////zigACD/////kB4AOP////+AgAAA/+AAAIAEAAz/////kB4APP////+AgAAA/+AAAEgAAAH8AAADOGAAAP/gAABMxjGC/////0gAAAH8AAADiJ0AAP////9/4/t4/////4i9AAH/////TMYxgv////+I3QAC/////4j9AAP/////fIQHdP////98pQd0/////3zGB3T/////fOcHdP////9IAAAB/AAAA4idAAT/////OH8AHP////+IvQAF/////0zGMYL/////fIQHdP////98pQd0/////0gAAAH8AAADiJ0ABv////84fwA0/////0zGMYL/////SAAAAfwAAAOInQAH/////zh/AEj/////TMYxgv////9IAAAB/AAAA4geAAj/////KAAAAP////9AggAM/////ziAAAD/4AAASAAACP////84gAAA/+AAAEzGMYL/////OH8AXP////9IAAAB/AAAAzhgAAD/4AAATMYxgv////9IAAAB/AAAA4BgAAD/4AAAgGMAEP////9IAAAB/AAAA4ABAGT/////g+EAXP////+DwQBY/////4OhAFT/////OCEAYP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __fstLoad
+    size: 360
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@36'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bb2Buf
+    size: 63
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: idTmp
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: bb2
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: block$16
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: cb
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDReadDiskID
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: '@35'
+    size: 2
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@40'
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@41'
+    size: 3
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSSetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 108
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 7d4cf66af372ef0abc18bba43ab59bb7ad10bc3e
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/oP////+T4QBc/////zvjAAD//wAAk8EAWP////+ToQBU/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AADiBACv/////OAMAH/////9UgwA0/////1QAADT/////kGAAAP/gAACQAAAA/+AAAEgAAAH8AAADPGAAAP//AACAgAAA/+AAADygAAD//wAAOGMAAP//AAA4pQAA//8AAEgAAAH8AAADSAAAAfwAAAMsAwAA/////0CC//j/////gGAAAP/gAAA/oIAA/////z/AgAD/////gAMAEP////84fQAA/////zigACD/////kB4AOP////+AgAAA/+AAAIAEAAz/////kB4APP////+AgAAA/+AAAEgAAAH8AAADOGAAAP/gAABMxjGC/////0gAAAH8AAADiJ0AAP////9/4/t4/////4i9AAH/////TMYxgv////+I3QAC/////4j9AAP/////fIQHdP////98pQd0/////3zGB3T/////fOcHdP////9IAAAB/AAAA4idAAT/////OH8AHP////+IvQAF/////0zGMYL/////fIQHdP////98pQd0/////0gAAAH8AAADiJ0ABv////84fwA0/////0zGMYL/////SAAAAfwAAAOInQAH/////zh/AEj/////TMYxgv////9IAAAB/AAAA4geAAj/////KAAAAP////9AggAM/////ziAAAD/4AAASAAACP////84gAAA/+AAAEzGMYL/////OH8AXP////9IAAAB/AAAAzhgAAD/4AAATMYxgv////9IAAAB/AAAA4BgAAD/4AAAgGMAEP////9IAAAB/AAAA4ABAGT/////g+EAXP////+DwQBY/////3wIA6b/////g6EAVP////84IQBg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __fstLoad
+    size: 360
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@36'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: bb2Buf
+    size: 63
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: idTmp
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: bb2
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: block$16
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: cb
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDReadDiskID
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@35'
+    size: 2
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@40'
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@41'
+    size: 3
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSSetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 108
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 12
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: c0a26c8600c4e36f328f084256865b240885bf5b
+  signature: fAgCpv////+QAQAE/////5Qh/6D/////v4EAUP////88YAAA//8AADvDAAD//wAASAAAAfwAAAOQYQAI/////zhgAAD/////SAAAAfwAAAN8fRt4/////zgBACv/////VAAANP////+QAAAA/+AAADxgAAD//wAAOGMAAP//AAA4AwAf/////1QAADT/////kAAAAP/gAABIAAAB/AAAAzxgAAD//wAAOGMAAP//AACAgAAA/+AAADygAAD//wAAOKUAAP//AABIAAAB/AAAA0gAAAH8AAADfHwbeP////8sHAAA/////0GCACT/////LBwABv////9Bgv/s/////0CA/+j/////LBwAAP////9Bgv/g/////0CA/9z/////S///2P////9L///U/////4BgAAD/4AAAgAMAEP////+QHQA4/////4BgAAD/4AAAgAMADP////+QHQA8/////3+/63j/////f+P7eP////+AgAAA/+AAADigACD/////SAAAAfwAAAM4YAAA/+AAAEzGMYL/////SAAAAfwAAAN/w/N4/////4ifAAD/////fIQHdP////+IvwAB/////3ylB3T/////iN8AAv////98xgd0/////4j/AAP/////fOcHdP////9MxjGC/////0gAAAH8AAADOH4AHP////+InwAE/////3yEB3T/////iL8ABf////98pQd0/////0zGMYL/////SAAAAfwAAAM4fgA0/////4ifAAb/////TMYxgv////9IAAAB/AAAAzh+AEj/////iJ8AB/////9MxjGC/////0gAAAH8AAADOH4AXP////+IHwAI/////ygAAAD/////QIIADP////84gAAA/+AAAEgAAAj/////OIAAAP/gAABMxjGC/////0gAAAH8AAADOGAAAP/gAABMxjGC/////0gAAAH8AAADgGAAAP/gAACAYwAQ/////0gAAAH8AAADgAEAZP////+7gQBQ/////zghAGD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __fstLoad
+    size: 392
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@34'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSGetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: idTmp
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: bb2Buf
+    size: 63
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: bb2
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: block$17
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: cb
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDReadDiskID
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDGetDriveStatus
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@33'
+    size: 2
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@39'
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@40'
+    size: 3
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSSetArenaHi
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 196
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 328
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 336
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 348
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 360
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 17
+    addend: 0

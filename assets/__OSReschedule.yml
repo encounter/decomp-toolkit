@@ -1,0 +1,84 @@
+- symbol: 0
+  hash: 0e23b284aec948d801a821d8918052620b10b63c
+  signature: gAAAAP/gAAAsAAAA/////02CACD/////OGAAAP////9IAAAA/AAAA06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSReschedule
+    size: 24
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: SelectThread
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 2824f6f5b353ffc54ee222baec41d7c5af03f6cc
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAAAsAAAA/////0GCAAz/////OGAAAP////9IAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSReschedule
+    size: 48
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: SelectThread
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: f94a9ec41cceda6b7df6708228349e6b69057288
+  signature: fAgCpv////+QAQAE/////5Qh//j/////gAAAAP/gAAAsAAAA/////0GCAAz/////OGAAAP////9IAAAB/AAAA4ABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSReschedule
+    size: 48
+    flags: 1
+    section: .text
+  - kind: Object
+    name: RunQueueHint
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: SelectThread
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

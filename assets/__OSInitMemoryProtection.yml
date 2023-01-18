@@ -1,0 +1,1413 @@
+- symbol: 0
+  hash: db004647a89174e29b97a1d3521a5f8bc05e4954
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////0gAAAH8AAADPIDMAP////84AAAA/////7AEQCD/////OAAA//////98fht4/////zxg8AD/////sARAEP////9IAAAB/AAAAz/gAAD//wAAOGAAAP////84nwAA//8AAEgAAAH8AAADOJ8AAP//AAA4YAAB/////0gAAAH8AAADOJ8AAP//AAA4YAAC/////0gAAAH8AAADOJ8AAP//AAA4YAAD/////0gAAAH8AAADOJ8AAP//AAA4YAAE/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADSAAAAfwAAAM8YAgA/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 176
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: BATConfig
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: dfcaeeac059aad0535d37a57111c97953f448222
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAACT4QAM/////ywAAAD/////k8EACP////9AggCY/////0gAAAH8AAADPIDMAP////84AAAA/////7AEQCD/////OAAA//////98fht4/////zxg8AD/////sARAEP////9IAAAB/AAAAz/gAAD//wAAOGAAAP////84nwAA//8AAEgAAAH8AAADOJ8AAP//AAA4YAAB/////0gAAAH8AAADOJ8AAP//AAA4YAAC/////0gAAAH8AAADOJ8AAP//AAA4YAAD/////0gAAAH8AAADOJ8AAP//AAA4YAAE/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADPGAADP////84Y6LP/////0gAAAH8AAADPGAIAP////9IAAAB/AAAAzgAAAH/////kAAAAP/gAAB/w/N4/////0gAAAH8AAADgAEAFP////+D4QAM/////4PBAAj/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@LOCAL@__OSInitMemoryProtection__Fv@initialized'
+    size: 4
+    flags: 5
+    section: .sbss
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: BATConfig
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: bdbc51b8e6ddee528175cd3833389a0a990278da
+  signature: fAgCpv////88YMwA/////5ABAAT/////OAAAAP////+UIf/Q/////5PhACz/////k8EAKP////87w0AA/////7ADQCD/////OAAA//////88YPAA/////7AeABD/////SAAAAfwAAAM8YAAA//8AADvjAAD//wAAOJ8AAP////84YAAA/////0gAAAH8AAADOJ8AAP////84YAAB/////0gAAAH8AAADOJ8AAP////84YAAC/////0gAAAH8AAADOJ8AAP////84YAAD/////0gAAAH8AAADOJ8AAP////84YAAE/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADPGCAAP////+AgwDw/////4ADACj/////fAQAQP////9AgAAY/////zwE/oD/////KAAAAP////9AggAM/////zgAAAL/////sB4AKP////88YAgA/////0gAAAH8AAADgAEANP////+D4QAs/////4PBACj/////OCEAMP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 74b77fd3813ab93ff74cee9134fa2e119783de51
+  signature: fAgCpv////88YMwA/////5ABAAT/////OAAAAP////+UIf/Q/////5PhACz/////k8EAKP////87w0AA/////7ADQCD/////OAAA//////88YPAA/////7AeABD/////SAAAAfwAAAM8YAAA//8AADvjAAD//wAAOJ8AAP////84YAAA/////0gAAAH8AAADOJ8AAP////84YAAB/////0gAAAH8AAADOJ8AAP////84YAAC/////0gAAAH8AAADOJ8AAP////84YAAD/////0gAAAH8AAADOJ8AAP////84YAAE/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADPGCAAP////+AgwDw/////4ADACj/////fAQAQP////9AgAAY/////zwE/oD/////KAAAAP////9AggAM/////zgAAAL/////sB4AKP////88YAgA/////0gAAAH8AAADgAEANP////+D4QAs/////4PBACj/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 07a4f8ca234a4e40cbdd92ac97a74eda044d70d0
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAACT4QAM/////ywAAAD/////k8EACP////9AggCY/////0gAAAH8AAADPIDMAP////84AAAA/////7AEQCD/////OAAA//////98fht4/////zxg8AD/////sARAEP////9IAAAB/AAAAz/gAAD//wAAOGAAAP////84nwAA//8AAEgAAAH8AAADOJ8AAP//AAA4YAAB/////0gAAAH8AAADOJ8AAP//AAA4YAAC/////0gAAAH8AAADOJ8AAP//AAA4YAAD/////0gAAAH8AAADOJ8AAP//AAA4YAAE/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADPGAADP////84Y6LP/////0gAAAH8AAADPGAIAP////9IAAAB/AAAAzgAAAH/////f8PzeP////+QAAAA/+AAAEgAAAH8AAADgAEAFP////+D4QAM/////4PBAAj/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: initialized$696
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: BATConfig
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 6bc555a9b3437489a97460d8c28129ec8382be1a
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////9IAAAB/AAAA3x/G3j/////OAAAAP////88YMwA/////7ADQCD/////OAAA//////88YMwA/////7ADQBD/////PGDwAP////9IAAAB/AAAAzhgAAD/////fGMHNP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAAB/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAAAv////98Ywc0/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzhgAAP/////fGMHNP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAAE/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADSAAAAfwAAAM8YAgA/////0gAAAH8AAADf+P7eP////9IAAAB/AAAA4PhAAz/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 208
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: BATConfig
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: b05b68904dcc11bc84e80af841f58aed0c8c7f0e
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QIIAwP////9IAAAB/AAAA3x/G3j/////OAAAAP////88YMwA/////7ADQCD/////OAAA//////88YMwA/////7ADQBD/////PGDwAP////9IAAAB/AAAAzhgAAD/////fGMHNP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAAB/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAAAv////98Ywc0/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzhgAAP/////fGMHNP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAAE/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADPGAADP////84Y6LP/////0gAAAH8AAADPGAIAP////9IAAAB/AAAAzgAAAH/////kAAAAP/gAAB/4/t4/////0gAAAH8AAADg+EADP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 236
+    flags: 1
+    section: .text
+  - kind: Object
+    name: initialized$724
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: BATConfig
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 0480daa3afcbbc33aa6177122ce192b1a9a52e3f
+  signature: fAgCpv////+QAQAE/////5Qh/7D/////v2EAPP////8/YIAA/////4P7APD/////SAAAAfwAAAM8gMwA/////zuEQAD/////OAAAAP////+wHAAg/////zgAAP//////fH4beP////+wHAAQ/////zxg8AD/////SAAAAfwAAAM8YAAA//8AADujAAD//wAAf6TreP////84YAAA/////0gAAAH8AAADf6TreP////84YAAB/////0gAAAH8AAADf6TreP////84YAAC/////0gAAAH8AAADf6TreP////84YAAD/////0gAAAH8AAADf6TreP////84YAAE/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADgHsA8P////+AGwAo/////3wDAED/////QIAAJP////88A/6A/////ygAAAD/////QIIAGP////88YIGA/////zyAAYD/////SAAAAfwAAAM4AAAC/////7AcACj/////PAABgP////98HwBA/////0GBABT/////PGAAAP//AAA4YwAA//8AAEgAAAH8AAADSAAAHP////88AAMA/////3wfAED/////QYEAEP////88YAAA//8AADhjAAD//wAASAAAAfwAAAM8YAgA/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA7thADz/////gAEAVP////84IQBQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 280
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Config24MB
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: RealMode
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: Config48MB
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 4f229886c678ef3f4848a5e113c35d6016583a87
+  signature: fAgCpv////+QAQAE/////5Qh/7j/////k+EARP////+TwQBA/////5OhADz/////PGCAAP////+DowDw/////0gAAAH8AAADPAABgP////98HQBA/////3x/G3j/////QYEAFP////88YAAA//8AADhjAAD//wAASAAAAfwAAANIAAAc/////zwAAwD/////fB0AQP////9BgQAQ/////zxgAAD//wAAOGMAAP//AABIAAAB/AAAAzxgzAD/////O6NAAP////84AAAA/////7AdACD/////OAAA//////88YPAA/////7AdABD/////SAAAAfwAAAM8YAAA//8AADvDAAD//wAAf8TzeP////84YAAA/////0gAAAH8AAADf8TzeP////84YAAB/////0gAAAH8AAADf8TzeP////84YAAC/////0gAAAH8AAADf8TzeP////84YAAD/////0gAAAH8AAADf8TzeP////84YAAE/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADPGCAAP////+AgwDw/////4ADACj/////fAQAQP////9AgAAY/////zwE/oD/////KAAAAP////9AggAM/////zgAAAL/////sB0AKP////88YAgA/////0gAAAH8AAADf+P7eP////9IAAAB/AAAA4ABAEz/////g+EARP////+DwQBA/////4OhADz/////OCEASP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 288
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Config24MB
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: RealMode
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: Config48MB
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 1ea3407adac2c120b23bbf76767a3d17e2a9badd
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v6EADP////9IAAAB/AAAA3x/G3j/////SAAAAfwAAAN8fht4/////zgAAAD/////PGDMAP////84Y0AA/////7ADACD/////OAAA//////88YMwA/////zhjQAD/////sAMAEP////88YPAA/////0gAAAH8AAADOGAAAP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAAB/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzhgAAL/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAAA/////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAAE/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzxgAAD//wAAOGMAAP//AABIAAAB/AAAA0gAAAH8AAADfH0beP////9IAAAB/AAAA3wD6ED/////QIAAMP////9IAAAB/AAAAzwD/oD/////KAAAAP////9AggAg/////zxggYD/////PIABgP////9IAAAB/AAAAzgAAAL/////PGDMAP////84Y0AA/////7ADACj/////PAABgP////98HwBA/////0GBABT/////PGAAAP//AAA4YwAA//8AAEgAAAH8AAADSAAAHP////88AAMA/////3wfAED/////QYEAEP////88YAAA//8AADhjAAD//wAASAAAAfwAAAM8YAgA/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA4ABABz/////u6EADP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitMemoryProtection
+    size: 316
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetConsoleSimulatedMemSize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: MEMIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRegisterResetFunction
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetPhysicalMemSize
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: Config24MB
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: RealMode
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: Config48MB
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 272
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 14
+    addend: 0

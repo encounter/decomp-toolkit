@@ -1,0 +1,537 @@
+- symbol: 0
+  hash: 0800caab7cb7f0642285f5803fcef75ac25020f5
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAANIAAAB/AAAA4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: exit
+    size: 36
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __fini_cpp
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: _ExitProcess
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 6e6e763b2d483fc6d76f3d8f3dee23596d21ad2d
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////8/4AAA//8AADv/AAD//wAASAAAEP////99iQOm/////06ABCH/////O/8ABP////+BnwAA/////ywMAAD/////QIL/7P////9IAAAB/AAAA4ABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: exit
+    size: 76
+    flags: 5
+    section: .text
+  - kind: Object
+    name: _dtors
+    size: 0
+    flags: 1
+    section: .dtors
+  - kind: Function
+    name: PPCHalt
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 9bbc4118793c3d57bb2f55b0bf4715715801e392
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+AAAAA/+AAAJBhAAj/////LAAAAP////9AggBg/////zhgAAD/////SAAAAfwAAAM4YAAA/////0gAAAH8AAADSAAAAfwAAAM8YAAA//8AADvjAAD//wAASAAAFP////+BnwAA/////32JA6b/////ToAEIf////87/wAE/////4AfAAD/////KAAAAP////9Agv/o/////4AAAAD/4AAAKAAAAP////9BggAY/////4GAAAD/4AAAfYkDpv////9OgAQh/////zgAAAD/////kAAAAP/gAACAYQAI/////0gAAAH8AAADgAEAJP////+D4QAc/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: exit
+    size: 152
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __aborting
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __begin_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __end_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __destroy_global_chain
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: _dtors
+    size: 0
+    flags: 1
+    section: .dtors
+  - kind: Object
+    name: __stdio_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __exit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: e96a2a5126bc43492587d90284e366a897d86342
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QIIATP////9IAAAB/AAAAzxgAAD//wAAOAMAAP//AAB8HwN4/////0gAABD/////fYkDpv////9OgAQh/////zv/AAT/////gZ8AAP////8oDAAA/////0CC/+z/////gYAAAP/gAAAoDAAA/////0GCABT/////fYkDpv////9OgAQh/////zgAAAD/////kAAAAP/gAAA8YAAA//8AADvjAAD//wAASAAAIP////+AYAAA/+AAADhj////////VGAQOv////+QYAAA/+AAAH2fAC7/////fYkDpv////9OgAQh/////4AAAAD/4AAALAAAAP////9Bgf/c/////4GAAAD/4AAAKAwAAP////9BggAU/////32JA6b/////ToAEIf////84AAAA/////5AAAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: exit
+    size: 204
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __aborting
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __destroy_global_chain
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: _dtors
+    size: 0
+    flags: 1
+    section: .dtors
+  - kind: Object
+    name: __stdio_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __atexit_funcs
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: __atexit_curr_func
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __console_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: _ExitProcess
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: e255c1c3e18ab8e3fae73362f53994288aca0091
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+AAAAA/+AAACwAAAD/////QIIAXP////84YAAA/////0gAAAH8AAADOGAAAP////9IAAAB/AAAA0gAAAH8AAADPGAAAP//AAA4AwAA//8AAHwfA3j/////SAAAEP////99iQOm/////06ABCH/////O/8ABP////+BnwAA/////ygMAAD/////QIL/7P////+BgAAA/+AAACgMAAD/////QYIAFP////99iQOm/////06ABCH/////OAAAAP////+QAAAA/+AAADhgAAD/////SAAAAfwAAAM8YAAA//8AADvjAAD//wAASAAAIP////+AYAAA/+AAADhj////////VGAQOv////+QYAAA/+AAAH2fAC7/////fYkDpv////9OgAQh/////4AAAAD/4AAALAAAAP////9Bgf/c/////zhgAAD/////SAAAAfwAAANIAAAB/AAAA4GAAAD/4AAAKAwAAP////9BggAU/////32JA6b/////ToAEIf////84AAAA/////5AAAAD/4AAASAAAAfwAAAOAAQAU/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: exit
+    size: 240
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __aborting
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __begin_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __end_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __destroy_global_chain
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: _dtors
+    size: 0
+    flags: 1
+    section: .dtors
+  - kind: Object
+    name: __stdio_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __atexit_funcs
+    size: 256
+    flags: 1
+    section: .bss
+  - kind: Object
+    name: __atexit_curr_func
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __kill_critical_regions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __console_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: _ExitProcess
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 188
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 2f07bcb22f27a8c94fa07924ee7eaa10c1878804
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////+AAAAA/+AAACwAAAD/////QIIAhP////88YAAA//8AADvjAAD//wAASAAAJP////+AYAAA/+AAADhj////////VGAQOv////+QYAAA/+AAAHx/AhT/////gYMAAP////99iAOm/////06AACH/////gAAAAP/gAAAsAAAA/////0GB/9j/////SAAAAfwAAAM8YAAA//8AADgDAAD//wAAfB8DeP////9IAAAQ/////32IA6b/////ToAAIf////87/wAE/////4GfAAD/////KAwAAP////9Agv/s/////4GAAAD/4AAAKAwAAP////9BggAU/////32IA6b/////ToAAIf////84AAAA/////5AAAAD/4AAAPGAAAP//AAA74wAA//8AAEgAACT/////gGAAAP/gAAA4Y////////1RgEDr/////kGAAAP/gAAB8fwIU/////4GDAAD/////fYgDpv////9OgAAh/////4AAAAD/4AAALAAAAP////9Bgf/Y/////0gAAAH8AAADgYAAAP/gAAAoDAAA/////0GCABT/////fYgDpv////9OgAAh/////zgAAAD/////kAAAAP/gAABIAAAB/AAAA4ABABz/////g+EAFP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: exit
+    size: 268
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __aborting
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: atexit_funcs
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: atexit_curr_func
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __destroy_global_chain
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: _dtors
+    size: 0
+    flags: 1
+    section: .dtors
+  - kind: Object
+    name: __stdio_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: __atexit_funcs
+    size: 256
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: __atexit_curr_func
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __kill_critical_regions
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __console_exit
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: _ExitProcess
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 11
+    addend: 0

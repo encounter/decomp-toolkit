@@ -1,0 +1,69 @@
+- symbol: 0
+  hash: 20cc2c335b1df2d92f0c8e3d39063f4e864cff0e
+  signature: PKAAAP//AAA4pQAA//8AAIAFAAj/////LAAAAP////9AggAc/////5BlAAD/////OAAAAf////84YAAA/////5CFAAT/////kAUACP////9OgAAg/////zhg////////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_fragment
+    size: 52
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 12
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 2656e9aa9864995db04839bae9bff4955f4eb881
+  signature: PKAAAP//AAA4pQAA//8AAEgAAAT/////SAAABP////+ABQAI/////ywAAAD/////QIIAHP////+QZQAA/////zgAAAH/////OGAAAP////+QhQAE/////5AFAAj/////SAAACP////84YP///////06AACD/////
+  symbols:
+  - kind: Function
+    name: __register_fragment
+    size: 60
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 12
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 7a7b517c57b230978a35628147683bf87839916c
+  signature: PKAAAP//AAA4AAAg/////zilAAD//wAAOMAAAP////98CQOm/////4AFAAj/////LAAAAP////9AggAc/////5BlAAD/////OAAAAf////98wzN4/////5CFAAT/////kAUACP////9OgAAg/////zjGAAH/////OKUADP////9CAP/U/////zhg////////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_fragment
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 384
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

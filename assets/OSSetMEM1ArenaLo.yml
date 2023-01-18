@@ -1,0 +1,19 @@
+- symbol: 0
+  hash: 4ad80274e02f917e972ea9c1eff1247e22bc4803
+  signature: kGAAAP/gAABOgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSSetMEM1ArenaLo
+    size: 8
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSArenaLo
+    size: 4
+    flags: 2
+    section: .sdata
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

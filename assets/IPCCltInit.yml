@@ -1,0 +1,948 @@
+- symbol: 0
+  hash: fd5de4e252c85e7c8b292f3884a43c78939a6c83
+  signature: lCH/4P////98CAKm/////5ABACT/////gAAAAP/gAACT4QAc/////ywAAAD/////k8EAGP////87wAAA/////5OhABT/////QIIAcP////84AAAB/////5AAAAD/4AAASAAAAfwAAANIAAAB/AAAA3x9G3j/////O+MQAP////9IAAAB/AAAA3wfGED/////QIEADP////87wP/q/////0gAAET/////f6PreP////84gBAA/////0gAAAH8AAADkGAAAP/gAAB/4/t4/////0gAAAH8AAADPIAAAP//AAA4YAAb/////ziEAAD//wAASAAAAfwAAAM4YAAQ/////0gAAAH8AAADOGAAAf////84gAA4/////0gAAAH8AAADSAAAAfwAAAN/w/N4/////4PhABz/////g8EAGP////+DoQAU/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IPCCltInit
+    size: 180
+    flags: 1
+    section: .text
+  - kind: Object
+    name: initialized$654
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IPCInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: iosCreateHeap
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCSetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCiProfInit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 5f6f394b1954a043c812cad956d9990f05ac1f3d
+  signature: lCH/4P////98CAKm/////5ABACT/////gAAAAP/gAACT4QAc/////ywAAAD/////k8EAGP////87wAAA/////5OhABT/////QIIAcP////84AAAB/////5AAAAD/4AAASAAAAfwAAANIAAAB/AAAA3x9G3j/////O+MIAP////9IAAAB/AAAA3wfGED/////QIEADP////87wP/q/////0gAAET/////f6PreP////84gAgA/////0gAAAH8AAADkGAAAP/gAAB/4/t4/////0gAAAH8AAADPIAAAP//AAA4YAAb/////ziEAAD//wAASAAAAfwAAAM4YAAQ/////0gAAAH8AAADOGAAAf////84gAA4/////0gAAAH8AAADSAAAAfwAAAN/w/N4/////4PhABz/////g8EAGP////+DoQAU/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IPCCltInit
+    size: 180
+    flags: 1
+    section: .text
+  - kind: Object
+    name: initialized$653
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IPCInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: iosCreateHeap
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCSetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCiProfInit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 75fe101660de817c64a4225c23b068493fe59840
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////O6AAAP////+AAAAA/+AAACwAAAD/////QIIAeP////84AAAB/////5AAAAD/4AAASAAAAfwAAAM74BAA/////0gAAAH8AAADfH4beP////9IAAAB/AAAA3we+hT/////fAAYQP////9AgQAM/////zug/+r/////SAAASP////9/w/N4/////3/k+3j/////SAAAAfwAAAOQYAAA/+AAAHx++hT/////SAAAAfwAAAM4YAAb/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAAEP////9IAAAB/AAAAzhgAAH/////OIAAOP////9IAAAB/AAAA0gAAAH8AAADf6PreP////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: IPCCltInit
+    size: 188
+    flags: 1
+    section: .text
+  - kind: Object
+    name: initialized$698
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IPCInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: iosCreateHeap
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCSetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCiProfInit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 96646a32323640796a93b92c8d7d73f50061dafc
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////O6AAAP////+AAAAA/+AAACwAAAD/////QIIAeP////84AAAB/////5AAAAD/4AAASAAAAfwAAAM74AgA/////0gAAAH8AAADfH4beP////9IAAAB/AAAA3we+hT/////fAAYQP////9AgQAM/////zug/+r/////SAAASP////9/w/N4/////3/k+3j/////SAAAAfwAAAOQYAAA/+AAAHx++hT/////SAAAAfwAAAM4YAAb/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAAEP////9IAAAB/AAAAzhgAAH/////OIAAOP////9IAAAB/AAAA0gAAAH8AAADf6PreP////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: IPCCltInit
+    size: 188
+    flags: 1
+    section: .text
+  - kind: Object
+    name: initialized$688
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IPCInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: iosCreateHeap
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCSetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCiProfInit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 0ec54eb7618a93be3da6e33c683ead3c8f24723a
+  signature: lCH/4P////98CAKm/////5ABACT/////gAAAAP/gAACT4QAc/////ywAAAD/////k8EAGP////87wAAA/////5OhABT/////QIIAfP////84AAAB/////5AAAAD/4AAASAAAAfwAAANIAAAB/AAAA3x9G3j/////O+MgAP////9IAAAB/AAAA3wfGED/////QIEADP////87wP/q/////0gAAFD/////f6PreP////84gCAA/////0gAAAH8AAADkGAAAP/gAAB/4/t4/////0gAAAH8AAADPIAAAP//AAA4YAAb/////ziEAAD//wAASAAAAfwAAAM4YAAQ/////0gAAAH8AAADOGAAAf////84gAA4/////0gAAAH8AAADSAAAAfwAAAM8YAAA//8AADhjAAD//wAASAAAAfwAAAN/w/N4/////4PhABz/////g8EAGP////+DoQAU/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IPCCltInit
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@LOCAL@IPCCltInit__Fv@initialized'
+    size: 4
+    flags: 5
+    section: .sbss
+  - kind: Function
+    name: IPCInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: iosCreateHeap
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCSetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCiProfInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __timeout_alarm
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+- symbol: 0
+  hash: 6f125540d94f3457601d6e4ead4cfc4a330bd23d
+  signature: lCH/4P////98CAKm/////5ABACT/////gAAAAP/gAACT4QAc/////ywAAAD/////k8EAGP////87wAAA/////5OhABT/////QIIAfP////84AAAB/////5AAAAD/4AAASAAAAfwAAANIAAAB/AAAA3x9G3j/////O+MQAP////9IAAAB/AAAA3wfGED/////QIEADP////87wP/q/////0gAAFD/////f6PreP////84gBAA/////0gAAAH8AAADkGAAAP/gAAB/4/t4/////0gAAAH8AAADPIAAAP//AAA4YAAb/////ziEAAD//wAASAAAAfwAAAM4YAAQ/////0gAAAH8AAADOGAAAf////84gAA4/////0gAAAH8AAADSAAAAfwAAAM8YAAA//8AADhjAAD//wAASAAAAfwAAAN/w/N4/////4PhABz/////g8EAGP////+DoQAU/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IPCCltInit
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@LOCAL@IPCCltInit__Fv@initialized'
+    size: 4
+    flags: 5
+    section: .sbss
+  - kind: Function
+    name: IPCInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: iosCreateHeap
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCSetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCiProfInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __timeout_alarm
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+- symbol: 0
+  hash: c92ede02c00a13a0d999174a0a292dd66236948d
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////O6AAAP////+AAAAA/+AAACwAAAD/////QIIAhP////84AAAB/////5AAAAD/4AAASAAAAfwAAAM74CAA/////0gAAAH8AAADfH4beP////9IAAAB/AAAA3we+hT/////fAAYQP////9AgQAM/////zug/+r/////SAAAVP////9/w/N4/////3/k+3j/////SAAAAfwAAAOQYAAA/+AAAHx++hT/////SAAAAfwAAAM4YAAb/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAAEP////9IAAAB/AAAAzhgAAH/////OIAAOP////9IAAAB/AAAA0gAAAH8AAADPGAAAP//AAA4YwAA//8AAEgAAAH8AAADf6PreP////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: IPCCltInit
+    size: 200
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@LOCAL@IPCCltInit__Fv@initialized'
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: IPCInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCGetBufferHi
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: iosCreateHeap
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: IPCSetBufferLo
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCWriteReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: IPCiProfInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __timeout_alarm
+    size: 48
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSCreateAlarm
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 14
+    addend: 0

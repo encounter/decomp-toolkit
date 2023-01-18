@@ -1,0 +1,825 @@
+- symbol: 0
+  hash: 0f9fc566b0e31821701f9174609869f65ce186ee
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////0gAAAH8AAADLAMAAP////98fxt4/////0CCAAz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////SAAAAfwAAAMsHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAs/////zhgAAH/////OIAAAP////84oAAA/+AAAEgAAAH8AAADfH4beP////+AYAAA/+AAAEgAAAH8AAADLB4AAP////9BggAI/////3/f83j/////f+P7eP////+D4QAM/////4PBAAj/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKInitializeNub
+    size: 172
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEndian
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEventQueue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeMessageBuffers
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: InitializeProgramEndTrap
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeSerialHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeTarget
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetInputPendingPtr
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 124
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: 11a85998d4f05228deb28242c103dd2ce3a95c85
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////0gAAAH8AAADLAMAAP////98fxt4/////0CCAAj/////SAAAAfwAAAMsHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////9IAAAB/AAAAywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////8sHwAA/////0CCADT/////PGAAAf////84gAAB/////zhj4QD/////OKAAAP////84wAAA/+AAAEgAAAH8AAADfH4beP////+AYAAA/+AAAEgAAAH8AAADLB4AAP////9BggAI/////3/f83j/////f+P7eP////+AAQAU/////4PhAAz/////g8EACP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKInitializeNub
+    size: 208
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEndian
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: usr_put_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEventQueue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeMessageBuffers
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeDispatcher
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: InitializeProgramEndTrap
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeSerialHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeTarget
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetInputPendingPtr
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: d922a7c5bfc474bb9db77da8a1facebe460e8f6a
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////+TwQAI/////0gAAAH8AAADfH4bef////9AggAI/////0gAAAH8AAADLB4AAP////9AggAM/////0gAAAH8AAADfH4beP////8sHgAA/////0CCAAz/////SAAAAfwAAAN8fht4/////yweAAD/////QIIADP////9IAAAB/AAAA3x+G3j/////LB4AAP////9AggBA/////zxgAAD//wAAO+MAAP//AAA8YAAB/////zjfAAD/////OGPhAP////84gAAB/////zigAAD/////SAAAAfwAAAN8YBt4/////4B/AAD/////fB8DeP////9IAAAB/AAAAywfAAD/////QYIACP////9//vt4/////yweAAD/////QIIADP////9IAAAB/AAAA3x+G3j/////LB4AAP////9AggAM/////0gAAAH8AAADfH4beP////9/w/N4/////4PhAAz/////g8EACP////84IQAQ/////4ABAAT/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKInitializeNub
+    size: 212
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEndian
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: usr_put_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEventQueue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeMessageBuffers
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeDispatcher
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetInputPendingPtr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeSerialHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeTarget
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: eac9cbcfe559caf5c2a004c02f4d709216f0d4a4
+  signature: lCH/4P////98CAKm/////zigABL/////OIAANP////+QAQAk/////zhgAFb/////OAAAeP////84wAAB/////5ihAAj/////PKAAAP//AACT4QAc/////zvgAAD/////k8EAGP////+YgQAJ/////5hhAAr/////mAEAC/////+AYQAI/////5TFAAD//wAAPAPtzP////8oAFZ4/////0CCAAz/////kMUAAP////9IAAAc/////zwDh6r/////KAA0Ev////9AggAM/////5PlAAD/////SAAACP////983zN4/////ywfAAD/////QIIACP////9IAAAB/AAAAywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIARP////88YAAA//8AADygAAH/////OMMAAP//AAA4gAAB/////zhl4QD/////OKAAAP////9IAAAB/AAAAzyAAAD//wAAfGAbeP////84ZAAA//8AAIBjAAD/////fB4DeP////9IAAAB/AAAAyweAAD/////QYIACP////9/3/N4/////ywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////+AAQAk/////3/j+3j/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKInitializeNub
+    size: 308
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKBigEndian
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: usr_put_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEventQueue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeMessageBuffers
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeDispatcher
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetInputPendingPtr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeSerialHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeTarget
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: dd879376591055a5753a694b50bb3cbe27d3f33a
+  signature: lCH/4P////98CAKm/////zigABL/////OIAANP////+QAQAk/////zhgAFb/////OAAAeP////84wAAB/////5ihAAj/////PKAAAP//AACT4QAc/////zvgAAD/////k8EAGP////+YgQAJ/////5hhAAr/////mAEAC/////+AYQAI/////5TFAAD//wAAPAPtzP////8oAFZ4/////0CCAAz/////kMUAAP////9IAAAc/////zwDh6r/////KAA0Ev////9AggAM/////5PlAAD/////SAAACP////983zN4/////ywfAAD/////QIIACP////9IAAAB/AAAAywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////0gAAAH8AAADLB8AAP////9AggAM/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIARP////88YAAA//8AADygAAH/////OMMAAP//AAA4gAAB/////zhl4QD/////OKAAAP////9IAAAB/AAAAzyAAAD//wAAfGAbeP////84ZAAA//8AAIBjAAD/////fB4DeP////9IAAAB/AAAAyweAAD/////QYIACP////9/3/N4/////4ABACT/////f+P7eP////+D4QAc/////4PBABj/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRKInitializeNub
+    size: 312
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKBigEndian
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: usr_put_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEventQueue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeMessageBuffers
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeDispatcher
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: InitializeProgramEndTrap
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeSerialHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeTarget
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetInputPendingPtr
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: a3ec4343ae0b135dabc237f063f0de57dc73b8f8
+  signature: lCH/4P////98CAKm/////zigABL/////OIAANP////+QAQAk/////zhgAFb/////OAAAeP////84wAAB/////5ihAAj/////PKAAAP//AACT4QAc/////zvgAAD/////k8EAGP////+YgQAJ/////5hhAAr/////mAEAC/////+AYQAI/////5TFAAD//wAAPAPtzP////8oAFZ4/////0CCAAz/////kMUAAP////9IAAAc/////zwDh6r/////KAA0Ev////9AggAM/////5PlAAD/////SAAACP////983zN4/////ywfAAD/////QIIACP////9IAAAB/AAAAywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////0gAAAH8AAADLB8AAP////9AggBE/////zxgAAD//wAAPKAAAf////84wwAA//8AADiAAAH/////OGXhAP////84oAAA/////0gAAAH8AAADPIAAAP//AAB8YBt4/////zhkAAD//wAAgGMAAP////98HgN4/////0gAAAH8AAADLB4AAP////9BggAI/////3/f83j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////4ABACT/////f+P7eP////+D4QAc/////4PBABj/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRKInitializeNub
+    size: 312
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKBigEndian
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: usr_put_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEventQueue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeMessageBuffers
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeDispatcher
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: InitializeProgramEndTrap
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetInputPendingPtr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeSerialHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeTarget
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 851b2b7e158863a6eb5fcef1dc487940b09bba36
+  signature: lCH/4P////98CAKm/////zigABL/////OIAANP////+QAQAk/////zhgAFb/////OAAAeP////84wAAB/////5ihAAj/////PKAAAP//AACT4QAc/////zvgAAD/////k8EAGP////+YgQAJ/////5hhAAr/////mAEAC/////+AYQAI/////5TFAAD//wAAPAPtzP////8oAFZ4/////0CCAAz/////kMUAAP////9IAAAc/////zwDh6r/////KAA0Ev////9AggAM/////5PlAAD/////SAAACP////983zN4/////zxgAAD//wAAOIMAAP//AAA4YAAB/////0zGMYL/////SAAAAfwAAAMsHwAA/////0CCAAj/////SAAAAfwAAAMsHwAA/////0CCAAz/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////9IAAAB/AAAAywfAAD/////QIIADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAM/////0gAAAH8AAADfH8beP////8sHwAA/////0CCAET/////PGAAAP//AAA8oAAB/////zjDAAD//wAAOIAAAf////84ZeEA/////zigAAD/////SAAAAfwAAAM8gAAA//8AAHxgG3j/////OGQAAP//AACAYwAA/////3weA3j/////SAAAAfwAAAMsHgAA/////0GCAAj/////f9/zeP////+AAQAk/////3/j+3j/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKInitializeNub
+    size: 332
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKBigEndian
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Object
+    name: '@154'
+    size: 16
+    flags: 2
+    section: .rodata
+  - kind: Function
+    name: MWTRACE
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: usr_put_initialize
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeEventQueue
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeMessageBuffers
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeDispatcher
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: InitializeProgramEndTrap
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeSerialHandler
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInitializeTarget
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: TRKInitializeIntDrivenUART
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSetInputPendingPtr
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 13
+    addend: 0

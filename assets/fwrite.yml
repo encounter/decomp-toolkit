@@ -1,0 +1,179 @@
+- symbol: 0
+  hash: ab08c0be1d7da9b47729c87600215b80277f7e4b
+  signature: SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: fwrite
+    size: 4
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __fwrite
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 82d08ce341917ff7f79c945a5cd98f598ad04ee6
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAAfwAAAOAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: fwrite
+    size: 32
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __fwrite
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 9b415ea8e6af3f2de68f020ef9fe143647077313
+  signature: lCH/4P////98CAKm/////5ABACT/////kGEACP////84YAAC/////5PhABz/////kIEADP////+QoQAQ/////5DBABT/////SAAAAfwAAAOAYQAI/////4CBAAz/////gKEAEP////+AwQAU/////0gAAAH8AAADfH8beP////84YAAC/////0gAAAH8AAADgAEAJP////9/4/t4/////4PhABz/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: fwrite
+    size: 96
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __begin_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __fwrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __end_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 70727a91409f97afd32dea2e3198602b860183cd
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////983zN4/////5PBABj/////fL4reP////+ToQAU/////3ydI3j/////k4EAEP////98fBt4/////zhgAAL/////SAAAAfwAAAN/g+N4/////3+k63j/////f8XzeP////9/5vt4/////0gAAAH8AAADfGAbeP////84YAAC/////3wfA3j/////SAAAAfwAAAOAAQAk/////3/j+3j/////g+EAHP////+DwQAY/////4OhABT/////g4EAEP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: fwrite
+    size: 124
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __begin_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __fwrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __end_critical_region
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 5183119dc4e6ae1fbf16ce097a874d452b894fc8
+  signature: fAgCpv////+QAQAE/////5Qh/7j/////vyEALP////87RAAA/////ztmAAD/////O4MAAP////87JQAA/////zh7AAD/////OIAAAP////9IAAAB/AAAAywDAAD/////QIIAEP////84ewAA/////ziA////////SAAAAfwAAAN8GsnX/////3wdA3j/////QYIAHP////+IGwAK/////ygAAAD/////QIIAEP////+gGwAE/////1QA13//////QIIADP////84YAAA/////0gAAmD/////LAAAAv////9AggAI/////0gAAAH8AAADiBsABf////874AAB/////zh/AAD/////VADv//////84nwAA/////0GCABj/////oBsABP////9UANd+/////ywAAAP/////QYIACP////84gAAA/////ywEAAD/////QIIAGP////+IGwAE/////1QA/77/////KAAAAv////9BggAI/////zhgAAD/////LAMAAP////9AggAY/////4gbAAT/////VAD/vv////8oAAAB/////0GCAAj/////O+AAAP////+IewAI/////1Rg33//////QIIAJP////+IGwAE/////1QA773/////QYIAGP////84AAAB/////1ADLjT/////mHsACP////9/Y9t4/////0gAAAH8AAADiBsACP////9UAN9+/////ygAAAH/////QYIAHP////84AAAB/////5gbAAr/////OAAAAP////84YAAA/////5AbACT/////SAABnP////8oHQAA/////zvcAAD/////O4AAAP////9BggD8/////4CbACD/////gHsAGP////98BBhA/////0CCAAz/////LB8AAP////9BggDk/////4AbABz/////fGMgUP////98AwBQ/////5AbACT/////gBsAJP////+QAQAg/////4ABACD/////fADoQP////9AgQAI/////5OhACD/////gKEAIP////8oBQAA/////0GCADz/////gHsAIP////9/xPN4/////0gAAAH8AAADgGEAIP////+AGwAg/////3/eGhT/////fAAaFP////+QGwAg/////3+cGhT/////f6PoUP////+AYQAg/////4AbACT/////fAMAUP////+QGwAk/////4B7ACT/////KAMAAP////9AggAc/////6AbAAT/////VADXfv////8sAAAD/////0CCAAz/////f5zqFP////9IAABU/////ygDAAD/////QYIAEP////+IGwAE/////1QA/7//////QIIAMP////84ewAA/////ziAAAD/////SAAAAfwAAAMsAwAA/////0GCABz/////OAAAAf////+YGwAK/////zgAAAD/////O6AAAP////+QGwAk/////0gAABT/////KB0AAP////9BggAM/////ywfAAD/////QIL/NP////8oHQAA/////0GCAGj/////LB8AAP////9AggBg/////4P7ABj/////fB7qFP////+DOwAc/////zh7AAD/////OIEAIP////+T2wAY/////5O7ABz/////kBsAIP////9IAAAB/AAAAywDAAD/////QYIAFP////84AAAB/////5gbAAr/////OAAAAP////+QGwAk/////4ABACD/////f2PbeP////+T+wAY/////3+cAhT/////kzsAHP////9IAAAB/AAAAzgAAAD/////kBsAJP////+IGwAE/////1QA/77/////KAAAAv////9BggAM/////zgAAAD/////kBsAJP////84Gv///////3wcAhT/////fGDTlv////+7IQAs/////4ABAEz/////OCEASP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: fwrite
+    size: 732
+    flags: 1
+    section: .text
+  - kind: Function
+    name: fwide
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __stdio_atexit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __prep_buffer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __flush_buffer
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 664
+    kind: PpcRel24
+    symbol: 3
+    addend: 0

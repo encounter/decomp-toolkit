@@ -1,0 +1,129 @@
+- symbol: 0
+  hash: 6023916e799ae851d6b0821b68c83ae1e758fe85
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+QYQAI/////5CBAAz/////O+AAAP////84YAAA/////ziAAAH/////OKAAAP////84wAAA/////zjhABD/////SAAAAfwAAAN8fxt4/////ywfAAD/////QIIAMP////+AYQAQ/////4CBAAj/////gKEADP////9IAAAB/AAAA3x/G3j/////LB8AAP////9AggAU/////4BhABD/////OIAAAP////9IAAAB/AAAA3x/G3j/////f+P7eP////+D4QAc/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IOS_Open
+    size: 132
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __ios_Ipc1
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __ios_Open
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __ios_Ipc2
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 48
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: dbc519205df008731e1195cae0ab139600b07598
+  signature: lCH/4P////98CAKm/////5ABACT/////NAEACP////+T4QAc/////5PBABj/////O8AAAP////+ToQAU/////3ydI3j/////k4EAEP////98fBt4/////0CCAAz/////O8D//P////9IAABM/////4BgAAD/4AAAOIAAQP////84oAAg/////0gAAAH8AAADLAMAAP////+QYQAI/////0CCAAz/////O8D/6v////9IAAAo/////zigAAD/////OAAAAf////+QowAg/////4CBAAj/////kKQAJP////+AgQAI/////5CkACj/////kAMAAP////+QowAI/////yweAAD/////QIIAeP////+D4QAI/////zvAAAD/////LB8AAP////9AggAM/////zvA//z/////SAAASP////9/g+N4/////ziAAED/////SAAACP////84YwAB/////4gDAAD/////LAAAAP////9BggAQ/////ywEAAD/////OIT///////9Agv/o/////3ycGFD/////f4PjeP////84hAAB/////0gAAAH8AAADPByAAP////+QHwAM/////5O/ABD/////LB4AAP////9AggAU/////4BhAAj/////OIAAAP////9IAAAB/AAAA3x+G3j/////f8PzeP////+D4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: IOS_Open
+    size: 288
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: iosAllocAligned
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __ios_Ipc2
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 364b5f41a5e0b21e8c9592bddf46d689a4a14d22
+  signature: lCH/4P////98CAKm/////5ABACT/////NAEACP////+T4QAc/////5PBABj/////O8AAAP////+ToQAU/////3ydI3j/////k4EAEP////98fBt4/////0CCAAz/////O8D//P////9IAABM/////4BgAAD/4AAAOIAAQP////84oAAg/////0gAAAH8AAADLAMAAP////+QYQAI/////0CCAAz/////O8D/6v////9IAAAo/////zigAAD/////kKMAIP////84AAAB/////4CBAAj/////kKQAJP////+AgQAI/////5CkACj/////kAMAAP////+QowAI/////yweAAD/////QIIAfP////+D4QAI/////zvAAAD/////LB8AAP////9AggAM/////zvA//z/////SAAATP////9/g+N4/////ziAAED/////SAAADP////9gAAAA/////zhjAAH/////iAMAAP////8sAAAA/////0GCABD/////LAQAAP////84hP///////0CC/+j/////fJwYUP////9/g+N4/////ziEAAH/////SAAAAfwAAAM8HIAA/////5AfAAz/////k78AEP////8sHgAA/////0CCABT/////gGEACP////84gAAA/////0gAAAH8AAADfH4beP////9/w/N4/////4PhABz/////g8EAGP////+DoQAU/////4OBABD/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: IOS_Open
+    size: 292
+    flags: 1
+    section: .text
+  - kind: Object
+    name: hid
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: iosAllocAligned
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DCFlushRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __ios_Ipc2
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

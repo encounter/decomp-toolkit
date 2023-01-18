@@ -1,0 +1,100 @@
+- symbol: 0
+  hash: 4e87b8bb854c6281090223cb9aa6e16780496ea7
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OAAAAP////84gAAA/////5Qh//j/////kAAAAP/gAAA4AP///////5ADAAD//wAAOGAAAP////9IAAAB/AAAA0gAAAH8AAADgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __DVDInitWA
+    size: 64
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CommandList
+    size: 60
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: NextCommandNumber
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDLowSetWAType
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInitAlarm
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 53f35fb3e90b7fdfb54ba4ee75c820ff8eadb31f
+  signature: fAgCpv////+QAQAE/////5Qh//j/////OAAAAP////+QAAAA/+AAADgA////////PGAAAP//AACQAwAA//8AADhgAAD/////OIAAAP////9IAAAB/AAAA0gAAAH8AAADgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __DVDInitWA
+    size: 64
+    flags: 5
+    section: .text
+  - kind: Object
+    name: NextCommandNumber
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: CommandList
+    size: 60
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __DVDLowSetWAType
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSInitAlarm
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

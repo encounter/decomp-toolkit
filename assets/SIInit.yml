@@ -1,0 +1,969 @@
+- symbol: 0
+  hash: 412c6cb1221a1ae17754f3906f12582fd724532d
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OMMAAP//AAA4oP///////5Qh//j/////PIDMAP////84AAAA/////5CmAGD/////kKYAQP////+QpgAg/////5CmAAD/////kARkMP////84pGQA/////4QFADT/////VAAH//////9Agv/0/////zwAgAD/////PGAAAP//AACQBQAA/////ziDAAD//wAAOGAAFP////9IAAAB/AAAAzhgCAD/////SAAAAfwAAAOAAQAM/////zghAAj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 116
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: SIIntrruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: adc9a6dcbbe18592f4aafbe4d0f333e215ae8604
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OMMAAP//AAA4oP///////5Qh//j/////PIDMAP////84AAAA/////5CmAGD/////kKYAQP////+QpgAg/////5CmAAD/////kARkMP////84pGQA/////4QFADT/////VAAH//////9Agv/0/////zwAgAD/////PGAAAP//AACQBQAA/////ziDAAD//wAAOGAAFP////9IAAAB/AAAAzhgCAD/////SAAAAfwAAAM4YAAA/////0gAAAH8AAADOGAAAf////9IAAAB/AAAAzhgAAL/////SAAAAfwAAAM4YAAD/////0gAAAH8AAADgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 148
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: b6fed773a9ad407829052f42818a554d3055776b
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OMMAAP//AAA8YAAA//8AAJQh//j/////OKD///////84gwAA//8AAJCmAGD/////OAAAAP////84YAAA/////5CmAED/////kKYAIP////+QpgAA/////5AEAAT/////SAAAAfwAAAM8YMwA/////ziDZAD/////hAQANP////9UAAf//////0CC//T/////PACAAP////88YAAA//8AAJAEAAD/////OIMAAP//AAA4YAAU/////0gAAAH8AAADOGAIAP////9IAAAB/AAAAzhgAAD/////SAAAAfwAAAM4YAAB/////0gAAAH8AAADOGAAAv////9IAAAB/AAAAzhgAAP/////SAAAAfwAAAOAAQAM/////zghAAj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 164
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: SISetSamplingRate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: c13406e3e1aeff629ed3b6c60845eedb0e3d2bf4
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88YAAA//8AADvjAAD//wAAOAD///////+QHwBg/////5AfAED/////kB8AIP////+QHwAA/////zgAAAD/////PGAAAP//AAA4YwAA//8AAJADAAT/////OGAAAP////9IAAAB/AAAAzxgzAD/////gANkNP////9UAAf//////0CC//T/////PACAAP////88YMwA/////5ADZDT/////OGAAFP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM4YAgA/////0gAAAH8AAADOGAAAP////9IAAAB/AAAAzhgAAH/////SAAAAfwAAAM4YAAC/////0gAAAH8AAADOGAAA/////9IAAAB/AAAA4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 172
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: SISetSamplingRate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 479f2e3bbb4bf81f055d3f9a75ba28c9c1b0484a
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88YAAA//8AADvjAAD//wAAgGAAAP/gAABIAAAB/AAAAzgA////////kB8AYP////+QHwBA/////5AfACD/////kB8AAP////84AAAA/////zxgAAD//wAAOGMAAP//AACQAwAE/////zhgAAD/////SAAAAfwAAAM8YMwA/////4ADZDT/////VAAH//////9Agv/0/////zwAgAD/////PGDMAP////+QA2Q0/////zhgABT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAIAP////9IAAAB/AAAAzhgAAD/////SAAAAfwAAAM4YAAB/////0gAAAH8AAADOGAAAv////9IAAAB/AAAAzhgAAP/////SAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 180
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: __SIVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: SISetSamplingRate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: 44065e9f6f879ffb118a1f792a4eca7d3017cda2
+  signature: fAgCpv////88gAAA//8AAJABAAT/////lCH/8P////+T4QAM/////zvkAAD//wAAgGAAAP/gAABIAAAB/AAAAzig////////kL8AYP////88YAAA//8AADiDAAD//wAAkL8AQP////84AAAA/////zhgAAD/////kL8AIP////+QvwAA/////5AEAAT/////SAAAAfwAAAM8YMwA/////ziDZAD/////hAQANP////9UAAf//////0CC//T/////PACAAP////88YAAA//8AAJAEAAD/////OIMAAP//AAA4YAAU/////0gAAAH8AAADOGAIAP////9IAAAB/AAAAzhgAAD/////SAAAAfwAAAM4YAAB/////0gAAAH8AAADOGAAAv////9IAAAB/AAAAzhgAAP/////SAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 180
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: __SIVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: SISetSamplingRate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: fa876e50ff64d3288ef762e3ab0383344ccf9685
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAAAsAAAA/////0CCAJz/////gGAAAP/gAABIAAAB/AAAAzzAAAD//wAAPIAAAP//AAA4pgAA//8AADjg////////OIQAAP//AAA4AAAA/////5DlAGD/////OGAAAP////+Q5QBA/////5DlACD/////kOYAAP//AACQBAAE/////0gAAAH8AAADPGDNAP////+AA2Q0/////1QAB///////QIL/+P////88YM0A/////zwAgAD/////PIAAAP//AACQA2Q0/////ziEAAD//wAAOGAAFP////9IAAAB/AAAAzhgCAD/////SAAAAfwAAAM4YAAA/////0gAAAH8AAADOGAAAf////9IAAAB/AAAAzhgAAL/////SAAAAfwAAAM4YAAD/////0gAAAH8AAADOAAAAf////+QAAAA/+AAAIABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@LOCAL@SIInit__Fv@Initialized'
+    size: 4
+    flags: 5
+    section: .sbss
+  - kind: Object
+    name: __SIVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: SISetSamplingRate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 05080e9560422e3f63484be8beae8d400cbd2077
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAAAsAAAA/////0CCAJz/////gGAAAP/gAABIAAAB/AAAAzzAAAD//wAAPIAAAP//AAA44P///////zgAAAD/////OKYAAP//AAA4hAAA//8AAJDlAGD/////OGAAAP////+Q5QBA/////5DlACD/////kOYAAP//AACQBAAE/////0gAAAH8AAADPGDNAP////+AA2Q0/////1QAB///////QIL/+P////88AIAA/////zxgzQD/////PIAAAP//AACQA2Q0/////ziEAAD//wAAOGAAFP////9IAAAB/AAAAzhgCAD/////SAAAAfwAAAM4YAAA/////0gAAAH8AAADOGAAAf////9IAAAB/AAAAzhgAAL/////SAAAAfwAAAM4YAAD/////0gAAAH8AAADOAAAAf////+QAAAA/+AAAIABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 192
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Initialized$694
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __SIVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: SISetSamplingRate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 172
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: c6b343901bfdc2bae897cb917d39e8de46392ca8
+  signature: lCH/8P////98CAKm/////5ABABT/////gAAAAP/gAAAsAAAA/////0CCALj/////gGAAAP/gAABIAAAB/AAAAzgA////////PGAAAP//AAA4YwAA//8AAJADAGD/////PGAAAP//AAA4YwAA//8AAJADAED/////PGAAAP//AAA4YwAA//8AAJADACD/////PGAAAP//AACQAwAA//8AADgAAAD/////PGAAAP//AAA4YwAA//8AAJADAAT/////OGAAAP////9IAAAB/AAAAzxgzQD/////gANkNP////9UAAf+/////ywAAAD/////QIL/8P////88AIAA/////zxgzQD/////kANkNP////84YAAU/////3xjBzT/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADOGAIAP////9IAAAB/AAAAzhgAAD/////SAAAAfwAAAM4YAAB/////0gAAAH8AAADOGAAAv////9IAAAB/AAAAzhgAAP/////SAAAAfwAAAM4AAAB/////5AAAAD/4AAAgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SIInit
+    size: 220
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Initialized$732
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: __SIVersion
+    size: 4
+    flags: 1
+    section: .sdata
+  - kind: Function
+    name: OSRegisterVersion
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: SISetSamplingRate
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetInterruptHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SIGetType
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 168
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

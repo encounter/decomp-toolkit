@@ -1,0 +1,494 @@
+- symbol: 0
+  hash: d1064a7850a57807406a486a99a67fcae4a56bc0
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////874AAA/////5PBABj/////O8AAAP////9IAACw/////zhhAAj/////SAAAAfwAAAMsAwAA/////0GCAGj/////gGEACP////87wAAA/////zgD//3/////KAAAAf////9AgQA4/////ywDAAL/////QYIAGP////8sAwAB/////0GCACD/////LAMABf////9BggAs/////0gAACz/////gGEAEP////9IAAAB/AAAA0gAAAH8AAADSAAAHP////874AAB/////0gAABT/////OGEACP////9IAAAB/AAAA0gAAAj/////SAAAAfwAAAM4YQAI/////0gAAAH8AAADSAAAPP////8sHgAA/////0GCABT/////gGAAAP/gAACIAwAA/////ywAAAD/////QYIAEP////87wAAB/////0gAAAH8AAADSAAAGP////9IAAAB/AAAAywDAAD/////QIIACP////9IAAAB/AAAAzvAAAD/////LB8AAP////9Bgv9Q/////4ABACT/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 236
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetNextEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetBuffer
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDispatchMessage
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetInterrupt
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSupportRequest
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDestructEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: TRKGetInput
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetStopped
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetContinue
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 4b0874d845ffa7553d34cbbe7bfa95bb741af687
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////zvgAAD/////O8AAAP////9IAAC0/////zhhAAj/////SAAAAfwAAAMsAwAA/////0GCAGz/////gAEACP////87wAAA/////ywAAAL/////QYIAKP////9AgAAU/////ywAAAD/////QYIARP////9AgAAo/////0gAADz/////LAAABf////9BggAw/////0CAADD/////SAAAHP////+AYQAQ/////0gAAAH8AAADSAAAAfwAAANIAAAc/////zvgAAH/////SAAAFP////84YQAI/////0gAAAH8AAADSAAACP////9IAAAB/AAAAzhhAAj/////SAAAAfwAAANIAAA8/////yweAAD/////QYIAFP////+AYAAA/+AAAIgDAAD/////LAAAAP////9BggAQ/////zvAAAH/////SAAAAfwAAANIAAAY/////0gAAAH8AAADLAMAAP////9AggAI/////0gAAAH8AAADO8AAAP////8sHwAA/////0GC/0z/////gAEAJP////+D4QAc/////4PBABj/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 240
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetNextEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetBuffer
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDispatchMessage
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetInterrupt
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSupportRequest
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDestructEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: TRKGetInput
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetStopped
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetContinue
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 969f44fa884d5d5704912064115f5950b7db8f86
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/4P////+T4QAc/////zvjAAD//wAAk8EAGP////87wAAA/////5OhABT/////O6AAAP////9IAACo/////zhhAAj/////SAAAAfwAAAMsAwAA/////0GCAGz/////iAEACP////87oAAA/////ywAAAL/////QYIAKP////9AgAAU/////ywAAAD/////QYIARP////9AgAAk/////0gAADz/////LAAABf////9BggAs/////0CAADD/////SAAAGP////84YQAI/////0gAAAH8AAADSAAAIP////87wAAB/////0gAABj/////OGEACP////9IAAAB/AAAA0gAAAz/////OGEACP////9IAAAB/AAAAzhhAAj/////SAAAAfwAAANIAAAw/////ywdAAD/////QYIAFP////+AfwAA/////4gDAAD/////KAAAAP////9BggAQ/////zugAAH/////SAAAAfwAAANIAAAM/////0gAAAH8AAADO6AAAP////8sHgAA/////0GC/1j/////g+EAHP////+DwQAY/////4OhABT/////OCEAIP////+AAQAE/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 244
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKGetNextEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKHandleRequestEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetInterrupt
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKHandleSupportEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDestructEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetInput
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKIdle
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 9e8d35666e57877f9d33c1b2b0b1c57b447e3b88
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////874AAA/////5PBABj/////O8AAAP////9IAAC8/////zhhAAj/////SAAAAfwAAAMsAwAA/////0GCAGz/////gAEACP////87wAAA/////ywAAAL/////QYIAKP////9AgAAU/////ywAAAD/////QYIARP////9AgAAo/////0gAADz/////LAAABf////9BggAw/////0CAADD/////SAAAHP////+AYQAQ/////0gAAAH8AAADSAAAAfwAAANIAAAc/////zvgAAH/////SAAAFP////84YQAI/////0gAAAH8AAADSAAACP////9IAAAB/AAAAzhhAAj/////SAAAAfwAAANIAABE/////yweAAD/////QYIAHP////88YAAA//8AADhjAAD//wAAgGMAAP////+IAwAA/////ygAAAD/////QYIAEP////87wAAB/////0gAAAH8AAADSAAAGP////9IAAAB/AAAAywDAAD/////QIIACP////9IAAAB/AAAAzvAAAD/////LB8AAP////9Bgv9E/////4ABACT/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 248
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetNextEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetBuffer
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDispatchMessage
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetInterrupt
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSupportRequest
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDestructEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: TRKGetInput
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetStopped
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetContinue
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 5e6d2586cade77fcfda4c777956aa9c01a4272db
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////874AAA/////5PBABj/////O8AAAP////9IAAC8/////zhhAAj/////SAAAAfwAAAMsAwAA/////0GCAGz/////iAEACP////87wAAA/////ywAAAL/////QYIAKP////9AgAAU/////ywAAAD/////QYIARP////9AgAAo/////0gAADz/////LAAABf////9BggAw/////0CAADD/////SAAAHP////+AYQAQ/////0gAAAH8AAADSAAAAfwAAANIAAAc/////zvgAAH/////SAAAFP////84YQAI/////0gAAAH8AAADSAAACP////9IAAAB/AAAAzhhAAj/////SAAAAfwAAANIAABE/////yweAAD/////QYIAHP////88YAAA//8AADhjAAD//wAAgGMAAP////+IAwAA/////ygAAAD/////QYIAEP////87wAAB/////0gAAAH8AAADSAAAGP////9IAAAB/AAAAywDAAD/////QIIACP////9IAAAB/AAAAzvAAAD/////LB8AAP////9Bgv9E/////4ABACT/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKNubMainLoop
+    size: 248
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetNextEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKGetBuffer
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDispatchMessage
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetInterrupt
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetSupportRequest
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKDestructEvent
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKInputPendingPtr
+    size: 4
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKGetInput
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetStopped
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKTargetContinue
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 10
+    addend: 0

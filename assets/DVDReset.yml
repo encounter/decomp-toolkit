@@ -1,0 +1,74 @@
+- symbol: 0
+  hash: ac491161099273428cf0376b1a9477680808e332
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAAfwAAAM8YMwA/////zgAACr/////kANgAP////84g2AA/////zgAAAD/////gGNgBP////+QZAAE/////5AAAAD/4AAAkAAAAP/gAACAAQAM/////zghAAj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDReset
+    size: 68
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowReset
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ResetRequired
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: fb707bf800f0c87d16e6d0a3161023d8ae500dd6
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAAfwAAAM4AAAq/////zxgzAD/////kANgAP////88YMwA/////4ADYAT/////PGDMAP////+QA2AE/////zgAAAD/////kAAAAP/gAAA4AAAA/////5AAAAD/4AAAgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDReset
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowReset
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ResetRequired
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ResumeFromHere
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 12
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0

@@ -1,0 +1,83 @@
+- symbol: 0
+  hash: 062032c22dec5fa721b11e6e1010fb9a9d97a406
+  signature: PGAAAP//AABgYwAA//8AALwDAAD/////fAAApv////+QAwCM/////3wIAqb/////kAMAgP////98CQKm/////5ADAIT/////fAECpv////+QAwCI/////3wSAqb/////kAMAlP////98EwKm/////5ADAJD/////OCCAAv////98IQj4/////3xgAKb/////fGMIOP////98YAEk/////zxAAAD//wAAYEIAAP//AACAQgCg/////4hCAAD/////LAIAAP////9BggAY/////zxAAAD//wAAYEIAAP//AAA4YAAB/////5hiAJz/////SAAAAPwAAAM8QAAA//8AAGBCAAD//wAAOGAAAP////+YYgAM/////0gAAAH8AAADPEAAAP//AABgQgAA//8AALtiAID/////f3oDpv////9/iAOm/////3+v8SD/////f8kDpv////9/4QOm/////7hiAAz/////gAIAAP////+AIgAE/////4BCAAj/////TAAAZP////8=
+  symbols:
+  - kind: Function
+    name: TRKSwapAndGo
+    size: 196
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKState
+    size: 164
+    flags: 1
+    section: .bss
+  - kind: Function
+    name: TRKInterruptHandlerEnableInterrupts
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKExceptionStatus
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: TRKRestoreExtended1Block
+    size: 0
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Hi
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0

@@ -1,0 +1,69 @@
+- symbol: 0
+  hash: 890b5d264562afb0617f966e1d204414cfbb6aba
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAIP////+AAwAA/////ziA////////kAAAAP/gAACBgwAE/////4BjAAj/////fYkDpv////9OgAQh/////4BgAAD/4AAAKAMAAP////9Agv/c/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __destroy_global_chain
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 35eeefbf85abcb97d4e494cde0779e2d046aa1ff
+  signature: lCH/8P////98CAKm/////5ABABT/////SAAAIP////+AAwAA/////ziA////////kAAAAP/gAACBgwAE/////4BjAAj/////fYkDpv////9OgAQh/////4BgAAD/4AAALAMAAP////9Agv/c/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __destroy_global_chain
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 087d7bf168cea751416fa624bffe74ec8d8d5654
+  signature: fAgCpv////+QAQAE/////5Qh//j/////SAAAIP////+AAwAA/////ziA////////kAAAAP/gAACBgwAE/////4BjAAj/////fYgDpv////9OgAAh/////4BgAAD/4AAAKAMAAP////9Agv/c/////4ABAAz/////OCEACP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __destroy_global_chain
+    size: 72
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0

@@ -1,0 +1,395 @@
+- symbol: 0
+  hash: 5d8a63424b9386c0c7dd7f1e25df62a5ca65dc2e
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////8/4IAA/////zgfMED/////kAAAAP/gAAA4gAAA/////zigAID/////gGAAAP/gAABIAAAB/AAAAzgAAAD/////kB8AxP////88YMwA/////ziDMAD/////kB8AyP////84AADw/////zhg/+D/////kAQABP////9IAAAB/AAAAzxgAAD//wAAOIMAAP//AAA4YAAE/////0gAAAH8AAADgAEAFP////+D4QAM/////zghABD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInterruptInit
+    size: 116
+    flags: 1
+    section: .text
+  - kind: Object
+    name: InterruptHandlerTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ExternalInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 10b99c189da2bd5ae58b002232d985b48861f341
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////84YDBA/////0gAAAH8AAADkGAAAP/gAACAYAAA/+AAADiAAAD/////OKAAgP////9IAAAB/AAAAzvgAAD/////OGAAxP////9IAAAB/AAAA5PjAAD/////O+AAAP////84YADI/////0gAAAH8AAADk+MAAP////84AADw/////zxgzAD/////OGMwAP////+QAwAE/////zhg/+D/////SAAAAfwAAAM4YAAE/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzgAAAH/////PGDMAP////+QAzAA/////zhgAQD/////SAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInterruptInit
+    size: 156
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: InterruptHandlerTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ExternalInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 7f552fc688dd25e1a7d279d2f8800e6a8ce29a76
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////84YDBA/////0gAAAH8AAADkGAAAP/gAACAYAAA/+AAADiAAAD/////OKAAgP////9IAAAB/AAAAzvgAAD/////OGAAxP////9IAAAB/AAAA5PjAAD/////O+AAAP////84YADI/////0gAAAH8AAADk+MAAP////84AADw/////zxgzAD/////kAMwBP////88AEAA/////zxgzQD/////kAMANP////84YP/w/////0gAAAH8AAADOGAABP////9UYwY+/////zyAAAD//wAAOIQAAP//AABIAAAB/AAAAzgAAAH/////PGDMAP////+QAzAA/////zhgAQD/////SAAAAfwAAAOD4QAM/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInterruptInit
+    size: 168
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: InterruptHandlerTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __OSMaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ExternalInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSUnmaskInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 4303c399a969acf62379db51a85c208fd03d8bd7
+  signature: lCH/4P////98CAKm/////ziAAAD/////OKAAgP////+QAQAk/////5PhABz/////P+CAAP////84fzBA/////5PBABj/////k6EAFP////+QYAAA/+AAAEgAAAH8AAADOMAAAP////84oADw/////5DfAMT/////PIDMAP////88AEAA/////zxgzQD/////kN8AyP////87wP/w/////5CkMAT/////kAMANP////9IAAAB/AAAA4AfAMT/////fH0beP////+AnwDI/////3/eA3j/////fAAg+P////+T3wDE/////1QDADb/////f94jeP////9IAAAM/////3/E83j/////SAAAAfwAAAMsAwAA/////0CC//T/////f6PreP////9IAAAB/AAAAzyAAAD//wAAOGAABP////84hAAA//8AAEgAAAH8AAADgAEAJP////+D4QAc/////4PBABj/////g6EAFP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInterruptInit
+    size: 196
+    flags: 1
+    section: .text
+  - kind: Object
+    name: InterruptHandlerTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ExternalInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: d75d7738b7298174bbbe906448d19085c9a63f10
+  signature: lCH/4P////98CAKm/////ziAAAD/////OKAAgP////+QAQAk/////5PhABz/////P+CAAP////84fzBA/////5PBABj/////k6EAFP////+QYAAA/+AAAEgAAAH8AAADOAAAAP////+QHwDE/////zyAzAD/////OKAA8P////+QHwDI/////zxgzQD/////PABAAP////87wP/w/////5CkMAT/////kAMANP////9IAAAB/AAAA4AfAMT/////fH0beP////+AnwDI/////3/eA3j/////fAAg+P////+T3wDE/////1QDADb/////f94jeP////9IAAAM/////3/E83j/////SAAAAfwAAAMsAwAA/////0CC//T/////f6PreP////9IAAAB/AAAAzyAAAD//wAAOGAABP////84hAAA//8AAEgAAAH8AAADgAEAJP////+D4QAc/////4PBABj/////g6EAFP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInterruptInit
+    size: 196
+    flags: 1
+    section: .text
+  - kind: Object
+    name: InterruptHandlerTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: memset
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetInterruptMask
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ExternalInterruptHandler
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0

@@ -1,0 +1,4941 @@
+- symbol: 0
+  hash: 675f2c0120c0511092166ce3c67f17ab7194309a
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAAz8AgAD/////P4AAAP//AACAGABg/////zxgAAD//wAAP8AAAP//AACHvgAA//8AACwAAAD/////O5wAAP//AAA4YwAA//8AAH98GFD/////QIIAQP////88gAAA//8AADygAAD//wAAOIQAAP//AAA4eABg/////zilAAD//wAAfuQoUP////9+5bt4/////0gAAAH8AAADfuS7eP////84eABg/////0gAAAH8AAADfAAErP////9+5Lt4/////zh4AGD/////SAAAAfwAAAM8gAAA//8AADxgAAD//wAAP0AAAP//AAA74AAA/////ziEAAD//wAAOGMAAP//AAB+5BhQ/////ztaAAD//wAAPyBgAP////8/AAAA//8AAIBgAAD/4AAALAMAAP////9BggAQ/////4ADAAD/////KAAAAv////9AgACs/////1fgBj7/////KBcAAP////9/oAN4/////zh3AAP/////kB4AAP////84mAAA//8AAFRj8L7/////QIEAVP////9UYOj//////3wJA6b/////QYIANP////+TJAAA/////5MkAAT/////kyQACP////+TJAAM/////5MkABD/////kyQAFP////+TJAAY/////5MkABz/////OIQAIP////9CAP/c/////3BjAAf/////QYIAGP////98aQOm/////2AAAAD/////kyQAAP////84hAAE/////0IA//j/////V+AVuv////9/hON4/////3x6AC7/////f2XbeP////8+w4AA/////37Ds3j/////SAAAAfwAAAN+w7N4/////39k23j/////SAAAAfwAAAN8AASs/////37Ds3j/////f2TbeP////9IAAAB/AAAAzv/AAH/////KB8AD/////9BgP84/////zxggAD/////PIAAAP//AAA4YzAA/////5BgAAD/4AAAOIQAAP//AAA5YQAw/////5CDAAD/////gGAAAP/gAACQgwAE/////4BgAAD/4AAAkIMACP////+AYAAA/+AAAJCDAAz/////gGAAAP/gAACQgwAQ/////4BgAAD/4AAAkIMAFP////+AYAAA/+AAAJCDABj/////gGAAAP/gAACQgwAc/////4BgAAD/4AAAkIMAIP////+AYAAA/+AAAJCDACT/////gGAAAP/gAACQgwAo/////4BgAAD/4AAAkIMALP////+AYAAA/+AAAJCDADD/////gGAAAP/gAACQgwA0/////4BgAAD/4AAAkIMAOP////+TvgAA/////0gAAAH8AAADgAEANP////98CAOm/////zghADD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 532
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_22
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSExceptionLocations
+    size: 60
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_22
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 164
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 372
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 396
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 404
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 420
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 428
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 436
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 444
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 452
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 460
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 468
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 476
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 484
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 492
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 500
+    kind: PpcEmbSda21
+    symbol: 16
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+- symbol: 0
+  hash: 055325a41d77f9b381b758019044892694d257e6
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3w/C3j/////OAAAAf////+QHwAM/////zxgAAD//wAAOIMAAP//AAA8YAAA//8AADgDAAD//wAAfAQAUP////8oAAEA/////0CBADj/////OGAAAP/gAAA4gAcm/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QHwAI/////4AfAAj/////LAAAAP////9AggAM/////zgAAAD/////kB8ADP////88YAAA//8AADuDAAD//wAAgBwAAP////+QHwAY/////zxgAAD//wAAOAMAAP//AACQHwAU/////zxgAAD//wAAOIMAAP//AAA8YAAA//8AADgDAAD//wAAf2QAUP////84YABg/////0gAAAH8AAADfH0beP////+AHQAA/////ywAAAD/////QIIAZP////9/o+t4/////zygAAD//wAAOIUAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAAN/o+t4/////zyAAAD//wAAOKQAAP//AAA8gAAA//8AADgEAAD//wAAfIUAUP////9IAAAB/AAAA3wABKz/////f6PreP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAM7wAAA/////0gAAMT/////gAAAAP/gAAAsAAAA/////0GCABT/////gGAAAP/gAACAAwAA/////ygAAAL/////QIAApP////+AfwAY/////1fABj7/////fGADeP////+QHAAA/////zxgAAD//wAAOAMAAP//AACQHwAQ/////ztAAAD/////SAAAHP////88AGAA/////4B/ABD/////kAMAAP////84AwAE/////5AfABD/////O1oABP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////fBoAQP////9BgP/Q/////1fABj7/////VAAQOv////88YAAA//8AADhjAAD//wAAfGMALv////9IAAAB/AAAA3x9G3j/////f6PreP////+AnwAU/////39l23j/////SAAAAfwAAAN/o+t4/////39k23j/////SAAAAfwAAAN8AASs/////3+j63j/////f2TbeP////9IAAAB/AAAAzveAAH/////V8AGPv////8oAAAP/////0GA/zj/////OGAwAP////9IAAAB/AAAA5BgAAD/4AAAO8AAAP////9IAAAY/////1fDBj7/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADO94AAf////9XwAY+/////ygAAA//////QYD/5P////+AHwAY/////5AcAAD/////f+r7eP////85agBA/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 584
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@991'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@1257'
+    size: 50
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __OSExceptionLocations
+    size: 60
+    flags: 2
+    section: .data
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 200
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 264
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 268
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 288
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Ha
+    symbol: 15
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Lo
+    symbol: 15
+    addend: 0
+  - offset: 376
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 380
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 412
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 500
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 516
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 520
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 524
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 560
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+- symbol: 0
+  hash: 7c3f577eee246205b7a0cce81adb5f20cf0f3caf
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAAz7AgAD/////P0AAAP//AACAFgBg/////zxgAAD//wAAP4AAAP//AAA/wAAA//8AACwAAAD/////O1oAAP//AAA4YwAA//8AAId8AAD//wAAO94AAP//AAB/OhhQ/////0CCAEz/////OH4DVP////9MxjGC/////0gAAAH8AAADPIAAAP//AAA8oAAA//8AADiEAAD//wAAOHYAYP////84pQAA//8AAH6kKFD/////fqWreP////9IAAAB/AAAA36kq3j/////OHYAYP////9IAAAB/AAAA3wABKz/////fqSreP////84dgBg/////0gAAAH8AAADP+AAAP//AAA8YAAA//8AADgfAAD//wAAOx4DGP////84YwAA//8AADugAAD/////fqAYUP////8+4GAA/////z7AAAD//wAAgGAAAP/gAAAsAwAA/////0GCADT/////gAMAAP////8oAAAC/////0GAACj/////V6MGPv////9IAAAB/AAAAywDAAD/////QYIAGP////84fgNw/////1ekBj7/////TMYxgv////9IAAAB/AAAA0gAANj/////V6MGPv////9/YBt4/////5AcAAD/////SAAAAfwAAAMsAwAA/////0GCACj/////OH4DoP////9XpAY+/////0zGMYL/////SAAAAfwAAAN+pat4/////zh2AAD//wAAOJ8AAP//AABIAAAB/AAAA0gAAGT/////KBUAAP////84dQAD/////ziWAAD//wAAVGPwvv////9AgQBQ/////1Rg6P//////fAkDpv////9BggA0/////5LkAAD/////kuQABP////+S5AAI/////5LkAAz/////kuQAEP////+S5AAU/////5LkABj/////kuQAHP////84hAAg/////0IA/9z/////cGMAB/////9BggAU/////3xpA6b/////kuQAAP////84hAAE/////0IA//j/////V6AVuv////9/RNN4/////3x4AC7/////fyXLeP////8+g4AA/////36Do3j/////SAAAAfwAAAN+g6N4/////38ky3j/////SAAAAfwAAAN8AASs/////36Do3j/////fyTLeP////9IAAAB/AAAAzu9AAH/////KB0AD/////9BgP7o/////zxggAD/////PKAAAP//AAA4gzAA/////5CAAAD/4AAAOKUAAP//AAA4fgPQ/////5CkAAD/////gIAAAP/gAACQpAAE/////4CAAAD/4AAAkKQACP////+AgAAA/+AAAJCkAAz/////gIAAAP/gAACQpAAQ/////4CAAAD/4AAAkKQAFP////+AgAAA/+AAAJCkABj/////gIAAAP/gAACQpAAc/////4CAAAD/4AAAkKQAIP////+AgAAA/+AAAJCkACT/////gIAAAP/gAACQpAAo/////4CAAAD/4AAAkKQALP////+AgAAA/+AAAJCkADD/////gIAAAP/gAACQpAA0/////4CAAAD/4AAAkKQAOP////+TfAAA/////0zGMYL/////SAAAAfwAAAM5YQBA/////0gAAAH8AAADgAEARP////98CAOm/////zghAED/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 640
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_20
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_20
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 476
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 492
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 508
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 516
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 524
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 532
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 540
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 556
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 564
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 572
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 580
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 588
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 596
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 612
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 7a9df3d25f684a00f624c328cb031d2b3172fce6
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////voEACP////88YIAA/////4ADAGD/////PIAAAP//AAA7xAAA//8AADygAAD//wAAgz4AAP////88gAAA//8AADilAAD//wAAOIQAAP//AAA8wAAA//8AACgAAAD/////fLgreP////87pgAA//8AAH7lIFD/////OoMAYP////9AggBM/////zh9AST/////TMYxgv////9IAAAB/AAAAzyAAAD//wAAPGAAAP//AAA4AwAA//8AADiEAAD//wAAfqQAUP////9+g6N4/////36lq3j/////SAAAAfwAAAN+g6N4/////36kq3j/////SAAAAfwAAAN8AASs/////36Do3j/////fqSreP////9IAAAB/AAAAzyAAAD//wAAPGAAAP//AAA75AAA//8AADgDAAD//wAAO50A6P////9/fwBQ/////ztAAAD/////SAAABP////88YAAA//8AADqjAAD//wAAPsBgAP////9IAAAE/////0gAAUj/////gGAAAP/gAAAoAwAA/////0GCADT/////gAMAAP////8oAAAC/////0GAACj/////f0PTeP////9IAAAB/AAAAywDAAD/////QYIAGP////84fQFA/////0zGMYL/////V0QGPv////9IAAAB/AAAA0gAAQT/////V1QGPv////9/IKN4/////5AeAAD/////f0PTeP////9IAAAB/AAAAywDAAD/////QYIAKP////9+hKN4/////0zGMYL/////OH0BcP////9IAAAB/AAAA36jq3j/////f+T7eP////9/Zdt4/////0gAAAH8AAADSAAAkP////9+pKt4/////0gAAAT/////KBsAAP////84ewAD/////1Rj8L7/////QIEAeP////9UYOj+/////ygAAAD/////fAkDpv////9BggBU/////0gAAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////+SxAAA/////ziEAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////+SxAAA/////ziEAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////9CAP/A/////3BjAAf/////QYIAGP////98aQOm/////0gAAAT/////ksQAAP////84hAAE/////0IA//j/////gHwAAP////9/BMN4/////37lu3j/////PoOAAP////9+g6N4/////0gAAAH8AAADfoOjeP////9+5Lt4/////0gAAAH8AAADfAAErP////9+g6N4/////37ku3j/////SAAAAfwAAAM7nAAE/////ztaAAH/////V0AGPv////8oAAAP/////0GA/rT/////PGCAAP////84AzAA/////5AAAAD/4AAAOoAAAP////9IAAAE/////zxgAAD//wAAOuMAAP//AABIAAAE/////0gAABT/////foOjeP////9+5Lt4/////0gAAAH8AAADOpQAAf////9WgAY+/////ygAAA//////QYD/6P////+TPgAA/////zh9AaD/////TMYxgv////9IAAAB/AAAA7qBAAj/////gAEAPP////84IQA4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 640
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@73'
+    size: 30
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 560
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 564
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: f6cab2af9357a841be258436bcfc54a2b62f657f
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////voEACP////88YIAA/////4ADAGD/////PIAAAP//AAA7xAAA//8AADygAAD//wAAgz4AAP////88gAAA//8AADilAAD//wAAOIQAAP//AAA8wAAA//8AACgAAAD/////fLgreP////87pgAA//8AAH7lIFD/////OoMAYP////9AggBM/////zh9AXD/////TMYxgv////9IAAAB/AAAAzyAAAD//wAAPGAAAP//AAA4AwAA//8AADiEAAD//wAAfqQAUP////9+g6N4/////36lq3j/////SAAAAfwAAAN+g6N4/////36kq3j/////SAAAAfwAAAN8AASs/////36Do3j/////fqSreP////9IAAAB/AAAAzyAAAD//wAAPGAAAP//AAA75AAA//8AADgDAAD//wAAO50BNP////9/fwBQ/////ztAAAD/////SAAABP////88YAAA//8AADqjAAD//wAAPsBgAP////9IAAAE/////0gAAUj/////gGAAAP/gAAAoAwAA/////0GCADT/////gAMAAP////8oAAAC/////0GAACj/////f0PTeP////9IAAAB/AAAAywDAAD/////QYIAGP////84fQGM/////0zGMYL/////V0QGPv////9IAAAB/AAAA0gAAQT/////V1QGPv////9/IKN4/////5AeAAD/////f0PTeP////9IAAAB/AAAAywDAAD/////QYIAKP////9+hKN4/////0zGMYL/////OH0BvP////9IAAAB/AAAA36jq3j/////f+T7eP////9/Zdt4/////0gAAAH8AAADSAAAkP////9+pKt4/////0gAAAT/////KBsAAP////84ewAD/////1Rj8L7/////QIEAeP////9UYOj+/////ygAAAD/////fAkDpv////9BggBU/////0gAAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////+SxAAA/////ziEAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////+SxAAA/////ziEAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////9CAP/A/////3BjAAf/////QYIAGP////98aQOm/////0gAAAT/////ksQAAP////84hAAE/////0IA//j/////gHwAAP////9/BMN4/////37lu3j/////PoOAAP////9+g6N4/////0gAAAH8AAADfoOjeP////9+5Lt4/////0gAAAH8AAADfAAErP////9+g6N4/////37ku3j/////SAAAAfwAAAM7nAAE/////ztaAAH/////V0AGPv////8oAAAP/////0GA/rT/////PGCAAP////84AzAA/////5AAAAD/4AAAOoAAAP////9IAAAE/////zxgAAD//wAAOuMAAP//AABIAAAE/////0gAABT/////foOjeP////9+5Lt4/////0gAAAH8AAADOpQAAf////9WgAY+/////ygAAA//////QYD/6P////+TPgAA/////zh9Aez/////TMYxgv////9IAAAB/AAAA7qBAAj/////gAEAPP////84IQA4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 640
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 68
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 560
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 564
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 27692fb1f81ed00a0ef0d4728e7a83362e10f73c
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAAz7AgAD/////P0AAAP//AACAFgBg/////zxgAAD//wAAP4AAAP//AAA/wAAA//8AACwAAAD/////O1oAAP//AAA4YwAA//8AAId8AAD//wAAO94AAP//AAB/OhhQ/////0CCAEz/////OH4EdP////9MxjGC/////0gAAAH8AAADPIAAAP//AAA8oAAA//8AADiEAAD//wAAOHYAYP////84pQAA//8AAH6kKFD/////fqWreP////9IAAAB/AAAA36kq3j/////OHYAYP////9IAAAB/AAAA3wABKz/////fqSreP////84dgBg/////0gAAAH8AAADP+AAAP//AAA8YAAA//8AADgfAAD//wAAOx4EOP////84YwAA//8AADugAAD/////fqAYUP////8+4GAA/////z7AAAD//wAAgGAAAP/gAAAsAwAA/////0GCADT/////gAMAAP////8oAAAC/////0GAACj/////V6MGPv////9IAAAB/AAAAywDAAD/////QYIAGP////84fgSQ/////1ekBj7/////TMYxgv////9IAAAB/AAAA0gAANj/////V6MGPv////9/YBt4/////5AcAAD/////SAAAAfwAAAMsAwAA/////0GCACj/////OH4EwP////9XpAY+/////0zGMYL/////SAAAAfwAAAN+pat4/////zh2AAD//wAAOJ8AAP//AABIAAAB/AAAA0gAAGT/////KBUAAP////84dQAD/////ziWAAD//wAAVGPwvv////9AgQBQ/////1Rg6P//////fAkDpv////9BggA0/////5LkAAD/////kuQABP////+S5AAI/////5LkAAz/////kuQAEP////+S5AAU/////5LkABj/////kuQAHP////84hAAg/////0IA/9z/////cGMAB/////9BggAU/////3xpA6b/////kuQAAP////84hAAE/////0IA//j/////V6AVuv////9/RNN4/////3x4AC7/////fyXLeP////8+g4AA/////36Do3j/////SAAAAfwAAAN+g6N4/////38ky3j/////SAAAAfwAAAN8AASs/////36Do3j/////fyTLeP////9IAAAB/AAAAzu9AAH/////KB0AD/////9BgP7o/////zxggAD/////PKAAAP//AAA4gzAA/////5CAAAD/4AAAOKUAAP//AAA4fgTw/////5CkAAD/////gIAAAP/gAACQpAAE/////4CAAAD/4AAAkKQACP////+AgAAA/+AAAJCkAAz/////gIAAAP/gAACQpAAQ/////4CAAAD/4AAAkKQAFP////+AgAAA/+AAAJCkABj/////gIAAAP/gAACQpAAc/////4CAAAD/4AAAkKQAIP////+AgAAA/+AAAJCkACT/////gIAAAP/gAACQpAAo/////4CAAAD/4AAAkKQALP////+AgAAA/+AAAJCkADD/////gIAAAP/gAACQpAA0/////4CAAAD/4AAAkKQAOP////+TfAAA/////0zGMYL/////SAAAAfwAAAM5YQBA/////0gAAAH8AAADgAEARP////98CAOm/////zghAED/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 640
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_20
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 71
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_20
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 476
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 492
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 508
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 516
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 524
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 532
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 540
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 556
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 564
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 572
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 580
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 588
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 596
+    kind: PpcEmbSda21
+    symbol: 17
+    addend: 0
+  - offset: 612
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 18
+    addend: 0
+- symbol: 0
+  hash: 081e0ba716341a8a952253863962d99bfb3b6772
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAAz7AgAD/////P0AAAP//AACAFgBg/////zxgAAD//wAAP4AAAP//AAA/wAAA//8AACwAAAD/////O1oAAP//AAA4YwAA//8AAId8AAD//wAAO94AAP//AAB/OhhQ/////0CCAEz/////OH4EDP////9MxjGC/////0gAAAH8AAADPIAAAP//AAA8oAAA//8AADiEAAD//wAAOHYAYP////84pQAA//8AAH6kKFD/////fqWreP////9IAAAB/AAAA36kq3j/////OHYAYP////9IAAAB/AAAA3wABKz/////fqSreP////84dgBg/////0gAAAH8AAADP+AAAP//AAA8YAAA//8AADgfAAD//wAAOx4D0P////84YwAA//8AADugAAD/////fqAYUP////8+4GAA/////z7AAAD//wAAgGAAAP/gAAAsAwAA/////0GCADT/////gAMAAP////8oAAAC/////0GAACj/////V6MGPv////9IAAAB/AAAAywDAAD/////QYIAGP////84fgQo/////1ekBj7/////TMYxgv////9IAAAB/AAAA0gAANj/////V6MGPv////9/YBt4/////5AcAAD/////SAAAAfwAAAMsAwAA/////0GCACj/////OH4EWP////9XpAY+/////0zGMYL/////SAAAAfwAAAN+pat4/////zh2AAD//wAAOJ8AAP//AABIAAAB/AAAA0gAAGT/////KBUAAP////84dQAD/////ziWAAD//wAAVGPwvv////9AgQBQ/////1Rg6P//////fAkDpv////9BggA0/////5LkAAD/////kuQABP////+S5AAI/////5LkAAz/////kuQAEP////+S5AAU/////5LkABj/////kuQAHP////84hAAg/////0IA/9z/////cGMAB/////9BggAU/////3xpA6b/////kuQAAP////84hAAE/////0IA//j/////V6AVuv////9/RNN4/////3x4AC7/////fyXLeP////8+g4AA/////36Do3j/////SAAAAfwAAAN+g6N4/////38ky3j/////SAAAAfwAAAN8AASs/////36Do3j/////fyTLeP////9IAAAB/AAAAzu9AAH/////KB0AD/////9BgP7o/////zxggAD/////PKAAAP//AAA4gzAA/////5CAAAD/4AAAOKUAAP//AAA4fgSI/////5CkAAD/////gIAAAP/gAACQpAAE/////4CAAAD/4AAAkKQACP////+AgAAA/+AAAJCkAAz/////gIAAAP/gAACQpAAQ/////4CAAAD/4AAAkKQAFP////+AgAAA/+AAAJCkABj/////gIAAAP/gAACQpAAc/////4CAAAD/4AAAkKQAIP////+AgAAA/+AAAJCkACT/////gIAAAP/gAACQpAAo/////4CAAAD/4AAAkKQALP////+AgAAA/+AAAJCkADD/////gIAAAP/gAACQpAA0/////4CAAAD/4AAAkKQAOP////+TfAAA/////0zGMYL/////SAAAAfwAAAM5YQBA/////0gAAAH8AAADgAEARP////98CAOm/////zghAED/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 640
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_20
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_20
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 276
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 476
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 480
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 492
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 500
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 508
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 516
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 524
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 532
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 540
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 556
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 564
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 572
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 580
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 588
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 596
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 612
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 19
+    addend: 0
+- symbol: 0
+  hash: da442caeea882c2aa045154ab2b63dc43f6fc3af
+  signature: fAgCpv////+QAQAE/////5Qh/8j/////voEACP////88YIAA/////4ADAGD/////PIAAAP//AAA7xAAA//8AADygAAD//wAAgz4AAP////88gAAA//8AADilAAD//wAAOIQAAP//AAA8wAAA//8AACgAAAD/////fLgreP////87pgAA//8AAH7lIFD/////OoMAYP////9AggBM/////zh9AWD/////TMYxgv////9IAAAB/AAAAzyAAAD//wAAPGAAAP//AAA4AwAA//8AADiEAAD//wAAfqQAUP////9+g6N4/////36lq3j/////SAAAAfwAAAN+g6N4/////36kq3j/////SAAAAfwAAAN8AASs/////36Do3j/////fqSreP////9IAAAB/AAAAzyAAAD//wAAPGAAAP//AAA75AAA//8AADgDAAD//wAAO50BJP////9/fwBQ/////ztAAAD/////SAAABP////88YAAA//8AADqjAAD//wAAPsBgAP////9IAAAE/////0gAAUj/////gGAAAP/gAAAoAwAA/////0GCADT/////gAMAAP////8oAAAC/////0GAACj/////f0PTeP////9IAAAB/AAAAywDAAD/////QYIAGP////84fQF8/////0zGMYL/////V0QGPv////9IAAAB/AAAA0gAAQT/////V1QGPv////9/IKN4/////5AeAAD/////f0PTeP////9IAAAB/AAAAywDAAD/////QYIAKP////9+hKN4/////0zGMYL/////OH0BrP////9IAAAB/AAAA36jq3j/////f+T7eP////9/Zdt4/////0gAAAH8AAADSAAAkP////9+pKt4/////0gAAAT/////KBsAAP////84ewAD/////1Rj8L7/////QIEAeP////9UYOj+/////ygAAAD/////fAkDpv////9BggBU/////0gAAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////+SxAAA/////ziEAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////+SxAAA/////ziEAAT/////ksQAAP////84hAAE/////5LEAAD/////OIQABP////9CAP/A/////3BjAAf/////QYIAGP////98aQOm/////0gAAAT/////ksQAAP////84hAAE/////0IA//j/////gHwAAP////9/BMN4/////37lu3j/////PoOAAP////9+g6N4/////0gAAAH8AAADfoOjeP////9+5Lt4/////0gAAAH8AAADfAAErP////9+g6N4/////37ku3j/////SAAAAfwAAAM7nAAE/////ztaAAH/////V0AGPv////8oAAAP/////0GA/rT/////PGCAAP////84AzAA/////5AAAAD/4AAAOoAAAP////9IAAAE/////zxgAAD//wAAOuMAAP//AABIAAAE/////0gAABT/////foOjeP////9+5Lt4/////0gAAAH8AAADOpQAAf////9WgAY+/////ygAAA//////QYD/6P////+TPgAA/////zh9Adz/////TMYxgv////9IAAAB/AAAA7qBAAj/////gAEAPP////84IQA4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 640
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 68
+    flags: 2
+    section: .data
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 13
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 280
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 548
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 560
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 564
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 584
+    kind: PpcRel24
+    symbol: 17
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 5a878fd4343838d45b34876f2b48c071106d5c27
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////vuEADP////88YAAA//8AADujAAD//wAAOAAAAP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////KAABAP////9AgQAk/////zhgAAD/4AAAOIAELf////84vQJ0/////0zGMYL/////SAAAAfwAAAM4AAAA/////ywAAAD/////QYIACP////84AAAB/////zxgAAD//wAAO4MAAP//AACDXAAA/////zxgAAD//wAAOwMAAP//AAA8YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAH9kAFD/////OGAAYP////9IAAAB/AAAA3x+G3j/////gB4AAP////8oAAAA/////0CCAHD/////OH0CqP////9MxjGC/////0gAAAH8AAADf8PzeP////88gAAA//8AADiEAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADf8PzeP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAN8AASs/////3/D83j/////PIAAAP//AAA4pAAA//8AADyAAAD//wAAOAQAAP//AAB8hQBQ/////0gAAAH8AAADO+AAAP////9IAAEg/////4AAAAD/4AAAKAAAAP////9BggA4/////4BgAAD/4AAAgAMAAP////8oAAAC/////0GAACj/////f+P7eP////9IAAAB/AAAAywDAAD/////QYIAGP////84fQLE/////1fkBj7/////TMYxgv////9IAAAB/AAAA0gAANz/////V+AGPv////9/QAN4/////5AcAAD/////f+P7eP////9IAAAB/AAAAywDAAD/////QYIAQP////84fQL0/////1fkBj7/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AAA8gAAA//8AADiEAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADSAAAQP////88YAAA//8AADrjAAD//wAAOyAAAP////9IAAAU/////zwAYAD/////kBcAAP////869wAE/////zs5AAT/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOAMAAP//AAB8BABQ/////3wZAED/////QYD/2P////9X4AY+/////1QAEDr/////fH0CFP////+AYwFQ/////0gAAAH8AAADfH4beP////9/w/N4/////38Ew3j/////f2XbeP////9IAAAB/AAAA3/D83j/////f2TbeP////9IAAAB/AAAA3wABKz/////f8PzeP////9/ZNt4/////0gAAAH8AAADO/8AAf////9X4AY+/////ygAAA//////QYD+3P////84YDAA/////0gAAAH8AAADkGAAAP/gAAA74AAA/////0gAABj/////f+P7eP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM7/wAB/////1fgBj7/////KAAAD/////9BgP/k/////5NcAAD/////OH0DJP////9MxjGC/////0gAAAH8AAADgAEANP////+64QAM/////zghADD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 656
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 66
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@26'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 380
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 392
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 396
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 400
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 404
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 408
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 460
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 532
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 576
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 592
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 596
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 632
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 7b9f56ca29f2f0fe5594cbbf7d82da1a47b77b28
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////vuEADP////88YAAA//8AADujAAD//wAAOAAAAP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////KAABAP////9AgQAk/////zhgAAD/4AAAOIAEKv////84vQJ8/////0zGMYL/////SAAAAfwAAAM4AAAA/////ywAAAD/////QYIACP////84AAAB/////zxgAAD//wAAO4MAAP//AACDXAAA/////zxgAAD//wAAOwMAAP//AAA8YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAH9kAFD/////OGAAYP////9IAAAB/AAAA3x+G3j/////gB4AAP////8oAAAA/////0CCAHD/////OH0CsP////9MxjGC/////0gAAAH8AAADf8PzeP////88gAAA//8AADiEAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADf8PzeP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAN8AASs/////3/D83j/////PIAAAP//AAA4pAAA//8AADyAAAD//wAAOAQAAP//AAB8hQBQ/////0gAAAH8AAADO+AAAP////9IAAEg/////4AAAAD/4AAAKAAAAP////9BggA4/////4BgAAD/4AAAgAMAAP////8oAAAC/////0GAACj/////f+P7eP////9IAAAB/AAAAywDAAD/////QYIAGP////84fQLM/////1fkBj7/////TMYxgv////9IAAAB/AAAA0gAANz/////V+AGPv////9/QAN4/////5AcAAD/////f+P7eP////9IAAAB/AAAAywDAAD/////QYIAQP////84fQL8/////1fkBj7/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AAA8gAAA//8AADiEAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADSAAAQP////88YAAA//8AADrjAAD//wAAOyAAAP////9IAAAU/////zwAYAD/////kBcAAP////869wAE/////zs5AAT/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOAMAAP//AAB8BABQ/////3wZAED/////QYD/2P////9X4AY+/////1QAEDr/////fH0CFP////+AYwFY/////0gAAAH8AAADfH4beP////9/w/N4/////38Ew3j/////f2XbeP////9IAAAB/AAAA3/D83j/////f2TbeP////9IAAAB/AAAA3wABKz/////f8PzeP////9/ZNt4/////0gAAAH8AAADO/8AAf////9X4AY+/////ygAAA//////QYD+3P////84YDAA/////0gAAAH8AAADkGAAAP/gAAA74AAA/////0gAABj/////f+P7eP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM7/wAB/////1fgBj7/////KAAAD/////9BgP/k/////5NcAAD/////OH0DLP////9MxjGC/////0gAAAH8AAADgAEANP////+64QAM/////zghADD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 656
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 66
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@26'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 380
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 392
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 396
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 400
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 404
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 408
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 460
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 532
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 576
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 592
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 596
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 632
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 058d202d65d742128bc8a6e702a7c04c89071df0
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////vuEADP////88YAAA//8AADujAAD//wAAOAAAAP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////KAABAP////9AgQAk/////zhgAAD/4AAAOIAEKv////84vQJ0/////0zGMYL/////SAAAAfwAAAM4AAAA/////ywAAAD/////QYIACP////84AAAB/////zxgAAD//wAAO4MAAP//AACDXAAA/////zxgAAD//wAAOwMAAP//AAA8YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAH9kAFD/////OGAAYP////9IAAAB/AAAA3x+G3j/////gB4AAP////8oAAAA/////0CCAHD/////OH0CqP////9MxjGC/////0gAAAH8AAADf8PzeP////88gAAA//8AADiEAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADf8PzeP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAN8AASs/////3/D83j/////PIAAAP//AAA4pAAA//8AADyAAAD//wAAOAQAAP//AAB8hQBQ/////0gAAAH8AAADO+AAAP////9IAAEg/////4AAAAD/4AAAKAAAAP////9BggA4/////4BgAAD/4AAAgAMAAP////8oAAAC/////0GAACj/////f+P7eP////9IAAAB/AAAAywDAAD/////QYIAGP////84fQLE/////1fkBj7/////TMYxgv////9IAAAB/AAAA0gAANz/////V+AGPv////9/QAN4/////5AcAAD/////f+P7eP////9IAAAB/AAAAywDAAD/////QYIAQP////84fQL0/////1fkBj7/////TMYxgv////9IAAAB/AAAAzxgAAD//wAAOGMAAP//AAA8gAAA//8AADiEAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADSAAAQP////88YAAA//8AADrjAAD//wAAOyAAAP////9IAAAU/////zwAYAD/////kBcAAP////869wAE/////zs5AAT/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOAMAAP//AAB8BABQ/////3wZAED/////QYD/2P////9X4AY+/////1QAEDr/////fH0CFP////+AYwFQ/////0gAAAH8AAADfH4beP////9/w/N4/////38Ew3j/////f2XbeP////9IAAAB/AAAA3/D83j/////f2TbeP////9IAAAB/AAAA3wABKz/////f8PzeP////9/ZNt4/////0gAAAH8AAADO/8AAf////9X4AY+/////ygAAA//////QYD+3P////84YDAA/////0gAAAH8AAADkGAAAP/gAAA74AAA/////0gAABj/////f+P7eP////88gAAA//8AADiEAAD//wAASAAAAfwAAAM7/wAB/////1fgBj7/////KAAAD/////9BgP/k/////5NcAAD/////OH0DJP////9MxjGC/////0gAAAH8AAADgAEANP////+64QAM/////zghADD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 656
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 66
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@26'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 272
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 380
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 392
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 396
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 400
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 404
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 408
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 456
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 460
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 532
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 548
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 576
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 592
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 596
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 632
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: 8c2a64c347377fb90dc45fa594a6f43c062c825c
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3w/C3j/////PGAAAP//AAA7wwAA//8AADgAAAH/////kB8ADP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////KAABAP////9AgQA0/////zhgAAD/4AAAOIAHHP////84vgWU/////0zGMYL/////SAAAAfwAAAM4AAAA/////5AfAAj/////gB8ACP////8sAAAA/////0CCAAz/////OAAAAP////+QHwAM/////zxgAAD//wAAO2MAAP//AACAGwAA/////5AfACD/////PGAAAP//AAA4AwAA//8AAJAfABz/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOAMAAP//AAB8BABQ/////5AfABj/////OGAAYP////9IAAAB/AAAA3x8G3j/////gBwAAP////8sAAAA/////0CCAHD/////OH4FyP////9MxjGC/////0gAAAH8AAADf4PjeP////88oAAA//8AADiFAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADf4PjeP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAN8AASs/////3+D43j/////PIAAAP//AAA4pAAA//8AADyAAAD//wAAOAQAAP//AAB8hQBQ/////0gAAAH8AAADO6AAAP////9IAAFA/////4AAAAD/4AAALAAAAP////9BggA4/////4BgAAD/4AAAgAMAAP////8oAAAC/////0GAACj/////V6MGPv////9IAAAB/AAAAywDAAD/////QYIAGP////84fgXk/////1ekBj7/////TMYxgv////9IAAAB/AAAA0gAAPz/////gH8AIP////9XoAY+/////3xgA3j/////kBsAAP////9XowY+/////0gAAAH8AAADLAMAAP////9BggBA/////zh+BhT/////V6QGPv////9MxjGC/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AADygAAD//wAAOIUAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAANIAABc/////zxgAAD//wAAOAMAAP//AACQHwAU/////zgAAAD/////kB8AEP////9IAAAk/////zwAYAD/////gH8AFP////+QAwAA/////zgDAAT/////kB8AFP////+AfwAQ/////zgDAAT/////kB8AEP////+AvwAQ/////zxgAAD//wAAOIMAAP//AAA8YAAA//8AADgDAAD//wAAfAQAUP////98BQBA/////0GA/8T/////V6AGPv////9UABA6/////zh+BHD/////fGMALv////9IAAAB/AAAA3x8G3j/////f4PjeP////+AnwAc/////4C/ABj/////SAAAAfwAAAN/g+N4/////4CfABj/////SAAAAfwAAAN8AASs/////3+D43j/////gJ8AGP////9IAAAB/AAAAzu9AAH/////V6AGPv////8oAAAP/////0GA/rz/////OGAwAP////9IAAAB/AAAA5BgAAD/4AAAO6AAAP////9IAAAY/////1ejBj7/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADO70AAf////9XoAY+/////ygAAA//////QYD/5P////+AHwAg/////5AbAAD/////OH4GRP////9MxjGC/////0gAAAH8AAADf+r7eP////85agBA/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 740
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@990'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 528
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 532
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 536
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 568
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 588
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 640
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 644
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 660
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 664
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 704
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 716
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+- symbol: 0
+  hash: 1e17776c6094966dc2c8e3054246ef1e85334540
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3w/C3j/////PGAAAP//AAA7wwAA//8AADgAAAH/////kB8ADP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////KAABAP////9AgQA0/////zhgAAD/4AAAOIAGx/////84vgR0/////0zGMYL/////SAAAAfwAAAM4AAAA/////5AfAAj/////gB8ACP////8sAAAA/////0CCAAz/////OAAAAP////+QHwAM/////zxgAAD//wAAO2MAAP//AACAGwAA/////5AfACD/////PGAAAP//AAA4AwAA//8AAJAfABz/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOAMAAP//AAB8BABQ/////5AfABj/////OGAAYP////9IAAAB/AAAA3x8G3j/////gBwAAP////8sAAAA/////0CCAHD/////OH4EqP////9MxjGC/////0gAAAH8AAADf4PjeP////88oAAA//8AADiFAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADf4PjeP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAN8AASs/////3+D43j/////PIAAAP//AAA4pAAA//8AADyAAAD//wAAOAQAAP//AAB8hQBQ/////0gAAAH8AAADO6AAAP////9IAAFA/////4AAAAD/4AAALAAAAP////9BggA4/////4BgAAD/4AAAgAMAAP////8oAAAC/////0GAACj/////V6MGPv////9IAAAB/AAAAywDAAD/////QYIAGP////84fgTE/////1ekBj7/////TMYxgv////9IAAAB/AAAA0gAAPz/////gH8AIP////9XoAY+/////3xgA3j/////kBsAAP////9XowY+/////0gAAAH8AAADLAMAAP////9BggBA/////zh+BPT/////V6QGPv////9MxjGC/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AADygAAD//wAAOIUAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAANIAABc/////zxgAAD//wAAOAMAAP//AACQHwAU/////zgAAAD/////kB8AEP////9IAAAk/////zwAYAD/////gH8AFP////+QAwAA/////zgDAAT/////kB8AFP////+AfwAQ/////zgDAAT/////kB8AEP////+AvwAQ/////zxgAAD//wAAOIMAAP//AAA8YAAA//8AADgDAAD//wAAfAQAUP////98BQBA/////0GA/8T/////V6AGPv////9UABA6/////zh+A1D/////fGMALv////9IAAAB/AAAA3x8G3j/////f4PjeP////+AnwAc/////4C/ABj/////SAAAAfwAAAN/g+N4/////4CfABj/////SAAAAfwAAAN8AASs/////3+D43j/////gJ8AGP////9IAAAB/AAAAzu9AAH/////V6AGPv////8oAAAP/////0GA/rz/////OGAwAP////9IAAAB/AAAA5BgAAD/4AAAO6AAAP////9IAAAY/////1ejBj7/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADO70AAf////9XoAY+/////ygAAA//////QYD/5P////+AHwAg/////5AbAAD/////OH4FJP////9MxjGC/////0gAAAH8AAADf+r7eP////85agBA/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 740
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@961'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 528
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 532
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 536
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 568
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 588
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 640
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 644
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 660
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 664
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 704
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 716
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+- symbol: 0
+  hash: 1f9d4b7d7a6adb73730ec0d141f11354774fa7bc
+  signature: lCH/wP////98CAKm/////5ABAET/////OWEAQP////9IAAAB/AAAA3w/C3j/////PGAAAP//AAA7wwAA//8AADgAAAH/////kB8ADP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////KAABAP////9AgQA0/////zhgAAD/4AAAOIAHAv////84vgR0/////0zGMYL/////SAAAAfwAAAM4AAAA/////5AfAAj/////gB8ACP////8sAAAA/////0CCAAz/////OAAAAP////+QHwAM/////zxgAAD//wAAO2MAAP//AACAGwAA/////5AfACD/////PGAAAP//AAA4AwAA//8AAJAfABz/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOAMAAP//AAB8BABQ/////5AfABj/////OGAAYP////9IAAAB/AAAA3x8G3j/////gBwAAP////8sAAAA/////0CCAHD/////OH4EqP////9MxjGC/////0gAAAH8AAADf4PjeP////88oAAA//8AADiFAAD//wAAPKAAAP//AAA4xQAA//8AADygAAD//wAAOAUAAP//AAB8pgBQ/////0gAAAH8AAADf4PjeP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAN8AASs/////3+D43j/////PIAAAP//AAA4pAAA//8AADyAAAD//wAAOAQAAP//AAB8hQBQ/////0gAAAH8AAADO6AAAP////9IAAFA/////4AAAAD/4AAALAAAAP////9BggA4/////4BgAAD/4AAAgAMAAP////8oAAAC/////0GAACj/////V6MGPv////9IAAAB/AAAAywDAAD/////QYIAGP////84fgTE/////1ekBj7/////TMYxgv////9IAAAB/AAAA0gAAPz/////gH8AIP////9XoAY+/////3xgA3j/////kBsAAP////9XowY+/////0gAAAH8AAADLAMAAP////9BggBA/////zh+BPT/////V6QGPv////9MxjGC/////0gAAAH8AAADPGAAAP//AAA4YwAA//8AADygAAD//wAAOIUAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAANIAABc/////zxgAAD//wAAOAMAAP//AACQHwAU/////zgAAAD/////kB8AEP////9IAAAk/////zwAYAD/////gH8AFP////+QAwAA/////zgDAAT/////kB8AFP////+AfwAQ/////zgDAAT/////kB8AEP////+AvwAQ/////zxgAAD//wAAOIMAAP//AAA8YAAA//8AADgDAAD//wAAfAQAUP////98BQBA/////0GA/8T/////V6AGPv////9UABA6/////zh+A1D/////fGMALv////9IAAAB/AAAA3x8G3j/////f4PjeP////+AnwAc/////4C/ABj/////SAAAAfwAAAN/g+N4/////4CfABj/////SAAAAfwAAAN8AASs/////3+D43j/////gJ8AGP////9IAAAB/AAAAzu9AAH/////V6AGPv////8oAAAP/////0GA/rz/////OGAwAP////9IAAAB/AAAA5BgAAD/4AAAO6AAAP////9IAAAY/////1ejBj7/////PIAAAP//AAA4hAAA//8AAEgAAAH8AAADO70AAf////9XoAY+/////ygAAA//////QYD/5P////+AHwAg/////5AbAAD/////OH4FJP////9MxjGC/////0gAAAH8AAADf+r7eP////85agBA/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 740
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@976'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 84
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 264
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 15
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 464
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 528
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 532
+    kind: PpcAddr16Ha
+    symbol: 18
+    addend: 0
+  - offset: 536
+    kind: PpcAddr16Lo
+    symbol: 18
+    addend: 0
+  - offset: 568
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 588
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 640
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 644
+    kind: PpcEmbSda21
+    symbol: 19
+    addend: 0
+  - offset: 660
+    kind: PpcAddr16Ha
+    symbol: 20
+    addend: 0
+  - offset: 664
+    kind: PpcAddr16Lo
+    symbol: 20
+    addend: 0
+  - offset: 668
+    kind: PpcRel24
+    symbol: 21
+    addend: 0
+  - offset: 704
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 716
+    kind: PpcRel24
+    symbol: 22
+    addend: 0
+- symbol: 0
+  hash: ed0f4e53970f02217ca3f06335b7e5e7d184ce51
+  signature: lCH/wP////98CAKm/////5ABAET/////k+EAPP////+TwQA4/////5OhADT/////k4EAMP////88YAAA//8AADvjAAD//wAAOAAAAf////+QAQAM/////zxgAAD//wAAOIMAAP//AAA8YAAA//8AADgDAAD//wAAfAQAUP////8oAAEA/////0CBADT/////OGAAAP/gAAA4gAa7/////zi/BHT/////TMYxgv////9IAAAB/AAAAzgAAAD/////kAEACP////+AAQAI/////ywAAAD/////QIIADP////84AAAA/////5ABAAz/////PGAAAP//AAA7gwAA//8AAIAcAAD/////kAEAIP////88YAAA//8AADgDAAD//wAAkAEAHP////88YAAA//8AADiDAAD//wAAPGAAAP//AAA4AwAA//8AAHwEAFD/////kAEAGP////84YABg/////0gAAAH8AAADfH0beP////+AHQAA/////ywAAAD/////QIIAcP////84fwSo/////0zGMYL/////SAAAAfwAAAN/o+t4/////zyAAAD//wAAOIQAAP//AAA8oAAA//8AADjFAAD//wAAPKAAAP//AAA4BQAA//8AAHymAFD/////SAAAAfwAAAN/o+t4/////zyAAAD//wAAOKQAAP//AAA8gAAA//8AADgEAAD//wAAfIUAUP////9IAAAB/AAAA3wABKz/////f6PreP////88gAAA//8AADikAAD//wAAPIAAAP//AAA4BAAA//8AAHyFAFD/////SAAAAfwAAAM7wAAA/////0gAAUD/////gAAAAP/gAAAsAAAA/////0GCADj/////gGAAAP/gAACAAwAA/////ygAAAL/////QYAAKP////9XwwY+/////0gAAAH8AAADLAMAAP////9BggAY/////zh/BMT/////V8QGPv////9MxjGC/////0gAAAH8AAADSAAA/P////+AYQAg/////1fABj7/////fGADeP////+QHAAA/////1fDBj7/////SAAAAfwAAAMsAwAA/////0GCAED/////OH8E9P////9XxAY+/////0zGMYL/////SAAAAfwAAAM8YAAA//8AADhjAAD//wAAPIAAAP//AAA4hAAA//8AADygAAD//wAAOMUAAP//AAA8oAAA//8AADgFAAD//wAAfKYAUP////9IAAAB/AAAA0gAAFz/////PGAAAP//AAA4AwAA//8AAJABABT/////OAAAAP////+QAQAQ/////0gAACT/////PABgAP////+AYQAU/////5ADAAD/////OAMABP////+QAQAU/////4BhABD/////OAMABP////+QAQAQ/////4ChABD/////PGAAAP//AAA4gwAA//8AADxgAAD//wAAOAMAAP//AAB8BABQ/////3wFAED/////QYD/xP////9XwAY+/////1QAEDr/////OH8DUP////98YwAu/////0gAAAH8AAADfH0beP////9/o+t4/////4CBABz/////gKEAGP////9IAAAB/AAAA3+j63j/////gIEAGP////9IAAAB/AAAA3wABKz/////f6PreP////+AgQAY/////0gAAAH8AAADO94AAf////9XwAY+/////ygAAA//////QYD+vP////84YDAA/////0gAAAH8AAADkGAAAP/gAAA7wAAA/////0gAABj/////V8MGPv////88gAAA//8AADiEAAD//wAASAAAAfwAAAM73gAB/////1fABj7/////KAAAD/////9BgP/k/////4ABACD/////kBwAAP////84fwUk/////0zGMYL/////SAAAAfwAAAOD4QA8/////4PBADj/////g6EANP////+DgQAw/////4ABAET/////fAgDpv////84IQBA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSExceptionInit
+    size: 744
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: __OSEVStart
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSEVEnd
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@963'
+    size: 5
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: __OSEVSetNumber
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DBPrintf
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTSTART
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBINTEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: memcpy
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DCFlushRangeNoSync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: ICInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: BI2DebugFlag
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DBIsExceptionMarked
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __DBVECTOR
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: __OSDBJUMPEND
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: OSExceptionTable
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSSetExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 72
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 156
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 220
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 224
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 228
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 232
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 248
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 252
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 256
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 260
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 292
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 312
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 324
+    kind: PpcEmbSda21
+    symbol: 14
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 420
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 428
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 432
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 436
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 440
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 444
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 448
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 452
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 460
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 16
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Lo
+    symbol: 16
+    addend: 0
+  - offset: 528
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 532
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 536
+    kind: PpcAddr16Ha
+    symbol: 17
+    addend: 0
+  - offset: 540
+    kind: PpcAddr16Lo
+    symbol: 17
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 604
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 620
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 644
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 648
+    kind: PpcEmbSda21
+    symbol: 18
+    addend: 0
+  - offset: 664
+    kind: PpcAddr16Ha
+    symbol: 19
+    addend: 0
+  - offset: 668
+    kind: PpcAddr16Lo
+    symbol: 19
+    addend: 0
+  - offset: 672
+    kind: PpcRel24
+    symbol: 20
+    addend: 0
+  - offset: 708
+    kind: PpcRel24
+    symbol: 8
+    addend: 0

@@ -1,0 +1,98 @@
+- symbol: 0
+  hash: 35e0aecb1159eba2e658821a16f289874cd0979b
+  signature: PCAAAP//AABgIQAA//8AADxAAAD//wAAYEIAAP//AAA9oAAA//8AAGGtAAD//wAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __init_registers
+    size: 28
+    flags: 2
+    section: .init
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _SDA2_BASE_
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _SDA_BASE_
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcAddr16Hi
+    symbol: 2
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 003c9e22ad7c98eab8a91efe4bd20f74310e1fd7
+  signature: OAAAAP////84YAAA/////ziAAAD/////OKAAAP////84wAAA/////zjgAAD/////OQAAAP////85IAAA/////zlAAAD/////OWAAAP////85gAAA/////znAAAD/////OeAAAP////86AAAA/////zogAAD/////OkAAAP////86YAAA/////zqAAAD/////OqAAAP////86wAAA/////zrgAAD/////OwAAAP////87IAAA/////ztAAAD/////O2AAAP////87gAAA/////zugAAD/////O8AAAP////874AAA/////zwgAAD//wAAYCEAAP//AAA8QAAA//8AAGBCAAD//wAAPaAAAP//AABhrQAA//8AAE6AACD/////
+  symbols:
+  - kind: Function
+    name: __init_registers
+    size: 144
+    flags: 2
+    section: .init
+  - kind: Unknown
+    name: _stack_addr
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _SDA2_BASE_
+    size: 0
+    flags: 1
+    section: null
+  - kind: Unknown
+    name: _SDA_BASE_
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 116
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Hi
+    symbol: 2
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Hi
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0

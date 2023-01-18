@@ -1,0 +1,76 @@
+- symbol: 0
+  hash: 83ea1a2986a06003ca4462e41a1f833a167b3fc6
+  signature: PGCAAP////+gAzDk/////3AADu//////LAAO7/////9MggAg/////zhgAAD/////OIAAAP////84oAAA/////0gAAAD8AAADToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __check_pad3
+    size: 40
+    flags: 2
+    section: .init
+  - kind: Function
+    name: OSResetSystem
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: bee3fc50a8504050f518240f52eb977dbb1540f8
+  signature: fAgCpv////+QAQAE/////5Qh//j/////PGCAAP////+gAzDk/////3AADu//////LAAO7/////9AggAU/////zhgAAD/////OIAAAP////84oAAA/////0gAAAH8AAADgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __check_pad3
+    size: 64
+    flags: 2
+    section: .init
+  - kind: Function
+    name: OSResetSystem
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 956fc3157a2e2a27f31b046e9b9841b2a321a08c
+  signature: fAgCpv////88YIAA/////5ABAAT/////lCH/+P////+gAzDk/////3AADu//////LAAO7/////9AggAU/////zhgAAD/////OIAAAP////84oAAA/////0gAAAH8AAADgAEADP////84IQAI/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __check_pad3
+    size: 64
+    flags: 2
+    section: .init
+  - kind: Function
+    name: OSResetSystem
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: f431fd9f820cdf74ce3549f31b18c5fd32d934b7
+  signature: lCH/8P////98CAKm/////5ABABT/////PGCAAP////+gAzDk/////3AADu//////LAAO7/////9AggAU/////zhgAAD/////OIAAAP////84oAAA/////0gAAAH8AAADgAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __check_pad3
+    size: 64
+    flags: 2
+    section: .init
+  - kind: Function
+    name: OSResetSystem
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

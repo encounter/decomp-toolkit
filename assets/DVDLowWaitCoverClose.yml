@@ -1,0 +1,74 @@
+- symbol: 0
+  hash: a2f2555c70cdf306d3c910de993f0cbb2be63823
+  signature: kGAAAP/gAAA4AAAB/////5AAAAD/4AAAOAAAAP////+QAAAA/+AAADgAAAL/////PIDMAP////+QBGAE/////zhgAAH/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDLowWaitCoverClose
+    size: 40
+    flags: 5
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingCoverClose
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: StopAtNextInt
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 8
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: fefe82e79bdcbcb64edd89f1c87f30ab3f4e94ff
+  signature: OAAAAf////+QYAAA/+AAADxgzAD/////kAAAAP/gAAA4AAAA/////ziDYAD/////kAAAAP/gAAA4AAAC/////zhgAAH/////kAQABP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDLowWaitCoverClose
+    size: 44
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Callback
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: WaitingCoverClose
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: StopAtNextInt
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0

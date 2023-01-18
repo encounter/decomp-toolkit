@@ -1,0 +1,934 @@
+- symbol: 0
+  hash: 8c2a97d868541667fe35ec5f2d016e1e85defe22
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88YAAA//8AADvjAAD//wAAOAAAAP////+QHwBE/////5AfAEj/////f+P7eP////9IAAAB/AAAA5B/AEz/////gB8ATP////8sAAAA/////0CCABz/////OGAAAP/gAAA4gAE4/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAQP////+QHwBA/////4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ReadSram
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@31'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@33'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: d56fcc645049f40c578f74d609db594fa750d839
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88YAAA//8AADvjAAD//wAAOAAAAP////+QHwBE/////5AfAEj/////f+P7eP////9IAAAB/AAAA5B/AEz/////gB8ATP////8sAAAA/////0CCABz/////OGAAAP/gAAA4gAFB/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAQP////+QHwBA/////0gAAAH8AAADSAAAAfwAAAOAAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 120
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ReadSram
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@31'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@33'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSGetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 8f70794f9885b23e185613774a46f81ce9fa58e4
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////zgAAAD/////PGAAAP//AAA4YwAA//8AAJADAET/////PGAAAP//AAA4YwAA//8AAJADAEj/////PGAAAP//AAA4YwAA//8AAEgAAAH8AAADPIAAAP//AAA4hAAA//8AAJBkAEz/////O+AAAf////88gAAA//8AADiEAAD//wAAgAQATP////8sAAAA/////0CCACz/////OGAAAP/gAAA4gAFK/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADO8AAAP////8sHgAA/////0CCAAj/////O+AAAP////84AABA/////zxgAAD//wAAOGMAAP//AACQAwBA/////0gAAAH8AAADVGMEPv////9IAAAB/AAAA4PhAAz/////g8EACP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 188
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ReadSram
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@588'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@590'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSGetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: 8410b8f32107ba4ddf47bed517d9f21bdfffffbe
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////+TwQAI/////zgAAAD/////PGAAAP//AAA4YwAA//8AAJADAET/////PGAAAP//AAA4YwAA//8AAJADAEj/////PGAAAP//AAA4YwAA//8AAEgAAAH8AAADPIAAAP//AAA4hAAA//8AAJBkAEz/////O+AAAf////88YAAA//8AADhjAAD//wAAgAMATP////8sAAAA/////0CCACz/////OGAAAP/gAAA4gAFE/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADO8AAAP////8sHgAA/////0CCAAj/////O+AAAP////84AABA/////zxgAAD//wAAOGMAAP//AACQAwBA/////0gAAAH8AAADVGMEPv////9IAAAB/AAAA4PhAAz/////g8EACP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 188
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: ReadSram
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@578'
+    size: 8
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: '@580'
+    size: 26
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSGetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: a55a8427e7515dc46d23cc97674d947a83b76e16
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OIAAQP////+UIf/o/////5PhABT/////O+AAAP////+TwQAQ/////zvDAAD//wAAOH4AAP////+T/gBE/////5P+AEj/////SAAAAfwAAAM4YAAA/////ziAAAH/////OKAAAP////9IAAAB/AAAAywDAAD/////QIIACP////9IAADE/////zhgAAD/////OIAAAf////84oAAD/////0gAAAH8AAADLAMAAP////9AggAQ/////zhgAAD/////SAAAAfwAAANIAACg/////zxgIAD/////OAMBAP////+QAQAI/////ziBAAj/////OGAAAP////84oAAE/////zjAAAH/////OOAAAP////9IAAAB/AAAA3xgADT/////VB/Zfv////84YAAA/////0gAAAH8AAADfGAANP////9UANl+/////zieAAD/////f/8DeP////84YAAA/////zigAED/////OMAAAP////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3//A3j/////OGAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9//wN4/////zhgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f/8DeP////84YAAA/////0gAAAH8AAADf+AANP////9UH9l+/////5P+AEz/////OAAAQP////+QHgBA/////4ABABz/////g+EAFP////+DwQAQ/////zghABj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 308
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDma
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 3b1f94ff0f061ebc81ffccb45d29d2e689b1c34a
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OIAAQP////+UIf/o/////5PhABT/////O+AAAP////+TwQAQ/////zvDAAD//wAAOH4AAP////+T/gBE/////5P+AEj/////SAAAAfwAAAM4YAAA/////ziAAAH/////OKAAAP////9IAAAB/AAAAywDAAD/////QIIACP////9IAADE/////zhgAAD/////OIAAAf////84oAAD/////0gAAAH8AAADLAMAAP////9AggAQ/////zhgAAD/////SAAAAfwAAANIAACg/////zxgIAD/////OAMBAP////+QAQAI/////ziBAAj/////OGAAAP////84oAAE/////zjAAAH/////OOAAAP////9IAAAB/AAAA3xgADT/////VB/Zfv////84YAAA/////0gAAAH8AAADfGAANP////9UANl+/////zieAAD/////f/8DeP////84YAAA/////zigAED/////OMAAAP////844AAA/////0gAAAH8AAADfGAANP////9UANl+/////3//A3j/////OGAAAP////9IAAAB/AAAA3xgADT/////VADZfv////9//wN4/////zhgAAD/////SAAAAfwAAAN8YAA0/////1QA2X7/////f/8DeP////84YAAA/////0gAAAH8AAADf+AANP////9UH9l+/////5P+AEz/////OAAAQP////+QHgBA/////0gAAAH8AAADSAAAAfwAAAOAAQAc/////4PhABT/////g8EAEP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 316
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDma
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetGbsMode
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: e692c2a58eae97bc19ad826ed208faefbbe69971
+  signature: lCH/4P////98CAKm/////ziAAED/////kAEAJP////84AAAA/////5PhABz/////k8EAGP////8/wAAA//8AADveAAD//wAAkB4ARP////9/w/N4/////5AeAEj/////SAAAAfwAAAM4YAAA/////ziAAAH/////OKAAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAMj/////OGAAAP////84gAAB/////zigAAP/////SAAAAfwAAAMsAwAA/////0CCABT/////OGAAAP////9IAAAB/AAAAzhgAAD/////SAAAoP////88YCAA/////ziBAAj/////OAMBAP////84oAAE/////5ABAAj/////OGAAAP////84wAAB/////zjgAAD/////SAAAAfwAAAN8YAA0/////zhgAAD/////VB/Zfv////9IAAAB/AAAA3xgADT/////f8TzeP////9UANl+/////zhgAAD/////f/4DeP////84oABA/////zjAAAD/////OOAAAP////9IAAAB/AAAA3xgADT/////OGAAAP////9UANl+/////3/eA3j/////SAAAAfwAAAN8YAA0/////zhgAAD/////VADZfv////9/3gN4/////0gAAAH8AAADfGAANP////84YAAA/////1QA2X7/////f94DeP////9IAAAB/AAAA3/AADT/////VAPZfv////8/4AAA//8AADgAAED/////O/8AAP//AACQfwBM/////5AfAED/////SAAAAfwAAAOAHwBI/////ywAAAD/////QYIAEP////9IAAAB/AAAAzhgAAD/////SAAAFP////84AAAB/////5B/AET/////OH8AFP////+QHwBI/////6PDACj/////OGAAAP////84gAAU/////0gAAAH8AAADV8AEav////8oAFAA/////0GCABD/////V8AGMv////8oAADA/////0CCAAj/////O8AAAP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACABABI/////ywAAAD/////QYIAEP////9IAAAB/AAAAzigAAD/////SAAAFP////84AAAB/////5BkAET/////OKQAFP////+QBABI/////6AFACj/////V8MEPv////98AwBA/////0CCABT/////OGAAAP////84gAAU/////0gAAAH8AAADSAAAFP////+zxQAo/////zhgAAH/////OIAAFP////9IAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 512
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDma
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockSram
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 392
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 396
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 3532b2e2b1d964e36996a3bdc72ab9cb7d231d40
+  signature: lCH/4P////98CAKm/////ziAAED/////kAEAJP////84AAAA/////5PhABz/////k8EAGP////8/wAAA//8AADveAAD//wAAkB4ARP////9/w/N4/////5AeAEj/////SAAAAfwAAAM4YAAA/////ziAAAH/////OKAAAP////9IAAAB/AAAAywDAAD/////QIIADP////84YAAA/////0gAAMj/////OGAAAP////84gAAB/////zigAAP/////SAAAAfwAAAMsAwAA/////0CCABT/////OGAAAP////9IAAAB/AAAAzhgAAD/////SAAAoP////88YCAA/////ziBAAj/////OAMBAP////+QAQAI/////zhgAAD/////OKAABP////84wAAB/////zjgAAD/////SAAAAfwAAAN8YAA0/////zhgAAD/////VB/Zfv////9IAAAB/AAAA3xgADT/////f8TzeP////9UANl+/////zhgAAD/////f/4DeP////84oABA/////zjAAAD/////OOAAAP////9IAAAB/AAAA3xgADT/////OGAAAP////9UANl+/////3/eA3j/////SAAAAfwAAAN8YAA0/////zhgAAD/////VADZfv////9/3gN4/////0gAAAH8AAADfGAANP////84YAAA/////1QA2X7/////f94DeP////9IAAAB/AAAA3/AADT/////VAPZfv////8/4AAA//8AADgAAED/////O/8AAP//AACQfwBM/////5AfAED/////SAAAAfwAAAOAHwBI/////ywAAAD/////QYIAEP////9IAAAB/AAAAzhgAAD/////SAAAFP////84AAAB/////5B/AET/////OH8AFP////+QHwBI/////6PDACj/////OGAAAP////84gAAU/////0gAAAH8AAADV8AEav////8oAFAA/////0GCABD/////V8AGMv////8oAADA/////0CCAAj/////O8AAAP////9IAAAB/AAAAzyAAAD//wAAOIQAAP//AACABABI/////ywAAAD/////QYIAEP////9IAAAB/AAAAzigAAD/////SAAAFP////84AAAB/////5BkAET/////OKQAFP////+QBABI/////6AFACj/////V8MEPv////98AwBA/////0CCABT/////OGAAAP////84gAAU/////0gAAAH8AAADSAAAFP////+zxQAo/////zhgAAH/////OIAAFP////9IAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSInitSram
+    size: 512
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Scb
+    size: 84
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: DCInvalidateRange
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXILock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISelect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIUnlock
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIImm
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXISync
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDma
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: EXIDeselect
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: UnlockSram
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 112
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 316
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 392
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 396
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 12
+    addend: 0

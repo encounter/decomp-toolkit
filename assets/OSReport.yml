@@ -1,0 +1,105 @@
+- symbol: 0
+  hash: ee4785a7d0280ffb2f4b901bd30203d43c5b67ef
+  signature: lCH/kP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////5CBAAz/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////OCEAcP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSReport
+    size: 80
+    flags: 1
+    section: .text
+  relocations: []
+- symbol: 0
+  hash: f27f3e1be708a93a1e3e68f1248444597bbeb53d
+  signature: fAgCpv////+QAQAE/////5Qh/4j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////kGEACP////88AAEA/////5CBAAz/////OIEAbP////+QoQAQ/////5DBABT/////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////+QAQBs/////zgBAID/////kAEAcP////84AQAI/////5ABAHT/////SAAAAfwAAAOAAQB8/////zghAHj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSReport
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Function
+    name: vprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 108
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 12c85922a2fe4b7b5064d98e5121c48505900b2f
+  signature: lCH/gP////98CAKm/////5ABAIT/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////OWEAiP////84AQAI/////z2AAQD/////kIEADP////84gQBo/////5BhAAj/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////kYEAaP////+RYQBs/////5ABAHD/////SAAAAfwAAAOAAQCE/////3wIA6b/////OCEAgP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSReport
+    size: 128
+    flags: 5
+    section: .text
+  - kind: Function
+    name: vprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 108
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: fb8b066032761e2ed53ef1949c2c3fd5cc773f4e
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////85YQCI/////zgBAAj/////PYABAP////+QYQAI/////zvhAGj/////kIEADP////9/5Pt4/////5ChABD/////kMEAFP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////5GBAGj/////kWEAbP////+QAQBw/////0gAAAH8AAADgAEAhP////+D4QB8/////3wIA6b/////OCEAgP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSReport
+    size: 140
+    flags: 5
+    section: .text
+  - kind: Function
+    name: vprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 116
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 8b4d03324cf93acdedafe4612efa769177cd224d
+  signature: fAgCpv////+QAQAE/////5Qh/4D/////k+EAfP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////+QYQAI/////5CBAAz/////kKEAEP////+QwQAU/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////fH8beP////88AAEA/////5ABAGz/////OAEAiP////+QAQBw/////zgBAAj/////kAEAdP////84fwAA/////ziBAGz/////SAAAAfwAAAOAAQCE/////4PhAHz/////OCEAgP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSReport
+    size: 144
+    flags: 5
+    section: .text
+  - kind: Function
+    name: vprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 120
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: ab61e2a35076809d04b903f4bf9ca4b8c80de491
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////98fxt4/////0CGACT/////2CEAKP/////YQQAw/////9hhADj/////2IEAQP/////YoQBI/////9jBAFD/////2OEAWP/////ZAQBg/////5BhAAj/////kIEADP////+QoQAQ/////5DBABT/////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////84YQBo/////zwAAQD/////kAMAAP////84AQCI/////5ADAAT/////OAEACP////+QAwAI/////3/j+3j/////OIEAaP////9IAAAB/AAAA4PhAHz/////gAEAhP////98CAOm/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSReport
+    size: 148
+    flags: 5
+    section: .text
+  - kind: Function
+    name: vprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 124
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

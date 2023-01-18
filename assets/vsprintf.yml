@@ -1,0 +1,166 @@
+- symbol: 0
+  hash: 0a86ea00beea7cea63ce37b5216063b5346c1c0b
+  signature: fAgCpv////84xQAA/////5ABAAT/////OKQAAP////88gAAQ/////5Qh//j/////SAAAAfwAAAOAAQAM/////zghAAj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: vsprintf
+    size: 44
+    flags: 1
+    section: .text
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 13170c969386c2018d768adfbab78de7aa63105d
+  signature: lCH/4P////98CAKm/////5BhAAj/////kIEADP////84gP///////4BhAAj/////kKEAEP////+AoQAM/////5ABACT/////gMEAEP////9IAAAB/AAAA4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: vsprintf
+    size: 60
+    flags: 1
+    section: .text
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 5885efac2a796a2c1b4ff274c694aa4835b02bcd
+  signature: fAgCpv////84xQAA/////5ABAAT/////OAAAAP////84pAAA/////5Qh/9j/////k+EAJP////874P///////ziBABT/////k8EAIP////98fht4/////zxgAAD//wAAk8EAFP////84YwAA//8AAJPhABj/////kAEAHP////9IAAAB/AAAA3wD+ED/////QIAADP////98ZBt4/////0gAAAj/////OID//v////84AAAA/////3weIa7/////gAEALP////+D4QAk/////4PBACD/////fAgDpv////84IQAo/////06AACD/////
+  symbols:
+  - kind: Function
+    name: vsprintf
+    size: 120
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: cd553648d654529f91590b8f8f23051d871b875e
+  signature: lCH/4P////98CAKm/////3ymK3j/////fIUjeP////+QAQAk/////zjg////////OAAAAP////84gQAI/////5PhABz/////fH8beP////88YAAA//8AAJPhAAj/////OGMAAP//AACQ4QAM/////5ABABD/////SAAAAfwAAAMoHwAA/////0GCACD/////OAD///////84gP/+/////3wDAED/////QIAACP////98ZBt4/////zgAAAD/////fB8hrv////+AAQAk/////4PhABz/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: vsprintf
+    size: 120
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 0ce7109467aa4020642bb441a6f6cc163c2acbf8
+  signature: lCH/0P////98CAKm/////3ymK3j/////fIUjeP////+QAQA0/////zzgAAD//wAAOIEACP////+T4QAs/////zvgAAD/////k8EAKP////87wP///////5OhACT/////fH0beP////+QYQAI/////zhnAAD//wAAk8EADP////+T4QAQ/////0gAAAH8AAADLB0AAP////9BggAY/////3wD8ED/////QIAADP////9//Rmu/////0gAAAj/////m/3//v////+AAQA0/////4PhACz/////g8EAKP////+DoQAk/////3wIA6b/////OCEAMP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: vsprintf
+    size: 128
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 9027cdd7c152d7b4df6db6ff732d2e01fd7a2bd5
+  signature: lCH/0P////98CAKm/////3ymK3j/////fIUjeP////+QAQA0/////zzgAAD//wAAOIEACP////+T4QAs/////zvgAAD/////k8EAKP////87wP///////5OhACT/////fH0beP////+QYQAI/////zhnAAD//wAAOOAAAP////+TwQAM/////5PhABD/////SAAAAfwAAAMsHQAA/////0GCABj/////fAPwQP////9AgAAM/////3/9Ga7/////SAAACP////+b/f/+/////4ABADT/////g+EALP////+DwQAo/////4OhACT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: vsprintf
+    size: 132
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 72
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

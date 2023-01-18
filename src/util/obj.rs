@@ -1,12 +1,22 @@
 use std::{
+    cmp::min,
     collections::{btree_map, BTreeMap},
+    fmt,
     hash::{Hash, Hasher},
 };
+use std::marker::PhantomData;
 
-use anyhow::{Error, Result};
+use anyhow::{anyhow, bail, Result};
 use flagset::{flags, FlagSet};
+use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
+use serde_yaml::Value;
+use serde_repr::{Serialize_repr, Deserialize_repr};
+
+use crate::util::rel::RelReloc;
 
 flags! {
+    #[repr(u8)]
+    #[derive(Deserialize_repr, Serialize_repr)]
     pub enum ObjSymbolFlags: u8 {
         Global,
         Local,
@@ -15,7 +25,7 @@ flags! {
         Hidden,
     }
 }
-#[derive(Debug, Copy, Clone, Default, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ObjSymbolFlagSet(pub(crate) FlagSet<ObjSymbolFlags>);
 #[allow(clippy::derive_hash_xor_eq)]
 impl Hash for ObjSymbolFlagSet {
@@ -37,11 +47,14 @@ pub struct ObjSection {
     pub data: Vec<u8>,
     pub align: u64,
     pub index: usize,
+    /// REL files reference the original ELF section indices
+    pub elf_index: usize,
     pub relocations: Vec<ObjReloc>,
     pub original_address: u64,
     pub file_offset: u64,
+    pub section_known: bool,
 }
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Default)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Default, Serialize, Deserialize)]
 pub enum ObjSymbolKind {
     #[default]
     Unknown,
@@ -62,9 +75,9 @@ pub struct ObjSymbol {
 }
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjKind {
-    /// Fully linked file
+    /// Fully linked object
     Executable,
-    /// Relocatable file
+    /// Relocatable object
     Relocatable,
 }
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
@@ -78,9 +91,11 @@ pub struct ObjInfo {
     pub name: String,
     pub symbols: Vec<ObjSymbol>,
     pub sections: Vec<ObjSection>,
-    pub entry: u32,
+    pub entry: u64,
 
     // Linker generated
+    pub sda2_base: Option<u32>,
+    pub sda_base: Option<u32>,
     pub stack_address: Option<u32>,
     pub stack_end: Option<u32>,
     pub db_stack_addr: Option<u32>,
@@ -90,8 +105,16 @@ pub struct ObjInfo {
     // Extracted
     pub splits: BTreeMap<u32, String>,
     pub link_order: Vec<String>,
+
+    // From extab
+    pub known_functions: BTreeMap<u32, u32>,
+
+    // REL
+    /// Module ID (0 for main)
+    pub module_id: u32,
+    pub unresolved_relocations: Vec<RelReloc>,
 }
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum ObjRelocKind {
     Absolute,
     PpcAddr16Hi,
@@ -123,10 +146,29 @@ impl ObjInfo {
     pub fn build_symbol_map(&self, section_idx: usize) -> Result<BTreeMap<u32, Vec<usize>>> {
         let mut symbols = BTreeMap::<u32, Vec<usize>>::new();
         for (symbol_idx, symbol) in self.symbols_for_section(section_idx) {
-            let address = symbol.address as u32;
-            nested_push(&mut symbols, address, symbol_idx);
+            nested_push(&mut symbols, symbol.address as u32, symbol_idx);
         }
         Ok(symbols)
+    }
+
+    pub fn section_at(&self, addr: u32) -> Result<&ObjSection> {
+        self.sections
+            .iter()
+            .find(|&section| {
+                (addr as u64) >= section.address && (addr as u64) < section.address + section.size
+            })
+            .ok_or_else(|| anyhow!("Failed to locate section @ {:#010X}", addr))
+    }
+
+    pub fn section_data(&self, start: u32, end: u32) -> Result<(&ObjSection, &[u8])> {
+        let section = self.section_at(start)?;
+        let data = if end == 0 {
+            &section.data[(start as u64 - section.address) as usize..]
+        } else {
+            &section.data[(start as u64 - section.address) as usize
+                ..min(section.data.len(), (end as u64 - section.address) as usize)]
+        };
+        Ok((section, data))
     }
 }
 
@@ -139,9 +181,7 @@ impl ObjSection {
                 btree_map::Entry::Vacant(e) => {
                     e.insert(reloc.clone());
                 }
-                btree_map::Entry::Occupied(_) => {
-                    return Err(Error::msg(format!("Duplicate relocation @ {address:#010X}")));
-                }
+                btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
             }
         }
         Ok(relocations)

@@ -1,0 +1,687 @@
+- symbol: 0
+  hash: 53712877bb6372895b334e37d21b86d044691a87
+  signature: SAAAAfwAAANIAAAB/AAAAzgA////////lCH/+P////+QAQAE/////5ABAAD/////SAAAAfwAAAM4AAAA/////zzAgAD/////OMYARP////+QBgAA/////zzAgAD/////OMYA9P////+AxgAA/////ygGAAD/////QYIAMP////+A5gAM/////zigAAD/////KAcAAv////9BggAQ/////ygHAAP/////QIIAGP////84oAAB/////zzAAAD//wAAOMYAAP//AAB8yAOm/////06AACH/////PMCAAP////84xgD0/////4CmAAD/////KAUAAP////9BogBQ/////4DFAAj/////KAYAAP////9BogBE/////3zFMhT/////gcYAAP////8oDgAA/////0GCADT/////OeYABP////99yQOm/////zjGAAT/////gOYAAP////985yoU/////5DmAAD/////QgD/8P////88oIAA/////zilADT/////VecANP////+Q5QAA/////0gAAAz/////OcAAAP////854AAA/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA33Dc3j/////feR7eP////9IAAAB/AAAA0gAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: __start
+    size: 240
+    flags: 5
+    section: .init
+  - kind: Function
+    name: __init_registers
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_hardware
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __init_data
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DBInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __init_user
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: main
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: exit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+- symbol: 0
+  hash: c3b5b5a881dbed68e01f5c2a2c7f615a4f3562b2
+  signature: SAAAAfwAAANIAAAB/AAAAzgA////////lCH/+P////+QAQAE/////5ABAAD/////SAAAAfwAAAM4AAAA/////zzAgAD/////OMYARP////+QBgAA/////zzAgAD/////OMYA9P////+AxgAA/////ygGAAD/////QYIAMP////+A5gAM/////zigAAD/////KAcAAv////9BggAQ/////ygHAAP/////QIIAGP////84oAAB/////zzAAAD//wAAOMYAAP//AAB8yAOm/////06AACH/////PMCAAP////84xgD0/////4CmAAD/////KAUAAP////9BogBQ/////4DFAAj/////KAYAAP////9BogBE/////3zFMhT/////gcYAAP////8oDgAA/////0GCADT/////OeYABP////99yQOm/////zjGAAT/////gOYAAP////985yoU/////5DmAAD/////QgD/8P////88oIAA/////zilADT/////VecANP////+Q5QAA/////0gAAAz/////OcAAAP////854AAA/////0gAAAH8AAADSAAAAfwAAAM8gIAA/////ziEMOb/////oGQAAP////9wZYAA/////0GCABD/////cGN///////8oAwAB/////0CCAAj/////SAAAAfwAAANIAAAB/AAAA33Dc3j/////feR7eP////9IAAAB/AAAA0gAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: __start
+    size: 276
+    flags: 5
+    section: .init
+  - kind: Function
+    name: __init_registers
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_hardware
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __init_data
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DBInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __check_pad3
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_user
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: main
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: exit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: d6fa76cf9934686c72fb9b969ed123a5474bfc33
+  signature: SAAAAfwAAANIAAAB/AAAAzgA////////lCH/+P////+QAQAE/////5ABAAD/////SAAAAfwAAAM4AAAA/////zzAgAD/////OMYARP////+QBgAA/////zzAgAD/////OMYA9P////+AxgAA/////ygGAAD/////QYIADP////+A5gAM/////0gAACT/////PKCAAP////84pQA0/////4ClAAD/////KAUAAP////9BggA4/////zzggAD/////OOcw6P////+A5wAA/////zigAAD/////KAcAAv////9BggAQ/////ygHAAP/////QIIAGP////84oAAB/////zzAAAD//wAAOMYAAP//AAB8yAOm/////06AACH/////PMCAAP////84xgD0/////4CmAAD/////KAUAAP////9BogBQ/////4DFAAj/////KAYAAP////9BogBE/////3zFMhT/////gcYAAP////8oDgAA/////0GCADT/////OeYABP////99yQOm/////zjGAAT/////gOYAAP////985yoU/////5DmAAD/////QgD/8P////88oIAA/////zilADT/////VecANP////+Q5QAA/////0gAAAz/////OcAAAP////854AAA/////0gAAAH8AAADSAAAAfwAAAM8gIAA/////ziEMOb/////oGQAAP////9wZYAA/////0GCABD/////cGN///////8oAwAB/////0CCAAj/////SAAAAfwAAANIAAAB/AAAA33Dc3j/////feR7eP////9IAAAB/AAAA0gAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: __start
+    size: 312
+    flags: 5
+    section: .init
+  - kind: Function
+    name: __init_registers
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_hardware
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __init_data
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DBInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __check_pad3
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_user
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: main
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: exit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 292
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 64a2658a78dfba5653390a856bc45cf53daad067
+  signature: SAAAAfwAAANIAAAB/AAAAzgA////////lCH/+P////+QAQAE/////5ABAAD/////SAAAAfwAAAM4AAAA/////zzAgAD/////OMYARP////+QBgAA/////zzAgAD/////OMYA9P////+AxgAA/////ygGAAD/////QYIADP////+A5gAM/////0gAACT/////PKCAAP////84pQA0/////4ClAAD/////KAUAAP////9BggBM/////zzggAD/////OOcw6P////+A5wAA/////zigAAD/////KAcAAv////9BggAk/////ygHAAP/////OKAAAf////9BggAY/////ygHAAT/////QIIAIP////84oAAC/////0gAAAH8AAADSAAAFP////88wAAA//8AADjGAAD//wAAfMgDpv////9OgAAh/////zzAgAD/////OMYA9P////+ApgAA/////ygFAAD/////QaIAUP////+AxQAI/////ygGAAD/////QaIARP////98xTIU/////4HGAAD/////KA4AAP////9BggA0/////znmAAT/////fckDpv////84xgAE/////4DmAAD/////fOcqFP////+Q5gAA/////0IA//D/////PKCAAP////84pQA0/////1XnADT/////kOUAAP////9IAAAM/////znAAAD/////OeAAAP////9IAAAB/AAAA0gAAAH8AAADPICAAP////84hDDm/////6BkAAD/////cGWAAP////9BggAQ/////3Bjf///////KAMAAf////9AggAI/////0gAAAH8AAADSAAAAfwAAAMoAwAB/////0CCAAj/////SAAAAfwAAANIAAAB/AAAA33Dc3j/////feR7eP////9IAAAB/AAAA0gAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: __start
+    size: 348
+    flags: 5
+    section: .init
+  - kind: Function
+    name: __init_registers
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_hardware
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __init_data
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __set_debug_bba
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DBInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __check_pad3
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __get_debug_bba
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK_BBA
+    size: 0
+    flags: 5
+    section: null
+  - kind: Function
+    name: __init_user
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: main
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: exit
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+- symbol: 0
+  hash: b31df110c1c1d82bb84148437e3b9a4d601e3041
+  signature: SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADOAD///////+UIf/4/////5ABAAT/////kAEAAP////84AAAA/////zzAgAD/////OMYARP////+QBgAA/////zzAgAD/////OMYA9P////+AxgAA/////ygGAAD/////QYIADP////+A5gAM/////0gAACT/////PKCAAP////84pQA0/////4ClAAD/////KAUAAP////9BggBM/////zzggAD/////OOcw6P////+A5wAA/////zigAAD/////KAcAAv////9BggAk/////ygHAAP/////OKAAAf////9BggAY/////ygHAAT/////QIIAIP////84oAAC/////0gAAAH8AAADSAAAFP////88wAAA//8AADjGAAD//wAAfMgDpv////9OgAAh/////zzAgAD/////OMYA9P////+ApgAA/////ygFAAD/////QaIAYP////+AxQAI/////ygGAAD/////QaIAVP////98xTIU/////4HGAAD/////KA4AAP////9BggBE/////znmAAT/////fckDpv////84xgAE/////4DmAAD/////fOcqFP////+Q5gAA/////0IA//D/////PKCAAP////84pQA0/////1XnADT/////kOUAAP////88oIAA/////zilMRD/////VecANP////+Q5QAA/////0gAAAz/////OcAAAP////854AAA/////0gAAAH8AAADPICAAP////84hDDm/////6BkAAD/////cGWAAP////9BggAQ/////3Bjf///////KAMAAf////9AggAI/////0gAAAH8AAADSAAAAfwAAAMoAwAB/////0CCAAj/////SAAAAfwAAANIAAAB/AAAA33Dc3j/////feR7eP////9IAAAB/AAAA0gAAAD8AAAD
+  symbols:
+  - kind: Function
+    name: __start
+    size: 360
+    flags: 5
+    section: .init
+  - kind: Function
+    name: __init_registers
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_data
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_hardware
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __set_debug_bba
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: OSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __check_pad3
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __get_debug_bba
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK_BBA
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __init_user
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: main
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: exit
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 8
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 352
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 6b6e50a541e3898b602b7982f951051424e6257d
+  signature: SAAAAfwAAANIAAAB/AAAAzgA////////lCH/+P////+QAQAE/////5ABAAD/////SAAAAfwAAAM4AAAA/////zzAgAD/////OMYARP////+QBgAA/////zzAgAD/////OMYA9P////+AxgAA/////ygGAAD/////QYIADP////+A5gAM/////0gAACT/////PKCAAP////84pQA0/////4ClAAD/////KAUAAP////9BggBM/////zzggAD/////OOcw6P////+A5wAA/////zigAAD/////KAcAAv////9BggAk/////ygHAAP/////OKAAAf////9BggAY/////ygHAAT/////QIIAIP////84oAAC/////0gAAAH8AAADSAAAFP////88wAAA//8AADjGAAD//wAAfMgDpv////9OgAAh/////zzAgAD/////OMYA9P////+ApgAA/////ygFAAD/////QaIAYP////+AxQAI/////ygGAAD/////QaIAVP////98xTIU/////4HGAAD/////KA4AAP////9BggBE/////znmAAT/////fckDpv////84xgAE/////4DmAAD/////fOcqFP////+Q5gAA/////0IA//D/////PKCAAP////84pQA0/////1XnADT/////kOUAAP////88oIAA/////zilMRD/////VecANP////+Q5QAA/////0gAAAz/////OcAAAP////854AAA/////0gAAAH8AAADSAAAAfwAAAM8gIAA/////ziEMOb/////oGQAAP////9wZYAA/////0GCABD/////cGN///////8oAwAB/////0CCAAj/////SAAAAfwAAANIAAAB/AAAAygDAAH/////QIIACP////9IAAAB/AAAA0gAAAH8AAADfcNzeP////995Ht4/////0gAAAH8AAADSAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: __start
+    size: 364
+    flags: 5
+    section: .init
+  - kind: Function
+    name: __init_registers
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __init_hardware
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Function
+    name: __init_data
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __set_debug_bba
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: DBInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSInit
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __check_pad3
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: __get_debug_bba
+    size: 0
+    flags: 2
+    section: .init
+  - kind: Function
+    name: InitMetroTRK_BBA
+    size: 0
+    flags: 1
+    section: null
+  - kind: Function
+    name: __init_user
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: main
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: exit
+    size: 0
+    flags: 5
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 284
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 360
+    kind: PpcRel24
+    symbol: 13
+    addend: 0

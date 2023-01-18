@@ -1,0 +1,69 @@
+- symbol: 0
+  hash: aed531882f5a52115e7ce8b9dd6b6ae5bc32a34b
+  signature: PGCAAP////+AAzEw/////5AAAAD/4AAAgAMxNP////+QAAAA/+AAAE6AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitIPCBuffer
+    size: 24
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IpcBufferLo
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: IpcBufferHi
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 8
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 9c4e92b0a1a061160248af91e7dd0841b29c2431
+  signature: lCH/8P////98CAKm/////5ABABT/////OGAxMP////9IAAAB/AAAA4ADAAD/////kAAAAP/gAAA4YDE0/////0gAAAH8AAADgAMAAP////+QAAAA/+AAAIABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __OSInitIPCBuffer
+    size: 60
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: IpcBufferLo
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: IpcBufferHi
+    size: 4
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0

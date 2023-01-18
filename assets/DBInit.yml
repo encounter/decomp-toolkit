@@ -1,0 +1,249 @@
+- symbol: 0
+  hash: a187f301d92c3db5517417cf7ff9826907df93df
+  signature: PICAAP////88YAAA//8AADikAED/////OAAAAf////84YwAA//8AAJCgAAD/4AAAPGOAAP////+QZABI/////5AAAAD/4AAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DBInit
+    size: 40
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DBExceptionDestination
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DBInterface
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: DBVerbose
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 766a959056a6c91403d5149533053c9091eb112d
+  signature: PICAAP////88YAAA//8AADgEAED/////kAAAAP/gAAA4YwAA//8AADxjgAD/////kGQASP////84AAAB/////5AAAAD/4AAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DBInit
+    size: 40
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DBExceptionDestination
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DBInterface
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: DBVerbose
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: e76cffb1d91ab3a2f36bcd4c3173812265d43dfb
+  signature: PICAAP////84BABA/////zxgAAD//wAAkAAAAP/gAAA4YwAA//8AADwDgAD/////kAQASP////84AAAB/////5AAAAD/4AAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DBInit
+    size: 40
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DBExceptionDestination
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DBInterface
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Object
+    name: DBVerbose
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: a253c3f98bd20d16d193565ce89d5180d6259eb2
+  signature: fAgCpv////+QAQAE/////5Qh//j/////OGAAQP////9IAAAB/AAAA5BgAAD/4AAAPGAAAP//AAA4YwAA//8AAEgAAAH8AAADgIAAAP/gAACQZAAI/////zgAAAH/////kAAAAP/gAACAAQAM/////zghAAj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DBInit
+    size: 68
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DBInterface
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __DBExceptionDestination
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCachedToPhysical
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DBVerbose
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: a1eafda3a66a65f6198f7e18495196a48d104c5f
+  signature: lCH/8P////98CAKm/////5ABABT/////OGAAQP////9IAAAB/AAAA5BgAAD/4AAAPGAAAP//AAA4YwAA//8AAEgAAAH8AAADgIAAAP/gAACQZAAI/////zgAAAH/////kAAAAP/gAACAAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DBInit
+    size: 68
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPhysicalToCached
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DBInterface
+    size: 4
+    flags: 1
+    section: .sbss
+  - kind: Function
+    name: __DBExceptionDestination
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSCachedToPhysical
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: DBVerbose
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0

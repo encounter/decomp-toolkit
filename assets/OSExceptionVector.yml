@@ -1,0 +1,23 @@
+- symbol: 0
+  hash: 3d7b32329cadb2fdefaf64fc81291e03178f6e7d
+  signature: fJBDpv////+AgADA/////5BkAAz/////fHBCpv////+QZAAQ/////5CkABT/////oGQBov////9gYwAC/////7BkAaL/////fGAAJv////+QZACA/////3xoAqb/////kGQAhP////98aQKm/////5BkAIj/////fGECpv////+QZACM/////3x6Aqb/////kGQBmP////98ewKm/////5BkAZz/////fGUbeP////9gAAAA/////3xgAKb/////YGMAMP////98ewOm/////zhgAAD/////gIAA1P////9UpQe9/////0CCABT/////PKAAAP//AAA4pQAA//8AAHy6A6b/////TAAAZP////9UZRW6/////4ClMAD/////fLoDpv////9MAABk/////2AAAAD/////
+  symbols:
+  - kind: Function
+    name: OSExceptionVector
+    size: 156
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDefaultExceptionHandler
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

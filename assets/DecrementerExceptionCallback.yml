@@ -1,0 +1,1770 @@
+- symbol: 0
+  hash: 045bf56b8c213b3fb1352c5de0a3b23c669e16a8
+  signature: fAgCpv////+QAQAE/////5Qh/Qj/////vyEC3P////87xAAA/////zxgAAD//wAAO6MAAP//AABIAAAB/AAAAztEAAD/////OyMAAP////+D4AAA/+AAACgfAAD/////QIIADP////9/w/N4/////0gAAAH8AAADgB8ACP////+AvwAM/////28kgAD/////bAOAAP////98BdAQ/////3xjIRD/////fGQhEP////98YwDR/////0GCABT/////f+P7eP////9IAAAB/AAAA3/D83j/////SAAAAfwAAAODnwAU/////5OAAAD/4AAAKBwAAP////9AggAU/////zgAAAD/////OGAAAP/gAACQAwAE/////0gAAAz/////OAAAAP////+QHAAQ/////0gAAAH8AAADLAMAAP////9AggAY/////zh9Aej/////OIAB3v////84vQKM/////0zGMYL/////SAAAAfwAAAODfwAA/////zgAAAD/////kB8AAP////84wAAA/////zhgAAD/////gB8AGP////+AvwAc/////2xkgAD/////bAOAAP////98BTAQ/////3xjIRD/////fGQhEP////98YwDR/////0GCADj/////OH8AAP////84wAAA/////zigAAD/////OPsAAP////9IAAAB/AAAA0gAAAH8AAADLAMAAP////9AggAY/////zh9Aej/////OIAB6P////84vQKM/////0zGMYL/////SAAAAfwAAAOAAAAA/+AAACgAAAD/////QYIADP////+AYAAA/+AAAEgAAAH8AAADSAAAAfwAAAM4YQAQ/////0gAAAH8AAADOGEAEP////9IAAAB/AAAAzh/AAD/////OJ4AAP////85mwAA/////32IA6b/////ToAAIf////84YQAQ/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEC/P////+7IQLc/////zghAvj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 404
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@46'
+    size: 137
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetTimer
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCheckAlarmQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 304
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 372
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: dc78bf959b24f9233369d89525d967a936669a99
+  signature: fAgCpv////+QAQAE/////5Qh/Qj/////vyEC3P////87xAAA/////zxgAAD//wAAO6MAAP//AABIAAAB/AAAAztEAAD/////OyMAAP////+D4AAA/+AAACgfAAD/////QIIADP////9/w/N4/////0gAAAH8AAADgB8ACP////+AvwAM/////28kgAD/////bAOAAP////98BdAQ/////3xjIRD/////fGQhEP////98YwDR/////0GCABT/////f+P7eP////9IAAAB/AAAA3/D83j/////SAAAAfwAAAODnwAU/////5OAAAD/4AAAKBwAAP////9AggAU/////zgAAAD/////OGAAAP/gAACQAwAE/////0gAAAz/////OAAAAP////+QHAAQ/////0gAAAH8AAADLAMAAP////9AggAY/////zh9Afj/////OIAB7/////84vQKc/////0zGMYL/////SAAAAfwAAAODfwAA/////zgAAAD/////kB8AAP////84wAAA/////zhgAAD/////gB8AGP////+AvwAc/////2xkgAD/////bAOAAP////98BTAQ/////3xjIRD/////fGQhEP////98YwDR/////0GCADj/////OH8AAP////84wAAA/////zigAAD/////OPsAAP////9IAAAB/AAAA0gAAAH8AAADLAMAAP////9AggAY/////zh9Afj/////OIAB+f////84vQKc/////0zGMYL/////SAAAAfwAAAOAAAAA/+AAACgAAAD/////QYIADP////+AYAAA/+AAAEgAAAH8AAADSAAAAfwAAAM4YQAQ/////0gAAAH8AAADOGEAEP////9IAAAB/AAAAzh/AAD/////OJ4AAP////85mwAA/////32IA6b/////ToAAIf////84YQAQ/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAN/w/N4/////0gAAAH8AAADgAEC/P////+7IQLc/////zghAvj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 404
+    flags: 2
+    section: .text
+  - kind: Object
+    name: ResetFunctionInfo
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetTimer
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCheckAlarmQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 260
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 304
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 308
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 320
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 356
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 368
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 372
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 7713012464d1cb22477beae4476ca5f5a088da67
+  signature: lCH9AP////98CAKm/////5ABAwT/////OWEDAP////9IAAAB/AAAA3ydI3j/////SAAAAfwAAAN8myN4/////3x6G3j/////g+AAAP/gAAAsHwAA/////0CCAAz/////f6PreP////9IAAAB/AAAA4B/AAj/////gL8ADP////9vQIAA/////2xkgAD/////fGXYEP////98hAEQ/////3yAARD/////fIQA0P////8sBAAA/////0GCABT/////f+P7eP////9IAAAB/AAAA3+j63j/////SAAAAfwAAAOD3wAU/////5PAAAD/4AAALB4AAP////9AggAU/////zgAAAD/////OGAAAP/gAACQAwAE/////0gAAAz/////OAAAAP////+QHgAQ/////zsgAAH/////SAAAAfwAAAMsAwAA/////0CCADj/////PGAAAP//AAA4YwAA//8AADiAAhP/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABAAz/////gAEADP////8sAAAA/////0CCAAj/////OyAAAP////+DnwAA/////zgAAAD/////kB8AAP////+AnwAY/////4C/ABz/////OGAAAP////84AAAA/////2wAgAD/////bISAAP////98ZRgQ/////3yEARD/////fIABEP////98hADQ/////ywEAAD/////QYIAXP////9/4/t4/////zjAAAD/////OKAAAP////9/h+N4/////0gAAAH8AAADOwAAAf////9IAAAB/AAAAywDAAD/////QIIAOP////88YAAA//8AADhjAAD//wAAOIACHf////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEACP////+AAQAI/////ywAAAD/////QIIACP////87AAAA/////4AAAAD/4AAALAAAAP////9BggAM/////4BgAAD/4AAASAAAAfwAAANIAAAB/AAAAzhhABD/////SAAAAfwAAAM4YQAQ/////0gAAAH8AAADf+P7eP////9/pOt4/////3+M43j/////fYkDpv////9OgAQh/////zhhABD/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA3+j63j/////SAAAAfwAAAM5YQMA/////0gAAAH8AAADgAEDBP////98CAOm/////zghAwD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 484
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetTimer
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCheckAlarmQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@767'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@796'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 316
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 368
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 70305fb8ae3fc04f7dfd70da9ad95109f25fc048
+  signature: lCH9AP////98CAKm/////5ABAwT/////OWEDAP////9IAAAB/AAAA3ydI3j/////SAAAAfwAAAN8myN4/////3x6G3j/////g+AAAP/gAAAsHwAA/////0CCAAz/////f6PreP////9IAAAB/AAAA4B/AAj/////gL8ADP////9vQIAA/////2xkgAD/////fGXYEP////98hAEQ/////3yAARD/////fIQA0P////8sBAAA/////0GCABT/////f+P7eP////9IAAAB/AAAA3+j63j/////SAAAAfwAAAOD3wAU/////5PAAAD/4AAALB4AAP////9AggAU/////zgAAAD/////OGAAAP/gAACQAwAE/////0gAAAz/////OAAAAP////+QHgAQ/////zsgAAH/////SAAAAfwAAAMsAwAA/////0CCADj/////PGAAAP//AAA4YwAA//8AADiAAg7/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABAAz/////gAEADP////8sAAAA/////0CCAAj/////OyAAAP////+DnwAA/////zgAAAD/////kB8AAP////+AnwAY/////4C/ABz/////OGAAAP////84AAAA/////2wAgAD/////bISAAP////98ZRgQ/////3yEARD/////fIABEP////98hADQ/////ywEAAD/////QYIAXP////9/4/t4/////zjAAAD/////OKAAAP////9/h+N4/////0gAAAH8AAADOwAAAf////9IAAAB/AAAAywDAAD/////QIIAOP////88YAAA//8AADhjAAD//wAAOIACGP////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAzgAAAD/////kAEACP////+AAQAI/////ywAAAD/////QIIACP////87AAAA/////4AAAAD/4AAALAAAAP////9BggAM/////4BgAAD/4AAASAAAAfwAAANIAAAB/AAAAzhhABD/////SAAAAfwAAAM4YQAQ/////0gAAAH8AAADf+P7eP////9/pOt4/////3+M43j/////fYkDpv////9OgAQh/////zhhABD/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADSAAAAfwAAANIAAAB/AAAA3+j63j/////SAAAAfwAAAM5YQMA/////0gAAAH8AAADgAEDBP////98CAOm/////zghAwD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 484
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetTimer
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCheckAlarmQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@754'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@783'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 192
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 296
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 316
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 332
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 368
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 380
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 384
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 432
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: 89089df36ba60823c62e3423d140f3443c0cd19b
+  signature: lCH9AP////98CAKm/////5ABAwT/////OWEDAP////9IAAAB/AAAA3ydI3j/////SAAAAfwAAAOQgQAU/////5BhABD/////g+AAAP/gAAAsHwAA/////0CCAAz/////f6PreP////9IAAAB/AAAA4ABABD/////gMEAFP////+AfwAI/////4C/AAz/////bACAAP////9sZIAA/////3xlMBD/////fIQBEP////98gAEQ/////3yEAND/////LAQAAP////9BggAU/////3/j+3j/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADg98AFP////+TwAAA/+AAACweAAD/////QIIAFP////84AAAA/////zhgAAD/4AAAkAMABP////9IAAAM/////zgAAAD/////kB4AEP////87YAAB/////0gAAAH8AAADLAMAAP////9AggA4/////zxgAAD//wAAOGMAAP//AAA4gAIO/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QAQAM/////4ABAAz/////LAAAAP////9AggAI/////ztgAAD/////g58AAP////84AAAA/////5AfAAD/////gJ8AGP////+AvwAc/////zhgAAD/////OAAAAP////9sAIAA/////2yEgAD/////fGUYEP////98hAEQ/////3yAARD/////fIQA0P////8sBAAA/////0GCAFz/////f+P7eP////84wAAA/////zigAAD/////f4fjeP////9IAAAB/AAAAztAAAH/////SAAAAfwAAAMsAwAA/////0CCADj/////PGAAAP//AAA4YwAA//8AADiAAhj/////PKAAAP//AAA4pQAA//8AAEzGMYL/////SAAAAfwAAAM4AAAA/////5ABAAj/////gAEACP////8sAAAA/////0CCAAj/////O0AAAP////+AAAAA/+AAACwAAAD/////QYIADP////+AYAAA/+AAAEgAAAH8AAADSAAAAfwAAAM4YQAY/////0gAAAH8AAADOGEAGP////9IAAAB/AAAA3/j+3j/////f6TreP////9/jON4/////32JA6b/////ToAEIf////84YQAY/////0gAAAH8AAADf6PreP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAN/o+t4/////0gAAAH8AAADOWEDAP////9IAAAB/AAAA4ABAwT/////fAgDpv////84IQMA/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 492
+    flags: 2
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SetTimer
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSCheckAlarmQueue
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@751'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@780'
+    size: 37
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 324
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 340
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 376
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 388
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 392
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: ba598fbc678697619d791bd1c495a55cc973c56e
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////k+EAJP////+TwQAg/////5OhABz/////fJ0jeP////+TgQAY/////0gAAAH8AAADgAAAAP/gAAA7hAAA/////zvDAAD/////KAAAAP////98HwN4/////0CCAAz/////f6PreP////9IAAAB/AAAA4AfAAj/////b8SAAP////+AvwAM/////2wDgAD/////fAXgEP////98YyEQ/////3xkIRD/////fGMA0f////9BggB8/////0gAAAH8AAADgN8ADP////844AAA/////4AfAAj/////bOWAAP////99BDAQ/////3wDARD/////bAaAAP////98B0AQ/////3ylMRD/////fKYxEP////98pQDR/////0GCABD/////OGAAAP////9IAAAB/AAAA0gAADT/////PICAAP////9s44AA/////3wEQBD/////fGMxEP////98ZjEQ/////3xjANH/////QYIAEP////99A0N4/////0gAAAH8AAADSAAADP////84ZP///////0gAAAH8AAADf6PreP////9IAAAB/AAAA4B/ABT/////KAMAAP////+QYAAA/+AAAECCABT/////OAAAAP////84YAAA/+AAAJADAAT/////SAAADP////84AAAA/////5ADABD/////g98AAP////84wAAA/////2zEgAD/////kN8AAP////+AHwAY/////4C/ABz/////bAOAAP////98BTAQ/////3xjIRD/////fGQhEP////98YwDR/////0GCABj/////OH8AAP////84/gAA/////zjAAAD/////OKAAAP////9IAAAB/AAAA4OAAAD/4AAAKBwAAP////9BggB0/////0gAAAH8AAADgNwADP////844AAA/////4AcAAj/////bOWAAP////99BDAQ/////3wDARD/////bAaAAP////98B0AQ/////3ylMRD/////fKYxEP////98pQDR/////0GCABD/////OGAAAP////9IAAAB/AAAA0gAADT/////PICAAP////9s44AA/////3wEQBD/////fGMxEP////98ZjEQ/////3xjANH/////QYIAEP////99A0N4/////0gAAAH8AAADSAAADP////84ZP///////0gAAAH8AAADSAAAAfwAAAM5ngAA/////32IA6b/////OH8AAP////84nQAA/////06AACH/////SAAAAfwAAANIAAAB/AAAA3+j63j/////SAAAAfwAAAOAAQAs/////4PhACT/////g8EAIP////98CAOm/////4OhABz/////g4EAGP////84IQAo/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 528
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSGetTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtdec
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 232
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 244
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 332
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 480
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 484
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 492
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: cea61091f97aced24352bef7646f337df08eb3d2
+  signature: lCH9IP////98CAKm/////5ABAuT/////k+EC3P////+TwQLY/////5OhAtT/////fJ0jeP////+TgQLQ/////0gAAAH8AAADg+AAAP/gAAB8nCN4/////3x+G3j/////LB8AAP////9AggAM/////3+j63j/////SAAAAfwAAAOAfwAI/////2/AgAD/////gL8ADP////9sZIAA/////3xl4BD/////fIQBEP////98gAEQ/////3yEANH/////QYIAfP////9IAAAB/AAAA4C/AAz/////OOAAAP////+AHwAI/////2zmgAD/////fQQoEP////98AwEQ/////2wFgAD/////fAdAEP////98xikQ/////3zFKRD/////fMYA0f////9BggAQ/////zhgAAD/////SAAAAfwAAANIAAA0/////zyAgAD/////bOOAAP////98BEAQ/////3xjKRD/////fGUpEP////98YwDR/////0GCABD/////fQNDeP////9IAAAB/AAAA0gAAAz/////OGT///////9IAAAB/AAAA3+j63j/////SAAAAfwAAAOAfwAU/////ywDAAD/////kGAAAP/gAABAggAU/////zgAAAD/////OGAAAP/gAACQAwAE/////0gAAAz/////OAAAAP////+QAwAQ/////4PfAAD/////OMAAAP////9swIAA/////5DfAAD/////gH8AGP////+AvwAc/////2xkgAD/////fGUwEP////98hAEQ/////3yAARD/////fIQA0f////9BggAY/////3/j+3j/////f8fzeP////84wAAA/////zigAAD/////SAAAAfwAAAODgAAA/+AAACwcAAD/////QYIAdP////9IAAAB/AAAA4C8AAz/////OOAAAP////+AHAAI/////2zmgAD/////fQQoEP////98AwEQ/////2wFgAD/////fAdAEP////98xikQ/////3zFKRD/////fMYA0f////9BggAQ/////zhgAAD/////SAAAAfwAAANIAAA0/////zyAgAD/////bOOAAP////98BEAQ/////3xjKRD/////fGUpEP////98YwDR/////0GCABD/////fQNDeP////9IAAAB/AAAA0gAAAz/////OGT///////9IAAAB/AAAA0gAAAH8AAADOGEACP////9IAAAB/AAAAzhhAAj/////SAAAAfwAAAN/zPN4/////3/j+3j/////f6TreP////99iQOm/////06ABCH/////OGEACP////9IAAAB/AAAA3+j63j/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADf6PreP////9IAAAB/AAAA4ABAuT/////g+EC3P////+DwQLY/////4OhAtT/////g4EC0P////98CAOm/////zghAuD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 556
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtdec
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 228
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 240
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 436
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 460
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: f484213ca1957b794fd7ca13bceab1b5ee3f4e79
+  signature: lCH9IP////98CAKm/////5ABAuT/////k+EC3P////+TwQLY/////5OhAtT/////fJ0jeP////+TgQLQ/////0gAAAH8AAADg+AAAP/gAAB8nCN4/////3x+G3j/////LB8AAP////9AggAM/////3+j63j/////SAAAAfwAAAOAfwAI/////2/AgAD/////gL8ADP////9sZIAA/////3xl4BD/////fIQBEP////98gAEQ/////3yEANH/////QYIAfP////9IAAAB/AAAA4C/AAz/////OOAAAP////+AHwAI/////2zmgAD/////fQQoEP////98AwEQ/////2wFgAD/////fAdAEP////98xikQ/////3zFKRD/////fMYA0f////9BggAQ/////zhgAAD/////SAAAAfwAAANIAAA0/////zyAgAD/////bOOAAP////98BEAQ/////3xjKRD/////fGUpEP////98YwDR/////0GCABD/////fQNDeP////9IAAAB/AAAA0gAAAz/////OGT///////9IAAAB/AAAA3+j63j/////SAAAAfwAAAOAfwAU/////5BgAAD/4AAALAMAAP////9AggAU/////zhgAAD/4AAAOAAAAP////+QAwAE/////0gAAAz/////OAAAAP////+QAwAQ/////4PfAAD/////OMAAAP////9swIAA/////5DfAAD/////gH8AGP////+AvwAc/////2xkgAD/////fGUwEP////98hAEQ/////3yAARD/////fIQA0f////9BggAY/////3/j+3j/////f8fzeP////84wAAA/////zigAAD/////SAAAAfwAAAODgAAA/+AAACwcAAD/////QYIAdP////9IAAAB/AAAA4C8AAz/////OOAAAP////+AHAAI/////2zmgAD/////fQQoEP////98AwEQ/////2wFgAD/////fAdAEP////98xikQ/////3zFKRD/////fMYA0f////9BggAQ/////zhgAAD/////SAAAAfwAAANIAAA0/////zyAgAD/////bOOAAP////98BEAQ/////3xjKRD/////fGUpEP////98YwDR/////0GCABD/////fQNDeP////9IAAAB/AAAA0gAAAz/////OGT///////9IAAAB/AAAA0gAAAH8AAADOGEACP////9IAAAB/AAAAzhhAAj/////SAAAAfwAAAN/zPN4/////3/j+3j/////f6TreP////99iQOm/////06ABCH/////OGEACP////9IAAAB/AAAA3+j63j/////SAAAAfwAAANIAAAB/AAAA0gAAAH8AAADf6PreP////9IAAAB/AAAA4ABAuT/////g+EC3P////+DwQLY/////4OhAtT/////g4EC0P////98CAOm/////zghAuD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 556
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtdec
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 100
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 208
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 324
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 340
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 436
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 448
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 460
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 496
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: dddce6375e299fc49a00b2fecc3f78ed351b405d
+  signature: fAgCpv////+QAQAE/////5Qh/RD/////k+EC7P////+TwQLo/////5OhAuT/////fJ0jeP////+TgQLg/////0gAAAH8AAADgAAAAP/gAAA7hAAA/////zvDAAD/////KAAAAP////98HwN4/////0CCAAz/////f6PreP////9IAAAB/AAAA4AfAAj/////b8SAAP////+AvwAM/////2wDgAD/////fAXgEP////98YyEQ/////3xkIRD/////fGMA0f////9BggB8/////0gAAAH8AAADgN8ADP////844AAA/////4AfAAj/////bOWAAP////99BDAQ/////3wDARD/////bAaAAP////98B0AQ/////3ylMRD/////fKYxEP////98pQDR/////0GCABD/////OGAAAP////9IAAAB/AAAA0gAADT/////PICAAP////9s44AA/////3wEQBD/////fGMxEP////98ZjEQ/////3xjANH/////QYIAEP////99A0N4/////0gAAAH8AAADSAAADP////84ZP///////0gAAAH8AAADf6PreP////9IAAAB/AAAA4B/ABT/////KAMAAP////+QYAAA/+AAAECCABT/////OAAAAP////84YAAA/+AAAJADAAT/////SAAADP////84AAAA/////5ADABD/////g98AAP////84wAAA/////2zEgAD/////kN8AAP////+AHwAY/////4C/ABz/////bAOAAP////98BTAQ/////3xjIRD/////fGQhEP////98YwDR/////0GCABj/////OH8AAP////84/gAA/////zjAAAD/////OKAAAP////9IAAAB/AAAA4OAAAD/4AAAKBwAAP////9BggB0/////0gAAAH8AAADgNwADP////844AAA/////4AcAAj/////bOWAAP////99BDAQ/////3wDARD/////bAaAAP////98B0AQ/////3ylMRD/////fKYxEP////98pQDR/////0GCABD/////OGAAAP////9IAAAB/AAAA0gAADT/////PICAAP////9s44AA/////3wEQBD/////fGMxEP////98ZjEQ/////3xjANH/////QYIAEP////99A0N4/////0gAAAH8AAADSAAADP////84ZP///////0gAAAH8AAADSAAAAfwAAAM4YQAY/////0gAAAH8AAADOGEAGP////9IAAAB/AAAAzmeAAD/////fYgDpv////84fwAA/////zidAAD/////ToAAIf////84YQAY/////0gAAAH8AAADf6PreP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAN/o+t4/////0gAAAH8AAADgAEC9P////+D4QLs/////4PBAuj/////fAgDpv////+DoQLk/////4OBAuD/////OCEC8P////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 560
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtdec
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 232
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 244
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 332
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 524
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: ca59914595885d3e65b10aebdb69655758092f3b
+  signature: fAgCpv////+QAQAE/////5Qh/RD/////k+EC7P////+TwQLo/////5OhAuT/////fJ0jeP////+TgQLg/////0gAAAH8AAADgAAAAP/gAAA7hAAA/////zvDAAD/////KAAAAP////98HwN4/////0CCAAz/////f6PreP////9IAAAB/AAAA4AfAAj/////b8SAAP////+AvwAM/////2wDgAD/////fAXgEP////98YyEQ/////3xkIRD/////fGMA0f////9BggB8/////0gAAAH8AAADgN8ADP////844AAA/////4AfAAj/////bOWAAP////99BDAQ/////3wDARD/////bAaAAP////98B0AQ/////3ylMRD/////fKYxEP////98pQDR/////0GCABD/////OGAAAP////9IAAAB/AAAA0gAADT/////PICAAP////9s44AA/////3wEQBD/////fGMxEP////98ZjEQ/////3xjANH/////QYIAEP////99A0N4/////0gAAAH8AAADSAAADP////84ZP///////0gAAAH8AAADf6PreP////9IAAAB/AAAA4B/ABT/////KAMAAP////+QYAAA/+AAAECCABT/////OAAAAP////84YAAA/+AAAJADAAT/////SAAADP////84AAAA/////5ADABD/////g98AAP////84wAAA/////2zEgAD/////kN8AAP////+AHwAY/////4C/ABz/////bAOAAP////98BTAQ/////3xjIRD/////fGQhEP////98YwDR/////0GCABj/////OH8AAP////84/gAA/////zjAAAD/////OKAAAP////9IAAAB/AAAA4OAAAD/4AAAKBwAAP////9BggB0/////0gAAAH8AAADgNwADP////844AAA/////4AcAAj/////bOWAAP////99BDAQ/////3wDARD/////bAaAAP////98B0AQ/////3ylMRD/////fKYxEP////98pQDR/////0GCABD/////OGAAAP////9IAAAB/AAAA0gAADT/////PICAAP////9s44AA/////3wEQBD/////fGMxEP////98ZjEQ/////3xjANH/////QYIAEP////99A0N4/////0gAAAH8AAADSAAADP////84ZP///////0gAAAH8AAADSAAAAfwAAAM4YQAY/////0gAAAH8AAADOGEAGP////9IAAAB/AAAAzmeAAD/////fYgDpv////84fwAA/////zidAAD/////ToAAIf////84YQAY/////0gAAAH8AAADf6PreP////9IAAAB/AAAA0gAAAH8AAADSAAAAfwAAAN/o+t4/////0gAAAH8AAADgAEC9P////+D4QLs/////4PBAuj/////g6EC5P////+DgQLg/////zghAvD/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DecrementerExceptionCallback
+    size: 560
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: AlarmQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: OSLoadContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: PPCMtdec
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: InsertAlarm
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSDisableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSClearContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetCurrentContext
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSEnableScheduler
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSReschedule
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 232
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 244
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 332
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 344
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 440
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 452
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 456
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 472
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 508
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 512
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 524
+    kind: PpcRel24
+    symbol: 3
+    addend: 0

@@ -1,0 +1,219 @@
+- symbol: 0
+  hash: e702fa1fa50f708383438859d21ca9651e7349c6
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98nyN4/////5PBAAj/////fH4beP////9/4/t4/////0gAAAH8AAADLAMAAP////9AggAU/////3/D83j/////OIAAAP/gAABIAAAB/AAAA0gAAHj/////iB8AAP////8sAAAv/////0CCAAz/////OAAAAP////9IAAAI/////zgAAAH/////LAAAAP////9BggAc/////zyAAAD//wAAf8PzeP////9/5ft4/////ziEAAD//wAASAAAAfwAAANIAABA/////3/D83j/////f+T7eP////9IAAAB/AAAA3/D83j/////SAAAAfwAAAMsAwAA/////0GCACT/////fIPyFP////+IBP///////ywAAC//////QIIAFP////80A////////0GCAAz/////OAAAAP////+YBP///////4ABABT/////g+EADP////+DwQAI/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 200
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@3775'
+    size: 1
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_currentDir
+    size: 64
+    flags: 2
+    section: .data
+  - kind: Function
+    name: nandConvertPath
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 108
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 7ac54894dfe3eea07a677932ea62fe0d4012c166
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////fH4beP////98nSN4/////3+j63j/////SAAAAfwAAAMsAwAA/////0CCABT/////f8PzeP////84gAAA/+AAAEgAAAH8AAADSAAAfP////9/o+t4/////0gAAAH8AAADLAMAAP////9BggAc/////3/D83j/////PIAAAP//AAA4hAAA//8AAH+l63j/////SAAAAfwAAANIAABU/////zvg////////f8PzeP////9/pOt4/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA3x/G3j/////LB8AAP////9BggAw/////3x/8hT/////iAP///////98AAd0/////ywAAC//////QIIAHP////84H////////ywAAAD/////QYIAEP////84AAAA/////3x/8hT/////mAP///////+D4QAc/////4PBABj/////g6EAFP////+AAQAk/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2519'
+    size: 1
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsRelativePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_currentDir
+    size: 64
+    flags: 2
+    section: .data
+  - kind: Function
+    name: nandConvertPath
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 116
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 5d22a62268efaeb8fa503a163eda51351ff72993
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////98Pwt4/////3x9G3j/////fJwjeP////9/g+N4/////0gAAAH8AAADLAMAAP////9AggAU/////3+j63j/////OIAAAP/gAABIAAAB/AAAA0gAAHz/////f4PjeP////9IAAAB/AAAAywDAAD/////QYIAHP////9/o+t4/////zyAAAD//wAAOIQAAP//AAB/heN4/////0gAAAH8AAADSAAAVP////87wP///////3+j63j/////f4TjeP////9IAAAB/AAAA3+j63j/////SAAAAfwAAAN8fht4/////yweAAD/////QYIAMP////98fuoU/////4gD////////fAAHdP////8sAAAv/////0CCABz/////OB7///////8sAAAA/////0GCABD/////OAAAAP////98fuoU/////5gD////////f+r7eP////+D6gAc/////4PKABj/////g6oAFP////+DigAQ/////4FBAAD/////gAoABP////99QVN4/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: nandGenerateAbsPath
+    size: 232
+    flags: 1
+    section: .text
+  - kind: Function
+    name: strlen
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@2757'
+    size: 1
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: strcpy
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nandIsRelativePath
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: s_currentDir
+    size: 64
+    flags: 2
+    section: .data
+  - kind: Function
+    name: nandConvertPath
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 44
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

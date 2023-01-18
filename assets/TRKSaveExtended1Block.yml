@@ -1,0 +1,69 @@
+- symbol: 0
+  hash: 282e360f42e342726fa4befd6ac32896cc39dc1d
+  signature: PEAAAP//AABgQgAA//8AAH4ABKb/////fiEEpv////9+QgSm/////35jBKb/////foQEpv////9+pQSm/////37GBKb/////fucEpv////9/CASm/////38pBKb/////f0oEpv////9/awSm/////3+MBKb/////f60Epv////9/zgSm/////3/vBKb/////vgIBqP////99TELm/////31tQub/////fZD6pv////99sfqm/////33bAqb/////ff9Cpv////9+EIKm/////34xgqb/////flKCpv////9+c4Km/////36Ugqb/////frWCpv////9+1oKm/////373gqb/////fxiCpv////9/OYKm/////39agqb/////f3uCpv////9/nIKm/////3+9gqb/////f96Cpv////9//4Km/////71CAej/////ftkCpv////9+8wKm/////38SAqb/////fzBCpv////9/UUKm/////39yQqb/////f5NCpv////87oAAA/////3/S+qb/////f/pCpv////++wgJc/////36Q4qb/////frHipv////9+0uKm/////37z4qb/////fxTipv////9/NeKm/////39W4qb/////f3fipv////9/mOKm/////3+54qb/////f9ripv////9/++Km/////76CAvz/////SAAASP////9+AOqm/////34n6qb/////fkjqpv////9+aeqm/////36K6qb/////fqvqpv////9+zOqm/////37t6qb/////fw7qpv////9/L+qm/////39Q6qb/////f3fqpv////9/n+qm/////3+2+qb/////f9f6pv////9///qm/////74CArj/////fnX6pv////9+meqm/////3666qb/////ft3qpv////9+/uqm/////38b6qb/////fzjqpv////9/XOqm/////398+qb/////f536pv////9/vvqm/////3/b+qb/////f/n6pv////++YgKE/////06AACD/////fzDypv////9/UfKm/////39y8qb/////f5Pypv////9/tPKm/////3/V8qb/////f/bypv////+/IgJA/////3/2Aqb/////k+ICeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKSaveExtended1Block
+    size: 440
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 422b55c69624b98ec476f3d104a5042a4a402dbc
+  signature: PEAAAP//AABgQgAA//8AAH4ABKb/////fiEEpv////9+QgSm/////35jBKb/////foQEpv////9+pQSm/////37GBKb/////fucEpv////9/CASm/////38pBKb/////f0oEpv////9/awSm/////3+MBKb/////f60Epv////9/zgSm/////3/vBKb/////vgIBqP////99TELm/////31tQub/////fZD6pv////99sfqm/////33bAqb/////ff9Cpv////9+EIKm/////34xgqb/////flKCpv////9+c4Km/////36Ugqb/////frWCpv////9+1oKm/////373gqb/////fxiCpv////9/OYKm/////39agqb/////f3uCpv////9/nIKm/////3+9gqb/////f96Cpv////9//4Km/////71CAej/////ftkCpv////9+8wKm/////38SAqb/////fzBCpv////9/UUKm/////39yQqb/////f5NCpv////87oAAA/////3/S+qb/////f/pCpv////++wgJc/////36Q4qb/////frHipv////9+0uKm/////37z4qb/////fxTipv////9/NeKm/////39W4qb/////f3fipv////9/mOKm/////3+54qb/////f9ripv////9/++Km/////76CAvz/////SAAASP////9+AOqm/////34n6qb/////fkjqpv////9+aeqm/////36K6qb/////fqvqpv////9+zOqm/////37t6qb/////fw7qpv////9/L+qm/////39Q6qb/////f3fqpv////9/n+qm/////3+2+qb/////f9f6pv////9///qm/////74CArj/////fnX6pv////9+meqm/////3666qb/////ft3qpv////9+/uqm/////38b6qb/////fzjqpv////9/XOqm/////398+qb/////f536pv////9/vvqm/////3/b+qb/////f/n6pv////++YgKE/////0gAACz/////fzDypv////9/UfKm/////39y8qb/////f5Pypv////9/tPKm/////3/V8qb/////f/bypv////+/IgJA/////3/2Aqb/////k+ICeP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKSaveExtended1Block
+    size: 440
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: a08ded918d6b4378c360f017a04cce78823c2adf
+  signature: PEAAAP//AABgQgAA//8AAH4ABKb/////fiEEpv////9+QgSm/////35jBKb/////foQEpv////9+pQSm/////37GBKb/////fucEpv////9/CASm/////38pBKb/////f0oEpv////9/awSm/////3+MBKb/////f60Epv////9/zgSm/////3/vBKb/////vgIBqP////9/bELm/////3+NQub/////f7D6pv////9/0fqm/////3/7Aqb/////v2IB6P////99/0Km/////34Qgqb/////fjGCpv////9+UoKm/////35zgqb/////fpSCpv////9+tYKm/////37Wgqb/////fveCpv////9/GIKm/////385gqb/////f1qCpv////9/e4Km/////3+cgqb/////f72Cpv////9/3oKm/////3//gqb/////veIB/P////9/EIqm/////38xiqb/////f1KKpv////9/c4qm/////3+Uiqb/////f7WKpv////9/1oqm/////3/3iqb/////vwICQP////9+2QKm/////37zAqb/////fxICpv////9/MEKm/////39RQqb/////f3JCpv////9/k0Km/////3+2Aqb/////f9L6pv////9/+kKm/////77CAlz/////fxX6pv////9/Oeqm/////39a6qb/////f33qpv////9/nuqm/////3+76qb/////f9jqpv////9//Oqm/////78CAoT/////f7eKpv////9/2Iqm/////3/5iqb/////v6ICpP////9/2/qm/////3/5+qb/////v8ICsP////9+GgKm/////5ICArj/////fjqKpv////+SIgK8/////38o6qb/////f0nqpv////9/auqm/////3+L6qb/////f6zqpv////9/zeqm/////3/u6qb/////vyICwP////9/O4qm/////39ciqb/////f32Kpv////9/noqm/////3+/iqb/////f9jipv////9/8/qm/////78iAtz/////fpDipv////9+seKm/////37S4qb/////fvPipv////9/FOKm/////3814qb/////f1bipv////9/d+Km/////3+Y4qb/////f7nipv////9/2uKm/////3/74qb/////voIC/P////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: TRKSaveExtended1Block
+    size: 452
+    flags: 1
+    section: null
+  - kind: Object
+    name: gTRKCPUState
+    size: 1072
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Hi
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

@@ -1,0 +1,19 @@
+- symbol: 0
+  hash: 39c774370cd691f26d7a4369050c34e1c0520adc
+  signature: gAMAAP////+AIwAE/////4BDAAj/////oKMBov////9Upge9/////0GCABT/////VKUH+v////+wowGi/////7ijABT/////SAAACP////+5owA0/////3x/G3j/////fIMjeP////+AnwCA/////3yP8SD/////gJ8AhP////98iAOm/////4CfAIj/////fIkDpv////+AnwCM/////3yBA6b/////fIAApv////9UhARe/////1SEB/r/////fIABJP////98UUOm/////4CfAAz/////fJJDpv////+AnwAQ/////3yTQ6b/////gF8BmP////+AnwGc/////4P/AHz/////SAAAAPwAAAM=
+  symbols:
+  - kind: Function
+    name: TRKLoadContext
+    size: 136
+    flags: 1
+    section: null
+  - kind: Function
+    name: TRKInterruptHandler
+    size: 0
+    flags: 1
+    section: null
+  relocations:
+  - offset: 132
+    kind: PpcRel24
+    symbol: 1
+    addend: 0

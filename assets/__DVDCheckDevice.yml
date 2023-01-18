@@ -1,0 +1,782 @@
+- symbol: 0
+  hash: 72cbd2c9a76fc5196b7a663461db60759d52be93
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////P+BGCv////87wP///////zug////////SAAAAfwAAAM8A/gA/////ygAAAD/////QIIADP////84YAAB/////0gAAdj/////OGEACP////9IAAAB/AAAA4gBAAn/////KAAAHv////9BgAAQ/////4gBAAn/////KAAA/v////9BgAAM/////zhgAAH/////SAABsP////88YIAA/////4gDMZz/////KAAAgf////9AggAI/////z/gftT/////OAAAAP////+QAAAA/+AAADxgAAD//wAAOGMAAP//AAA4gAAg/////3/l+3j/////PMAAAP//AAA4xgAA//8AAEgAAAH8AAADgAAAAP/gAAAsAAAA/////0GC//j/////gAAAAP/gAAAsAAAC/////0GCABT/////QIABVP////8sAAAB/////0CAATj/////SAABSP////84AAAA/////5AAAAD/4AAAPGAAAP//AAA4YwAA//8AAEgAAAH8AAADgAAAAP/gAAAsAAAA/////0GC//j/////SAAAAfwAAAN8fht4/////4AAAAD/4AAALAAAAf////9BggAI/////0gAARD/////SAAAAfwAAANUYAAO/////ywAAAD/////QIIA+P////9IAAAB/AAAA1RgAj7/////PGAABf////84YyEA/////3wAGAD/////QYIACP////9IAADQ/////zgAAAD/////kAAAAP/gAAA8YAAA//8AADhjAAD//wAAPIAABP////84oAAA/////zzAAAD//wAAOMYAAP//AABIAAAB/AAAA4AAAAD/4AAALAAAAP////9Bgv/4/////4AAAAD/4AAALAAAAv////9BggAU/////0CAAKT/////LAAAAf////9AgACI/////0gAAJj/////OAAAAP////+QAAAA/+AAADxgAAD//wAAOGMAAP//AABIAAAB/AAAA4AAAAD/4AAALAAAAP////9Bgv/4/////0gAAAH8AAADfH0beP////+AAAAA/+AAACwAAAH/////QYIACP////9IAABg/////0gAAAH8AAADVGAADv////8sAAAA/////0CCAEj/////SAAAAfwAAANUYAI+/////zxgAAX/////OGMxAP////98ABgA/////0GCABz/////QIAAIP////88YAAF/////zhjIAD/////fAAYAP////9BggAI/////0gAAAz/////OGAAAf////9IAAAg/////0gAAAH8AAADOGAAAP////9IAAAU/////zhgAAD/////SAAADP////9IAAAB/AAAAzhgAAD/////g+EAHP////+DwQAY/////4OhABT/////gAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __DVDCheckDevice
+    size: 556
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetPhysicalMem2Size
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: lowDone
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Object
+    name: CheckBuffer
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: lowCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: DVDLowUnencryptedRead
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: lowIntType
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDLowRequestError
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowGetImmBufferReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowReportKey
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDShowDeviceErrorMessage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDShowFatalMessage
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 36
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 124
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 204
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 228
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 236
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 268
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 300
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 308
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 324
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 332
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 344
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 376
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 380
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 388
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 392
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 412
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 500
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+  - offset: 520
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+- symbol: 0
+  hash: 3d92b7191499a8a03fc9ef0aeb1b2d43dfdaa9e6
+  signature: lCH/0P////98CAKm/////5ABADT/////k+EALP////+TwQAo/////5OhACT/////P6BGCv////9IAAAB/AAAAzwD+AD/////KAAAAP////9AggAM/////zhgAAH/////SAACMP////84YQAQ/////0gAAAH8AAADiAEAEf////8oAAAe/////0GAAAz/////KAAA/v////9BgAAM/////zhgAAH/////SAACDP////88YIAA/////4gDMZz/////KAAAgf////9AggAI/////z+gftT/////OAAAAP////88YAAA//8AADzAAAD//wAAkAAAAP/gAAB/pet4/////zhjAAD//wAAOMYAAP//AAA4gAAg/////0gAAAH8AAADgAAAAP/gAAAsAAAA/////0GC//j/////gAAAAP/gAAAsAAAC/////0GCABT/////QIABsP////8sAAAB/////0CAATD/////SAABpP////84AAAA/////zxgAAD//wAAkAAAAP/gAAA4YwAA//8AAEgAAAH8AAADYAAAAP////+AAAAA/+AAACwAAAD/////QYL/+P////9IAAAB/AAAA4AAAAD/4AAALAAAAf////9BggAI/////0gAAWz/////SAAAAfwAAANUYAAP/////0CCAVj/////SAAAAfwAAAM8gAAF/////1RjAj7/////OAQhAP////98AwAA/////0GCAAj/////SAAAzP////84AAAA/////zxgAAD//wAAPMAAAP//AACQAAAA/+AAADhjAAD//wAAPIAABP////84xgAA//8AADigAAD/////SAAAAfwAAANgAAAA/////4AAAAD/4AAALAAAAP////9Bgv/4/////4AAAAD/4AAALAAAAv////9BggAU/////0CAAQD/////LAAAAf////9AgACA/////0gAAPT/////OAAAAP////88YAAA//8AAJAAAAD/4AAAOGMAAP//AABIAAAB/AAAA2AAAAD/////gAAAAP/gAAAsAAAA/////0GC//j/////SAAAAfwAAAOAAAAA/+AAACwAAAH/////QYIACP////9IAAC8/////0gAAAH8AAADVGAAD/////9AggCo/////0gAAAH8AAADPIAABf////9UYwI+/////zgEMQD/////fAMAAP////9BggAY/////0CAABz/////OAQgAP////98AwAA/////0GCAAj/////SAAADP////84YAAB/////0gAAIT/////g8AAAP/gAAA74AAA/////0gAAAH8AAADVGAGP/////9AggAQ/////zhgAAH/////SAAAAfwAAANIAAAM/////zhgAAD/////SAAAAfwAAAM/oAAA//8AADu9AAD//wAASAAAAfwAAANUYAY+/////ygAAAb/////QIEADP////+AvQAE/////0gAABD/////SAAAAfwAAANUYBW6/////3y9AC7/////k+EADP////84gQAM/////zhhAAj/////k8EACP////9IAAAB/AAAAzhgAAD/////SAAAFP////84YAAA/////0gAAAz/////SAAAAfwAAAM4YAAA/////4ABADT/////g+EALP////+DwQAo/////4OhACT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDCheckDevice
+    size: 636
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetPhysicalMem2Size
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CheckBuffer
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: lowCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: lowDone
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: DVDLowUnencryptedRead
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: lowIntType
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDLowRequestError
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowGetImmBufferReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowReportKey
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@850'
+    size: 4
+    flags: 2
+    section: .sdata2
+  - kind: Function
+    name: SCGetLanguage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetFontEncode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDDeviceErrorMessage
+    size: 28
+    flags: 1
+    section: .rodata
+  - kind: Function
+    name: OSFatal
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDShowFatalMessage
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 28
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 132
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 188
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 192
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 200
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 208
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 224
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 252
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 292
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 304
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 332
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 364
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 368
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 372
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 428
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 480
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 504
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 520
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 528
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 552
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 580
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 600
+    kind: PpcRel24
+    symbol: 16
+    addend: 0
+- symbol: 0
+  hash: dcc87370908b02114c6b514943802f1c8f954d8f
+  signature: lCH/0P////98CAKm/////5ABADT/////k+EALP////+TwQAo/////z/ARgr/////SAAAAfwAAAM8A/gA/////ygAAAD/////QIIADP////84YAAB/////0gAAkT/////OGEAGP////9IAAAB/AAAA4gBABn/////KAAAHv////9BgAAM/////ygAAP7/////QYAADP////84YAAB/////0gAAiD/////PGCAAP////+IAzGc/////ygAAIH/////QIIACP////8/wH7U/////zgAAAD/////PGAAAP//AAA8wAAA//8AAJAAAAD/4AAAf8XzeP////84YwAA//8AADjGAAD//wAAOIAAIP////9IAAAB/AAAA4AAAAD/4AAALAAAAP////9Bgv/4/////4AAAAD/4AAALAAAAv////9BggAU/////0CAAcT/////LAAAAf////9AgAEk/////0gAAbj/////OAAAAP////88YAAA//8AAJAAAAD/4AAAOGMAAP//AABIAAAB/AAAA4AAAAD/4AAALAAAAP////9Bgv/4/////0gAAAH8AAADgAAAAP/gAAAsAAAB/////0GCAAj/////SAABhP////9IAAAB/AAAA1RgAA//////QIIBcP////9IAAAB/AAAAzyAAAX/////VGMCPv////84BCEA/////3wDAAD/////QYIACP////9IAADE/////zgAAAD/////PGAAAP//AAA8wAAA//8AAJAAAAD/4AAAOGMAAP//AAA8gAAE/////zjGAAD//wAAOKAAAP////9IAAAB/AAAA4AAAAD/4AAALAAAAP////9Bgv/4/////4AAAAD/4AAALAAAAv////9BggAU/////0CAARz/////LAAAAf////9AgAB8/////0gAARD/////OAAAAP////88YAAA//8AAJAAAAD/4AAAOGMAAP//AABIAAAB/AAAA4AAAAD/4AAALAAAAP////9Bgv/4/////0gAAAH8AAADgAAAAP/gAAAsAAAB/////0GCAAj/////SAAA3P////9IAAAB/AAAA1RgAA//////QIIAyP////9IAAAB/AAAAzyAAAX/////VGMCPv////84BDEA/////3wDAAD/////QYIAGP////9AgAAc/////zgEIAD/////fAMAAP////9BggAI/////0gAAAz/////OGAAAf////9IAACk/////4igAAD/4AAAO+AAAP////+IgAAA/+AAAIhgAAD/4AAAiAAAAP/gAACYoQAI/////5iBAAn/////mGEACv////+YAQAL/////0gAAAH8AAADVGAGP/////9AggAQ/////zhgAAH/////SAAAAfwAAANIAAAM/////zhgAAD/////SAAAAfwAAAM/wAAA//8AADveAAD//wAASAAAAfwAAANUYAY+/////ygAAAb/////QIEADP////+AvgAE/////0gAABD/////SAAAAfwAAANUYBW6/////3y+AC7/////gAEACP////84gQAQ/////5PhABD/////OGEADP////+QAQAM/////0gAAAH8AAADOGAAAP////9IAAAU/////zhgAAD/////SAAADP////9IAAAB/AAAAzhgAAD/////gAEANP////+D4QAs/////4PBACj/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __DVDCheckDevice
+    size: 648
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSGetPhysicalMem2Size
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetIOSRev
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: CheckBuffer
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: lowCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: lowDone
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: DVDLowUnencryptedRead
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: lowIntType
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: DVDLowRequestError
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowGetImmBufferReg
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: DVDLowReportKey
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@834'
+    size: 4
+    flags: 2
+    section: .sdata
+  - kind: Function
+    name: SCGetLanguage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSSetFontEncode
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __DVDDeviceErrorMessage
+    size: 28
+    flags: 1
+    section: .rodata
+  - kind: Function
+    name: OSFatal
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __DVDShowFatalMessage
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 116
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 128
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 152
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 188
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 200
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 212
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 232
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 244
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 276
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 280
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 284
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 296
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 308
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 320
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 352
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 356
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 364
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 368
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 380
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 384
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 400
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 412
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 464
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 0
+  - offset: 472
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 1
+  - offset: 476
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 2
+  - offset: 480
+    kind: PpcEmbSda21
+    symbol: 11
+    addend: 3
+  - offset: 500
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 516
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 528
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 532
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 536
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 540
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 564
+    kind: PpcRel24
+    symbol: 12
+    addend: 0
+  - offset: 596
+    kind: PpcRel24
+    symbol: 15
+    addend: 0
+  - offset: 616
+    kind: PpcRel24
+    symbol: 16
+    addend: 0

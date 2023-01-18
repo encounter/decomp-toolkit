@@ -1,0 +1,29 @@
+- symbol: 0
+  hash: 57e7d1fd933a625ca18aa499f0be6a544bbc332a
+  signature: SAAAAfwAAAM=
+  symbols:
+  - kind: Function
+    name: __OSDBJump
+    size: 4
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSExceptionVector
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 0
+    kind: PpcRel24
+    symbol: 1
+    addend: 56
+- symbol: 0
+  hash: 65c54e72bb9d42abe0d44d496d5422fb5ba55e80
+  signature: SAAAY/////8=
+  symbols:
+  - kind: Function
+    name: __OSDBJump
+    size: 4
+    flags: 2
+    section: .text
+  relocations: []

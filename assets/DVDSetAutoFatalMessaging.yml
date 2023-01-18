@@ -1,0 +1,270 @@
+- symbol: 0
+  hash: 4a3dea7febf021321ed40143f2f8f98045ed0d34
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////98fxt4/////0gAAAH8AAADgKAAAP/gAAAsHwAA/////ziAAAD/////fAUA0P////98ACt4/////1QfD/7/////QYIADP////88gAAA//8AADiEAAD//wAAkIAAAP/gAABIAAAB/AAAA3/j+3j/////g+EADP////+AAQAU/////3wIA6b/////OCEAEP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 92
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalFunc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDShowFatalMessage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 7c5a79f38261e1814eb0fc84b13e08ce2a61c641
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////k+EAFP////+TwQAQ/////3x+G3j/////SAAAAfwAAAOAAAAA/+AAACgAAAD/////QYIADP////874AAB/////0gAAAj/////O+AAAP////8sHgAA/////0GCABD/////PIAAAP//AAA4BAAA//8AAEgAAAj/////OAAAAP////+QAAAA/+AAAEgAAAH8AAADf+P7eP////+AAQAc/////4PhABT/////g8EAEP////84IQAY/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 112
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalFunc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: ShowMessage
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 24
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 263f92417da4ec2eb72a46b2c614e08ad7bc6a34
+  signature: fAgCpv////+QAQAE/////5Qh/+j/////v8EAEP////+QYQAI/////0gAAAH8AAADfH8beP////+AAAAA/+AAACgAAAD/////QYIADP////87wAAB/////0gAAAj/////O8AAAP////+AAQAI/////ywAAAD/////QYIAEP////88YAAA//8AADgDAAD//wAASAAACP////84AAAA/////5AAAAD/4AAAf+P7eP////9IAAAB/AAAA3/D83j/////gAEAHP////+7wQAQ/////zghABj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 116
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalFunc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: ShowMessage
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 64
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: e63f7732af5b00f6b5f5419836f4894fe4c26ea1
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////+QYQAI/////0gAAAH8AAADfH0beP////+AAAAA/+AAACwAAAD/////QYIADP////874AAB/////0gAAAj/////O+AAAP////9//Pt4/////4ABAAj/////LAAAAP////9BggAQ/////zxgAAD//wAAO8MAAP//AABIAAAI/////zvAAAD/////k8AAAP/gAAB/o+t4/////0gAAAH8AAADf4PjeP////+D4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 144
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalFunc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDShowFatalMessage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+- symbol: 0
+  hash: 36341f6ac94fe65cf46272a6cc8531246d067277
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////+QYQAI/////0gAAAH8AAADfH8beP////+AAAAA/+AAACwAAAD/////QYIADP////87oAAB/////0gAAAj/////O6AAAP////9/vut4/////4ABAAj/////LAAAAP////9BggAQ/////zxgAAD//wAAO4MAAP//AABIAAAI/////zuAAAD/////k4AAAP/gAAB/4/t4/////0gAAAH8AAADf8PzeP////+D4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: DVDSetAutoFatalMessaging
+    size: 144
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: FatalFunc
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: __DVDShowFatalMessage
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 4
+    addend: 0

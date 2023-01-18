@@ -1,0 +1,161 @@
+- symbol: 0
+  hash: a180ba4902d4056df79eb3aac8ad17c5524c7b32
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////8/4AAA//8AADv/AAD//wAASAAAEP////99iQOm/////06ABCH/////O/8ABP////+BnwAA/////ywMAAD/////QIL/7P////+AAQAU/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_cpp
+    size: 72
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _ctors
+    size: 0
+    flags: 1
+    section: .ctors
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: a5bf12574100ae1828f2021e343aa0c53fe1f64d
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88YAAA//8AADvjAAD//wAASAAAFP////+BnwAA/////32IA6b/////ToAAIf////87/wAE/////4AfAAD/////KAAAAP////9Agv/o/////4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __init_cpp
+    size: 76
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _ctors
+    size: 0
+    flags: 1
+    section: .ctors
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 4b6997d96250556e37ba550d38659e5f541e537f
+  signature: lCH/8P////98CAKm/////zxgAAD//wAAkAEAFP////84AwAA//8AAJPhAAz/////fB8DeP////9IAAAQ/////32JA6b/////ToAEIf////87/wAE/////4GfAAD/////KAwAAP////9Agv/s/////4ABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __init_cpp
+    size: 76
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _ctors
+    size: 0
+    flags: 1
+    section: .ctors
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 734078ce2ac4f80b15cf23707c7151557348f30d
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////88YAAA//8AADvjAAD//wAASAAAFP////+BnwAA/////32JA6b/////ToAEIf////87/wAE/////4AfAAD/////LAAAAP////9Agv/o/////4PhAAz/////gAEAFP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __init_cpp
+    size: 76
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _ctors
+    size: 0
+    flags: 1
+    section: .ctors
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 23d69d6b1dd0108a818e2dc49f2190954498b869
+  signature: fAgCpv////88YAAA//8AAJABAAT/////OAMAAP//AACUIf/w/////5PhAAz/////fB8DeP////9IAAAQ/////32IA6b/////ToAAIf////87/wAE/////4GfAAD/////KAwAAP////9Agv/s/////4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __init_cpp
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Object
+    name: _ctors
+    size: 0
+    flags: 1
+    section: .ctors
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 12
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 453bde659bf1659cbd9016b432f9fb40cb1ed4a4
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////88YAAA//8AADgDAAD//wAAfB8DeP////9IAAAE/////0gAAAT/////SAAAEP////99iAOm/////06AACH/////O/8ABP////+BnwAA/////ygMAAD/////QIL/7P////+AAQAU/////4PhAAz/////OCEAEP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_cpp
+    size: 84
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _ctors
+    size: 0
+    flags: 1
+    section: .ctors
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: c3f4c58ea391f80ce8ddc250fda91a66f2defb33
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////88YAAA//8AADvjAAD//wAASAAAHP////8oHwAA/////0GCABD/////gZ8AAP////99iQOm/////06ABCH/////O/8ABP////+AHwAA/////ygAAAD/////QIL/4P////+D4QAM/////4ABABT/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __init_cpp
+    size: 84
+    flags: 2
+    section: .text
+  - kind: Object
+    name: _ctors
+    size: 0
+    flags: 1
+    section: .ctors
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

@@ -4,7 +4,7 @@ use std::{
     path::Path,
 };
 
-use anyhow::{Context, Error, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use argh::FromArgs;
 use filetime::{set_file_mtime, FileTime};
 use sha1::{Digest, Sha1};
@@ -42,13 +42,13 @@ fn check(args: Args, file: File) -> Result<()> {
     for line in reader.lines() {
         let line = match line {
             Ok(line) => line,
-            Err(e) => return Err(Error::msg(format!("File read failed: {e}"))),
+            Err(e) => bail!("File read failed: {e}"),
         };
         let (hash, file_name) =
-            line.split_once(' ').ok_or_else(|| Error::msg(format!("Invalid line: {line}")))?;
+            line.split_once(' ').ok_or_else(|| anyhow!("Invalid line: {line}"))?;
         let file_name = match file_name.chars().next() {
             Some(' ') | Some('*') => &file_name[1..],
-            _ => return Err(Error::msg(format!("Invalid line: {line}"))),
+            _ => bail!("Invalid line: {line}"),
         };
         let mut hash_bytes = [0u8; 20];
         hex::decode_to_slice(hash, &mut hash_bytes)
@@ -78,7 +78,7 @@ fn hash(args: Args, file: File) -> Result<()> {
     let hash = file_sha1(file)?;
     let mut hash_buf = [0u8; 40];
     let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
-        .map_err(|e| Error::msg(format!("Failed to encode hash: {e}")))?;
+        .map_err(|e| anyhow!("Failed to encode hash: {e}"))?;
     println!("{}  {}", hash_str, args.file);
     Ok(())
 }

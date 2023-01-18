@@ -1,0 +1,1102 @@
+- symbol: 0
+  hash: 42af4d4e8ac72f0c9dcafd3af4adaa886a2cf014
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x7G3j/////SAAAAfwAAAM8oAAA//8AADyAAAD//wAAV2YQOv////9XYBg4/////zilAAD//wAAOIQAAP//AAB/hTAu/////3/FMhT/////fH0beP////9/5AIU/////0gAAAH8AAADgN8ABP////88oAAA//8AAIAfAAD/////OKUAAP//AAB9BiAQ/////4CFAAT/////fOAZEP////84YACA/////3xg3jD/////fIAAOf////9BggA0/////ygcAAj/////QYIAIP////9IAAAB/AAAA5CfAAT/////kH8AAP////9/o+t4/////0gAAAH8AAADf4PjeP////9IAAEI/////5B+AAD/////O4AAgP////9IAACY/////zyAgAD/////PGAQYv////+ApAD4/////zjDTdP/////OAAAAP////9s5IAA/////1Sj8L7/////fGYYFv////9sAIAA/////1Rl0b7/////HGUAMv////98aBgQ/////3yEARD/////fIABEP////98hADR/////0CCABz/////KBwACP////9BggAU/////3+j63j/////SAAAAfwAAAN/g+N4/////0gAAKT/////HGUAS/////84AAAA/////2zkgAD/////bACAAP////98aBgQ/////3yEARD/////fIABEP////98hADR/////0CCABD/////OAAAgP////+QHgAA/////0gAABD/////OAAAgP////87gACA/////5AeAAD/////SAAAAfwAAAOQnwAE/////zyAQxz/////OSTeg/////89AAAA//8AAJB/AAD/////PKCAAP////9/Y9t4/////3/G83j/////gAUA+P////85CAAA//8AADiAAAD/4AAAOKAAAf////9UAPC+/////zjgAAP/////fAkAFv////85IAAA/////1QKi/7/////VAC6cv////98AFIU/////1QK6P7/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADf4PjeP////85YQAg/////0gAAAH8AAADgAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 436
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Type
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: TypeTime
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: cmdTypeAndStatus$877
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 356
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 488d1c31267ad918442ad746fca69569703feec1
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x7G3j/////SAAAAfwAAAM8oAAA//8AADyAAAD//wAAV2YQOv////9XYBg4/////zilAAD//wAAOIQAAP//AAB/hTAu/////3/FMhT/////fH0beP////9/5AIU/////0gAAAH8AAADgN8ABP////88oAAA//8AAIAfAAD/////OKUAAP//AAB9BiAQ/////4CFAAT/////fOAZEP////84YACA/////3xg3jD/////fIAAOf////9BggA0/////ygcAAj/////QYIAIP////9IAAAB/AAAA5CfAAT/////kH8AAP////9/o+t4/////0gAAAH8AAADf4PjeP////9IAAEI/////5B+AAD/////O4AAgP////9IAACY/////zyAgAD/////PGAQYv////+ApAD4/////zjDTdP/////OAAAAP////9s5IAA/////1Sj8L7/////fGYYFv////9sAIAA/////1Rl0b7/////HGUAMv////98aBgQ/////3yEARD/////fIABEP////98hADR/////0CCABz/////KBwACP////9BggAU/////3+j63j/////SAAAAfwAAAN/g+N4/////0gAAKT/////HGUAS/////84AAAA/////2zkgAD/////bACAAP////98aBgQ/////3yEARD/////fIABEP////98hADR/////0CCABD/////OAAAgP////+QHgAA/////0gAABD/////OAAAgP////+QHgAA/////zuAAID/////SAAAAfwAAAOQnwAE/////zyAQxz/////OSTeg/////89AAAA//8AAJB/AAD/////PKCAAP////9/Y9t4/////3/G83j/////gAUA+P////85CAAA//8AADiAAAD/4AAAOKAAAf////9UAPC+/////zjgAAP/////fAkAFv////85IAAA/////1QKi/7/////VAC6cv////98AFIU/////1QK6P7/////SAAAAfwAAAN/o+t4/////0gAAAH8AAADf4PjeP////85YQAg/////0gAAAH8AAADgAEAJP////98CAOm/////zghACD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 436
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_27
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Type
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Object
+    name: TypeTime
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: '@LOCAL@SIGetType__Fl@cmdTypeAndStatus'
+    size: 4
+    flags: 5
+    section: .sbss
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_27
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 312
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 328
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 356
+    kind: PpcEmbSda21
+    symbol: 9
+    addend: 0
+  - offset: 396
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 404
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: 48c10135f4039cfe3ab7e327afeba90f405cca39
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v2EAFP////98ext4/////0gAAAH8AAADPIAAAP//AABXZRA6/////zgEAAD//wAAf8AqFP////+DngAA/////3x9G3j/////SAAAAfwAAAM8oAAA//8AAFdmGDj/////OAUAAP//AAB/4DIU/////4DfAAT/////PKAAAP//AAA4pQAA//8AAIAfAAD/////fIYgEP////98ABkQ/////4DFAAT/////OKAAgP////98o94w/////3zDGDn/////QYIANP////8oHAAI/////0GCACD/////SAAAAfwAAAOQnwAE/////5B/AAD/////f6PreP////9IAAAB/AAAA3+D43j/////SAABIP////+QvgAA/////zuAAID/////SAAAtP////88YIAA/////4DDAPj/////PKAQYv////84pU3T/////1TG8L7/////fKUwFv////9UpdG+/////xzlADL/////OGAAAP////9sZoAA/////2wFgAD/////fGQ4EP////98pTEQ/////3ymMRD/////fKUA0f////9AggAc/////ygcAAj/////QYIAFP////9/o+t4/////0gAAAH8AAADf4PjeP////9IAAC8/////zxggAD/////gMMA+P////88oBBi/////zilTdP/////VMbwvv////98pTAW/////1Sl0b7/////HMUAS/////84YAAA/////2xlgAD/////bAOAAP////98BDAQ/////3xjKRD/////fGUpEP////98YwDR/////0CCABD/////OAAAgP////+QHgAA/////0gAABD/////OAAAgP////+QHgAA/////zuAAID/////SAAAAfwAAAOQnwAE/////zyAQxz/////PKAAAP//AACQfwAA/////zxggAD/////OQUAAP//AACAAwD4/////ziE3oP/////OHsAAP////9UAPC+/////3wEABb/////VACL/v////8cAABB/////1QK6P7/////ON4AAP////84gAAA/+AAADigAAH/////OOAAA/////85IAAA/////0gAAAH8AAADf6PreP////9IAAAB/AAAA3+D43j/////u2EAFP////+AAQAs/////zghACj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 452
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Type
+    size: 16
+    flags: 2
+    section: .data
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: TypeTime
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Object
+    name: cmdTypeAndStatus$371
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 72
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 76
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 120
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 136
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 348
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 360
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 416
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 424
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 0f20c35b8c352cd69deb19cec7dc829d32094aa1
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////vyEAFP////874wAA/////zxgAAD//wAAO2MAAP//AAA8YAAA//8AADvDAAD//wAASAAAAfwAAAN8fBt4/////ywfAAD/////QYAADP////8sHwAE/////0GAABj/////OH4AJP////84gATP/////zi+Aqj/////TMYxgv////9IAAAB/AAAA1fgEDr/////fH4CFP////+DowAU/////0gAAAH8AAADV+AYOP////98uwIU/////4AFASD/////gKUBJP////9/RSAQ/////38gGRD/////gH4ABP////84AACA/////3wA/jD/////fGAAOf////9BggBE/////ygdAAj/////QYIAKP////9IAAAB/AAAA1fgGDj/////fLsCFP////+QhQEk/////5BlASD/////f4PjeP////9IAAAB/AAAA3+j63j/////SAABMP////87oACA/////1fgEDr/////fH4CFP////+TowAU/////0gAALD/////PGCAAP////+AAwD4/////1QD8L7/////OAAD6P////98AwOW/////xygADL/////OAAAAP////9sBIAA/////28jgAD/////fBooEP////98YyEQ/////3xkIRD/////fGMA0f////9AggAc/////ygdAAj/////QYIAFP////9/g+N4/////0gAAAH8AAADf6PreP////9IAADM/////zxggAD/////gAMA+P////9UA/C+/////zgAA+j/////fAMDlv////8coABL/////zgAAAD/////bASAAP////9vI4AA/////3waKBD/////fGMhEP////98ZCEQ/////3xjANH/////QIIAGP////84gACA/////1fgEDr/////fH4CFP////+QgwAU/////0gAABT/////O6AAgP////9X4BA6/////3x+AhT/////k6MAFP////9IAAAB/AAAA1fgGDj/////fLsCFP////+QhQEk/////5BlASD/////OH8AAP////84gAAA/+AAADigAAH/////V+AQOv////983gIU/////zjgAAP/////PQAAAP//AAA5CAAA//8AAD0ggAD/////gAkA+P////9UAPC+/////z0gAAL/////OSnoSP////98AEuW/////xwAAEH/////VAro/v////85IAAA/////zjGABT/////SAAAAfwAAAN/g+N4/////0gAAAH8AAADf6PreP////+AAQA0/////7shABT/////OCEAMP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 504
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: Si
+    size: 20
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: cmdTypeAndStatus$223
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 89516e345901133961896d879201b4097df38f62
+  signature: fAgCpv////+QAQAE/////5Qh/9D/////vyEAFP////874wAA/////zxgAAD//wAAO2MAAP//AAA8YAAA//8AADvDAAD//wAASAAAAfwAAAN8fBt4/////ywfAAD/////QYAADP////8sHwAE/////0GAABj/////OH4AaP////84gATb/////zi+Auz/////TMYxgv////9IAAAB/AAAA1fgEDr/////fH4CFP////+DowBY/////0gAAAH8AAADV+AYOP////98uwIU/////4AFASD/////gKUBJP////9/RSAQ/////38gGRD/////gH4ASP////84AACA/////3wA/jD/////fGAAOf////9BggBE/////ygdAAj/////QYIAKP////9IAAAB/AAAA1fgGDj/////fLsCFP////+QhQEk/////5BlASD/////f4PjeP////9IAAAB/AAAA3+j63j/////SAABMP////87oACA/////1fgEDr/////fH4CFP////+TowBY/////0gAALD/////PGCAAP////+AAwD4/////1QD8L7/////OAAD6P////98AwOW/////xygADL/////OAAAAP////9sBIAA/////28jgAD/////fBooEP////98YyEQ/////3xkIRD/////fGMA0f////9AggAc/////ygdAAj/////QYIAFP////9/g+N4/////0gAAAH8AAADf6PreP////9IAADM/////zxggAD/////gAMA+P////9UA/C+/////zgAA+j/////fAMDlv////8coABL/////zgAAAD/////bASAAP////9vI4AA/////3waKBD/////fGMhEP////98ZCEQ/////3xjANH/////QIIAGP////84gACA/////1fgEDr/////fH4CFP////+QgwBY/////0gAABT/////O6AAgP////9X4BA6/////3x+AhT/////k6MAWP////9IAAAB/AAAA1fgGDj/////fLsCFP////+QhQEk/////5BlASD/////OH8AAP////84gAAA/+AAADigAAH/////V+AQOv////983gIU/////zjgAAP/////PQAAAP//AAA5CAAA//8AAD0ggAD/////gAkA+P////9UAPC+/////z0gAAL/////OSnoSP////98AEuW/////xwAAEH/////VAro/v////85IAAA/////zjGAFj/////SAAAAfwAAAN/g+N4/////0gAAAH8AAADf6PreP////+AAQA0/////7shABT/////OCEAMP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 504
+    flags: 1
+    section: .text
+  - kind: Object
+    name: Packet
+    size: 128
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: '@1'
+    size: 66
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: cmdTypeAndStatus$224
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 36
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 272
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 376
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 400
+    kind: PpcEmbSda21
+    symbol: 7
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 424
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 468
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 476
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 431ed8fa3fc71266400edf8ae0b7a6fde5b33eec
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x/G3j/////PGAAAP//AAA7owAA//8AAEgAAAH8AAADfHwbeP////87IAAB/////zsAAAD/////LB8AAP////9BgAAQ/////ywfAAT/////QIAACP////87AAAB/////ywYAAD/////QIIAMP////84fQBo/////ziABO3/////OL0C7P////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAI/////4ABAAj/////LAAAAP////9AggAI/////zsgAAD/////V+AQOv////84fQBY/////3/DAC7/////SAAAAfwAAANX5hg4/////zygAAD//wAAOAUAAP//AAB8oDIU/////4AFAAD/////gKUABP////9/ZSAQ/////39AGRD/////OH0ARP////+AYwAE/////zgAAID/////fAD+MP////98YAA4/////ywAAAD/////QYIATP////8oHgAI/////0GCADD/////SAAAAfwAAANX5hg4/////zygAAD//wAAOAUAAP//AAB8oDIU/////5CFAAT/////kGUAAP////9/g+N4/////0gAAAH8AAADf8PzeP////9IAAFY/////zvAAID/////V+AQOv////84fQBY/////3/DAS7/////SAAAyP////88YIAA/////4ADAPj/////VADwvv////88YBBi/////zhjTdP/////fAMAFv////9UANG+/////xxgADL/////OAAAAP////9sAIAA/////29EgAD/////fHsYEP////98hAEQ/////3yAARD/////fIQA0P////8sBAAA/////0CCABz/////KB4ACP////9BggAU/////3+D43j/////SAAAAfwAAAN/w/N4/////0gAAOj/////PGCAAP////+AAwD4/////1QA8L7/////PGAQYv////84Y03T/////3wDABb/////VADRvv////8cYABL/////zgAAAD/////bACAAP////9vRIAA/////3x7GBD/////fIQBEP////98gAEQ/////3yEAND/////LAQAAP////9AggAY/////ziAAID/////V+AQOv////84fQBY/////3yDAS7/////SAAAFP////87wACA/////1fgEDr/////OH0AWP////9/wwEu/////0gAAAH8AAADV+YYOP////88oAAA//8AADgFAAD//wAAfKAyFP////+QhQAE/////5BlAAD/////f+P7eP////84gAAA/+AAADigAAH/////V+YQOv////84HQBY/////3zAMhT/////OOAAA/////89AAAA//8AADkIAAD//wAAPSCAAP////+ACQD4/////1QA8L7/////PSBDHP////85Kd6D/////3wJABb/////VAmL/v////9VIDAy/////3wAShT/////VAro/v////85IAAA/////0gAAAH8AAADf4PjeP////9IAAAB/AAAA3/D83j/////OWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 612
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 67
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: TypeTime
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@LOCAL@SIGetType__Fl@cmdTypeAndStatus'
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 496
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 520
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 580
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: ab4473f936b6ca9e3f52e2fa959b1586aeab46c2
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x/G3j/////PGAAAP//AAA7owAA//8AAEgAAAH8AAADfHwbeP////87IAAB/////zsAAAD/////LB8AAP////9BgAAQ/////ywfAAT/////QIAACP////87AAAB/////ywYAAD/////QIIAMP////84fQBw/////ziABO3/////OL0C9P////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAI/////4ABAAj/////LAAAAP////9AggAI/////zsgAAD/////V+AQOv////84fQBg/////3/DAC7/////SAAAAfwAAANX5hg4/////zygAAD//wAAOAUAAP//AAB8oDIU/////4AFAAD/////gKUABP////9/ZSAQ/////39AGRD/////OH0ASP////+AYwAE/////zgAAID/////fAD+MP////98YAA4/////ywAAAD/////QYIATP////8oHgAI/////0GCADD/////SAAAAfwAAANX5hg4/////zygAAD//wAAOAUAAP//AAB8oDIU/////5CFAAT/////kGUAAP////9/g+N4/////0gAAAH8AAADf8PzeP////9IAAFY/////zvAAID/////V+AQOv////84fQBg/////3/DAS7/////SAAAyP////88YIAA/////4ADAPj/////VADwvv////88YBBi/////zhjTdP/////fAMAFv////9UANG+/////xxgADL/////OAAAAP////9sAIAA/////29EgAD/////fHsYEP////98hAEQ/////3yAARD/////fIQA0P////8sBAAA/////0CCABz/////KB4ACP////9BggAU/////3+D43j/////SAAAAfwAAAN/w/N4/////0gAAOj/////PGCAAP////+AAwD4/////1QA8L7/////PGAQYv////84Y03T/////3wDABb/////VADRvv////8cYABL/////zgAAAD/////bACAAP////9vRIAA/////3x7GBD/////fIQBEP////98gAEQ/////3yEAND/////LAQAAP////9AggAY/////ziAAID/////V+AQOv////84fQBg/////3yDAS7/////SAAAFP////87wACA/////1fgEDr/////OH0AYP////9/wwEu/////0gAAAH8AAADV+YYOP////88oAAA//8AADgFAAD//wAAfKAyFP////+QhQAE/////5BlAAD/////f+P7eP////84gAAA/+AAADigAAH/////V+YQOv////84HQBg/////3zAMhT/////OOAAA/////89AAAA//8AADkIAAD//wAAPSCAAP////+ACQD4/////1QA8L7/////PSBDHP////85Kd6D/////3wJABb/////VAmL/v////9VIDAy/////3wAShT/////VAro/v////85IAAA/////0gAAAH8AAADf4PjeP////9IAAAB/AAAA3/D83j/////OWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 612
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: TypeTime
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: cmdTypeAndStatus$1078
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 496
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 520
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 580
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 11
+    addend: 0
+- symbol: 0
+  hash: b1862a6662b309f86afcf5816977c01e26856eb3
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x/G3j/////PGAAAP//AAA7wwAA//8AAEgAAAH8AAADfHwbeP////87IAAB/////zsAAAD/////LB8AAP////9BgAAQ/////ywfAAT/////QIAACP////87AAAB/////ywYAAD/////QIIAMP////84fgBw/////ziABO3/////OL4C9P////9MxjGC/////0gAAAH8AAADOAAAAP////+QAQAI/////4ABAAj/////LAAAAP////9AggAI/////zsgAAD/////V+AQOv////84fgBg/////3+jAC7/////SAAAAfwAAANX5hg4/////zygAAD//wAAOAUAAP//AAB8oDIU/////4AFAAD/////gKUABP////9/ZSAQ/////39AGRD/////OH4ASP////+AYwAE/////zgAAID/////fAD+MP////98YAA4/////ywAAAD/////QYIATP////8oHQAI/////0GCADD/////SAAAAfwAAANX5hg4/////zygAAD//wAAOAUAAP//AAB8oDIU/////5CFAAT/////kGUAAP////9/g+N4/////0gAAAH8AAADf6PreP////9IAAFY/////zugAID/////V+AQOv////84fgBg/////3+jAS7/////SAAAyP////88YIAA/////4ADAPj/////VADwvv////88YBBi/////zhjTdP/////fAMAFv////9UANG+/////xxgADL/////OAAAAP////9sAIAA/////29EgAD/////fHsYEP////98hAEQ/////3yAARD/////fIQA0P////8sBAAA/////0CCABz/////KB0ACP////9BggAU/////3+D43j/////SAAAAfwAAAN/o+t4/////0gAAOj/////PGCAAP////+AAwD4/////1QA8L7/////PGAQYv////84Y03T/////3wDABb/////VADRvv////8cYABL/////zgAAAD/////bACAAP////9vRIAA/////3x7GBD/////fIQBEP////98gAEQ/////3yEAND/////LAQAAP////9AggAY/////ziAAID/////V+AQOv////84fgBg/////3yDAS7/////SAAAFP////87oACA/////1fgEDr/////OH4AYP////9/owEu/////0gAAAH8AAADV+YYOP////88oAAA//8AADgFAAD//wAAfKAyFP////+QhQAE/////5BlAAD/////f+P7eP////84gAAA/+AAADigAAH/////V+YQOv////84HgBg/////3zAMhT/////OOAAA/////89AAAA//8AADkIAAD//wAAPSCAAP////+ACQD4/////1QA8L7/////PSBDHP////85Kd6D/////3wJABb/////VAmL/v////9VIDAy/////3wAShT/////VAro/v////85IAAA/////0gAAAH8AAADf4PjeP////9IAAAB/AAAA3+j63j/////OWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SIGetType
+    size: 612
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1'
+    size: 69
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: __OSGetSystemTime
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: TypeTime
+    size: 32
+    flags: 2
+    section: .bss
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: cmdTypeAndStatus$1067
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: GetTypeCallback
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: SITransfer
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 132
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 204
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 348
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 464
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 476
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 496
+    kind: PpcEmbSda21
+    symbol: 8
+    addend: 0
+  - offset: 520
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 524
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 572
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+  - offset: 580
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 592
+    kind: PpcRel24
+    symbol: 11
+    addend: 0

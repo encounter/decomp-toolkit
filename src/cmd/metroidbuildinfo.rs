@@ -1,4 +1,4 @@
-use anyhow::{Context, Error, Result};
+use anyhow::{bail, ensure, Context, Result};
 use argh::FromArgs;
 use memchr::memmem;
 use memmap2::MmapOptions;
@@ -23,11 +23,10 @@ pub fn run(args: Args) -> Result<()> {
         .with_context(|| format!("Failed to read build info string from '{}'", args.build_info))?;
     let build_string_trim = build_string.trim_end();
     let build_string_bytes = build_string_trim.as_bytes();
-    if build_string_bytes.len() > BUILD_STRING_MAX {
-        return Err(Error::msg(format!(
-            "Build string '{build_string_trim}' is greater than maximum size of {BUILD_STRING_MAX}"
-        )));
-    }
+    ensure!(
+        build_string_bytes.len() <= BUILD_STRING_MAX,
+        "Build string '{build_string_trim}' is greater than maximum size of {BUILD_STRING_MAX}"
+    );
 
     let binary_file = std::fs::File::options()
         .read(true)
@@ -38,7 +37,7 @@ pub fn run(args: Args) -> Result<()> {
         .with_context(|| format!("Failed to mmap binary: '{}'", args.binary))?;
     let start = match memmem::find(&map, BUILD_STRING_TAG.as_bytes()) {
         Some(idx) => idx + BUILD_STRING_TAG.as_bytes().len(),
-        None => return Err(Error::msg("Failed to find build string tag in binary")),
+        None => bail!("Failed to find build string tag in binary"),
     };
     let end = start + build_string_bytes.len();
     map[start..end].copy_from_slice(build_string_bytes);

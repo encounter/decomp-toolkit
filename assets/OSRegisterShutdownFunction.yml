@@ -1,0 +1,387 @@
+- symbol: 0
+  hash: 64937b11213409f1db87e90e53b9310a01ac92a0
+  signature: gKAAAP/gAABIAAAI/////4ClAAj/////LAUAAP////9BggAU/////4CFAAT/////gAMABP////98BABA/////0CB/+j/////LAUAAP////9AggA4/////ziAAAD/4AAAgIQABP////8sBAAA/////0CCAAz/////kGAAAP/gAABIAAAI/////5BkAAj/////OAAAAP////+QgwAM/////ziAAAD/4AAAkAMACP////+QZAAE/////06AACD/////kKMACP////+AhQAM/////5BlAAz/////LAQAAP////+QgwAM/////0CCAAz/////kGAAAP/gAABOgAAg/////5BkAAj/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 136
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 80
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 120
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 5f4439f3348835b7602c09a2f8b56bfaf4f79f29
+  signature: lCH/4P////98CAKm/////5ABACT/////OWEAIP////9IAAAB/AAAA3x/G3j/////O2AAAf////+AHwAA/////ywAAAD/////QIIAMP////88YAAA//8AADhjAAD//wAAOIABC/////88oAAA//8AADilAAD//wAATMYxgv////9IAAAB/AAAAztAAAD/////LBoAAP////9AggAI/////ztgAAD/////g8AAAP/gAABIAAAI/////4PeAAj/////LB4AAP////9BggAU/////4B+AAT/////gB8ABP////98AwBA/////0CB/+j/////LB4AAP////9AggA4/////zhgAAD/4AAAg4MABP////8sHAAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P8AAj/////k58ADP////84AAAA/////5AfAAj/////OGAAAP/gAACT4wAE/////0gAACj/////k98ACP////+DvgAM/////5P+AAz/////k78ADP////8sHQAA/////0CCAAz/////k+AAAP/gAABIAAAI/////5P9AAj/////OWEAIP////9IAAAB/AAAA4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 240
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@728'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@729'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 64
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 84
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 128
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 144
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 168
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 204
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 220
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 9f1ee5168de7f1091519f98af0bbed2cb8ba5c87
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3w/C3j/////fH4beP////87QAAB/////4AeAAD/////LAAAAP////9AggA4/////zxgAAD//wAAOGMAAP//AAA4gAF1/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QHwAI/////4AfAAj/////LAAAAP////9AggAI/////ztAAAD/////g6AAAP/gAABIAAAI/////4O9AAj/////LB0AAP////9BggAU/////4B9AAT/////gB4ABP////98AwBA/////0CB/+j/////LB0AAP////9AggA4/////zhgAAD/4AAAg2MABP////8sGwAA/////0CCAAz/////k8AAAP/gAABIAAAI/////5PbAAj/////k34ADP////84AAAA/////5AeAAj/////OGAAAP/gAACTwwAE/////0gAACj/////k74ACP////+DnQAM/////5PdAAz/////k54ADP////8sHAAA/////0CCAAz/////k8AAAP/gAABIAAAI/////5PcAAj/////f+r7eP////85agAw/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 260
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1581'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1582'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 4957e29f96b148dff0bd1e1765fbf25f89ffe16b
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3w/C3j/////fH4beP////87QAAB/////4AeAAD/////LAAAAP////9AggA4/////zxgAAD//wAAOGMAAP//AAA4gAFj/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QHwAI/////4AfAAj/////LAAAAP////9AggAI/////ztAAAD/////g6AAAP/gAABIAAAI/////4O9AAj/////LB0AAP////9BggAU/////4B9AAT/////gB4ABP////98AwBA/////0CB/+j/////LB0AAP////9AggA4/////zhgAAD/4AAAg2MABP////8sGwAA/////0CCAAz/////k8AAAP/gAABIAAAI/////5PbAAj/////k34ADP////84AAAA/////5AeAAj/////OGAAAP/gAACTwwAE/////0gAACj/////k74ACP////+DnQAM/////5PdAAz/////k54ADP////8sHAAA/////0CCAAz/////k8AAAP/gAABIAAAI/////5PcAAj/////f+r7eP////85agAw/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 260
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1276'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1277'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+- symbol: 0
+  hash: 56a0cbd5c859dd71287b7ec1fc43fe76ee903efc
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3w/C3j/////fH4beP////87QAAB/////4AeAAD/////LAAAAP////9AggA4/////zxgAAD//wAAOGMAAP//AAA4gAE3/////zygAAD//wAAOKUAAP//AABMxjGC/////0gAAAH8AAADOAAAAP////+QHwAI/////4AfAAj/////LAAAAP////9AggAI/////ztAAAD/////g6AAAP/gAABIAAAI/////4O9AAj/////LB0AAP////9BggAU/////4B9AAT/////gB4ABP////98AwBA/////0CB/+j/////LB0AAP////9AggA4/////zhgAAD/4AAAg2MABP////8sGwAA/////0CCAAz/////k8AAAP/gAABIAAAI/////5PbAAj/////k34ADP////84AAAA/////5AeAAj/////OGAAAP/gAACTwwAE/////0gAACj/////k74ACP////+DnQAM/////5PdAAz/////k54ADP////8sHAAA/////0CCAAz/////k8AAAP/gAABIAAAI/////5PcAAj/////f+r7eP////85agAw/////0gAAAH8AAADgUEAAP////+ACgAE/////31BU3j/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: OSRegisterShutdownFunction
+    size: 260
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_26
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1181'
+    size: 10
+    flags: 2
+    section: .data
+  - kind: Object
+    name: '@1182'
+    size: 28
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: ShutdownFunctionQueue
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Unknown
+    name: _restgpr_26
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 44
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 96
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 140
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 156
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 180
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 216
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 236
+    kind: PpcRel24
+    symbol: 6
+    addend: 0

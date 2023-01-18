@@ -1,0 +1,32 @@
+- symbol: 0
+  hash: f5a0f1ba3c8b103b556d9459e61c029a3a5dc629
+  signature: fGAApv////9gYyAA/////3xgAST/////fHjipv////9UYx///////0GCAIz/////PGAAAP//AAA4YwAA//8AAOADAAD/////ECAAkP////8QQACQ/////xBgAJD/////EIAAkP////8QoACQ/////xDAAJD/////EOAAkP////8RAACQ/////xEgAJD/////EUAAkP////8RYACQ/////xGAAJD/////EaAAkP////8RwACQ/////xHgAJD/////EgAAkP////8SIACQ/////xJAAJD/////EmAAkP////8SgACQ/////xKgAJD/////EsAAkP////8S4ACQ/////xMAAJD/////EyAAkP////8TQACQ/////xNgAJD/////E4AAkP////8ToACQ/////xPAAJD/////E+AAkP/////IAAAA/+AAAPwgAJD//////EAAkP/////8YACQ//////yAAJD//////KAAkP/////8wACQ//////zgAJD//////QAAkP/////9IACQ//////1AAJD//////WAAkP/////9gACQ//////2gAJD//////cAAkP/////94ACQ//////4AAJD//////iAAkP/////+QACQ//////5gAJD//////oAAkP/////+oACQ//////7AAJD//////uAAkP//////AACQ//////8gAJD//////0AAkP//////YACQ//////+AAJD//////6AAkP//////wACQ///////gAJD//////f4Fjv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __OSFPRInit
+    size: 296
+    flags: 1
+    section: .text
+  - kind: Object
+    name: ZeroPS
+    size: 8
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: ZeroF
+    size: 8
+    flags: 2
+    section: .sbss
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcEmbSda21
+    symbol: 2
+    addend: 0

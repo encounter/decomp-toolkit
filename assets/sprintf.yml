@@ -1,0 +1,217 @@
+- symbol: 0
+  hash: 79976cad443ea8598a646484234dc9fbbec55221
+  signature: fAgCpv////+QAQAE/////5Qh/4D/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////kGEACP////88AAIA/////5CBAAz/////kKEAEP////84pAAA/////zyAABD/////kMEAFP////84wQBw/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////kAEAcP////84AQCI/////5ABAHT/////OAEACP////+QAQB4/////0gAAAH8AAADgAEAhP////84IQCA/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 136
+    flags: 1
+    section: .text
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 116
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 48eeccf5b95dbad11c8c14fc93c959db9bece0a7
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////+TwQB4/////3yeI3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////OWEAiP////84AQAI/////z2AAgD/////kIEADP////874QBo/////ziAAQD/////kKEAEP////9/xfN4/////5DBABT/////f+b7eP////+QYQAI/////5DhABj/////kQEAHP////+RIQAg/////5FBACT/////kYEAaP////+RYQBs/////5ABAHD/////SAAAAfwAAAOAAQCE/////4PhAHz/////g8EAeP////98CAOm/////zghAID/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 160
+    flags: 1
+    section: .text
+  - kind: Function
+    name: nvfprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 132
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 2a06e12e492b33a5e31e6d242d4d618cd8795ccf
+  signature: lCH/gP////98CAKm/////5ABAIT/////k+EAfP////98nyN4/////5PBAHj/////kGEAaP////9AhgAk/////9ghACj/////2EEAMP/////YYQA4/////9iBAED/////2KEASP/////YwQBQ/////9jhAFj/////2QEAYP////85YQCI/////zgBAAj/////PYACAP////+QYQAI/////4BhAGj/////kIEADP////84gP///////5ChABD/////f+X7eP////+QwQAU/////zjBAGz/////kOEAGP////+RAQAc/////5EhACD/////kUEAJP////+RgQBs/////5FhAHD/////kAEAdP////9IAAAB/AAAA4ABAIT/////g+EAfP////+DwQB4/////3wIA6b/////OCEAgP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 164
+    flags: 1
+    section: .text
+  - kind: Function
+    name: vsnprintf
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 136
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: d09a1b9030743f361d194938ef89ff9f9a1cf212
+  signature: lCH/YP////98CAKm/////5ABAKT/////v2EAjP////98ext4/////0CGACT/////2CEAKP/////YQQAw/////9hhADj/////2IEAQP/////YoQBI/////9jBAFD/////2OEAWP/////ZAQBg/////zmBAKj/////OAEACP////8/oAIA/////zvA////////O+AAAP////+QoQAQ/////zuBAHT/////PWAAAP//AACQwQAU/////3yFI3j/////f4bjeP////+QgQAM/////ziBAGj/////kGEACP////+QYQBo/////zhrAAD//wAAkOEAGP////+RAQAc/////5EhACD/////kUEAJP////+ToQB0/////5GBAHj/////kAEAfP////+TwQBs/////5PhAHD/////SAAAAfwAAAMsGwAA/////0GCABj/////fAPwQP////9AgAAM/////3/7Ga7/////SAAACP////+b+//+/////7thAIz/////gAEApP////98CAOm/////zghAKD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 208
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 77e9faef79e88c7e441e22b58aecf84a2a2a6bfa
+  signature: lCH/YP////98CAKm/////5ABAKT/////v2EAjP////98ext4/////0CGACT/////2CEAKP/////YQQAw/////9hhADj/////2IEAQP/////YoQBI/////9jBAFD/////2OEAWP/////ZAQBg/////zmBAKj/////OAEACP////8/oAIA/////zvA////////O+AAAP////+QoQAQ/////zuBAHT/////PWAAAP//AACQwQAU/////3yFI3j/////f4bjeP////+QgQAM/////ziBAGj/////kOEAGP////844AAA/////5BhAAj/////kGEAaP////84awAA//8AAJEBABz/////kSEAIP////+RQQAk/////5OhAHT/////kYEAeP////+QAQB8/////5PBAGz/////k+EAcP////9IAAAB/AAAAywbAAD/////QYIAGP////98A/BA/////0CAAAz/////f/sZrv////9IAAAI/////5v7//7/////u2EAjP////+AAQCk/////3wIA6b/////OCEAoP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 84
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: d4a3a295f042458e1a6620851c6674cdc5c49250
+  signature: fAgCpv////+QAQAE/////5Qh/3D/////k+EAjP////+TwQCI/////0CGACT/////2CEAKP/////YQQAw/////9hhADj/////2IEAQP/////YoQBI/////9jBAFD/////2OEAWP/////ZAQBg/////5BhAAj/////PAACAP////87wwAA/////5CBAAz/////O+D///////+QoQAQ/////zygAAD//wAAOGUAAP//AACQwQAU/////zikAAD/////OMEAfP////+Q4QAY/////ziBAHD/////kQEAHP////+RIQAg/////5FBACT/////kAEAfP////84AQCY/////5ABAID/////OAEACP////+QAQCE/////zgAAAD/////k8EAcP////+T4QB0/////5ABAHj/////SAAAAfwAAAN8A/hA/////0CAAAz/////fGQbeP////9IAAAI/////ziA//7/////OAAAAP////98HiGu/////4ABAJT/////g+EAjP////+DwQCI/////3wIA6b/////OCEAkP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 84
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 156
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 7c0c97fb5ae8b35eeb435fd97a28fc4ecd548683
+  signature: lCH/YP////98CAKm/////5ABAKT/////v2EAjP////98ext4/////0CGACT/////2CEAKP/////YQQAw/////9hhADj/////2IEAQP/////YoQBI/////9jBAFD/////2OEAWP/////ZAQBg/////zmBAKj/////OAEACP////8/oAIA/////5ChABD/////O8D///////874AAA/////5DhABj/////O4EAdP////89YAAA//8AAHyFI3j/////kIEADP////84gQBo/////zjgAAD/////kMEAFP////9/huN4/////5BhAAj/////kGEAaP////84awAA//8AAJEBABz/////kSEAIP////+RQQAk/////5OhAHT/////kYEAeP////+QAQB8/////5PBAGz/////k+EAcP////9IAAAB/AAAAywbAAD/////QYIAGP////98A/BA/////0CAAAz/////f/sZrv////9IAAAI/////5v7//7/////u2EAjP////+AAQCk/////3wIA6b/////OCEAoP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 160
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+- symbol: 0
+  hash: 660c7cb92c8c16ca6bce5b8b457c61909b055747
+  signature: lCH/YP////98CAKm/////5ABAKT/////vyEAhP////98eRt4/////3yaI3j/////QIYAJP/////YIQAo/////9hBADD/////2GEAOP/////YgQBA/////9ihAEj/////2MEAUP/////Y4QBY/////9kBAGD/////O6EAqP////87wQAI/////z+AAgD/////O+D///////85gAAA/////z1gAAD//wAAkIEADP////87YQB0/////zgLAAD//wAAOIEAaP////+QYQAI/////3wDA3j/////kKEAEP////9/RdN4/////5DBABT/////f2bbeP////+Q4QAY/////5EBABz/////kSEAIP////+RQQAk/////5OBAHT/////k6EAeP////+TwQB8/////5MhAGj/////k+EAbP////+RgQBw/////0gAAAH8AAADKBkAAP////9BggAg/////zgA////////OID//v////98AwBA/////0CAAAj/////fGQbeP////84AAAA/////3wZIa7/////uyEAhP////+AAQCk/////3wIA6b/////OCEAoP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: sprintf
+    size: 224
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __StringWrite
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: __pformatter
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 80
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 92
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 164
+    kind: PpcRel24
+    symbol: 2
+    addend: 0

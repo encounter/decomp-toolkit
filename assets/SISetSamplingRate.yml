@@ -1,0 +1,525 @@
+- symbol: 0
+  hash: 93548cde9e260d7c01cf8c64ad1eb6aa436e99cc
+  signature: lCH/4P////98CAKm/////ygDAAv/////kAEAJP////+T4QAc/////z/gAAD//wAAO/8AAP//AACTwQAY/////5OhABT/////fH0beP////9AgQAI/////zugAAv/////SAAAAfwAAAOToAAA/+AAAHx+G3j/////SAAAAfwAAAMsAwAA/////0GCACD/////KAMAAv////9BggAY/////ygDAAX/////QYIAEP////8oAwAB/////0GCABD/////SAAAFP////84vwAA/////0gAACD/////OL8AMP////9IAAAY/////zh/AGD/////TMYxgv////9IAAAB/AAAAzugAAD/////OL8AAP////88YMwA/////1egEDr/////oIMgbP////98ZQIU/////3wFAi7/////VIUH/v////+IgwAC/////zhlAAH/////fGMB1v////9IAAAB/AAAA3/D83j/////SAAAAfwAAAOAAQAk/////4PhABz/////g8EAGP////+DoQAU/////3wIA6b/////OCEAIP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SISetSamplingRate
+    size: 212
+    flags: 1
+    section: .text
+  - kind: Object
+    name: XYNTSC
+    size: 48
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: SamplingRate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: VIGetTvFormat
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SISetXY
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 124
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 180
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: d4a8fbcf13ebf0bce543ebf78f81c71f0dfd4bf9
+  signature: lCH/4P////98CAKm/////ygDAAv/////kAEAJP////+T4QAc/////z/gAAD//wAAO/8AAP//AACTwQAY/////5OhABT/////fH0beP////9AgQAI/////zugAAv/////SAAAAfwAAAOToAAA/+AAAHx+G3j/////SAAAAfwAAAMsAwAC/////0GCACT/////QIAAFP////8sAwAA/////0GCABj/////QIAAHP////9IAAAg/////ywDAAX/////QYIACP////9IAAAU/////zi/AAD/////SAAAIP////84vwAw/////0gAABj/////OH8AYP////9MxjGC/////0gAAAH8AAADO6AAAP////84vwAA/////zxgzAD/////V6AQOv////+ggyBs/////3xlAhT/////fAUCLv////9UhQf+/////4iDAAL/////OGUAAf////98YwHW/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////4OhABT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetSamplingRate
+    size: 216
+    flags: 1
+    section: .text
+  - kind: Object
+    name: XYNTSC
+    size: 48
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: SamplingRate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: VIGetTvFormat
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: SISetXY
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 176
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 184
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: d66f88467d7915ce5054a4fded3f0606413b7f3d
+  signature: fAgCpv////+QAQAE/////5Qh/+D/////k+EAHP////+TwQAY/////5OhABT/////O6MAAP////8oHQAL/////zxgAAD//wAAO+MAAP//AABAgQAI/////zugAAv/////SAAAAfwAAAOToAAA/+AAAHx+G3j/////SAAAAfwAAAMsAwAC/////0GCACT/////QIAAFP////8sAwAA/////0GCABj/////QIAAHP////9IAAAg/////ywDAAX/////QYIACP////9IAAAU/////3/k+3j/////SAAAIP////84nwAw/////0gAABj/////OH8AYP////9MxjGC/////0gAAAH8AAADO6AAAP////84nwAA/////zxgzAD/////oAMgbP////9UAAf//////0GCAAz/////OKAAAv////9IAAAI/////zigAAH/////V6MQOv////98BBou/////3xkGhT/////iIMAAv////98ZQHW/////0gAAAH8AAADf8PzeP////9IAAAB/AAAA4ABACT/////g+EAHP////+DwQAY/////4OhABT/////OCEAIP////98CAOm/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetSamplingRate
+    size: 228
+    flags: 1
+    section: .text
+  - kind: Object
+    name: XYNTSC
+    size: 48
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: SamplingRate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: VIGetTvFormat
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: SISetXY
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 48
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 52
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 128
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 188
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 196
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+- symbol: 0
+  hash: a59087431baa0346170d93c85f928ee08c6fe055
+  signature: fAgCpv////+QAQAE/////5Qh/9j/////v2EAFP////87wwAA/////zxgAAD//wAAO+MAAP//AAAoHgAL/////0CBABj/////OH8AYP////84gAF2/////zi/AHT/////TMYxgv////9IAAAB/AAAAygeAAv/////QIEACP////87wAAL/////0gAAAH8AAADfHsbeP////+TwAAA/+AAAEgAAAH8AAADLAMAAv////9BggAk/////0CAABT/////LAMAAP////9BggAY/////0CAABz/////SAAAIP////8sAwAF/////0GCAAj/////SAAAFP////9//ft4/////0gAACD/////O78AMP////9IAAAY/////zh/AKj/////TMYxgv////9IAAAB/AAAAzvAAAD/////f/37eP////88YMwA/////6ADIGz/////VBwH/v////8sHAAA/////0GCAAz/////OGAAAv////9IAAAI/////zhgAAH/////V8AQOv////98HQIu/////3xjAdb/////V8QQOv////84BAAC/////3ydAK7/////SAAAAfwAAAN/Y9t4/////0gAAAH8AAADgAEALP////+7YQAU/////zghACj/////fAgDpv////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: SISetSamplingRate
+    size: 248
+    flags: 1
+    section: .text
+  - kind: Object
+    name: XYNTSC
+    size: 48
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: SamplingRate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: VIGetTvFormat
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: SISetXY
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 76
+    kind: PpcEmbSda21
+    symbol: 4
+    addend: 0
+  - offset: 80
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 148
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 216
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 224
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+- symbol: 0
+  hash: a7ff7054fc42454967b4bfbda83658790b59bee5
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x+G3j/////PGAAAP//AAA7owAA//8AADtAAAH/////KB4AC/////9AgQAo/////zh9AGD/////OIABg/////84vQB0/////0zGMYL/////SAAAAfwAAAM7AAAA/////ywYAAD/////QIIACP////87QAAA/////ygeAAv/////QIEACP////87wAAL/////0gAAAH8AAADfHsbeP////+TwAAA/+AAAEgAAAH8AAADLAMAAv////9BggAk/////0CAABT/////LAMAAP////9BggAY/////0CAABz/////SAAAIP////8sAwAF/////0GCAAj/////SAAAFP////87/QAA/////0gAACD/////O/0AMP////9IAAAY/////zh9AKj/////TMYxgv////9IAAAB/AAAAzvAAAD/////O/0AAP////88YMwA/////6ADIGz/////VBwH/v////8sHAAA/////0GCAAz/////OyAAAv////9IAAAI/////zsgAAH/////V8AQOv////98HwIu/////3x5Adb/////V8AQOv////98nwIU/////4iEAAL/////SAAAAfwAAAN/Y9t4/////0gAAAH8AAADOWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetSamplingRate
+    size: 276
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: XYNTSC
+    size: 48
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: SamplingRate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: VIGetTvFormat
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: SISetXY
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 10
+    addend: 0
+- symbol: 0
+  hash: 980910f4633ccc6f35447e164bf6240c8be2457d
+  signature: lCH/0P////98CAKm/////5ABADT/////OWEAMP////9IAAAB/AAAA3x+G3j/////PGAAAP//AAA7owAA//8AADuAAAH/////KB4AC/////9AgQAo/////zh9AGD/////OIABg/////84vQB0/////0zGMYL/////SAAAAfwAAAM7AAAA/////ywYAAD/////QIIACP////87gAAA/////ygeAAv/////QIEACP////87wAAL/////0gAAAH8AAADfHkbeP////+TwAAA/+AAAEgAAAH8AAADLAMAAv////9BggAk/////0CAABT/////LAMAAP////9BggAY/////0CAABz/////SAAAIP////8sAwAF/////0GCAAj/////SAAAFP////87/QAA/////0gAACD/////O/0AMP////9IAAAY/////zh9AKj/////TMYxgv////9IAAAB/AAAAzvAAAD/////O/0AAP////88YMwA/////6ADIGz/////VBoH/v////8sGgAA/////0GCAAz/////O2AAAv////9IAAAI/////ztgAAH/////V8AQOv////98HwIu/////3x7Adb/////V8AQOv////98nwIU/////4iEAAL/////SAAAAfwAAAN/I8t4/////0gAAAH8AAADOWEAMP////9IAAAB/AAAA4ABADT/////fAgDpv////84IQAw/////06AACD/////
+  symbols:
+  - kind: Function
+    name: SISetSamplingRate
+    size: 276
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_24
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: XYNTSC
+    size: 48
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSPanic
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: OSDisableInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: SamplingRate
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Function
+    name: VIGetTvFormat
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Function
+    name: SISetXY
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Function
+    name: OSRestoreInterrupts
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_24
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 3
+    addend: 0
+  - offset: 92
+    kind: PpcRel24
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcEmbSda21
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcRel24
+    symbol: 6
+    addend: 0
+  - offset: 172
+    kind: PpcRel24
+    symbol: 7
+    addend: 0
+  - offset: 240
+    kind: PpcRel24
+    symbol: 8
+    addend: 0
+  - offset: 248
+    kind: PpcRel24
+    symbol: 9
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 10
+    addend: 0

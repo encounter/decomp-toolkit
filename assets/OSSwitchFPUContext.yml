@@ -1,0 +1,28 @@
+- symbol: 0
+  hash: d2bf04a5bce72b989d106a6c6c23c7c3966a5f83
+  signature: fKAApv////9gpSAA/////3ygAST/////TAABLP////+ApAGc/////2ClIAD/////fLsDpv////88YIAA/////4CjANj/////kIMA2P////98BSAA/////0GCABT/////LAUAAP////9BggAI/////0gAAAH8AAADSAAAAfwAAAOAZACA/////3xv8SD/////gGQAhP////98aAOm/////4BkAZj/////fHoDpv////+AZACI/////3xpA6b/////gGQAjP////98YQOm/////6BkAaL/////VGMH+v////+wZAGi/////4CkABT/////gGQADP////+AhAAQ/////0wAAGT/////
+  symbols:
+  - kind: Function
+    name: OSSwitchFPUContext
+    size: 132
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSSaveFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  - kind: Function
+    name: __OSLoadFPUContext
+    size: 0
+    flags: 2
+    section: .text
+  relocations:
+  - offset: 56
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 60
+    kind: PpcRel24
+    symbol: 2
+    addend: 0
