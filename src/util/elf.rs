@@ -105,7 +105,6 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             relocations: vec![],
             original_address: 0, // TODO load from abs symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
-            section_known: true,
         });
     }
 

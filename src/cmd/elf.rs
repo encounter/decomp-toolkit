@@ -144,7 +144,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             let asm_dir = args.out.join("asm");
             let include_dir = args.out.join("include");
             DirBuilder::new().recursive(true).create(&include_dir)?;
-            fs::write(&include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
+            fs::write(include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
 
             let mut files_out = File::create(args.out.join("link_order.txt"))?;
             for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {

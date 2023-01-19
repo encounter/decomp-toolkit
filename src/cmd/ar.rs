@@ -45,9 +45,8 @@ fn create(args: CreateArgs) -> Result<()> {
     // Process response files (starting with '@')
     let mut files = Vec::with_capacity(args.files.len());
     for path in args.files {
-        let path_str = path
-            .to_str()
-            .ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
+        let path_str =
+            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
         match path_str.strip_prefix('@') {
             Some(rsp_file) => {
                 let reader = BufReader::new(
@@ -71,18 +70,14 @@ fn create(args: CreateArgs) -> Result<()> {
     let mut identifiers = Vec::with_capacity(files.len());
     let mut symbol_table = BTreeMap::new();
     for path in &files {
-        let file_name = path
-            .file_name()
-            .ok_or_else(|| anyhow!("'{}' is not a file path", path.display()))?;
-        let file_name = file_name
-            .to_str()
-            .ok_or_else(|| anyhow!("'{}' is not valid UTF-8", file_name.to_string_lossy()))?;
-        let identifier = file_name.as_bytes().to_vec();
+        let path_str =
+            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
+        let identifier = path_str.as_bytes().to_vec();
         identifiers.push(identifier.clone());
 
         let entries = match symbol_table.entry(identifier) {
             Entry::Vacant(e) => e.insert(Vec::new()),
-            Entry::Occupied(_) => bail!("Duplicate file name '{file_name}'"),
+            Entry::Occupied(_) => bail!("Duplicate file name '{path_str}'"),
         };
         let object_file = File::open(path)
             .with_context(|| format!("Failed to open object file '{}'", path.display()))?;
@@ -101,7 +96,10 @@ fn create(args: CreateArgs) -> Result<()> {
     let mut builder =
         ar::GnuBuilder::new(out, identifiers, ar::GnuSymbolTableFormat::Size32, symbol_table)?;
     for path in files {
-        builder.append_path(path)?;
+        let path_str =
+            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
+        let mut file = File::open(&path)?;
+        builder.append_file(path_str.as_bytes(), &mut file)?;
     }
     builder.into_inner()?.flush()?;
     Ok(())
