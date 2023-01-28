@@ -213,7 +213,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                             ..Default::default()
                         });
                         reloc.target_symbol = out_sym_idx;
-                        if matches!(section.name.as_str(), "extab" | "extabindex") {
+                        if section.name.as_str() == "extabindex" {
                             log::warn!(
                                 "Extern relocation @ {:#010X} {} ({:#010X} {}): {:#010X} {}",
                                 reloc.address + section.original_address,
