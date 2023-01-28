@@ -2,7 +2,7 @@ use std::num::NonZeroU32;
 
 use ppc750cl::{Argument, Ins, Opcode, GPR};
 
-use crate::util::obj::ObjInfo;
+use crate::obj::ObjInfo;
 
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum GprValue {
@@ -684,7 +684,7 @@ mod tests {
     fn test_load_indexed_3() {
         let mut vm = VM::new();
         assert_eq!(vm.step(&Ins::new(0x28000127, 0x800ed458)), StepResult::Continue); // cmplwi r0, 0x127
-        assert_eq!(vm.cr, Cr {
+        assert_eq!(vm.cr[0], Cr {
             signed: false,
             left: GprValue::Unknown,
             right: GprValue::Constant(295),

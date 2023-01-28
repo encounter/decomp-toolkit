@@ -1,14 +1,15 @@
-use std::{collections::BTreeMap, fs::File, io::BufReader, path::Path};
+use std::{collections::BTreeMap, path::Path};
 
 use anyhow::{anyhow, bail, ensure, Result};
 use dol::{Dol, DolSection, DolSectionType};
 
-use crate::util::{
-    cfa::{locate_sda_bases, AnalyzerState},
+use crate::{
+    analysis::cfa::locate_sda_bases,
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
     },
+    util::file::{map_file, map_reader},
 };
 
 const MAX_TEXT_SECTIONS: usize = 7;
@@ -28,7 +29,10 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         .and_then(|filename| filename.to_str())
         .unwrap_or_default()
         .to_string();
-    let dol = Dol::read_from(BufReader::new(File::open(path)?))?;
+    let dol = {
+        let mmap = map_file(path)?;
+        Dol::read_from(map_reader(&mmap))?
+    };
     let mut obj = ObjInfo {
         module_id: 0,
         kind: ObjKind::Executable,
@@ -45,6 +49,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         arena_lo: None,
         arena_hi: None,
         splits: Default::default(),
+        named_sections: Default::default(),
         link_order: vec![],
         known_functions: Default::default(),
         unresolved_relocations: vec![],
@@ -447,7 +452,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     }
 
     // Locate _SDA2_BASE_ & _SDA_BASE_
-    let sda_bases = match locate_sda_bases(&mut obj) {
+    match locate_sda_bases(&mut obj) {
         Ok(true) => {
             let sda2_base = obj.sda2_base.unwrap();
             let sda_base = obj.sda_base.unwrap();
@@ -478,7 +483,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         Err(e) => {
             log::warn!("Failed to locate SDA bases: {:?}", e);
         }
-    };
+    }
 
     Ok(obj)
 }

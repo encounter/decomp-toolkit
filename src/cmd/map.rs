@@ -1,9 +1,12 @@
-use std::{fs::File, io::BufReader};
+use std::path::PathBuf;
 
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{bail, ensure, Result};
 use argh::FromArgs;
 
-use crate::util::map::{process_map, resolve_link_order, SymbolEntry, SymbolRef};
+use crate::util::{
+    file::{map_file, map_reader},
+    map::{process_map, resolve_link_order, SymbolEntry, SymbolRef},
+};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing CodeWarrior maps.
@@ -29,7 +32,7 @@ enum SubCommand {
 pub struct EntriesArgs {
     #[argh(positional)]
     /// path to input map
-    map_file: String,
+    map_file: PathBuf,
     #[argh(positional)]
     /// TU to display entries for
     unit: String,
@@ -41,7 +44,7 @@ pub struct EntriesArgs {
 pub struct SymbolArgs {
     #[argh(positional)]
     /// path to input map
-    map_file: String,
+    map_file: PathBuf,
     #[argh(positional)]
     /// symbol to display references for
     symbol: String,
@@ -53,7 +56,7 @@ pub struct SymbolArgs {
 pub struct OrderArgs {
     #[argh(positional)]
     /// path to input map
-    map_file: String,
+    map_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -62,7 +65,7 @@ pub struct OrderArgs {
 pub struct SlicesArgs {
     #[argh(positional)]
     /// path to input map
-    map_file: String,
+    map_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -71,7 +74,7 @@ pub struct SlicesArgs {
 pub struct SymbolsArgs {
     #[argh(positional)]
     /// path to input map
-    map_file: String,
+    map_file: PathBuf,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -85,11 +88,8 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn entries(args: EntriesArgs) -> Result<()> {
-    let reader = BufReader::new(
-        File::open(&args.map_file)
-            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
-    );
-    let entries = process_map(reader)?;
+    let map = map_file(&args.map_file)?;
+    let entries = process_map(map_reader(&map))?;
     match entries.unit_entries.get_vec(&args.unit) {
         Some(vec) => {
             for symbol_ref in vec {
@@ -109,11 +109,8 @@ fn entries(args: EntriesArgs) -> Result<()> {
 }
 
 fn symbol(args: SymbolArgs) -> Result<()> {
-    let reader = BufReader::new(
-        File::open(&args.map_file)
-            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
-    );
-    let entries = process_map(reader)?;
+    let map = map_file(&args.map_file)?;
+    let entries = process_map(map_reader(&map))?;
     let mut opt_ref: Option<(SymbolRef, SymbolEntry)> = None;
     for (symbol_ref, entry) in &entries.symbols {
         if symbol_ref.name == args.symbol {
@@ -164,11 +161,8 @@ fn symbol(args: SymbolArgs) -> Result<()> {
 }
 
 fn order(args: OrderArgs) -> Result<()> {
-    let reader = BufReader::new(
-        File::open(&args.map_file)
-            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
-    );
-    let entries = process_map(reader)?;
+    let map = map_file(&args.map_file)?;
+    let entries = process_map(map_reader(&map))?;
     let order = resolve_link_order(&entries.unit_order)?;
     for unit in order {
         println!("{unit}");
@@ -177,11 +171,8 @@ fn order(args: OrderArgs) -> Result<()> {
 }
 
 fn slices(args: SlicesArgs) -> Result<()> {
-    let reader = BufReader::new(
-        File::open(&args.map_file)
-            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
-    );
-    let entries = process_map(reader)?;
+    let map = map_file(&args.map_file)?;
+    let entries = process_map(map_reader(&map))?;
     let order = resolve_link_order(&entries.unit_order)?;
     for unit in order {
         let unit_path = if let Some((lib, name)) = unit.split_once(' ') {
@@ -210,11 +201,8 @@ fn slices(args: SlicesArgs) -> Result<()> {
 }
 
 fn symbols(args: SymbolsArgs) -> Result<()> {
-    let reader = BufReader::new(
-        File::open(&args.map_file)
-            .with_context(|| format!("Failed to open file '{}'", args.map_file))?,
-    );
-    let _entries = process_map(reader)?;
+    let map = map_file(&args.map_file)?;
+    let _entries = process_map(map_reader(&map))?;
     // for (address, symbol) in entries.address_to_symbol {
     //     if symbol.name.starts_with('@') {
     //         continue;

@@ -2,7 +2,7 @@ use std::{cmp::min, collections::HashMap};
 
 use anyhow::{anyhow, bail, ensure, Result};
 
-use crate::util::obj::{
+use crate::obj::{
     ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjSection, ObjSectionKind, ObjSymbol,
 };
 
@@ -32,6 +32,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
             arena_lo: None,
             arena_hi: None,
             splits: Default::default(),
+            named_sections: Default::default(),
             link_order: vec![],
             known_functions: Default::default(),
             unresolved_relocations: vec![],
@@ -41,6 +42,9 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
     for (section_idx, section) in obj.sections.iter().enumerate() {
         let mut current_address = section.address as u32;
         let mut section_end = (section.address + section.size) as u32;
+        // if matches!(section.name.as_str(), "extab" | "extabindex") {
+        //     continue;
+        // }
         // .ctors and .dtors end with a linker-generated null pointer,
         // adjust section size appropriately
         if matches!(section.name.as_str(), ".ctors" | ".dtors")
@@ -48,7 +52,11 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
         {
             section_end -= 4;
         }
-        let mut file_iter = obj.splits.range(current_address..).peekable();
+        let mut file_iter = obj
+            .splits
+            .range(current_address..)
+            .flat_map(|(addr, v)| v.iter().map(move |u| (addr, u)))
+            .peekable();
 
         // Build address to relocation / address to symbol maps
         let relocations = section.build_relocation_map()?;
@@ -72,8 +80,20 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 file_addr
             );
             let mut file_end = section_end;
-            if let Some(&(&next_addr, _)) = file_iter.peek() {
-                file_end = min(next_addr, section_end);
+            let mut dont_go_forward = false;
+            if let Some(&(&next_addr, next_unit)) = file_iter.peek() {
+                if file_addr == next_addr {
+                    log::warn!("Duplicating {} in {unit} and {next_unit}", section.name);
+                    dont_go_forward = true;
+                    file_end = obj
+                        .splits
+                        .range(current_address + 1..)
+                        .next()
+                        .map(|(&addr, _)| addr)
+                        .unwrap_or(section_end);
+                } else {
+                    file_end = min(next_addr, section_end);
+                }
             }
 
             let file = name_to_obj
@@ -147,8 +167,13 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     ..(file_end as u64 - section.address) as usize]
                     .to_vec(),
             };
+            let name = if let Some(name) = obj.named_sections.get(&current_address) {
+                name.clone()
+            } else {
+                section.name.clone()
+            };
             file.sections.push(ObjSection {
-                name: section.name.clone(),
+                name,
                 kind: section.kind,
                 address: 0,
                 size: file_end as u64 - current_address as u64,
@@ -162,7 +187,9 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 section_known: true,
             });
 
-            current_address = file_end;
+            if !dont_go_forward {
+                current_address = file_end;
+            }
         }
     }
 
@@ -186,6 +213,17 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                             ..Default::default()
                         });
                         reloc.target_symbol = out_sym_idx;
+                        if matches!(section.name.as_str(), "extab" | "extabindex") {
+                            log::warn!(
+                                "Extern relocation @ {:#010X} {} ({:#010X} {}): {:#010X} {}",
+                                reloc.address + section.original_address,
+                                section.name,
+                                section.original_address,
+                                out_obj.name,
+                                target_sym.address,
+                                target_sym.demangled_name.as_deref().unwrap_or(&target_sym.name)
+                            );
+                        }
                     }
                 }
             }
@@ -237,10 +275,73 @@ fn default_section_align(section: &ObjSection) -> u64 {
 
 /// Linker-generated symbols to extern
 #[inline]
-fn is_skip_symbol(name: &str) -> bool { matches!(name, "_ctors" | "_dtors") }
+fn is_skip_symbol(name: &str) -> bool {
+    matches!(
+        name,
+        "_ctors"
+            | "_dtors"
+            | "_f_init"
+            | "_f_init_rom"
+            | "_e_init"
+            | "_fextab"
+            | "_fextab_rom"
+            | "_eextab"
+            | "_fextabindex"
+            | "_fextabindex_rom"
+            | "_eextabindex"
+            | "_f_text"
+            | "_f_text_rom"
+            | "_e_text"
+            | "_f_ctors"
+            | "_f_ctors_rom"
+            | "_e_ctors"
+            | "_f_dtors"
+            | "_f_dtors_rom"
+            | "_e_dtors"
+            | "_f_rodata"
+            | "_f_rodata_rom"
+            | "_e_rodata"
+            | "_f_data"
+            | "_f_data_rom"
+            | "_e_data"
+            | "_f_sdata"
+            | "_f_sdata_rom"
+            | "_e_sdata"
+            | "_f_sbss"
+            | "_f_sbss_rom"
+            | "_e_sbss"
+            | "_f_sdata2"
+            | "_f_sdata2_rom"
+            | "_e_sdata2"
+            | "_f_sbss2"
+            | "_f_sbss2_rom"
+            | "_e_sbss2"
+            | "_f_bss"
+            | "_f_bss_rom"
+            | "_e_bss"
+            | "_f_stack"
+            | "_f_stack_rom"
+            | "_e_stack"
+            | "_stack_addr"
+            | "_stack_end"
+            | "_db_stack_addr"
+            | "_db_stack_end"
+            | "_heap_addr"
+            | "_heap_end"
+            | "_nbfunctions"
+            | "SIZEOF_HEADERS"
+            | "_SDA_BASE_"
+            | "_SDA2_BASE_"
+            | "_ABS_SDA_BASE_"
+            | "_ABS_SDA2_BASE_"
+    )
+}
 
 /// Linker generated symbols to strip entirely
 #[inline]
 fn is_linker_symbol(name: &str) -> bool {
-    matches!(name, "_eti_init_info" | "_rom_copy_info" | "_bss_init_info")
+    matches!(
+        name,
+        "_eti_init_info" | "_rom_copy_info" | "_bss_init_info" | "_ctors$99" | "_dtors$99"
+    )
 }

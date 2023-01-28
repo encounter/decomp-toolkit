@@ -1,15 +1,22 @@
-pub(crate) mod asm;
-pub(crate) mod cfa;
-pub(crate) mod config;
-pub(crate) mod dol;
-pub(crate) mod dwarf;
-pub(crate) mod elf;
-pub(crate) mod executor;
-pub(crate) mod map;
-pub(crate) mod obj;
-pub(crate) mod rel;
-pub(crate) mod sigs;
-pub(crate) mod slices;
-pub(crate) mod split;
-pub(crate) mod tracker;
-pub(crate) mod vm;
+pub mod asm;
+pub mod config;
+pub mod dol;
+pub mod dwarf;
+pub mod elf;
+pub mod file;
+pub mod map;
+pub mod nested;
+pub mod rel;
+pub mod rso;
+
+/// Creates a fixed-size array reference from a slice.
+#[macro_export]
+macro_rules! array_ref {
+    ($slice:expr, $offset:expr, $size:expr) => {{
+        #[inline]
+        fn to_array<T>(slice: &[T]) -> &[T; $size] {
+            unsafe { &*(slice.as_ptr() as *const [_; $size]) }
+        }
+        to_array(&$slice[$offset..$offset + $size])
+    }};
+}

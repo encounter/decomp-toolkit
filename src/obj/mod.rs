@@ -1,18 +1,18 @@
+pub mod signatures;
+pub mod split;
+
 use std::{
     cmp::min,
     collections::{btree_map, BTreeMap},
-    fmt,
     hash::{Hash, Hasher},
 };
-use std::marker::PhantomData;
 
 use anyhow::{anyhow, bail, Result};
 use flagset::{flags, FlagSet};
-use serde::{de, de::Visitor, Deserialize, Deserializer, Serialize, Serializer};
-use serde_yaml::Value;
-use serde_repr::{Serialize_repr, Deserialize_repr};
+use serde::{Deserialize, Serialize};
+use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use crate::util::rel::RelReloc;
+use crate::util::{nested::NestedVec, rel::RelReloc};
 
 flags! {
     #[repr(u8)]
@@ -26,7 +26,7 @@ flags! {
     }
 }
 #[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ObjSymbolFlagSet(pub(crate) FlagSet<ObjSymbolFlags>);
+pub struct ObjSymbolFlagSet(pub FlagSet<ObjSymbolFlags>);
 #[allow(clippy::derive_hash_xor_eq)]
 impl Hash for ObjSymbolFlagSet {
     fn hash<H: Hasher>(&self, state: &mut H) { self.0.bits().hash(state) }
@@ -103,7 +103,8 @@ pub struct ObjInfo {
     pub arena_hi: Option<u32>,
 
     // Extracted
-    pub splits: BTreeMap<u32, String>,
+    pub splits: BTreeMap<u32, Vec<String>>,
+    pub named_sections: BTreeMap<u32, String>,
     pub link_order: Vec<String>,
 
     // From extab
@@ -146,7 +147,7 @@ impl ObjInfo {
     pub fn build_symbol_map(&self, section_idx: usize) -> Result<BTreeMap<u32, Vec<usize>>> {
         let mut symbols = BTreeMap::<u32, Vec<usize>>::new();
         for (symbol_idx, symbol) in self.symbols_for_section(section_idx) {
-            nested_push(&mut symbols, symbol.address as u32, symbol_idx);
+            symbols.nested_push(symbol.address as u32, symbol_idx);
         }
         Ok(symbols)
     }
@@ -185,18 +186,5 @@ impl ObjSection {
             }
         }
         Ok(relocations)
-    }
-}
-
-#[inline]
-pub fn nested_push<T1, T2>(map: &mut BTreeMap<T1, Vec<T2>>, v1: T1, v2: T2)
-where T1: Ord {
-    match map.entry(v1) {
-        btree_map::Entry::Occupied(mut e) => {
-            e.get_mut().push(v2);
-        }
-        btree_map::Entry::Vacant(e) => {
-            e.insert(vec![v2]);
-        }
     }
 }

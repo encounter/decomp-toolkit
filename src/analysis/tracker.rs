@@ -1,29 +1,20 @@
 use std::{
-    collections::{BTreeMap, BTreeSet, VecDeque},
+    collections::{BTreeMap, BTreeSet},
     mem::take,
 };
 
 use anyhow::{bail, Result};
-use ppc750cl::{disasm_iter, Argument, Ins, Opcode};
+use ppc750cl::Opcode;
 
-use crate::util::{
-    executor::{uniq_jump_table_entries, ExecCbData, ExecCbResult, Executor},
-    obj::{
-        nested_push, ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
-        ObjSymbolKind,
+use crate::{
+    analysis::{
+        executor::{ExecCbData, ExecCbResult, Executor},
+        uniq_jump_table_entries,
+        vm::{is_store_op, BranchTarget, GprValue, StepResult, VM},
     },
-    slices::FunctionSlices,
-    vm::{is_store_op, BranchTarget, GprValue, StepResult, VM},
+    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolKind},
+    util::nested::NestedVec,
 };
-
-#[derive(Debug, Eq, PartialEq)]
-pub enum Label {
-    Local,
-    Global,
-    Data,
-    JumpTable,
-    VTable,
-}
 
 #[derive(Debug, Copy, Clone)]
 pub enum Relocation {
@@ -44,15 +35,14 @@ pub enum DataKind {
     Byte,
     Float,
     Double,
-    String,
-    String16,
+    // String,
+    // String16,
 }
 
 pub struct Tracker {
     processed_functions: BTreeSet<u32>,
     sda2_base: u32, // r2
     sda_base: u32,  // r13
-    labels: BTreeMap<u32, Label>,
     pub relocations: BTreeMap<u32, Relocation>,
     data_types: BTreeMap<u32, DataKind>,
     stack_address: Option<u32>,
@@ -74,7 +64,6 @@ impl Tracker {
             processed_functions: Default::default(),
             sda2_base: obj.sda2_base.unwrap(),
             sda_base: obj.sda_base.unwrap(),
-            labels: Default::default(),
             relocations: Default::default(),
             data_types: Default::default(),
             stack_address: obj.stack_address,
@@ -101,7 +90,7 @@ impl Tracker {
     pub fn process(&mut self, obj: &ObjInfo) -> Result<()> {
         log::debug!("Processing code sections");
         self.process_code(obj)?;
-        for (section_index, section) in obj.sections.iter().enumerate() {
+        for section in &obj.sections {
             if matches!(section.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData) {
                 log::debug!("Processing section {}, address {:#X}", section.index, section.address);
                 self.process_data(obj, section)?;
@@ -110,31 +99,31 @@ impl Tracker {
         Ok(())
     }
 
-    fn update_stack_address(&mut self, addr: u32) {
-        if let Some(db_stack_addr) = self.db_stack_addr {
-            if db_stack_addr == addr {
-                return;
-            }
-        }
-        if let Some(stack_addr) = self.stack_address {
-            if stack_addr != addr {
-                log::error!("Stack address overridden from {:#010X} to {:#010X}", stack_addr, addr);
-                return;
-            }
-        }
-        log::debug!("Located stack address: {:08X}", addr);
-        self.stack_address = Some(addr);
-        let db_stack_addr = addr + 0x2000;
-        self.db_stack_addr = Some(db_stack_addr);
-        self.arena_lo = Some((db_stack_addr + 0x1F) & !0x1F);
-        // __ArenaHi is fixed (until it isn't?)
-        self.arena_hi = Some(0x81700000);
-        log::debug!("_stack_addr: {:#010X}", addr);
-        log::debug!("_stack_end: {:#010X}", self.stack_end.unwrap());
-        log::debug!("_db_stack_addr: {:#010X}", db_stack_addr);
-        log::debug!("__ArenaLo: {:#010X}", self.arena_lo.unwrap());
-        log::debug!("__ArenaHi: {:#010X}", self.arena_hi.unwrap());
-    }
+    // fn update_stack_address(&mut self, addr: u32) {
+    //     if let Some(db_stack_addr) = self.db_stack_addr {
+    //         if db_stack_addr == addr {
+    //             return;
+    //         }
+    //     }
+    //     if let Some(stack_addr) = self.stack_address {
+    //         if stack_addr != addr {
+    //             log::error!("Stack address overridden from {:#010X} to {:#010X}", stack_addr, addr);
+    //             return;
+    //         }
+    //     }
+    //     log::debug!("Located stack address: {:08X}", addr);
+    //     self.stack_address = Some(addr);
+    //     let db_stack_addr = addr + 0x2000;
+    //     self.db_stack_addr = Some(db_stack_addr);
+    //     self.arena_lo = Some((db_stack_addr + 0x1F) & !0x1F);
+    //     // __ArenaHi is fixed (until it isn't?)
+    //     self.arena_hi = Some(0x81700000);
+    //     log::debug!("_stack_addr: {:#010X}", addr);
+    //     log::debug!("_stack_end: {:#010X}", self.stack_end.unwrap());
+    //     log::debug!("_db_stack_addr: {:#010X}", db_stack_addr);
+    //     log::debug!("__ArenaLo: {:#010X}", self.arena_lo.unwrap());
+    //     log::debug!("__ArenaHi: {:#010X}", self.arena_hi.unwrap());
+    // }
 
     fn process_code(&mut self, obj: &ObjInfo) -> Result<()> {
         let mut symbol_map = BTreeMap::new();
@@ -156,10 +145,11 @@ impl Tracker {
             }
         }
         // Special handling for gTRKInterruptVectorTable
-        if let (Some(trk_interrupt_table), Some(trk_interrupt_vector_table_end)) = (
-            obj.symbols.iter().find(|sym| sym.name == "gTRKInterruptVectorTable"),
-            obj.symbols.iter().find(|sym| sym.name == "gTRKInterruptVectorTableEnd"),
-        ) {}
+        // TODO
+        // if let (Some(trk_interrupt_table), Some(trk_interrupt_vector_table_end)) = (
+        //     obj.symbols.iter().find(|sym| sym.name == "gTRKInterruptVectorTable"),
+        //     obj.symbols.iter().find(|sym| sym.name == "gTRKInterruptVectorTableEnd"),
+        // ) {}
         Ok(())
     }
 
@@ -194,7 +184,7 @@ impl Tracker {
         function_end: u32,
         possible_missed_branches: &mut BTreeMap<u32, Box<VM>>,
     ) -> Result<ExecCbResult<()>> {
-        let ExecCbData { executor, vm, result, section, ins, block_start } = data;
+        let ExecCbData { executor, vm, result, section: _, ins, block_start: _ } = data;
         let is_function_addr = |addr: u32| addr >= function_start && addr < function_end;
 
         match result {
@@ -236,13 +226,8 @@ impl Tracker {
                     }
                     Opcode::Ori => {
                         // ori rA, rS, UIMM
-                        let source = ins.field_rS();
                         let target = ins.field_rA();
                         if let GprValue::Constant(value) = vm.gpr[target].value {
-                            // if target == 1 {
-                            //     log::debug!("Stack address written from {:#010X}", ins.addr);
-                            //     self.update_stack_address(value);
-                            // }
                             if self.is_valid_address(obj, ins.addr, value) {
                                 if let (Some(hi_addr), Some(lo_addr)) =
                                     (vm.gpr[target].hi_addr, vm.gpr[target].lo_addr)
@@ -444,18 +429,34 @@ impl Tracker {
         {
             return true;
         }
-        if addr > 0x80000000 && addr < 0x80003100 {
-            return true;
-        }
+        // if addr > 0x80000000 && addr < 0x80003100 {
+        //     return true;
+        // }
         for section in &obj.sections {
             if addr >= section.address as u32 && addr <= (section.address + section.size) as u32 {
-                return true;
+                // References to code sections will never be unaligned
+                return section.kind != ObjSectionKind::Code || addr & 3 == 0;
             }
         }
         false
     }
 
-    fn special_symbol(&self, obj: &mut ObjInfo, addr: u32) -> Option<usize> {
+    fn special_symbol(
+        &self,
+        obj: &mut ObjInfo,
+        addr: u32,
+        reloc_kind: ObjRelocKind,
+    ) -> Option<usize> {
+        if !matches!(reloc_kind, ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo) {
+            return None;
+        }
+        // HACK for RSOStaticLocateObject
+        for section in &obj.sections {
+            if addr == section.address as u32 {
+                let name = format!("_f_{}", section.name.trim_start_matches('.'));
+                return Some(generate_special_symbol(obj, addr, &name));
+            }
+        }
         let mut check_symbol = |opt: Option<u32>, name: &str| -> Option<usize> {
             if let Some(value) = opt {
                 if addr == value {
@@ -532,96 +533,96 @@ impl Tracker {
                 Relocation::Rel24(v) => (ObjRelocKind::PpcRel24, v),
                 Relocation::Absolute(v) => (ObjRelocKind::Absolute, v),
             };
-            let (target_symbol, addend) = if let Some(symbol) = self.special_symbol(obj, target) {
-                (symbol, 0)
-            } else {
-                let target_section =
-                    match obj.sections.iter().find(|s| {
+            let (target_symbol, addend) =
+                if let Some(symbol) = self.special_symbol(obj, target, reloc_kind) {
+                    (symbol, 0)
+                } else {
+                    let target_section = match obj.sections.iter().find(|s| {
                         target >= s.address as u32 && target < (s.address + s.size) as u32
                     }) {
                         Some(v) => v,
                         None => continue,
                     };
-                // Try to find a previous sized symbol that encompasses the target
-                let sym_map = &mut symbol_maps[target_section.index];
-                let target_symbol = {
-                    let mut result = None;
-                    for (&addr, symbol_idxs) in sym_map.range(..=target).rev() {
-                        let symbol_idx = if symbol_idxs.len() == 1 {
-                            symbol_idxs.first().cloned().unwrap()
-                        } else {
-                            let mut symbol_idxs = symbol_idxs.clone();
-                            symbol_idxs.sort_by_key(|&symbol_idx| {
-                                let symbol = &obj.symbols[symbol_idx];
-                                let mut rank = match symbol.kind {
-                                    ObjSymbolKind::Function | ObjSymbolKind::Object => {
-                                        match reloc_kind {
+                    // Try to find a previous sized symbol that encompasses the target
+                    let sym_map = &mut symbol_maps[target_section.index];
+                    let target_symbol = {
+                        let mut result = None;
+                        for (_addr, symbol_idxs) in sym_map.range(..=target).rev() {
+                            let symbol_idx = if symbol_idxs.len() == 1 {
+                                symbol_idxs.first().cloned().unwrap()
+                            } else {
+                                let mut symbol_idxs = symbol_idxs.clone();
+                                symbol_idxs.sort_by_key(|&symbol_idx| {
+                                    let symbol = &obj.symbols[symbol_idx];
+                                    let mut rank = match symbol.kind {
+                                        ObjSymbolKind::Function | ObjSymbolKind::Object => {
+                                            match reloc_kind {
+                                                ObjRelocKind::PpcAddr16Hi
+                                                | ObjRelocKind::PpcAddr16Ha
+                                                | ObjRelocKind::PpcAddr16Lo => 1,
+                                                ObjRelocKind::Absolute
+                                                | ObjRelocKind::PpcRel24
+                                                | ObjRelocKind::PpcRel14
+                                                | ObjRelocKind::PpcEmbSda21 => 2,
+                                            }
+                                        }
+                                        // Label
+                                        ObjSymbolKind::Unknown => match reloc_kind {
                                             ObjRelocKind::PpcAddr16Hi
                                             | ObjRelocKind::PpcAddr16Ha
-                                            | ObjRelocKind::PpcAddr16Lo => 1,
-                                            ObjRelocKind::Absolute
-                                            | ObjRelocKind::PpcRel24
-                                            | ObjRelocKind::PpcRel14
-                                            | ObjRelocKind::PpcEmbSda21 => 2,
-                                        }
+                                            | ObjRelocKind::PpcAddr16Lo
+                                                if !symbol.name.starts_with("..") =>
+                                            {
+                                                3
+                                            }
+                                            _ => 1,
+                                        },
+                                        ObjSymbolKind::Section => -1,
+                                    };
+                                    if symbol.size > 0 {
+                                        rank += 1;
                                     }
-                                    // Label
-                                    ObjSymbolKind::Unknown => match reloc_kind {
-                                        ObjRelocKind::PpcAddr16Hi
-                                        | ObjRelocKind::PpcAddr16Ha
-                                        | ObjRelocKind::PpcAddr16Lo
-                                            if !symbol.name.starts_with("..") =>
-                                        {
-                                            3
-                                        }
-                                        _ => 1,
-                                    },
-                                    ObjSymbolKind::Section => -1,
-                                };
-                                if symbol.size > 0 {
-                                    rank += 1;
+                                    -rank
+                                });
+                                match symbol_idxs.first().cloned() {
+                                    Some(v) => v,
+                                    None => continue,
                                 }
-                                -rank
-                            });
-                            match symbol_idxs.first().cloned() {
-                                Some(v) => v,
-                                None => continue,
-                            }
-                        };
-                        let symbol = &obj.symbols[symbol_idx];
-                        if symbol.address == target as u64 {
-                            result = Some(symbol_idx);
-                            break;
-                        }
-                        if symbol.size > 0 {
-                            if symbol.address + symbol.size > target as u64 {
+                            };
+                            let symbol = &obj.symbols[symbol_idx];
+                            if symbol.address == target as u64 {
                                 result = Some(symbol_idx);
+                                break;
                             }
-                            break;
+                            if symbol.size > 0 {
+                                if symbol.address + symbol.size > target as u64 {
+                                    result = Some(symbol_idx);
+                                }
+                                break;
+                            }
                         }
+                        result
+                    };
+                    if let Some(symbol_idx) = target_symbol {
+                        let symbol = &obj.symbols[symbol_idx];
+                        (symbol_idx, target as i64 - symbol.address as i64)
+                    } else {
+                        // Create a new label
+                        let symbol_idx = obj.symbols.len();
+                        obj.symbols.push(ObjSymbol {
+                            name: format!("lbl_{:08X}", target),
+                            demangled_name: None,
+                            address: target as u64,
+                            section: Some(target_section.index),
+                            size: 0,
+                            size_known: false,
+                            flags: Default::default(),
+                            kind: Default::default(),
+                        });
+                        sym_map.nested_push(target, symbol_idx);
+                        (symbol_idx, 0)
                     }
-                    result
                 };
-                if let Some(symbol_idx) = target_symbol {
-                    let symbol = &obj.symbols[symbol_idx];
-                    (symbol_idx, target as i64 - symbol.address as i64)
-                } else {
-                    // Create a new label
-                    let symbol_idx = obj.symbols.len();
-                    obj.symbols.push(ObjSymbol {
-                        name: format!("lbl_{:08X}", target),
-                        demangled_name: None,
-                        address: target as u64,
-                        section: Some(target_section.index),
-                        size: 0,
-                        size_known: false,
-                        flags: Default::default(),
-                        kind: Default::default(),
-                    });
-                    nested_push(sym_map, target, symbol_idx);
-                    (symbol_idx, 0)
-                }
-            };
             let reloc = ObjReloc { kind: reloc_kind, address: addr as u64, target_symbol, addend };
             let section = match obj
                 .sections
@@ -659,8 +660,6 @@ impl Tracker {
         Ok(())
     }
 }
-
-fn is_branch_with_link(ins: &Ins) -> bool { ins.is_branch() && ins.field_LK() }
 
 fn data_kind_from_op(op: Opcode) -> DataKind {
     match op {

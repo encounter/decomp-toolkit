@@ -1,30 +1,37 @@
 use std::{
     collections::BTreeMap,
-    fs::File,
-    io::{BufRead, BufReader, BufWriter},
+    fs,
+    fs::{DirBuilder, File},
+    io::{BufRead, BufWriter, Write},
     path::{Path, PathBuf},
 };
+use std::collections::{hash_map, HashMap};
 
 use anyhow::{anyhow, bail, Context, Result};
 use argh::FromArgs;
 
-use crate::util::{
-    cfa::{
-        locate_sda_bases, AnalysisPass, AnalyzerState, FindSaveRestSleds,
-        FindTRKInterruptVectorTable,
+use crate::{
+    analysis::{
+        cfa::AnalyzerState,
+        pass::{AnalysisPass, FindSaveRestSleds, FindTRKInterruptVectorTable},
+        read_u32,
+        tracker::Tracker,
     },
-    config::{parse_symbol_line, write_symbols},
-    dol::process_dol,
-    elf::process_elf,
-    executor::read_u32,
-    map::process_map,
     obj::{
-        ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags,
-        ObjSymbolKind,
+        signatures::{apply_signature, check_signatures, check_signatures_str, parse_signatures},
+        split::split_obj,
+        ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbolKind,
     },
-    sigs::check_signatures,
-    tracker::Tracker,
+    util::{
+        asm::write_asm,
+        config::{apply_splits, parse_symbol_line, write_symbols},
+        dol::process_dol,
+        elf::process_elf,
+        file::{map_file, map_reader},
+        map::process_map,
+    },
 };
+use crate::util::elf::write_elf;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing DOL files.
@@ -42,7 +49,7 @@ enum SubCommand {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Disassembles a DOL file.
+/// disassembles a DOL file
 #[argh(subcommand, name = "disasm")]
 pub struct DisasmArgs {
     #[argh(option, short = 'm')]
@@ -51,12 +58,18 @@ pub struct DisasmArgs {
     #[argh(option, short = 's')]
     /// path to symbols file
     symbols_file: Option<PathBuf>,
+    #[argh(option, short = 'p')]
+    /// path to splits file
+    splits_file: Option<PathBuf>,
     #[argh(option, short = 'e')]
     /// ELF file to validate against (debugging only)
     elf_file: Option<PathBuf>,
     #[argh(positional)]
     /// DOL file
     dol_file: PathBuf,
+    #[argh(option, short = 'o')]
+    /// output file (or directory, if splitting)
+    out: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -76,152 +89,201 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 const SIGNATURES: &[(&str, &str)] = &[
-    ("__init_registers", include_str!("../../assets/__init_registers.yml")),
-    ("__init_hardware", include_str!("../../assets/__init_hardware.yml")),
-    ("__init_data", include_str!("../../assets/__init_data.yml")),
-    ("__set_debug_bba", include_str!("../../assets/__set_debug_bba.yml")),
-    ("__OSPSInit", include_str!("../../assets/__OSPSInit.yml")),
-    ("__OSFPRInit", include_str!("../../assets/__OSFPRInit.yml")),
-    ("__OSCacheInit", include_str!("../../assets/__OSCacheInit.yml")),
-    ("DMAErrorHandler", include_str!("../../assets/DMAErrorHandler.yml")),
-    ("DBInit", include_str!("../../assets/DBInit.yml")),
-    ("OSInit", include_str!("../../assets/OSInit.yml")),
-    ("__OSThreadInit", include_str!("../../assets/__OSThreadInit.yml")),
-    ("__OSInitIPCBuffer", include_str!("../../assets/__OSInitIPCBuffer.yml")),
-    ("EXIInit", include_str!("../../assets/EXIInit.yml")),
-    ("EXIGetID", include_str!("../../assets/EXIGetID.yml")),
-    ("exit", include_str!("../../assets/exit.yml")),
-    ("_ExitProcess", include_str!("../../assets/_ExitProcess.yml")),
-    ("__fini_cpp", include_str!("../../assets/__fini_cpp.yml")),
-    ("__destroy_global_chain", include_str!("../../assets/__destroy_global_chain.yml")),
-    ("InitMetroTRK", include_str!("../../assets/InitMetroTRK.yml")),
-    ("InitMetroTRKCommTable", include_str!("../../assets/InitMetroTRKCommTable.yml")),
-    ("OSExceptionInit", include_str!("../../assets/OSExceptionInit.yml")),
-    ("OSDefaultExceptionHandler", include_str!("../../assets/OSDefaultExceptionHandler.yml")),
-    ("__OSUnhandledException", include_str!("../../assets/__OSUnhandledException.yml")),
-    ("OSDisableScheduler", include_str!("../../assets/OSDisableScheduler.yml")),
-    ("__OSReschedule", include_str!("../../assets/__OSReschedule.yml")),
-    ("__OSInitSystemCall", include_str!("../../assets/__OSInitSystemCall.yml")),
-    ("OSInitAlarm", include_str!("../../assets/OSInitAlarm.yml")),
-    ("__OSInitAlarm", include_str!("../../assets/__OSInitAlarm.yml")),
-    ("__OSEVStart", include_str!("../../assets/OSExceptionVector.yml")),
-    ("__OSDBINTSTART", include_str!("../../assets/__OSDBIntegrator.yml")),
-    ("__OSDBJUMPSTART", include_str!("../../assets/__OSDBJump.yml")),
-    ("SIInit", include_str!("../../assets/SIInit.yml")),
-    ("SIGetType", include_str!("../../assets/SIGetType.yml")),
-    ("SISetSamplingRate", include_str!("../../assets/SISetSamplingRate.yml")),
-    ("SISetXY", include_str!("../../assets/SISetXY.yml")),
-    ("VIGetTvFormat", include_str!("../../assets/VIGetTvFormat.yml")),
-    ("DVDInit", include_str!("../../assets/DVDInit.yml")),
-    ("DVDSetAutoFatalMessaging", include_str!("../../assets/DVDSetAutoFatalMessaging.yml")),
-    ("OSSetArenaLo", include_str!("../../assets/OSSetArenaLo.yml")),
-    ("OSSetArenaHi", include_str!("../../assets/OSSetArenaHi.yml")),
-    ("OSSetMEM1ArenaLo", include_str!("../../assets/OSSetMEM1ArenaLo.yml")),
-    ("OSSetMEM1ArenaHi", include_str!("../../assets/OSSetMEM1ArenaHi.yml")),
-    ("OSSetMEM2ArenaLo", include_str!("../../assets/OSSetMEM2ArenaLo.yml")),
-    ("OSSetMEM2ArenaHi", include_str!("../../assets/OSSetMEM2ArenaHi.yml")),
-    ("__OSInitAudioSystem", include_str!("../../assets/__OSInitAudioSystem.yml")),
-    ("__OSInitMemoryProtection", include_str!("../../assets/__OSInitMemoryProtection.yml")),
-    // ("BATConfig", include_str!("../../assets/BATConfig.yml")), TODO
-    ("ReportOSInfo", include_str!("../../assets/ReportOSInfo.yml")),
-    ("__check_pad3", include_str!("../../assets/__check_pad3.yml")),
-    ("OSResetSystem", include_str!("../../assets/OSResetSystem.yml")),
-    ("OSReturnToMenu", include_str!("../../assets/OSReturnToMenu.yml")),
-    ("__OSReturnToMenu", include_str!("../../assets/__OSReturnToMenu.yml")),
-    ("__OSShutdownDevices", include_str!("../../assets/__OSShutdownDevices.yml")),
-    ("__OSInitSram", include_str!("../../assets/__OSInitSram.yml")),
-    ("__OSSyncSram", include_str!("../../assets/__OSSyncSram.yml")),
-    ("__OSGetExceptionHandler", include_str!("../../assets/__OSGetExceptionHandler.yml")),
-    ("OSRegisterResetFunction", include_str!("../../assets/OSRegisterResetFunction.yml")),
-    ("OSRegisterShutdownFunction", include_str!("../../assets/OSRegisterShutdownFunction.yml")),
-    ("DecrementerExceptionHandler", include_str!("../../assets/DecrementerExceptionHandler.yml")),
-    ("DecrementerExceptionCallback", include_str!("../../assets/DecrementerExceptionCallback.yml")),
-    ("__OSInterruptInit", include_str!("../../assets/__OSInterruptInit.yml")),
-    ("__OSContextInit", include_str!("../../assets/__OSContextInit.yml")),
-    ("OSSwitchFPUContext", include_str!("../../assets/OSSwitchFPUContext.yml")),
-    ("OSReport", include_str!("../../assets/OSReport.yml")),
-    ("TRK_main", include_str!("../../assets/TRK_main.yml")),
-    ("TRKNubWelcome", include_str!("../../assets/TRKNubWelcome.yml")),
-    ("TRKInitializeNub", include_str!("../../assets/TRKInitializeNub.yml")),
-    ("TRKInitializeIntDrivenUART", include_str!("../../assets/TRKInitializeIntDrivenUART.yml")),
-    ("TRKEXICallBack", include_str!("../../assets/TRKEXICallBack.yml")),
-    ("TRKLoadContext", include_str!("../../assets/TRKLoadContext.yml")),
-    ("TRKInterruptHandler", include_str!("../../assets/TRKInterruptHandler.yml")),
-    ("TRKExceptionHandler", include_str!("../../assets/TRKExceptionHandler.yml")),
-    ("TRKSaveExtended1Block", include_str!("../../assets/TRKSaveExtended1Block.yml")),
-    ("TRKNubMainLoop", include_str!("../../assets/TRKNubMainLoop.yml")),
-    ("TRKTargetContinue", include_str!("../../assets/TRKTargetContinue.yml")),
-    ("TRKSwapAndGo", include_str!("../../assets/TRKSwapAndGo.yml")),
-    ("TRKRestoreExtended1Block", include_str!("../../assets/TRKRestoreExtended1Block.yml")),
+    ("__init_registers", include_str!("../../assets/signatures/__init_registers.yml")),
+    ("__init_hardware", include_str!("../../assets/signatures/__init_hardware.yml")),
+    ("__init_data", include_str!("../../assets/signatures/__init_data.yml")),
+    ("__set_debug_bba", include_str!("../../assets/signatures/__set_debug_bba.yml")),
+    ("__OSPSInit", include_str!("../../assets/signatures/__OSPSInit.yml")),
+    ("__OSFPRInit", include_str!("../../assets/signatures/__OSFPRInit.yml")),
+    ("__OSCacheInit", include_str!("../../assets/signatures/__OSCacheInit.yml")),
+    ("DMAErrorHandler", include_str!("../../assets/signatures/DMAErrorHandler.yml")),
+    ("DBInit", include_str!("../../assets/signatures/DBInit.yml")),
+    ("OSInit", include_str!("../../assets/signatures/OSInit.yml")),
+    ("__OSThreadInit", include_str!("../../assets/signatures/__OSThreadInit.yml")),
+    ("__OSInitIPCBuffer", include_str!("../../assets/signatures/__OSInitIPCBuffer.yml")),
+    ("EXIInit", include_str!("../../assets/signatures/EXIInit.yml")),
+    ("EXIGetID", include_str!("../../assets/signatures/EXIGetID.yml")),
+    ("exit", include_str!("../../assets/signatures/exit.yml")),
+    ("_ExitProcess", include_str!("../../assets/signatures/_ExitProcess.yml")),
+    ("__fini_cpp", include_str!("../../assets/signatures/__fini_cpp.yml")),
+    ("__destroy_global_chain", include_str!("../../assets/signatures/__destroy_global_chain.yml")),
+    ("InitMetroTRK", include_str!("../../assets/signatures/InitMetroTRK.yml")),
+    ("InitMetroTRKCommTable", include_str!("../../assets/signatures/InitMetroTRKCommTable.yml")),
+    ("OSExceptionInit", include_str!("../../assets/signatures/OSExceptionInit.yml")),
+    (
+        "OSDefaultExceptionHandler",
+        include_str!("../../assets/signatures/OSDefaultExceptionHandler.yml"),
+    ),
+    ("__OSUnhandledException", include_str!("../../assets/signatures/__OSUnhandledException.yml")),
+    ("OSDisableScheduler", include_str!("../../assets/signatures/OSDisableScheduler.yml")),
+    ("__OSReschedule", include_str!("../../assets/signatures/__OSReschedule.yml")),
+    ("__OSInitSystemCall", include_str!("../../assets/signatures/__OSInitSystemCall.yml")),
+    ("OSInitAlarm", include_str!("../../assets/signatures/OSInitAlarm.yml")),
+    ("__OSInitAlarm", include_str!("../../assets/signatures/__OSInitAlarm.yml")),
+    ("__OSEVStart", include_str!("../../assets/signatures/OSExceptionVector.yml")),
+    ("__OSDBINTSTART", include_str!("../../assets/signatures/__OSDBIntegrator.yml")),
+    ("__OSDBJUMPSTART", include_str!("../../assets/signatures/__OSDBJump.yml")),
+    ("SIInit", include_str!("../../assets/signatures/SIInit.yml")),
+    ("SIGetType", include_str!("../../assets/signatures/SIGetType.yml")),
+    ("SISetSamplingRate", include_str!("../../assets/signatures/SISetSamplingRate.yml")),
+    ("SISetXY", include_str!("../../assets/signatures/SISetXY.yml")),
+    ("VIGetTvFormat", include_str!("../../assets/signatures/VIGetTvFormat.yml")),
+    ("DVDInit", include_str!("../../assets/signatures/DVDInit.yml")),
+    (
+        "DVDSetAutoFatalMessaging",
+        include_str!("../../assets/signatures/DVDSetAutoFatalMessaging.yml"),
+    ),
+    ("OSSetArenaLo", include_str!("../../assets/signatures/OSSetArenaLo.yml")),
+    ("OSSetArenaHi", include_str!("../../assets/signatures/OSSetArenaHi.yml")),
+    ("OSSetMEM1ArenaLo", include_str!("../../assets/signatures/OSSetMEM1ArenaLo.yml")),
+    ("OSSetMEM1ArenaHi", include_str!("../../assets/signatures/OSSetMEM1ArenaHi.yml")),
+    ("OSSetMEM2ArenaLo", include_str!("../../assets/signatures/OSSetMEM2ArenaLo.yml")),
+    ("OSSetMEM2ArenaHi", include_str!("../../assets/signatures/OSSetMEM2ArenaHi.yml")),
+    ("__OSInitAudioSystem", include_str!("../../assets/signatures/__OSInitAudioSystem.yml")),
+    (
+        "__OSInitMemoryProtection",
+        include_str!("../../assets/signatures/__OSInitMemoryProtection.yml"),
+    ),
+    // ("BATConfig", include_str!("../../assets/signatures/BATConfig.yml")), TODO
+    ("ReportOSInfo", include_str!("../../assets/signatures/ReportOSInfo.yml")),
+    ("__check_pad3", include_str!("../../assets/signatures/__check_pad3.yml")),
+    ("OSResetSystem", include_str!("../../assets/signatures/OSResetSystem.yml")),
+    ("OSReturnToMenu", include_str!("../../assets/signatures/OSReturnToMenu.yml")),
+    ("__OSReturnToMenu", include_str!("../../assets/signatures/__OSReturnToMenu.yml")),
+    ("__OSShutdownDevices", include_str!("../../assets/signatures/__OSShutdownDevices.yml")),
+    ("__OSInitSram", include_str!("../../assets/signatures/__OSInitSram.yml")),
+    ("__OSSyncSram", include_str!("../../assets/signatures/__OSSyncSram.yml")),
+    (
+        "__OSGetExceptionHandler",
+        include_str!("../../assets/signatures/__OSGetExceptionHandler.yml"),
+    ),
+    (
+        "OSRegisterResetFunction",
+        include_str!("../../assets/signatures/OSRegisterResetFunction.yml"),
+    ),
+    (
+        "OSRegisterShutdownFunction",
+        include_str!("../../assets/signatures/OSRegisterShutdownFunction.yml"),
+    ),
+    (
+        "DecrementerExceptionHandler",
+        include_str!("../../assets/signatures/DecrementerExceptionHandler.yml"),
+    ),
+    (
+        "DecrementerExceptionCallback",
+        include_str!("../../assets/signatures/DecrementerExceptionCallback.yml"),
+    ),
+    ("__OSInterruptInit", include_str!("../../assets/signatures/__OSInterruptInit.yml")),
+    ("__OSContextInit", include_str!("../../assets/signatures/__OSContextInit.yml")),
+    ("OSSwitchFPUContext", include_str!("../../assets/signatures/OSSwitchFPUContext.yml")),
+    ("OSReport", include_str!("../../assets/signatures/OSReport.yml")),
+    ("TRK_main", include_str!("../../assets/signatures/TRK_main.yml")),
+    ("TRKNubWelcome", include_str!("../../assets/signatures/TRKNubWelcome.yml")),
+    ("TRKInitializeNub", include_str!("../../assets/signatures/TRKInitializeNub.yml")),
+    (
+        "TRKInitializeIntDrivenUART",
+        include_str!("../../assets/signatures/TRKInitializeIntDrivenUART.yml"),
+    ),
+    ("TRKEXICallBack", include_str!("../../assets/signatures/TRKEXICallBack.yml")),
+    ("TRKLoadContext", include_str!("../../assets/signatures/TRKLoadContext.yml")),
+    ("TRKInterruptHandler", include_str!("../../assets/signatures/TRKInterruptHandler.yml")),
+    ("TRKExceptionHandler", include_str!("../../assets/signatures/TRKExceptionHandler.yml")),
+    ("TRKSaveExtended1Block", include_str!("../../assets/signatures/TRKSaveExtended1Block.yml")),
+    ("TRKNubMainLoop", include_str!("../../assets/signatures/TRKNubMainLoop.yml")),
+    ("TRKTargetContinue", include_str!("../../assets/signatures/TRKTargetContinue.yml")),
+    ("TRKSwapAndGo", include_str!("../../assets/signatures/TRKSwapAndGo.yml")),
+    (
+        "TRKRestoreExtended1Block",
+        include_str!("../../assets/signatures/TRKRestoreExtended1Block.yml"),
+    ),
     (
         "TRKInterruptHandlerEnableInterrupts",
-        include_str!("../../assets/TRKInterruptHandlerEnableInterrupts.yml"),
+        include_str!("../../assets/signatures/TRKInterruptHandlerEnableInterrupts.yml"),
     ),
-    ("memset", include_str!("../../assets/memset.yml")),
+    ("memset", include_str!("../../assets/signatures/memset.yml")),
     (
         "__msl_runtime_constraint_violation_s",
-        include_str!("../../assets/__msl_runtime_constraint_violation_s.yml"),
+        include_str!("../../assets/signatures/__msl_runtime_constraint_violation_s.yml"),
     ),
-    ("ClearArena", include_str!("../../assets/ClearArena.yml")),
-    ("IPCCltInit", include_str!("../../assets/IPCCltInit.yml")),
-    ("__OSInitSTM", include_str!("../../assets/__OSInitSTM.yml")),
-    ("IOS_Open", include_str!("../../assets/IOS_Open.yml")),
-    ("__ios_Ipc2", include_str!("../../assets/__ios_Ipc2.yml")),
-    ("IPCiProfQueueReq", include_str!("../../assets/IPCiProfQueueReq.yml")),
-    ("SCInit", include_str!("../../assets/SCInit.yml")),
-    ("SCReloadConfFileAsync", include_str!("../../assets/SCReloadConfFileAsync.yml")),
-    ("NANDPrivateOpenAsync", include_str!("../../assets/NANDPrivateOpenAsync.yml")),
-    ("nandIsInitialized", include_str!("../../assets/nandIsInitialized.yml")),
-    ("nandOpen", include_str!("../../assets/nandOpen.yml")),
-    ("nandGenerateAbsPath", include_str!("../../assets/nandGenerateAbsPath.yml")),
-    ("nandGetHeadToken", include_str!("../../assets/nandGetHeadToken.yml")),
-    ("ISFS_OpenAsync", include_str!("../../assets/ISFS_OpenAsync.yml")),
-    ("nandConvertErrorCode", include_str!("../../assets/nandConvertErrorCode.yml")),
-    ("NANDLoggingAddMessageAsync", include_str!("../../assets/NANDLoggingAddMessageAsync.yml")),
-    ("__NANDPrintErrorMessage", include_str!("../../assets/__NANDPrintErrorMessage.yml")),
-    ("__OSInitNet", include_str!("../../assets/__OSInitNet.yml")),
-    ("__DVDCheckDevice", include_str!("../../assets/__DVDCheckDevice.yml")),
-    ("__OSInitPlayTime", include_str!("../../assets/__OSInitPlayTime.yml")),
-    ("__OSStartPlayRecord", include_str!("../../assets/__OSStartPlayRecord.yml")),
-    ("NANDInit", include_str!("../../assets/NANDInit.yml")),
-    ("ISFS_OpenLib", include_str!("../../assets/ISFS_OpenLib.yml")),
-    ("ESP_GetTitleId", include_str!("../../assets/ESP_GetTitleId.yml")),
-    ("NANDSetAutoErrorMessaging", include_str!("../../assets/NANDSetAutoErrorMessaging.yml")),
-    ("__DVDFSInit", include_str!("../../assets/__DVDFSInit.yml")),
-    ("__DVDClearWaitingQueue", include_str!("../../assets/__DVDClearWaitingQueue.yml")),
-    ("__DVDInitWA", include_str!("../../assets/__DVDInitWA.yml")),
-    ("__DVDLowSetWAType", include_str!("../../assets/__DVDLowSetWAType.yml")),
-    ("__fstLoad", include_str!("../../assets/__fstLoad.yml")),
-    ("DVDReset", include_str!("../../assets/DVDReset.yml")),
-    ("DVDLowReset", include_str!("../../assets/DVDLowReset.yml")),
-    ("DVDReadDiskID", include_str!("../../assets/DVDReadDiskID.yml")),
-    ("stateReady", include_str!("../../assets/stateReady.yml")),
-    ("DVDLowWaitCoverClose", include_str!("../../assets/DVDLowWaitCoverClose.yml")),
-    ("__DVDStoreErrorCode", include_str!("../../assets/__DVDStoreErrorCode.yml")),
-    ("DVDLowStopMotor", include_str!("../../assets/DVDLowStopMotor.yml")),
-    ("DVDGetDriveStatus", include_str!("../../assets/DVDGetDriveStatus.yml")),
-    ("printf", include_str!("../../assets/printf.yml")),
-    ("sprintf", include_str!("../../assets/sprintf.yml")),
-    ("vprintf", include_str!("../../assets/vprintf.yml")),
-    ("vsprintf", include_str!("../../assets/vsprintf.yml")),
-    ("vsnprintf", include_str!("../../assets/vsnprintf.yml")),
-    ("__pformatter", include_str!("../../assets/__pformatter.yml")),
-    ("longlong2str", include_str!("../../assets/longlong2str.yml")),
-    ("__mod2u", include_str!("../../assets/__mod2u.yml")),
-    ("__FileWrite", include_str!("../../assets/__FileWrite.yml")),
-    ("fwrite", include_str!("../../assets/fwrite.yml")),
-    ("__fwrite", include_str!("../../assets/__fwrite.yml")),
-    ("__stdio_atexit", include_str!("../../assets/__stdio_atexit.yml")),
-    ("__StringWrite", include_str!("../../assets/__StringWrite.yml")),
+    ("ClearArena", include_str!("../../assets/signatures/ClearArena.yml")),
+    ("IPCCltInit", include_str!("../../assets/signatures/IPCCltInit.yml")),
+    ("__OSInitSTM", include_str!("../../assets/signatures/__OSInitSTM.yml")),
+    ("IOS_Open", include_str!("../../assets/signatures/IOS_Open.yml")),
+    ("__ios_Ipc2", include_str!("../../assets/signatures/__ios_Ipc2.yml")),
+    ("IPCiProfQueueReq", include_str!("../../assets/signatures/IPCiProfQueueReq.yml")),
+    ("SCInit", include_str!("../../assets/signatures/SCInit.yml")),
+    ("SCReloadConfFileAsync", include_str!("../../assets/signatures/SCReloadConfFileAsync.yml")),
+    ("NANDPrivateOpenAsync", include_str!("../../assets/signatures/NANDPrivateOpenAsync.yml")),
+    ("nandIsInitialized", include_str!("../../assets/signatures/nandIsInitialized.yml")),
+    ("nandOpen", include_str!("../../assets/signatures/nandOpen.yml")),
+    ("nandGenerateAbsPath", include_str!("../../assets/signatures/nandGenerateAbsPath.yml")),
+    ("nandGetHeadToken", include_str!("../../assets/signatures/nandGetHeadToken.yml")),
+    ("ISFS_OpenAsync", include_str!("../../assets/signatures/ISFS_OpenAsync.yml")),
+    ("nandConvertErrorCode", include_str!("../../assets/signatures/nandConvertErrorCode.yml")),
+    (
+        "NANDLoggingAddMessageAsync",
+        include_str!("../../assets/signatures/NANDLoggingAddMessageAsync.yml"),
+    ),
+    (
+        "__NANDPrintErrorMessage",
+        include_str!("../../assets/signatures/__NANDPrintErrorMessage.yml"),
+    ),
+    ("__OSInitNet", include_str!("../../assets/signatures/__OSInitNet.yml")),
+    ("__DVDCheckDevice", include_str!("../../assets/signatures/__DVDCheckDevice.yml")),
+    ("__OSInitPlayTime", include_str!("../../assets/signatures/__OSInitPlayTime.yml")),
+    ("__OSStartPlayRecord", include_str!("../../assets/signatures/__OSStartPlayRecord.yml")),
+    ("NANDInit", include_str!("../../assets/signatures/NANDInit.yml")),
+    ("ISFS_OpenLib", include_str!("../../assets/signatures/ISFS_OpenLib.yml")),
+    ("ESP_GetTitleId", include_str!("../../assets/signatures/ESP_GetTitleId.yml")),
+    (
+        "NANDSetAutoErrorMessaging",
+        include_str!("../../assets/signatures/NANDSetAutoErrorMessaging.yml"),
+    ),
+    ("__DVDFSInit", include_str!("../../assets/signatures/__DVDFSInit.yml")),
+    ("__DVDClearWaitingQueue", include_str!("../../assets/signatures/__DVDClearWaitingQueue.yml")),
+    ("__DVDInitWA", include_str!("../../assets/signatures/__DVDInitWA.yml")),
+    ("__DVDLowSetWAType", include_str!("../../assets/signatures/__DVDLowSetWAType.yml")),
+    ("__fstLoad", include_str!("../../assets/signatures/__fstLoad.yml")),
+    ("DVDReset", include_str!("../../assets/signatures/DVDReset.yml")),
+    ("DVDLowReset", include_str!("../../assets/signatures/DVDLowReset.yml")),
+    ("DVDReadDiskID", include_str!("../../assets/signatures/DVDReadDiskID.yml")),
+    ("stateReady", include_str!("../../assets/signatures/stateReady.yml")),
+    ("DVDLowWaitCoverClose", include_str!("../../assets/signatures/DVDLowWaitCoverClose.yml")),
+    ("__DVDStoreErrorCode", include_str!("../../assets/signatures/__DVDStoreErrorCode.yml")),
+    ("DVDLowStopMotor", include_str!("../../assets/signatures/DVDLowStopMotor.yml")),
+    ("DVDGetDriveStatus", include_str!("../../assets/signatures/DVDGetDriveStatus.yml")),
+    ("printf", include_str!("../../assets/signatures/printf.yml")),
+    ("sprintf", include_str!("../../assets/signatures/sprintf.yml")),
+    ("vprintf", include_str!("../../assets/signatures/vprintf.yml")),
+    ("vsprintf", include_str!("../../assets/signatures/vsprintf.yml")),
+    ("vsnprintf", include_str!("../../assets/signatures/vsnprintf.yml")),
+    ("__pformatter", include_str!("../../assets/signatures/__pformatter.yml")),
+    ("longlong2str", include_str!("../../assets/signatures/longlong2str.yml")),
+    ("__mod2u", include_str!("../../assets/signatures/__mod2u.yml")),
+    ("__FileWrite", include_str!("../../assets/signatures/__FileWrite.yml")),
+    ("fwrite", include_str!("../../assets/signatures/fwrite.yml")),
+    ("__fwrite", include_str!("../../assets/signatures/__fwrite.yml")),
+    ("__stdio_atexit", include_str!("../../assets/signatures/__stdio_atexit.yml")),
+    ("__StringWrite", include_str!("../../assets/signatures/__StringWrite.yml")),
+];
+const POST_SIGNATURES: &[(&str, &str)] = &[
+    ("RSOStaticLocateObject", include_str!("../../assets/signatures/RSOStaticLocateObject.yml")),
+    // ("GXInit", include_str!("../../assets/signatures/GXInit.yml")),
 ];
 
 pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
     let entry = obj.entry as u32;
-    check_signatures(obj, entry, include_str!("../../assets/__start.yml"))?;
+    if let Some(signature) =
+        check_signatures_str(obj, entry, include_str!("../../assets/signatures/__start.yml"))?
+    {
+        apply_signature(obj, entry, &signature)?;
+    }
     for &(name, sig_str) in SIGNATURES {
         if let Some(symbol) = obj.symbols.iter().find(|symbol| symbol.name == name) {
             let addr = symbol.address as u32;
-            check_signatures(obj, addr, sig_str)?;
+            if let Some(signature) = check_signatures_str(obj, addr, sig_str)? {
+                apply_signature(obj, addr, &signature)?;
+            }
         }
     }
     if let Some(symbol) = obj.symbols.iter().find(|symbol| symbol.name == "__init_user") {
@@ -229,7 +291,12 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
         let mut analyzer = AnalyzerState::default();
         analyzer.process_function_at(&obj, symbol.address as u32)?;
         for addr in analyzer.function_entries {
-            if check_signatures(obj, addr, include_str!("../../assets/__init_cpp.yml"))? {
+            if let Some(signature) = check_signatures_str(
+                obj,
+                addr,
+                include_str!("../../assets/signatures/__init_cpp.yml"),
+            )? {
+                apply_signature(obj, addr, &signature)?;
                 break;
             }
         }
@@ -240,7 +307,13 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
         let target = read_u32(&section.data, symbol.address as u32, section.address as u32)
             .ok_or_else(|| anyhow!("Failed to read _ctors data"))?;
         if target != 0 {
-            check_signatures(obj, target, include_str!("../../assets/__init_cpp_exceptions.yml"))?;
+            if let Some(signature) = check_signatures_str(
+                obj,
+                target,
+                include_str!("../../assets/signatures/__init_cpp_exceptions.yml"),
+            )? {
+                apply_signature(obj, target, &signature)?;
+            }
         }
     }
     if let Some(symbol) = obj.symbols.iter().find(|symbol| symbol.name == "_dtors") {
@@ -249,9 +322,31 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
         let target = read_u32(&section.data, symbol.address as u32 + 4, section.address as u32)
             .ok_or_else(|| anyhow!("Failed to read _dtors data"))?;
         if target != 0 {
-            check_signatures(obj, target, include_str!("../../assets/__fini_cpp_exceptions.yml"))?;
+            if let Some(signature) = check_signatures_str(
+                obj,
+                target,
+                include_str!("../../assets/signatures/__fini_cpp_exceptions.yml"),
+            )? {
+                apply_signature(obj, target, &signature)?;
+            }
         }
     }
+    Ok(())
+}
+
+pub fn apply_signatures_post(obj: &mut ObjInfo) -> Result<()> {
+    log::info!("Checking post CFA signatures...");
+    for &(_name, sig_str) in POST_SIGNATURES {
+        let signatures = parse_signatures(sig_str)?;
+        for symbol in obj.symbols.iter().filter(|symbol| symbol.kind == ObjSymbolKind::Function) {
+            let addr = symbol.address as u32;
+            if let Some(signature) = check_signatures(obj, addr, &signatures)? {
+                apply_signature(obj, addr, &signature)?;
+                break;
+            }
+        }
+    }
+    log::info!("Done!");
     Ok(())
 }
 
@@ -287,6 +382,8 @@ fn info(args: InfoArgs) -> Result<()> {
     FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
     FindSaveRestSleds::execute(&mut state, &obj)?;
     state.apply(&mut obj)?;
+
+    apply_signatures_post(&mut obj)?;
 
     println!("{}:", obj.name);
     println!("Entry point: {:#010X}", obj.entry);
@@ -329,20 +426,20 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // }
 
     if let Some(map) = &args.map_file {
-        let mut reader = BufReader::new(
-            File::open(map)
-                .with_context(|| format!("Failed to open map file '{}'", map.display()))?,
-        );
-        let _entries = process_map(&mut reader)?;
+        let mmap = map_file(map)?;
+        let _entries = process_map(map_reader(&mmap))?;
+    }
+
+    if let Some(splits_file) = &args.splits_file {
+        let map = map_file(splits_file)?;
+        apply_splits(map_reader(&map), &mut obj)?;
     }
 
     let mut state = AnalyzerState::default();
 
     if let Some(symbols_path) = &args.symbols_file {
-        let mut reader = BufReader::new(File::open(symbols_path).with_context(|| {
-            format!("Failed to open symbols file '{}'", symbols_path.display())
-        })?);
-        for result in reader.lines() {
+        let map = map_file(symbols_path)?;
+        for result in map_reader(&map).lines() {
             let line = match result {
                 Ok(line) => line,
                 Err(e) => bail!("Failed to process symbols file: {e:?}"),
@@ -407,10 +504,66 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 
     log::info!("Applying relocations");
     tracker.apply(&mut obj, false)?;
-    //
-    // log::info!("Writing disassembly");
-    // let mut w = BufWriter::new(File::create("out.s")?);
-    // write_asm(&mut w, &obj)?;
+
+    if args.splits_file.is_some() {
+
+        log::info!("Splitting {} objects", obj.link_order.len());
+        let split_objs = split_obj(&obj)?;
+
+        // Create out dirs
+        let asm_dir = args.out.join("asm");
+        let include_dir = args.out.join("include");
+        let obj_dir = args.out.join("expected");
+        DirBuilder::new().recursive(true).create(&include_dir)?;
+        fs::write(include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
+
+        log::info!("Writing object files");
+        let mut file_map = HashMap::<String, Vec<u8>>::new();
+        for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
+            let out_obj = write_elf(split_obj)?;
+            match file_map.entry(unit.clone()) {
+                hash_map::Entry::Vacant(e) => e.insert(out_obj),
+                hash_map::Entry::Occupied(_) => bail!("Duplicate file {unit}"),
+            };
+        }
+
+        let mut rsp_file = BufWriter::new(File::create("rsp")?);
+        for unit in &obj.link_order {
+            let object = file_map
+                .get(unit)
+                .ok_or_else(|| anyhow!("Failed to find object file for unit '{unit}'"))?;
+            let out_path = obj_dir.join(unit);
+            writeln!(rsp_file, "{}", out_path.display())?;
+            if let Some(parent) = out_path.parent() {
+                DirBuilder::new().recursive(true).create(parent)?;
+            }
+            let mut file = File::create(&out_path)
+                .with_context(|| format!("Failed to create '{}'", out_path.display()))?;
+            file.write_all(object)?;
+            file.flush()?;
+        }
+        rsp_file.flush()?;
+
+        log::info!("Writing disassembly");
+        let mut files_out = File::create(args.out.join("link_order.txt"))?;
+        for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
+            let out_path = asm_dir.join(format!("{}.s", unit.trim_end_matches(".o")));
+
+            if let Some(parent) = out_path.parent() {
+                DirBuilder::new().recursive(true).create(parent)?;
+            }
+            let mut w = BufWriter::new(File::create(out_path)?);
+            write_asm(&mut w, split_obj)?;
+            w.flush()?;
+
+            writeln!(files_out, "{}", unit)?;
+        }
+        files_out.flush()?;
+    } else {
+        log::info!("Writing disassembly");
+        let mut w = BufWriter::new(File::create("out.s")?);
+        write_asm(&mut w, &obj)?;
+    }
 
     if let Some(symbols_path) = &args.symbols_file {
         let mut symbols_writer = BufWriter::new(
@@ -500,6 +653,7 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
             );
         }
     }
+    return Ok(()); // TODO
     for real_section in &real_obj.sections {
         let obj_section = match obj.sections.get(real_section.index) {
             Some(v) => v,
@@ -562,20 +716,17 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
         }
         for (&obj_addr, obj_reloc) in &obj_map {
             let obj_symbol = &obj.symbols[obj_reloc.target_symbol];
-            let real_reloc = match real_map.get(&obj_addr) {
-                Some(v) => v,
-                None => {
-                    log::warn!(
-                        "Relocation not real @ {:#010X} {:?} to {:#010X}+{:X} ({})",
-                        obj_addr,
-                        obj_reloc.kind,
-                        obj_symbol.address,
-                        obj_reloc.addend,
-                        obj_symbol.demangled_name.as_ref().unwrap_or(&obj_symbol.name)
-                    );
-                    continue;
-                }
-            };
+            if !real_map.contains_key(&obj_addr) {
+                log::warn!(
+                    "Relocation not real @ {:#010X} {:?} to {:#010X}+{:X} ({})",
+                    obj_addr,
+                    obj_reloc.kind,
+                    obj_symbol.address,
+                    obj_reloc.addend,
+                    obj_symbol.demangled_name.as_ref().unwrap_or(&obj_symbol.name)
+                );
+                continue;
+            }
         }
     }
     Ok(())

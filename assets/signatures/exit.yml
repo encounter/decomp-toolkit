@@ -35,7 +35,7 @@
     size: 76
     flags: 5
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _dtors
     size: 0
     flags: 1
@@ -87,7 +87,7 @@
     size: 0
     flags: 1
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _dtors
     size: 0
     flags: 1
@@ -162,7 +162,7 @@
     size: 0
     flags: 1
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _dtors
     size: 0
     flags: 1
@@ -278,7 +278,7 @@
     size: 0
     flags: 1
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _dtors
     size: 0
     flags: 1
@@ -419,7 +419,7 @@
     size: 0
     flags: 1
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _dtors
     size: 0
     flags: 1

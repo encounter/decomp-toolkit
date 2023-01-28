@@ -3,7 +3,7 @@ name = "decomp-toolkit"
 description = "GameCube/Wii decompilation project tools."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.2.3"
+version = "0.3.0"
 edition = "2021"
 publish = false
 build = "build.rs"
@@ -21,8 +21,8 @@ panic = "abort"
 strip = "debuginfo"
 
 [dependencies]
-anyhow = "1.0.64"
-ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "do_not_remove_cg_clif_ranlib" }
+anyhow = { version = "1.0.64", features = ["backtrace"] }
+ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_table" }
 argh = "0.1.8"
 base16ct = "0.1.1"
 base64 = "0.21.0"
@@ -35,7 +35,6 @@ fixedbitset = "0.4.2"
 flagset = { version = "0.4.3", features = ["serde"] }
 hex = "0.4.3"
 indexmap = "1.9.2"
-lazy_static = "1.4.0"
 log = "0.4.17"
 memchr = "2.5.0"
 memmap2 = "0.5.7"
@@ -51,3 +50,14 @@ serde_yaml = "0.9.16"
 sha-1 = "0.10.0"
 smallvec = "1.10.0"
 topological-sort = "0.2.2"
+flate2 = "1.0.25"
+
+[build-dependencies]
+anyhow = { version = "1.0.64", features = ["backtrace"] }
+base64 = "0.21.0"
+flagset = { version = "0.4.3", features = ["serde"] }
+serde = "1.0.152"
+serde_repr = "0.1.10"
+serde_yaml = "0.9.16"
+rmp-serde = "1.1.1"
+flate2 = "1.0.25"

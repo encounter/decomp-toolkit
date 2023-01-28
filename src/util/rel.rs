@@ -1,19 +1,15 @@
-use std::{
-    fs::File,
-    io::{BufReader, Read, Seek, SeekFrom},
-    path::Path,
-};
+use std::{io::Read, path::Path};
 
 use anyhow::{anyhow, bail, ensure, Result};
 use byteorder::{BigEndian, ReadBytesExt};
-use object::elf::{
-    R_PPC_ADDR16, R_PPC_ADDR16_HA, R_PPC_ADDR16_HI, R_PPC_ADDR16_LO, R_PPC_ADDR24, R_PPC_ADDR32,
-    R_PPC_NONE, R_PPC_REL14, R_PPC_REL24, R_PPC_UADDR32,
-};
+use object::elf;
 
-use crate::util::obj::{
-    ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
-    ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+use crate::{
+    obj::{
+        ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
+        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+    },
+    util::file::{map_file, map_reader, read_string},
 };
 
 /// Do not relocate anything, but accumulate the offset field for the next relocation offset calculation.
@@ -29,7 +25,9 @@ pub const R_DOLPHIN_END: u32 = 203;
 pub const R_DOLPHIN_MRKREF: u32 = 204;
 
 pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
-    let mut reader = BufReader::new(File::open(&path)?);
+    let mmap = map_file(path)?;
+    let mut reader = map_reader(&mmap);
+
     let module_id = reader.read_u32::<BigEndian>()?;
     ensure!(reader.read_u32::<BigEndian>()? == 0, "Expected 'next' to be 0");
     ensure!(reader.read_u32::<BigEndian>()? == 0, "Expected 'prev' to be 0");
@@ -60,7 +58,7 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let fix_size = if version >= 3 { Some(reader.read_u32::<BigEndian>()?) } else { None };
 
     let mut sections = Vec::with_capacity(num_sections as usize);
-    reader.seek(SeekFrom::Start(section_info_offset as u64))?;
+    reader.set_position(section_info_offset as u64);
     let mut total_bss_size = 0;
     for idx in 0..num_sections {
         let offset = reader.read_u32::<BigEndian>()?;
@@ -74,11 +72,11 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let data = if offset == 0 {
             vec![]
         } else {
-            let position = reader.stream_position()?;
-            reader.seek(SeekFrom::Start(offset as u64))?;
+            let position = reader.position();
+            reader.set_position(offset as u64);
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
-            reader.seek(SeekFrom::Start(position))?;
+            reader.set_position(position);
             data
         };
 
@@ -148,8 +146,8 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let mut unresolved_relocations = Vec::new();
     let mut imp_idx = 0;
     let imp_end = (imp_offset + imp_size) as u64;
-    reader.seek(SeekFrom::Start(imp_offset as u64))?;
-    while reader.stream_position()? < imp_end {
+    reader.set_position(imp_offset as u64);
+    while reader.position() < imp_end {
         let reloc_module_id = reader.read_u32::<BigEndian>()?;
         let reloc_offset = reader.read_u32::<BigEndian>()?;
 
@@ -165,12 +163,17 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
 
         if reloc_module_id == module_id {
             if let Some(fix_size) = fix_size {
-                ensure!(fix_size == reloc_offset, "fix_size mismatch: {:#X} != {:#X}", fix_size, reloc_offset);
+                ensure!(
+                    fix_size == reloc_offset,
+                    "fix_size mismatch: {:#X} != {:#X}",
+                    fix_size,
+                    reloc_offset
+                );
             }
         }
 
-        let position = reader.stream_position()?;
-        reader.seek(SeekFrom::Start(reloc_offset as u64))?;
+        let position = reader.position();
+        reader.set_position(reloc_offset as u64);
         let mut address = 0u32;
         let mut section = u8::MAX;
         loop {
@@ -179,20 +182,20 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             let target_section = reader.read_u8()?;
             let addend = reader.read_u32::<BigEndian>()?;
             let kind = match type_id {
-                R_PPC_NONE => continue,
-                R_PPC_ADDR32 | R_PPC_UADDR32 => ObjRelocKind::Absolute,
-                // R_PPC_ADDR24 => ObjRelocKind::PpcAddr24,
-                // R_PPC_ADDR16 => ObjRelocKind::PpcAddr16,
-                R_PPC_ADDR16_LO => ObjRelocKind::PpcAddr16Lo,
-                R_PPC_ADDR16_HI => ObjRelocKind::PpcAddr16Hi,
-                R_PPC_ADDR16_HA => ObjRelocKind::PpcAddr16Ha,
-                // R_PPC_ADDR14 => ObjRelocKind::PpcAddr14,
-                // R_PPC_ADDR14_BRTAKEN => ObjRelocKind::PpcAddr14BrTaken,
-                // R_PPC_ADDR14_BRNTAKEN => ObjRelocKind::PpcAddr14BrnTaken,
-                R_PPC_REL24 => ObjRelocKind::PpcRel24,
-                R_PPC_REL14 => ObjRelocKind::PpcRel14,
-                // R_PPC_REL14_BRTAKEN => ObjRelocKind::PpcRel14BrTaken,
-                // R_PPC_REL14_BRNTAKEN => ObjRelocKind::PpcRel14BrnTaken,
+                elf::R_PPC_NONE => continue,
+                elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 => ObjRelocKind::Absolute,
+                // elf::R_PPC_ADDR24 => ObjRelocKind::PpcAddr24,
+                // elf::R_PPC_ADDR16 => ObjRelocKind::PpcAddr16,
+                elf::R_PPC_ADDR16_LO => ObjRelocKind::PpcAddr16Lo,
+                elf::R_PPC_ADDR16_HI => ObjRelocKind::PpcAddr16Hi,
+                elf::R_PPC_ADDR16_HA => ObjRelocKind::PpcAddr16Ha,
+                // elf::R_PPC_ADDR14 => ObjRelocKind::PpcAddr14,
+                // elf::R_PPC_ADDR14_BRTAKEN => ObjRelocKind::PpcAddr14BrTaken,
+                // elf::R_PPC_ADDR14_BRNTAKEN => ObjRelocKind::PpcAddr14BrnTaken,
+                elf::R_PPC_REL24 => ObjRelocKind::PpcRel24,
+                elf::R_PPC_REL14 => ObjRelocKind::PpcRel14,
+                // elf::R_PPC_REL14_BRTAKEN => ObjRelocKind::PpcRel14BrTaken,
+                // elf::R_PPC_REL14_BRNTAKEN => ObjRelocKind::PpcRel14BrnTaken,
                 R_DOLPHIN_NOP => {
                     address += offset as u32;
                     continue;
@@ -216,14 +219,18 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 addend,
             });
         }
-        reader.seek(SeekFrom::Start(position))?;
+        reader.set_position(position);
     }
 
+    let name = match name_offset {
+        0 => String::new(),
+        _ => read_string(&mut reader, name_offset as u64, name_size as usize)?,
+    };
     Ok(ObjInfo {
         module_id,
         kind: ObjKind::Relocatable,
         architecture: ObjArchitecture::PowerPc,
-        name: "".to_string(),
+        name,
         symbols,
         sections,
         entry: 0,
@@ -235,6 +242,7 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         arena_lo: None,
         arena_hi: None,
         splits: Default::default(),
+        named_sections: Default::default(),
         link_order: vec![],
         known_functions: Default::default(),
         unresolved_relocations,

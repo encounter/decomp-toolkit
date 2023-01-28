@@ -1,12 +1,14 @@
 use std::{
     fs::File,
     io::{BufWriter, Seek, SeekFrom, Write},
+    path::PathBuf,
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use argh::FromArgs;
-use memmap2::MmapOptions;
 use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, SectionKind};
+
+use crate::util::file::map_file;
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Converts an ELF file to a DOL file.
@@ -14,10 +16,10 @@ use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, Sectio
 pub struct Args {
     #[argh(positional)]
     /// path to input ELF
-    elf_file: String,
+    elf_file: PathBuf,
     #[argh(positional)]
     /// path to output DOL
-    dol_file: String,
+    dol_file: PathBuf,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -42,10 +44,7 @@ const MAX_TEXT_SECTIONS: usize = 7;
 const MAX_DATA_SECTIONS: usize = 11;
 
 pub fn run(args: Args) -> Result<()> {
-    let elf_file = File::open(&args.elf_file)
-        .with_context(|| format!("Failed to open ELF file '{}'", args.elf_file))?;
-    let map = unsafe { MmapOptions::new().map(&elf_file) }
-        .with_context(|| format!("Failed to mmap ELF file: '{}'", args.elf_file))?;
+    let map = map_file(&args.elf_file)?;
     let obj_file = object::read::File::parse(&*map)?;
     match obj_file.architecture() {
         Architecture::PowerPc => {}
@@ -61,7 +60,7 @@ pub fn run(args: Args) -> Result<()> {
     let mut offset = 0x100u32;
     let mut out = BufWriter::new(
         File::create(&args.dol_file)
-            .with_context(|| format!("Failed to create DOL file '{}'", args.dol_file))?,
+            .with_context(|| format!("Failed to create DOL file '{}'", args.dol_file.display()))?,
     );
     out.seek(SeekFrom::Start(offset as u64))?;
 

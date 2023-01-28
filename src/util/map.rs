@@ -1,13 +1,13 @@
 use std::{
-    collections::{btree_map, hash_map, BTreeMap, HashMap},
+    collections::{btree_map, BTreeMap, HashMap},
     hash::Hash,
     io::BufRead,
 };
 
 use anyhow::{bail, ensure, Error, Result};
 use cwdemangle::{demangle, DemangleOptions};
-use lazy_static::lazy_static;
 use multimap::MultiMap;
+use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use topological_sort::TopologicalSort;
 
@@ -168,29 +168,36 @@ pub fn resolve_link_order(section_unit_order: &[(String, Vec<String>)]) -> Resul
     Ok(global_unit_order)
 }
 
-lazy_static! {
-    static ref LINK_MAP_START: Regex = Regex::new("^Link map of (?P<entry>.*)$").unwrap();
-    static ref LINK_MAP_ENTRY: Regex = Regex::new(
-        "^\\s*(?P<depth>\\d+)] (?P<sym>.*) \\((?P<type>.*),(?P<vis>.*)\\) found in (?P<tu>.*)$",
-    )
-    .unwrap();
-    static ref LINK_MAP_ENTRY_GENERATED: Regex =
-        Regex::new("^\\s*(?P<depth>\\d+)] (?P<sym>.*) found as linker generated symbol$").unwrap();
-    static ref LINK_MAP_ENTRY_DUPLICATE: Regex =
-        Regex::new("^\\s*(?P<depth>\\d+)] >>> UNREFERENCED DUPLICATE (?P<sym>.*)$").unwrap();
-    static ref SECTION_LAYOUT_START: Regex = Regex::new("^(?P<section>.*) section layout$").unwrap();
-    static ref SECTION_LAYOUT_SYMBOL: Regex = Regex::new(
-        "^\\s*(?P<rom_addr>[0-9A-Fa-f]+|UNUSED)\\s+(?P<size>[0-9A-Fa-f]+)\\s+(?P<addr>[0-9A-Fa-f]+|\\.{8})\\s+(?P<align>\\d+)?\\s*(?P<sym>.*?)(?:\\s+\\(entry of (?P<entry_of>.*?)\\))?\\s+(?P<tu>.*)$",
-    )
-    .unwrap();
-    static ref SECTION_LAYOUT_HEADER: Regex = Regex::new(
-        "^(\\s*Starting\\s+Virtual\\s*|\\s*address\\s+Size\\s+address\\s*|\\s*-----------------------\\s*)$",
-    )
-    .unwrap();
-    static ref MEMORY_MAP_HEADER: Regex = Regex::new("^\\s*Memory map:\\s*$").unwrap();
-    static ref EXTERN_SYMBOL: Regex = Regex::new("^\\s*>>> SYMBOL NOT FOUND: (.*)$").unwrap();
-    static ref LINKER_SYMBOLS_HEADER: Regex = Regex::new("^\\s*Linker generated symbols:\\s*$").unwrap();
+macro_rules! static_regex {
+    ($name:ident, $str:expr) => {
+        static $name: Lazy<Regex> = Lazy::new(|| Regex::new($str).unwrap());
+    };
 }
+static_regex!(LINK_MAP_START, "^Link map of (?P<entry>.*)$");
+static_regex!(
+    LINK_MAP_ENTRY,
+    "^\\s*(?P<depth>\\d+)] (?P<sym>.*) \\((?P<type>.*),(?P<vis>.*)\\) found in (?P<tu>.*)$"
+);
+static_regex!(
+    LINK_MAP_ENTRY_GENERATED,
+    "^\\s*(?P<depth>\\d+)] (?P<sym>.*) found as linker generated symbol$"
+);
+static_regex!(
+    LINK_MAP_ENTRY_DUPLICATE,
+    "^\\s*(?P<depth>\\d+)] >>> UNREFERENCED DUPLICATE (?P<sym>.*)$"
+);
+static_regex!(SECTION_LAYOUT_START, "^(?P<section>.*) section layout$");
+static_regex!(
+    SECTION_LAYOUT_SYMBOL,
+    "^\\s*(?P<rom_addr>[0-9A-Fa-f]+|UNUSED)\\s+(?P<size>[0-9A-Fa-f]+)\\s+(?P<addr>[0-9A-Fa-f]+|\\.{8})\\s+(?P<align>\\d+)?\\s*(?P<sym>.*?)(?:\\s+\\(entry of (?P<entry_of>.*?)\\))?\\s+(?P<tu>.*)$"
+);
+static_regex!(
+    SECTION_LAYOUT_HEADER,
+    "^(\\s*Starting\\s+Virtual\\s*|\\s*address\\s+Size\\s+address\\s*|\\s*-----------------------\\s*)$"
+);
+static_regex!(MEMORY_MAP_HEADER, "^\\s*Memory map:\\s*$");
+static_regex!(EXTERN_SYMBOL, "^\\s*>>> SYMBOL NOT FOUND: (.*)$");
+static_regex!(LINKER_SYMBOLS_HEADER, "^\\s*Linker generated symbols:\\s*$");
 
 #[derive(Default)]
 pub struct MapEntries {
@@ -543,26 +550,4 @@ pub fn process_map<R: BufRead>(reader: R) -> Result<MapEntries> {
     // entries.symbol_order = section_order.symbol_order;
     // entries.unit_order = section_order.unit_order;
     Ok(entries)
-}
-
-#[inline]
-fn nested_try_insert<T1, T2, T3>(
-    map: &mut HashMap<T1, HashMap<T2, T3>>,
-    v1: T1,
-    v2: T2,
-    v3: T3,
-) -> Result<()>
-where
-    T1: Hash + Eq,
-    T2: Hash + Eq,
-{
-    let map = match map.entry(v1) {
-        hash_map::Entry::Occupied(entry) => entry.into_mut(),
-        hash_map::Entry::Vacant(entry) => entry.insert(Default::default()),
-    };
-    match map.entry(v2) {
-        hash_map::Entry::Occupied(_) => bail!("Entry already exists"),
-        hash_map::Entry::Vacant(entry) => entry.insert(v3),
-    };
-    Ok(())
 }

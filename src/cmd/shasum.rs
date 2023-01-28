@@ -1,7 +1,7 @@
 use std::{
     fs::{File, OpenOptions},
     io::{BufRead, BufReader, Read},
-    path::Path,
+    path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, bail, Context, Result};
@@ -18,17 +18,17 @@ pub struct Args {
     check: bool,
     #[argh(positional)]
     /// path to file
-    file: String,
+    file: PathBuf,
     #[argh(option, short = 'o')]
     /// touch output file on successful check
-    output: Option<String>,
+    output: Option<PathBuf>,
 }
 
 const DEFAULT_BUF_SIZE: usize = 8192;
 
 pub fn run(args: Args) -> Result<()> {
-    let file =
-        File::open(&args.file).with_context(|| format!("Failed to open file '{}'", args.file))?;
+    let file = File::open(&args.file)
+        .with_context(|| format!("Failed to open file '{}'", args.file.display()))?;
     if args.check {
         check(args, file)
     } else {
@@ -69,7 +69,8 @@ fn check(args: Args, file: File) -> Result<()> {
         std::process::exit(1);
     }
     if let Some(out_path) = args.output {
-        touch(&out_path).with_context(|| format!("Failed to touch output file '{out_path}'"))?;
+        touch(&out_path)
+            .with_context(|| format!("Failed to touch output file '{}'", out_path.display()))?;
     }
     Ok(())
 }
@@ -79,7 +80,7 @@ fn hash(args: Args, file: File) -> Result<()> {
     let mut hash_buf = [0u8; 40];
     let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
         .map_err(|e| anyhow!("Failed to encode hash: {e}"))?;
-    println!("{}  {}", hash_str, args.file);
+    println!("{}  {}", hash_str, args.file.display());
     Ok(())
 }
 

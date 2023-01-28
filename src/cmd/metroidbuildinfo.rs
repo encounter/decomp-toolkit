@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use anyhow::{bail, ensure, Context, Result};
 use argh::FromArgs;
 use memchr::memmem;
@@ -9,18 +11,19 @@ use memmap2::MmapOptions;
 pub struct Args {
     #[argh(positional)]
     /// path to source binary
-    binary: String,
+    binary: PathBuf,
     #[argh(positional)]
     /// path to build info string
-    build_info: String,
+    build_info: PathBuf,
 }
 
 const BUILD_STRING_MAX: usize = 35;
 const BUILD_STRING_TAG: &str = "!#$MetroidBuildInfo!#$";
 
 pub fn run(args: Args) -> Result<()> {
-    let build_string = std::fs::read_to_string(&args.build_info)
-        .with_context(|| format!("Failed to read build info string from '{}'", args.build_info))?;
+    let build_string = std::fs::read_to_string(&args.build_info).with_context(|| {
+        format!("Failed to read build info string from '{}'", args.build_info.display())
+    })?;
     let build_string_trim = build_string.trim_end();
     let build_string_bytes = build_string_trim.as_bytes();
     ensure!(
@@ -28,13 +31,12 @@ pub fn run(args: Args) -> Result<()> {
         "Build string '{build_string_trim}' is greater than maximum size of {BUILD_STRING_MAX}"
     );
 
-    let binary_file = std::fs::File::options()
-        .read(true)
-        .write(true)
-        .open(&args.binary)
-        .with_context(|| format!("Failed to open binary for writing: '{}'", args.binary))?;
+    let binary_file =
+        std::fs::File::options().read(true).write(true).open(&args.binary).with_context(|| {
+            format!("Failed to open binary for writing: '{}'", args.binary.display())
+        })?;
     let mut map = unsafe { MmapOptions::new().map_mut(&binary_file) }
-        .with_context(|| format!("Failed to mmap binary: '{}'", args.binary))?;
+        .with_context(|| format!("Failed to mmap binary: '{}'", args.binary.display()))?;
     let start = match memmem::find(&map, BUILD_STRING_TAG.as_bytes()) {
         Some(idx) => idx + BUILD_STRING_TAG.as_bytes().len(),
         None => bail!("Failed to find build string tag in binary"),

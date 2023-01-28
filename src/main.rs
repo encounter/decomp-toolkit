@@ -1,8 +1,10 @@
 use argh::FromArgs;
 
-mod argh_version;
-mod cmd;
-mod util;
+pub mod analysis;
+pub mod argh_version;
+pub mod cmd;
+pub mod obj;
+pub mod util;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// GameCube/Wii decompilation project tools.
@@ -22,6 +24,7 @@ enum SubCommand {
     Map(cmd::map::Args),
     MetroidBuildInfo(cmd::metroidbuildinfo::Args),
     Rel(cmd::rel::Args),
+    Rso(cmd::rso::Args),
     Shasum(cmd::shasum::Args),
 }
 
@@ -38,6 +41,7 @@ fn main() {
         SubCommand::Map(c_args) => cmd::map::run(c_args),
         SubCommand::MetroidBuildInfo(c_args) => cmd::metroidbuildinfo::run(c_args),
         SubCommand::Rel(c_args) => cmd::rel::run(c_args),
+        SubCommand::Rso(c_args) => cmd::rso::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
     };
     if let Err(e) = result {

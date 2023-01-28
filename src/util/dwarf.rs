@@ -380,6 +380,7 @@ pub fn read_debug_section<R: BufRead + Seek>(reader: &mut R) -> Result<TagMap> {
     Ok(tags)
 }
 
+#[allow(unused)]
 pub fn read_aranges_section<R: BufRead + Seek>(reader: &mut R) -> Result<()> {
     let len = {
         let old_pos = reader.stream_position()?;

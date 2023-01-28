@@ -1,0 +1,572 @@
+- symbol: 0
+  hash: e9350e81a596b1f391270020c46cdd66059f8d7c
+  signature: lCH/4P////98CAKm/////5ABACT/////k+EAHP////+TwQAY/////5OhABT/////k4EAEP////98fBt4/////3+e43j/////OAAAAP////+YHgAj/////4AeAAz/////fADyFP////+QHgAM/////4AeABD/////fADyFP////+QHgAQ/////4AeADD/////fADyFP////+QHgAw/////4AeADj/////fADyFP////+QHgA4/////4AeAED/////fADyFP////+QHgBA/////4AeAEj/////fADyFP////+QHgBI/////4AeAEz/////fADyFP////+QHgBM/////4AeAFT/////fADyFP////+QHgBU/////zugAAH/////SAABaP////+AfAAM/////1egGDj/////f+MCFP////8oHQAN/////0GBAST/////PGAAAP//AAA4YwAA//8AAFegEDr/////fGMALv////98aQOm/////06ABCD/////PGAAAP//AAA4AwAA//8AAJAfAAD/////SAABKP////88YAAA//8AADgDAAD//wAAkB8AAP////9IAAEY/////4AfAAT/////LAAAAP////9BggAc/////zxgAAD//wAAOGMAAP//AAB/pOt4/////4C/AAT/////TMYxgv////9IAAAB/AAAAzgAAAD/////kB8AAP////9IAADo/////4AfAAT/////LAAAAP////9BggAc/////zxgAAD//wAAOGMAAP//AAB/pOt4/////4C/AAT/////TMYxgv////9IAAAB/AAAAzgAAAD/////kB8AAP////9IAAC4/////zxgAAD//wAAOAMAAP//AACQHwAA/////0gAAKj/////PGAAAP//AAA4AwAA//8AAJAfAAD/////SAAAmP////88YAAA//8AADgDAAD//wAAkB8AAP////9IAACI/////zxgAAD//wAAOAMAAP//AACQHwAA/////0gAAHj/////PGAAAP//AAA4AwAA//8AAJAfAAD/////SAAAaP////88YAAA//8AADgDAAD//wAAkB8AAP////9IAABY/////zxgAAD//wAAOAMAAP//AACQHwAA/////0gAAEj/////OAAAAP////+QHwAA/////0gAADz/////OAAAAP////+QHwAA/////0gAADD/////gB8ABP////8sAAAA/////0GCABz/////PGAAAP//AAA4YwAA//8AAH+k63j/////gL8ABP////9MxjGC/////0gAAAH8AAADOAAAAP////+QHwAA/////zu9AAH/////gB4ACP////98HQBA/////0GA/pT/////gB4APP////88YKqr/////zhjqqv/////fAMAFv////9UAOj+/////5ABAAz/////O6AAAP////9IAAAs/////4B+ADj/////HB0ADP////98AwIU/////5ABAAj/////gGEACP////+AAwAA/////3wA8hT/////gGEACP////+QAwAA/////zu9AAH/////gAEADP////98HQBA/////0GA/9D/////OGAAAf////+D4QAc/////4PBABj/////g6EAFP////+DgQAQ/////4ABACT/////fAgDpv////84IQAg/////06AACD/////
+  symbols:
+  - kind: Function
+    name: RSOStaticLocateObject
+    size: 636
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@665'
+    size: 56
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: _f_init
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Unknown
+    name: _f_text
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@661'
+    size: 39
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Object
+    name: '@662'
+    size: 39
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: _f_rodata
+    size: 0
+    flags: 1
+    section: .rodata
+  - kind: Unknown
+    name: _f_data
+    size: 0
+    flags: 1
+    section: .data
+  - kind: Unknown
+    name: _f_bss
+    size: 0
+    flags: 1
+    section: .bss
+  - kind: Unknown
+    name: _f_sdata
+    size: 0
+    flags: 1
+    section: .sdata
+  - kind: Unknown
+    name: _f_sbss
+    size: 0
+    flags: 1
+    section: .sbss
+  - kind: Unknown
+    name: _f_sdata2
+    size: 0
+    flags: 1
+    section: .sdata2
+  - kind: Unknown
+    name: _f_sbss2
+    size: 0
+    flags: 1
+    section: .sbss2
+  - kind: Object
+    name: '@663'
+    size: 40
+    flags: 2
+    section: .data
+  relocations:
+  - offset: 168
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 172
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 192
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 196
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 212
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 236
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 240
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 256
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 284
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 288
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 304
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+  - offset: 320
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 324
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 336
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 340
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 352
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 356
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 368
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 372
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 384
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 388
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 400
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 404
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 416
+    kind: PpcAddr16Ha
+    symbol: 13
+    addend: 0
+  - offset: 420
+    kind: PpcAddr16Lo
+    symbol: 13
+    addend: 0
+  - offset: 468
+    kind: PpcAddr16Ha
+    symbol: 14
+    addend: 0
+  - offset: 472
+    kind: PpcAddr16Lo
+    symbol: 14
+    addend: 0
+  - offset: 488
+    kind: PpcRel24
+    symbol: 5
+    addend: 0
+- symbol: 0
+  hash: 462811ae6e7cd307c3448b066102e65ffabfd490
+  signature: lCH/sP////98CAKm/////5ABAFT/////OWEAUP////9IAAAB/AAAA4CDAAz/////OoAAAP////+AAwAQ/////z5gAAD//wAAfUQaFP////+AowAw/////30gGhT/////gIMAOP////99BRoU/////4ADAED/////fOQaFP////+AowBI/////3zAGhT/////gIMATP////+AAwBU/////3ylGhT/////fIQaFP////8/wAAA//8AAHwAGhT/////P6AAAP//AAA/gAAA//8AAD9gAAD//wAAP0AAAP//AAA/IAAA//8AAD8AAAD//wAAPuAAAP//AAA+wAAA//8AAJqDACP/////fH8beP////86cwAA//8AAJFDAAz/////O94AAP//AAA7vQAA//8AADucAAD//wAAkSMAEP////87ewAA//8AADtaAAD//wAAOzkAAP//AACRAwAw/////zsYAAD//wAAOvcAAP//AAA61gAA//8AAJDjADj/////OiAAAf////854AAE/////zpAAAj/////kMMAQP////8+oAAA//8AAJCjAEj/////kIMATP////+QAwBU/////0gAAPD/////gB8ADP////8oEQAN/////34AkhT/////QYEAtP////84dQAA//8AAHxjeC7/////fGkDpv////9OgAQg/////5LQAAD/////SAAAvP////+S8AAA/////0gAALT/////gLAABP////8sBQAA/////0GCABT/////fiSLeP////84cwAA/////0zGMYL/////SAAAAfwAAAOSkAAA/////0gAAJD/////gLAABP////8sBQAA/////0GCABT/////fiSLeP////84cwAo/////0zGMYL/////SAAAAfwAAAOSkAAA/////0gAAGz/////kxAAAP////9IAABk/////5MwAAD/////SAAAXP////+TUAAA/////0gAAFT/////k3AAAP////9IAABM/////5OQAAD/////SAAARP////+TsAAA/////0gAADz/////k9AAAP////9IAAA0/////5KQAAD/////SAAALP////+SkAAA/////0gAACT/////gLAABP////8sBQAA/////0GCABT/////fiSLeP////84cwBQ/////0zGMYL/////SAAAAfwAAAOSkAAA/////zpSAAj/////OjEAAf////857wAE/////4AfAAj/////fBEAQP////9BgP8M/////zxgqqv/////gB8APP////84Y6qr/////ziAAAD/////fAMAFv////9UBej//////0GCAPz/////KAUACP////84xf/4/////0CBAMT/////OAYAB/////84YAAA/////1QA6P7/////fAkDpv////8oBgAA/////0CBAKz/////gN8AOP////84hAAI/////3wGGC7/////fAD6FP////98Bhku/////4AfADj/////fMAaFP////+ABgAM/////3wA+hT/////kAYADP////+AHwA4/////3zAGhT/////gAYAGP////98APoU/////5AGABj/////gB8AOP////98wBoU/////4AGACT/////fAD6FP////+QBgAk/////4AfADj/////fMAaFP////+ABgAw/////3wA+hT/////kAYAMP////+AHwA4/////3zAGhT/////gAYAPP////98APoU/////5AGADz/////gB8AOP////98wBoU/////4AGAEj/////fAD6FP////+QBgBI/////4AfADj/////fMAaFP////84YwBg/////4AGAFT/////fAD6FP////+QBgBU/////0IA/1z/////fAQoUP////8cxAAM/////3wJA6b/////fAQoQP////9AgAAc/////4B/ADj/////fAMwLv////98APoU/////3wDMS7/////OMYADP////9CAP/s/////zlhAFD/////OGAAAf////9IAAAB/AAAA4ABAFT/////fAgDpv////84IQBQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: RSOStaticLocateObject
+    size: 780
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_15
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1841'
+    size: 39
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: _f_sbss2
+    size: 0
+    flags: 1
+    section: .sbss2
+  - kind: Unknown
+    name: _f_sdata2
+    size: 0
+    flags: 1
+    section: .sdata2
+  - kind: Unknown
+    name: _f_sbss
+    size: 0
+    flags: 1
+    section: .sbss
+  - kind: Unknown
+    name: _f_sdata
+    size: 0
+    flags: 1
+    section: .sdata
+  - kind: Unknown
+    name: _f_bss
+    size: 0
+    flags: 1
+    section: .bss
+  - kind: Unknown
+    name: _f_data
+    size: 0
+    flags: 1
+    section: .data
+  - kind: Unknown
+    name: _f_rodata
+    size: 0
+    flags: 1
+    section: .rodata
+  - kind: Unknown
+    name: _f_text
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _f_init
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@1845'
+    size: 56
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 5
+    section: .text
+  - kind: Unknown
+    name: _restgpr_15
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 760
+    kind: PpcRel24
+    symbol: 14
+    addend: 0
+- symbol: 0
+  hash: 2738adeb0411257ac88b6bf57b8b7a48094be29a
+  signature: lCH/sP////98CAKm/////5ABAFT/////OWEAUP////9IAAAB/AAAA4CDAAz/////PmAAAP//AACAAwAQ/////zqAAAD/////fUQaFP////+AowAw/////30gGhT/////gIMAOP////99BRoU/////4ADAED/////fOQaFP////+AowBI/////3zAGhT/////gIMATP////+AAwBU/////3ylGhT/////fIQaFP////8/wAAA//8AAHwAGhT/////P6AAAP//AAA/gAAA//8AAD9gAAD//wAAP0AAAP//AAA/IAAA//8AAD8AAAD//wAAPuAAAP//AAA+wAAA//8AAJqDACP/////fH8beP////86cwAA//8AAJFDAAz/////O94AAP//AAA7vQAA//8AADucAAD//wAAkSMAEP////87ewAA//8AADtaAAD//wAAOzkAAP//AACRAwAw/////zsYAAD//wAAOvcAAP//AAA61gAA//8AAJDjADj/////OiAAAf////854AAE/////zpAAAj/////kMMAQP////8+oAAA//8AAJCjAEj/////kIMATP////+QAwBU/////0gAAPD/////gB8ADP////8oEQAN/////34AkhT/////QYEAtP////84dQAA//8AAHxjeC7/////fGkDpv////9OgAQg/////5LQAAD/////SAAAvP////+S8AAA/////0gAALT/////gLAABP////8sBQAA/////0GCABT/////fiSLeP////84cwAA/////0zGMYL/////SAAAAfwAAAOSkAAA/////0gAAJD/////gLAABP////8sBQAA/////0GCABT/////fiSLeP////84cwAo/////0zGMYL/////SAAAAfwAAAOSkAAA/////0gAAGz/////kxAAAP////9IAABk/////5MwAAD/////SAAAXP////+TUAAA/////0gAAFT/////k3AAAP////9IAABM/////5OQAAD/////SAAARP////+TsAAA/////0gAADz/////k9AAAP////9IAAA0/////5KQAAD/////SAAALP////+SkAAA/////0gAACT/////gLAABP////8sBQAA/////0GCABT/////fiSLeP////84cwBQ/////0zGMYL/////SAAAAfwAAAOSkAAA/////zpSAAj/////OjEAAf////857wAE/////4AfAAj/////fBEAQP////9BgP8M/////zxgqqv/////gB8APP////84Y6qr/////ziAAAD/////fAMAFv////9UBej//////0GCAPz/////KAUACP////84xf/4/////0CBAMT/////OAYAB/////84YAAA/////1QA6P7/////fAkDpv////8oBgAA/////0CBAKz/////gN8AOP////84hAAI/////3wGGC7/////fAD6FP////98Bhku/////4AfADj/////fMAaFP////+ABgAM/////3wA+hT/////kAYADP////+AHwA4/////3zAGhT/////gAYAGP////98APoU/////5AGABj/////gB8AOP////98wBoU/////4AGACT/////fAD6FP////+QBgAk/////4AfADj/////fMAaFP////+ABgAw/////3wA+hT/////kAYAMP////+AHwA4/////3zAGhT/////gAYAPP////98APoU/////5AGADz/////gB8AOP////98wBoU/////4AGAEj/////fAD6FP////+QBgBI/////4AfADj/////fMAaFP////84YwBg/////4AGAFT/////fAD6FP////+QBgBU/////0IA/1z/////fAQoUP////8cxAAM/////3wJA6b/////fAQoQP////9AgAAc/////4B/ADj/////fAMwLv////98APoU/////3wDMS7/////OMYADP////9CAP/s/////zlhAFD/////OGAAAf////9IAAAB/AAAA4ABAFT/////fAgDpv////84IQBQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: RSOStaticLocateObject
+    size: 780
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _savegpr_15
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Object
+    name: '@1982'
+    size: 39
+    flags: 2
+    section: .data
+  - kind: Unknown
+    name: _f_sbss2
+    size: 0
+    flags: 1
+    section: .sbss2
+  - kind: Unknown
+    name: _f_sdata2
+    size: 0
+    flags: 1
+    section: .sdata2
+  - kind: Unknown
+    name: _f_sbss
+    size: 0
+    flags: 1
+    section: .sbss
+  - kind: Unknown
+    name: _f_sdata
+    size: 0
+    flags: 1
+    section: .sdata
+  - kind: Unknown
+    name: _f_bss
+    size: 0
+    flags: 1
+    section: .bss
+  - kind: Unknown
+    name: _f_data
+    size: 0
+    flags: 1
+    section: .data
+  - kind: Unknown
+    name: _f_rodata
+    size: 0
+    flags: 1
+    section: .rodata
+  - kind: Unknown
+    name: _f_text
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _f_init
+    size: 0
+    flags: 1
+    section: .init
+  - kind: Object
+    name: '@1986'
+    size: 56
+    flags: 2
+    section: .data
+  - kind: Function
+    name: OSReport
+    size: 0
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: _restgpr_15
+    size: 0
+    flags: 1
+    section: .text
+  relocations:
+  - offset: 16
+    kind: PpcRel24
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 88
+    kind: PpcAddr16Ha
+    symbol: 3
+    addend: 0
+  - offset: 96
+    kind: PpcAddr16Ha
+    symbol: 4
+    addend: 0
+  - offset: 100
+    kind: PpcAddr16Ha
+    symbol: 5
+    addend: 0
+  - offset: 104
+    kind: PpcAddr16Ha
+    symbol: 6
+    addend: 0
+  - offset: 108
+    kind: PpcAddr16Ha
+    symbol: 7
+    addend: 0
+  - offset: 112
+    kind: PpcAddr16Ha
+    symbol: 8
+    addend: 0
+  - offset: 116
+    kind: PpcAddr16Ha
+    symbol: 9
+    addend: 0
+  - offset: 120
+    kind: PpcAddr16Ha
+    symbol: 10
+    addend: 0
+  - offset: 124
+    kind: PpcAddr16Ha
+    symbol: 11
+    addend: 0
+  - offset: 136
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 144
+    kind: PpcAddr16Lo
+    symbol: 3
+    addend: 0
+  - offset: 148
+    kind: PpcAddr16Lo
+    symbol: 4
+    addend: 0
+  - offset: 152
+    kind: PpcAddr16Lo
+    symbol: 5
+    addend: 0
+  - offset: 160
+    kind: PpcAddr16Lo
+    symbol: 6
+    addend: 0
+  - offset: 164
+    kind: PpcAddr16Lo
+    symbol: 7
+    addend: 0
+  - offset: 168
+    kind: PpcAddr16Lo
+    symbol: 8
+    addend: 0
+  - offset: 176
+    kind: PpcAddr16Lo
+    symbol: 9
+    addend: 0
+  - offset: 180
+    kind: PpcAddr16Lo
+    symbol: 10
+    addend: 0
+  - offset: 184
+    kind: PpcAddr16Lo
+    symbol: 11
+    addend: 0
+  - offset: 208
+    kind: PpcAddr16Ha
+    symbol: 12
+    addend: 0
+  - offset: 244
+    kind: PpcAddr16Lo
+    symbol: 12
+    addend: 0
+  - offset: 300
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 336
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 444
+    kind: PpcRel24
+    symbol: 13
+    addend: 0
+  - offset: 760
+    kind: PpcRel24
+    symbol: 14
+    addend: 0

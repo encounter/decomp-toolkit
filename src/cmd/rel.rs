@@ -1,25 +1,28 @@
 use std::{
     collections::{btree_map, BTreeMap},
     fs::File,
-    io::{BufWriter, Write},
+    io::Write,
     path::PathBuf,
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use argh::FromArgs;
 
 use crate::{
+    analysis::{
+        cfa::AnalyzerState,
+        pass::{AnalysisPass, FindSaveRestSleds, FindTRKInterruptVectorTable},
+        tracker::Tracker,
+    },
     cmd::dol::apply_signatures,
+    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolKind},
     util::{
         dol::process_dol,
         elf::write_elf,
-        obj::{ObjInfo, ObjSection, ObjSymbol},
+        nested::{NestedMap, NestedVec},
         rel::process_rel,
     },
 };
-use crate::util::cfa::{AnalysisPass, AnalyzerState, FindSaveRestSleds, FindTRKInterruptVectorTable};
-use crate::util::obj::{nested_push, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbolKind};
-use crate::util::tracker::Tracker;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing REL files.
@@ -111,12 +114,7 @@ fn merge(args: MergeArgs) -> Result<()> {
                 file_offset: mod_section.file_offset,
                 section_known: mod_section.section_known,
             });
-            nested_try_insert(
-                &mut section_map,
-                module.module_id,
-                mod_section.elf_index as u32,
-                offset,
-            )?;
+            section_map.nested_insert(module.module_id, mod_section.elf_index as u32, offset)?;
             let symbols = module.symbols_for_section(mod_section.index);
             for (_, mod_symbol) in symbols {
                 obj.symbols.push(ObjSymbol {
@@ -159,7 +157,7 @@ fn merge(args: MergeArgs) -> Result<()> {
             let sym_map = &mut symbol_maps[target_section_index];
             let target_symbol = {
                 let mut result = None;
-                for (&addr, symbol_idxs) in sym_map.range(..=target_addr).rev() {
+                for (_addr, symbol_idxs) in sym_map.range(..=target_addr).rev() {
                     let symbol_idx = if symbol_idxs.len() == 1 {
                         symbol_idxs.first().cloned().unwrap()
                     } else {
@@ -183,10 +181,10 @@ fn merge(args: MergeArgs) -> Result<()> {
                                     ObjRelocKind::PpcAddr16Hi
                                     | ObjRelocKind::PpcAddr16Ha
                                     | ObjRelocKind::PpcAddr16Lo
-                                    if !symbol.name.starts_with("..") =>
-                                        {
-                                            3
-                                        }
+                                        if !symbol.name.starts_with("..") =>
+                                    {
+                                        3
+                                    }
                                     _ => 1,
                                 },
                                 ObjSymbolKind::Section => -1,
@@ -231,7 +229,7 @@ fn merge(args: MergeArgs) -> Result<()> {
                     flags: Default::default(),
                     kind: Default::default(),
                 });
-                nested_push(sym_map, target_addr, symbol_idx);
+                sym_map.nested_push(target_addr, symbol_idx);
                 (symbol_idx, 0)
             };
             obj.sections[target_section_index].relocations.push(ObjReloc {
@@ -286,27 +284,5 @@ fn merge(args: MergeArgs) -> Result<()> {
     let out_object = write_elf(&obj)?;
     file.write_all(&out_object)?;
     file.flush()?;
-    Ok(())
-}
-
-#[inline]
-fn nested_try_insert<T1, T2, T3>(
-    map: &mut BTreeMap<T1, BTreeMap<T2, T3>>,
-    v1: T1,
-    v2: T2,
-    v3: T3,
-) -> Result<()>
-where
-    T1: Eq + Ord,
-    T2: Eq + Ord,
-{
-    let map = match map.entry(v1) {
-        btree_map::Entry::Occupied(entry) => entry.into_mut(),
-        btree_map::Entry::Vacant(entry) => entry.insert(Default::default()),
-    };
-    match map.entry(v2) {
-        btree_map::Entry::Occupied(_) => bail!("Entry already exists"),
-        btree_map::Entry::Vacant(entry) => entry.insert(v3),
-    };
     Ok(())
 }

@@ -7,7 +7,7 @@
     size: 76
     flags: 2
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _dtors
     size: 0
     flags: 1

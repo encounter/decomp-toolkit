@@ -7,7 +7,7 @@
     size: 72
     flags: 2
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _ctors
     size: 0
     flags: 1
@@ -30,7 +30,7 @@
     size: 76
     flags: 2
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _ctors
     size: 0
     flags: 1
@@ -53,7 +53,7 @@
     size: 76
     flags: 2
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _ctors
     size: 0
     flags: 1
@@ -76,7 +76,7 @@
     size: 76
     flags: 2
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _ctors
     size: 0
     flags: 1
@@ -99,7 +99,7 @@
     size: 76
     flags: 1
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _ctors
     size: 0
     flags: 1
@@ -122,7 +122,7 @@
     size: 84
     flags: 2
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _ctors
     size: 0
     flags: 1
@@ -145,7 +145,7 @@
     size: 84
     flags: 2
     section: .text
-  - kind: Object
+  - kind: Unknown
     name: _ctors
     size: 0
     flags: 1

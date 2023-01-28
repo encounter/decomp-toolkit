@@ -1,13 +1,15 @@
 use std::{
     collections::{btree_map::Entry, BTreeMap},
     fs::File,
-    io::{BufRead, BufReader, BufWriter, Write},
+    io::{BufRead, BufWriter, Write},
     path::PathBuf,
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{anyhow, bail, Result};
 use argh::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
+
+use crate::util::file::{buf_reader, map_file};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing static libraries.
@@ -49,10 +51,7 @@ fn create(args: CreateArgs) -> Result<()> {
             path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
         match path_str.strip_prefix('@') {
             Some(rsp_file) => {
-                let reader = BufReader::new(
-                    File::open(rsp_file)
-                        .with_context(|| format!("Failed to open file '{rsp_file}'"))?,
-                );
+                let reader = buf_reader(rsp_file)?;
                 for result in reader.lines() {
                     let line = result?;
                     if !line.is_empty() {
@@ -79,11 +78,8 @@ fn create(args: CreateArgs) -> Result<()> {
             Entry::Vacant(e) => e.insert(Vec::new()),
             Entry::Occupied(_) => bail!("Duplicate file name '{path_str}'"),
         };
-        let object_file = File::open(path)
-            .with_context(|| format!("Failed to open object file '{}'", path.display()))?;
-        let map = unsafe { memmap2::MmapOptions::new().map(&object_file) }
-            .with_context(|| format!("Failed to mmap object file: '{}'", path.display()))?;
-        let obj = object::File::parse(map.as_ref())?;
+        let mmap = map_file(path)?;
+        let obj = object::File::parse(&*mmap)?;
         for symbol in obj.symbols() {
             if symbol.scope() == SymbolScope::Dynamic {
                 entries.push(symbol.name_bytes()?.to_vec());
@@ -93,8 +89,13 @@ fn create(args: CreateArgs) -> Result<()> {
 
     // Write archive
     let out = BufWriter::new(File::create(&args.out)?);
-    let mut builder =
-        ar::GnuBuilder::new(out, identifiers, ar::GnuSymbolTableFormat::Size32, symbol_table)?;
+    let mut builder = ar::GnuBuilder::new_with_symbol_table(
+        out,
+        true,
+        identifiers,
+        ar::GnuSymbolTableFormat::Size32,
+        symbol_table,
+    )?;
     for path in files {
         let path_str =
             path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;

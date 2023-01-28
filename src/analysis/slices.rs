@@ -6,10 +6,14 @@ use std::{
 use anyhow::{bail, ensure, Context, Result};
 use ppc750cl::{Ins, Opcode};
 
-use crate::util::{
-    executor::{disassemble, uniq_jump_table_entries, ExecCbData, ExecCbResult, Executor, VMState},
-    obj::{ObjInfo, ObjSection, ObjSectionKind},
-    vm::{BranchTarget, StepResult, VM},
+use crate::{
+    analysis::{
+        disassemble,
+        executor::{ExecCbData, ExecCbResult, Executor},
+        uniq_jump_table_entries,
+        vm::{BranchTarget, StepResult, VM},
+    },
+    obj::{ObjInfo, ObjSection},
 };
 
 #[derive(Debug, Default, Clone)]
@@ -43,9 +47,6 @@ impl FunctionSlices {
     }
 
     pub fn add_block_start(&mut self, addr: u32) -> bool {
-        if addr == 0xFFFFFFFF {
-            panic!();
-        }
         // Slice previous block.
         if let Some((_, end)) = self.blocks.range_mut(..addr).last() {
             let last_end = *end;
@@ -190,7 +191,7 @@ impl FunctionSlices {
                     self.blocks.insert(block_start, ins.addr + 4);
                     self.branches.insert(ins.addr, vec![addr]);
                     if addr == ins.addr {
-                        // pass
+                        // Infinite loop
                     } else if addr >= function_start
                         && matches!(function_end, Some(known_end) if addr < known_end)
                     {
@@ -200,7 +201,7 @@ impl FunctionSlices {
                         }
                     } else if matches!(obj.section_data(ins.addr, ins.addr + 4), Ok((_, data)) if data == [0u8; 4])
                     {
-                        // If this branch has 0'd padding after it, assume tail call.
+                        // If this branch has zeroed padding after it, assume tail call.
                         self.function_references.insert(addr);
                     } else {
                         self.possible_blocks.insert(addr);
@@ -240,7 +241,7 @@ impl FunctionSlices {
                     Ok(ExecCbResult::EndBlock)
                 }
             },
-            StepResult::Branch(mut branches) => {
+            StepResult::Branch(branches) => {
                 // End of block
                 self.blocks.insert(block_start, ins.addr + 4);
 
@@ -339,18 +340,14 @@ impl FunctionSlices {
         ensure!(self.can_finalize(), "Can't finalize");
 
         match (self.prologue, self.epilogue) {
-            (Some(p), Some(e)) => {
-                // log::info!("Prologue/epilogue pair: {:#010X} - {:#010X}", p, e);
-            }
-            (Some(p), None) => {
-                // log::info!("{:#010X?}", self);
-                // bail!("Unpaired prologue {:#010X}", p);
+            (Some(_), Some(_)) | (None, None) => {}
+            (Some(_), None) => {
+                // Likely __noreturn
             }
             (None, Some(e)) => {
                 log::info!("{:#010X?}", self);
                 bail!("Unpaired epilogue {:#010X}", e);
             }
-            (None, None) => {}
         }
 
         let end = self.end();
@@ -408,7 +405,6 @@ impl FunctionSlices {
         function_end: u32,
         known_functions: &BTreeSet<u32>,
     ) -> TailCallResult {
-        // log::info!("Determing if {:#010X} is a tail call", addr);
         // If jump target is already a known block or within known function bounds, not a tail call.
         if self.blocks.contains_key(&addr) || (addr >= function_start && addr < function_end) {
             return TailCallResult::Not;

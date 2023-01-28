@@ -1,9 +1,9 @@
 use std::{
-    collections::{btree_map, btree_map::Entry, hash_map, BTreeMap, HashMap, HashSet},
+    collections::{btree_map, hash_map, BTreeMap, HashMap},
     fs,
     fs::{DirBuilder, File},
     io::{BufRead, BufReader, BufWriter, Write},
-    path::{Path, PathBuf},
+    path::PathBuf,
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
@@ -13,18 +13,19 @@ use object::{
     Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, SectionFlags,
     SectionIndex, SectionKind, SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
 };
-use ppc750cl::Ins;
-use serde::{Deserialize, Serialize};
-use sha1::{Digest, Sha1};
 
-use crate::util::{
-    asm::write_asm,
-    config::write_symbols,
-    elf::{process_elf, write_elf},
-    obj::{ObjKind, ObjReloc, ObjRelocKind, ObjSymbolFlagSet, ObjSymbolKind},
-    sigs::{check_signature, compare_signature, generate_signature, FunctionSignature},
-    split::split_obj,
-    tracker::Tracker,
+use crate::{
+    obj::{
+        signatures::{compare_signature, generate_signature, FunctionSignature},
+        split::split_obj,
+        ObjKind,
+    },
+    util::{
+        asm::write_asm,
+        config::{write_splits, write_symbols},
+        elf::{process_elf, write_elf},
+        file::buf_reader,
+    },
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -91,6 +92,9 @@ pub struct ConfigArgs {
     #[argh(positional)]
     /// output directory
     out_dir: PathBuf,
+    #[argh(option, short = 'm')]
+    /// path to obj_files.mk
+    obj_files: Option<PathBuf>,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -120,15 +124,43 @@ pub fn run(args: Args) -> Result<()> {
 
 fn config(args: ConfigArgs) -> Result<()> {
     log::info!("Loading {}", args.in_file.display());
-    let mut obj = process_elf(&args.in_file)?;
+    let obj = process_elf(&args.in_file)?;
 
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
-    let symbols_path = args.out_dir.join("symbols.txt");
-    let mut symbols_writer = BufWriter::new(
-        File::create(&symbols_path)
-            .with_context(|| format!("Failed to create '{}'", symbols_path.display()))?,
-    );
-    write_symbols(&mut symbols_writer, &obj)?;
+    {
+        let symbols_path = args.out_dir.join("symbols.txt");
+        let mut symbols_writer = BufWriter::new(
+            File::create(&symbols_path)
+                .with_context(|| format!("Failed to create '{}'", symbols_path.display()))?,
+        );
+        write_symbols(&mut symbols_writer, &obj)?;
+    }
+
+    {
+        let obj_files = if let Some(path) = &args.obj_files {
+            Some(
+                BufReader::new(
+                    File::open(path)
+                        .with_context(|| format!("Failed to open '{}'", path.display()))?,
+                )
+                .lines()
+                .filter(|line| match line {
+                    Ok(line) => line.contains(".o"),
+                    Err(_) => false,
+                })
+                .map(|result| result.unwrap())
+                .collect::<Vec<String>>(),
+            )
+        } else {
+            None
+        };
+        let splits_path = args.out_dir.join("splits.txt");
+        let mut splits_writer = BufWriter::new(
+            File::create(&splits_path)
+                .with_context(|| format!("Failed to create '{}'", splits_path.display()))?,
+        );
+        write_splits(&mut splits_writer, &obj, obj_files)?;
+    }
 
     Ok(())
 }
@@ -449,10 +481,7 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
             path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
         match path_str.strip_prefix('@') {
             Some(rsp_file) => {
-                let reader = BufReader::new(
-                    File::open(rsp_file)
-                        .with_context(|| format!("Failed to open file '{rsp_file}'"))?,
-                );
+                let reader = buf_reader(rsp_file)?;
                 for result in reader.lines() {
                     let line = result?;
                     if !line.is_empty() {
@@ -466,10 +495,10 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
         }
     }
 
-    let mut signatures: HashMap<Vec<u8>, FunctionSignature> = HashMap::new();
+    let mut signatures: HashMap<String, FunctionSignature> = HashMap::new();
     for path in files {
         log::info!("Processing {}", path.display());
-        let (data, signature) = match generate_signature(&path, &args.symbol) {
+        let signature = match generate_signature(&path, &args.symbol) {
             Ok(Some(signature)) => signature,
             Ok(None) => continue,
             Err(e) => {
@@ -478,13 +507,13 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
             }
         };
         log::info!("Comparing hash {}", signature.hash);
-        if let Some((_, existing)) = signatures.iter_mut().find(|(a, b)| *a == &data) {
+        if let Some(existing) = signatures.get_mut(&signature.hash) {
             compare_signature(existing, &signature)?;
         } else {
-            signatures.insert(data, signature);
+            signatures.insert(signature.hash.clone(), signature);
         }
     }
-    let mut signatures = signatures.into_iter().map(|(a, b)| b).collect::<Vec<FunctionSignature>>();
+    let mut signatures = signatures.into_values().collect::<Vec<FunctionSignature>>();
     log::info!("{} unique signatures", signatures.len());
     signatures.sort_by_key(|s| s.signature.len());
     let out =

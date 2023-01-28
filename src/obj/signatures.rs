@@ -6,17 +6,16 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Result};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use cwdemangle::{demangle, DemangleOptions};
-use ppc750cl::Ins;
-use serde::{forward_to_deserialize_any, Deserialize, Serialize};
+use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 
-use crate::util::{
-    elf::process_elf,
+use crate::{
+    analysis::tracker::{Relocation, Tracker},
+    array_ref,
     obj::{
-        ObjInfo, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind,
+        ObjInfo, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind,
     },
-    tracker::{Relocation, Tracker},
+    util::elf::process_elf,
 };
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
@@ -45,18 +44,6 @@ pub struct FunctionSignature {
     pub relocations: Vec<OutReloc>,
 }
 
-/// Creates a fixed-size array reference from a slice.
-#[macro_export]
-macro_rules! array_ref {
-    ($slice:expr, $offset:expr, $size:expr) => {{
-        #[inline]
-        fn to_array<T>(slice: &[T]) -> &[T; $size] {
-            unsafe { &*(slice.as_ptr() as *const [_; $size]) }
-        }
-        to_array(&$slice[$offset..$offset + $size])
-    }};
-}
-
 pub fn check_signature(mut data: &[u8], sig: &FunctionSignature) -> Result<bool> {
     let sig_data = STANDARD.decode(&sig.signature)?;
     // println!(
@@ -79,28 +66,47 @@ pub fn check_signature(mut data: &[u8], sig: &FunctionSignature) -> Result<bool>
     Ok(true)
 }
 
-pub fn check_signatures(obj: &mut ObjInfo, addr: u32, sig_str: &str) -> Result<bool> {
-    let signatures: Vec<FunctionSignature> = serde_yaml::from_str(sig_str)?;
+pub fn parse_signatures(sig_str: &str) -> Result<Vec<FunctionSignature>> {
+    Ok(serde_yaml::from_str(sig_str)?)
+}
+
+pub fn check_signatures_str(
+    obj: &ObjInfo,
+    addr: u32,
+    sig_str: &str,
+) -> Result<Option<FunctionSignature>> {
+    check_signatures(obj, addr, &parse_signatures(sig_str)?)
+}
+
+pub fn check_signatures(
+    obj: &ObjInfo,
+    addr: u32,
+    signatures: &Vec<FunctionSignature>,
+) -> Result<Option<FunctionSignature>> {
     let (_, data) = obj.section_data(addr, 0)?;
     let mut name = None;
-    for signature in &signatures {
+    for signature in signatures {
         if name.is_none() {
             name = Some(signature.symbols[signature.symbol].name.clone());
         }
         if check_signature(data, signature)? {
-            log::debug!("Found {} @ {:#010X}", signature.symbols[signature.symbol].name, addr);
-            apply_signature(obj, addr, signature)?;
-            return Ok(true);
+            log::debug!(
+                "Found {} @ {:#010X} (hash {})",
+                signature.symbols[signature.symbol].name,
+                addr,
+                signature.hash
+            );
+            return Ok(Some(signature.clone()));
         }
     }
-    if let Some(name) = name {
-        log::debug!("Didn't find {} @ {:#010X}", name, addr);
-    }
-    Ok(false)
+    // if let Some(name) = name {
+    //     log::debug!("Didn't find {} @ {:#010X}", name, addr);
+    // }
+    Ok(None)
 }
 
 pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> Result<usize> {
-    let target_section_index = obj.section_at(target).ok().map(|section| section.index);
+    let mut target_section_index = obj.section_at(target).ok().map(|section| section.index);
     if let Some(target_section_index) = target_section_index {
         let target_section = &mut obj.sections[target_section_index];
         if !target_section.section_known {
@@ -119,21 +125,26 @@ pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> R
             }
         }
     }
+    if sig_symbol.kind == ObjSymbolKind::Unknown
+        && (sig_symbol.name.starts_with("_f_") || sig_symbol.name.starts_with("_SDA"))
+    {
+        // Hack to mark linker generated symbols as ABS
+        target_section_index = None;
+    }
     let target_symbol_idx = if let Some((symbol_idx, existing)) =
         obj.symbols.iter_mut().enumerate().find(|(_, symbol)| {
             symbol.address == target as u64
                 && symbol.kind == sig_symbol.kind
-                // HACK to avoid replacing different ABS symbols
+                // Hack to avoid replacing different ABS symbols
                 && (symbol.section.is_some() || symbol.name == sig_symbol.name)
         }) {
-        // TODO apply to existing
-        log::debug!("Replacing {:?} with {}", existing, sig_symbol.name);
+        log::debug!("Replacing {:?} with {:?}", existing, sig_symbol);
         *existing = ObjSymbol {
             name: sig_symbol.name.clone(),
             demangled_name: demangle(&sig_symbol.name, &DemangleOptions::default()),
             address: target as u64,
             section: target_section_index,
-            size: if existing.size_known { existing.size } else { sig_symbol.size as u64 },
+            size: if sig_symbol.size == 0 { existing.size } else { sig_symbol.size as u64 },
             size_known: existing.size_known || sig_symbol.size != 0,
             flags: sig_symbol.flags,
             kind: sig_symbol.kind,
@@ -256,10 +267,7 @@ pub fn compare_signature(existing: &mut FunctionSignature, new: &FunctionSignatu
     Ok(())
 }
 
-pub fn generate_signature(
-    path: &Path,
-    symbol_name: &str,
-) -> Result<Option<(Vec<u8>, FunctionSignature)>> {
+pub fn generate_signature(path: &Path, symbol_name: &str) -> Result<Option<FunctionSignature>> {
     let mut out_symbols: Vec<OutSymbol> = Vec::new();
     let mut out_relocs: Vec<OutReloc> = Vec::new();
     let mut symbol_map: BTreeMap<usize, usize> = BTreeMap::new();
@@ -270,10 +278,17 @@ pub fn generate_signature(
         || obj.stack_address.is_none()
         || obj.stack_end.is_none()
         || obj.db_stack_addr.is_none()
-    // || obj.arena_hi.is_none()
-    // || obj.arena_lo.is_none()
     {
-        log::warn!("Failed to locate all abs symbols {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?}", obj.sda2_base, obj.sda_base, obj.stack_address, obj.stack_end, obj.db_stack_addr, obj.arena_hi, obj.arena_lo);
+        log::warn!(
+            "Failed to locate all abs symbols {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?}",
+            obj.sda2_base,
+            obj.sda_base,
+            obj.stack_address,
+            obj.stack_end,
+            obj.db_stack_addr,
+            obj.arena_hi,
+            obj.arena_lo
+        );
         return Ok(None);
     }
     let mut tracker = Tracker::new(&obj);
@@ -285,7 +300,6 @@ pub fn generate_signature(
         if symbol.name != symbol_name && symbol.name != symbol_name.replace("TRK", "TRK_") {
             continue;
         }
-        // log::info!("Tracking {}", symbol.name);
         tracker.process_function(&obj, symbol)?;
     }
     tracker.apply(&mut obj, true)?; // true
@@ -370,28 +384,16 @@ pub fn generate_signature(
                     kind: reloc.kind,
                     symbol: symbol_idx,
                     addend: reloc.addend as i32,
-                    // instruction: format!("{}", Ins::new(*ins, addr).simplified()),
                 });
             }
-            // println!("{}", Ins::new(*ins, addr).simplified());
         }
-        // if out_symbols.is_empty() || out_relocs.is_empty() {
-        //     bail!("Failed to locate any symbols or relocs");
-        // }
-        // println!("Data: {:#010X?}", instructions);
 
         let mut data = vec![0u8; instructions.len() * 8];
         for (idx, &(ins, pat)) in instructions.iter().enumerate() {
             data[idx * 8..idx * 8 + 4].copy_from_slice(&ins.to_be_bytes());
             data[idx * 8 + 4..idx * 8 + 8].copy_from_slice(&pat.to_be_bytes());
         }
-        // println!(
-        //     "OK: Data (len {}): {:X?} | SYMBOLS: {:?} | RELOCS: {:?}",
-        //     data.len(),
-        //     data,
-        //     out_symbols,
-        //     out_relocs
-        // );
+
         let encoded = STANDARD.encode(&data);
         let mut hasher = Sha1::new();
         hasher.update(&data);
@@ -399,13 +401,13 @@ pub fn generate_signature(
         let mut hash_buf = [0u8; 40];
         let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
             .map_err(|e| anyhow!("Failed to encode hash: {e}"))?;
-        return Ok(Some((data, FunctionSignature {
+        return Ok(Some(FunctionSignature {
             symbol: 0,
             hash: hash_str.to_string(),
             signature: encoded,
             symbols: out_symbols,
             relocations: out_relocs,
-        })));
+        }));
     }
     Ok(None)
 }

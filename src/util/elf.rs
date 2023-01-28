@@ -1,6 +1,5 @@
 use std::{
     collections::{btree_map::Entry, hash_map, BTreeMap, HashMap},
-    fs::File,
     io::Cursor,
     path::Path,
 };
@@ -9,30 +8,32 @@ use anyhow::{anyhow, bail, ensure, Context, Result};
 use cwdemangle::demangle;
 use flagset::Flags;
 use indexmap::IndexMap;
-use memmap2::MmapOptions;
 use object::{
     elf,
     elf::{SHF_ALLOC, SHF_EXECINSTR, SHF_WRITE, SHT_NOBITS, SHT_PROGBITS},
     write::{
         elf::{ProgramHeader, Rel, SectionHeader, SectionIndex, SymbolIndex},
-        Mangling, SectionId, StringId, SymbolId,
+        StringId,
     },
-    Architecture, BinaryFormat, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol,
-    Relocation, RelocationEncoding, RelocationKind, RelocationTarget, Section, SectionKind, Symbol,
-    SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
+    Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
+    RelocationKind, RelocationTarget, Section, SectionKind, Symbol, SymbolKind, SymbolScope,
+    SymbolSection,
 };
 
-use crate::util::{
-    dwarf::{
-        process_address, process_type, read_debug_section, type_string, ud_type, ud_type_string,
-        AttributeKind, TagKind, TypeKind,
-    },
+use crate::{
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
         ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
     },
-    sigs::OutSymbol,
+    util::{
+        dwarf::{
+            process_address, process_type, read_debug_section, type_string, ud_type,
+            ud_type_string, AttributeKind, TagKind, TypeKind,
+        },
+        file::map_file,
+    },
 };
+use crate::util::nested::NestedVec;
 
 enum BoundaryState {
     /// Looking for a file symbol, any section symbols are queued
@@ -46,11 +47,8 @@ enum BoundaryState {
 const ENABLE_DWARF: bool = false;
 
 pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
-    let elf_file = File::open(&path)
-        .with_context(|| format!("Failed to open ELF file '{}'", path.as_ref().display()))?;
-    let map = unsafe { MmapOptions::new().map(&elf_file) }
-        .with_context(|| format!("Failed to mmap ELF file: '{}'", path.as_ref().display()))?;
-    let obj_file = object::read::File::parse(&*map)?;
+    let mmap = map_file(path)?;
+    let obj_file = object::read::File::parse(&*mmap)?;
     let architecture = match obj_file.architecture() {
         Architecture::PowerPc => ObjArchitecture::PowerPc,
         arch => bail!("Unexpected architecture: {arch:?}"),
@@ -105,12 +103,12 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             relocations: vec![],
             original_address: 0, // TODO load from abs symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
+            section_known: true,
         });
     }
 
     let mut symbols: Vec<ObjSymbol> = vec![];
     let mut symbol_indexes: Vec<Option<usize>> = vec![];
-    let mut current_file: Option<String> = None;
     let mut section_starts = IndexMap::<String, Vec<(u64, String)>>::new();
     let mut name_to_index = HashMap::<String, usize>::new(); // for resolving duplicate names
     let mut boundary_state = BoundaryState::LookForFile(Default::default());
@@ -170,7 +168,6 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                     }
                     indexmap::map::Entry::Vacant(e) => e.insert(Default::default()),
                 };
-                current_file = Some(file_name.clone());
                 match &mut boundary_state {
                     BoundaryState::LookForFile(queue) => {
                         if queue.is_empty() {
@@ -199,10 +196,12 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                         queue.push((symbol.address(), section_name));
                     }
                     BoundaryState::LookForSections(file_name) => {
-                        let sections = section_starts
-                            .get_mut(file_name)
-                            .ok_or_else(|| anyhow!("Failed to create entry"))?;
-                        sections.push((symbol.address(), section_name));
+                        if section_indexes[section_index.0].is_some() {
+                            let sections = section_starts
+                                .get_mut(file_name)
+                                .ok_or_else(|| anyhow!("Failed to create entry"))?;
+                            sections.push((symbol.address(), section_name));
+                        }
                     }
                     BoundaryState::FilesEnded => {
                         log::warn!(
@@ -216,28 +215,29 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             _ => match symbol.section() {
                 // Linker generated symbols indicate the end
                 SymbolSection::Absolute => {
-                    current_file = None;
                     boundary_state = BoundaryState::FilesEnded;
                 }
                 SymbolSection::Section(section_index) => match &mut boundary_state {
                     BoundaryState::LookForFile(_) => {}
                     BoundaryState::LookForSections(file_name) => {
-                        let sections = section_starts
-                            .get_mut(file_name)
-                            .ok_or_else(|| anyhow!("Failed to create entry"))?;
-                        let section = obj_file.section_by_index(section_index)?;
-                        let section_name = section.name()?;
-                        if let Some((addr, _)) = sections
-                            .iter_mut()
-                            .find(|(addr, name)| *addr == 0 && name == section_name)
-                        {
-                            // If the section symbol had address 0, determine address
-                            // from first symbol within that section.
-                            *addr = symbol.address();
-                        } else if !sections.iter().any(|(_, name)| name == section_name) {
-                            // Otherwise, if there was no section symbol, assume this
-                            // symbol indicates the section address.
-                            sections.push((symbol.address(), section_name.to_string()));
+                        if section_indexes[section_index.0].is_some() {
+                            let sections = section_starts
+                                .get_mut(file_name)
+                                .ok_or_else(|| anyhow!("Failed to create entry"))?;
+                            let section = obj_file.section_by_index(section_index)?;
+                            let section_name = section.name()?;
+                            if let Some((addr, _)) = sections
+                                .iter_mut()
+                                .find(|(addr, name)| *addr == 0 && name == section_name)
+                            {
+                                // If the section symbol had address 0, determine address
+                                // from first symbol within that section.
+                                *addr = symbol.address();
+                            } else if !sections.iter().any(|(_, name)| name == section_name) {
+                                // Otherwise, if there was no section symbol, assume this
+                                // symbol indicates the section address.
+                                sections.push((symbol.address(), section_name.to_string()));
+                            }
                         }
                     }
                     BoundaryState::FilesEnded => {}
@@ -259,7 +259,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     }
 
     let mut link_order = Vec::<String>::new();
-    let mut splits = BTreeMap::<u32, String>::new();
+    let mut splits = BTreeMap::<u32, Vec<String>>::new();
     if kind == ObjKind::Executable {
         // Link order is trivially deduced
         for file_name in section_starts.keys() {
@@ -269,7 +269,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         // Create a map of address -> file splits
         for (file_name, sections) in section_starts {
             for (address, _) in sections {
-                splits.insert(address as u32, file_name.clone());
+                splits.nested_push(address as u32, file_name.clone());
             }
         }
 
@@ -309,6 +309,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         arena_lo,
         arena_hi,
         splits,
+        named_sections: Default::default(),
         link_order,
         known_functions: Default::default(),
         unresolved_relocations: vec![],
@@ -332,6 +333,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         sym: object::write::elf::Sym,
     }
 
+    writer.reserve_null_section_index();
     let mut out_sections: Vec<OutSection> = Vec::with_capacity(obj.sections.len());
     for section in &obj.sections {
         let name = writer.add_section_name(section.name.as_bytes());
@@ -356,14 +358,15 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         }
     }
     let symtab = writer.reserve_symtab_section_index();
-    let shstrtab = writer.reserve_shstrtab_section_index();
-    let strtab = writer.reserve_strtab_section_index();
+    writer.reserve_shstrtab_section_index();
+    writer.reserve_strtab_section_index();
 
     // Add symbols
     let mut out_symbols: Vec<OutSymbol> = Vec::with_capacity(obj.symbols.len());
     let mut symbol_offset = 0;
     let mut num_local = 0;
     if !obj.name.is_empty() {
+        // Add file symbol
         let name_index = writer.add_string(obj.name.as_bytes());
         let index = writer.reserve_symbol_index(None);
         out_symbols.push(OutSymbol {
@@ -435,10 +438,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         if sym.st_info >> 4 == elf::STB_LOCAL {
             num_local = writer.symbol_count();
         }
-        out_symbols.push(OutSymbol {
-            index,
-            sym,
-        });
+        out_symbols.push(OutSymbol { index, sym });
     }
 
     writer.reserve_file_header();
@@ -540,27 +540,27 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                 ObjRelocKind::PpcAddr16Hi => {
                     r_offset = (r_offset & !3) + 2;
                     elf::R_PPC_ADDR16_HI
-                },
+                }
                 ObjRelocKind::PpcAddr16Ha => {
                     r_offset = (r_offset & !3) + 2;
                     elf::R_PPC_ADDR16_HA
-                },
+                }
                 ObjRelocKind::PpcAddr16Lo => {
                     r_offset = (r_offset & !3) + 2;
                     elf::R_PPC_ADDR16_LO
-                },
+                }
                 ObjRelocKind::PpcRel24 => {
-                    r_offset = (r_offset & !3);
+                    r_offset = r_offset & !3;
                     elf::R_PPC_REL24
-                },
+                }
                 ObjRelocKind::PpcRel14 => {
-                    r_offset = (r_offset & !3);
+                    r_offset = r_offset & !3;
                     elf::R_PPC_REL14
-                },
+                }
                 ObjRelocKind::PpcEmbSda21 => {
                     r_offset = (r_offset & !3) + 2;
                     elf::R_PPC_EMB_SDA21
-                },
+                }
             };
             writer.write_relocation(true, &Rel {
                 r_offset,
