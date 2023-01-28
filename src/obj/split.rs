@@ -214,14 +214,24 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                         });
                         reloc.target_symbol = out_sym_idx;
                         if section.name.as_str() == "extabindex" {
+                            let (target_addr, target_unit) = obj
+                                .splits
+                                .range(..=target_sym.address as u32)
+                                .map(|(addr, v)| (*addr, v.last().unwrap()))
+                                .last()
+                                .unwrap();
+                            let target_section = &obj.section_at(target_addr)?.name;
                             log::warn!(
-                                "Extern relocation @ {:#010X} {} ({:#010X} {}): {:#010X} {}",
+                                "Extern relocation @ {:#010X}\n\tSource object: {}:{:#010X} {}\n\tTarget object: {}:{:#010X} {}\n\tTarget symbol: {:#010X} {}\n",
                                 reloc.address + section.original_address,
                                 section.name,
                                 section.original_address,
                                 out_obj.name,
+                                target_section,
+                                target_addr,
+                                target_unit,
                                 target_sym.address,
-                                target_sym.demangled_name.as_deref().unwrap_or(&target_sym.name)
+                                target_sym.demangled_name.as_deref().unwrap_or(&target_sym.name),
                             );
                         }
                     }
