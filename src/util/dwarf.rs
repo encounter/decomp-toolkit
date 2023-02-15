@@ -777,13 +777,14 @@ pub fn struct_def_string(
         Some(name) => format!("struct {} {{\n", name),
         None => "struct {\n".to_string(),
     };
+    writeln!(out, "\t// total size: {:#X}", t.byte_size)?;
     for member in &t.members {
         let ts = type_string(tags, typedefs, &member.kind)?;
         write!(out, "\t{} {}{}", ts.prefix, member.name, ts.suffix)?;
         if let Some(bit) = &member.bit {
             write!(out, " : {}", bit.bit_size)?;
         }
-        write!(out, ";\n")?;
+        write!(out, "; // offset {:#X}, size {:#X}\n", member.offset, member.kind.size(tags)?)?;
     }
     write!(out, "}}")?;
     Ok(out)
@@ -844,7 +845,7 @@ pub fn fund_type_string(ft: FundType) -> Result<&'static str> {
     })
 }
 
-fn process_offset(block: &[u8]) -> Result<u32> {
+pub fn process_offset(block: &[u8]) -> Result<u32> {
     if block.len() == 6 && block[0] == LocationOp::Const as u8 && block[5] == LocationOp::Add as u8
     {
         Ok(u32::from_be_bytes(block[1..5].try_into()?))
@@ -858,6 +859,17 @@ pub fn process_address(block: &[u8]) -> Result<u32> {
         Ok(u32::from_be_bytes(block[1..].try_into()?))
     } else {
         Err(anyhow!("Unhandled location data, expected address"))
+    }
+}
+
+pub fn process_variable_location(block: &[u8]) -> Result<String> {
+    // TODO: float regs
+    if block.len() == 5 && block[0] == LocationOp::Register as u8 {
+        Ok(format!("r{}", u32::from_be_bytes(block[1..].try_into()?)))
+    } else if block.len() == 11 && block[0] == LocationOp::BaseRegister as u8 && block[5] == LocationOp::Const as u8 && block[10] == LocationOp::Add as u8 {
+        Ok(format!("r{}+{:#X}", u32::from_be_bytes(block[1..5].try_into()?), u32::from_be_bytes(block[6..10].try_into()?)))
+    } else {
+        Err(anyhow!("Unhandled location data {:?}, expected variable loc", block))
     }
 }
 

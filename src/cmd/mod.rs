@@ -1,6 +1,7 @@
 pub mod ar;
 pub mod demangle;
 pub mod dol;
+pub mod dwarf;
 pub mod elf;
 pub mod elf2dol;
 pub mod map;
