@@ -1,5 +1,5 @@
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, HashSet},
     fs,
     fs::{DirBuilder, File},
     io::{BufRead, BufWriter, Write},
@@ -10,15 +10,17 @@ use std::collections::{hash_map, HashMap};
 use anyhow::{anyhow, bail, Context, Result};
 use argh::FromArgs;
 
+use log::{info, warn};
+
 use crate::{
     analysis::{
         cfa::AnalyzerState,
         pass::{AnalysisPass, FindSaveRestSleds, FindTRKInterruptVectorTable},
         read_u32,
-        tracker::Tracker,
+        tracker::Tracker, slices::FunctionSlices,
     },
     obj::{
-        signatures::{apply_signature, check_signatures, check_signatures_str, parse_signatures},
+        signatures::{apply_signature, check_signatures, check_signatures_str, parse_signatures, FunctionSignature, check_signature, self},
         split::split_obj,
         ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbolKind,
     },
@@ -271,7 +273,112 @@ const POST_SIGNATURES: &[(&str, &str)] = &[
     // ("GXInit", include_str!("../../assets/signatures/GXInit.yml")),
 ];
 
+pub fn parse_all_signatures() -> Vec<FunctionSignature> {
+    let mut result = Vec::with_capacity(SIGNATURES.len() + POST_SIGNATURES.len());
+
+    for (sym_name, sig) in SIGNATURES {
+        match parse_signatures(sig) {
+            Ok(signatures) => {
+                result.extend(signatures);
+            },
+            Err(e) => warn!("Failed to parse symbol `{}` signature. {}", sym_name, e)
+        };
+    }
+
+    for (sym_name, sig) in POST_SIGNATURES {
+        match parse_signatures(sig) {
+            Ok(signatures) => {
+                result.extend(signatures);
+            },
+            Err(e) => warn!("Failed to parse symbol `{}` signature. {}", sym_name, e)
+        };
+    }
+
+    result
+}
+
+pub fn match_signatures(obj: &mut ObjInfo, functions: &BTreeMap<u32, FunctionSlices>) -> Result<()> {
+    info!("Matching signatures");
+
+    let signatures = parse_all_signatures();
+
+    let mut matched_sigs = BTreeMap::<usize, Vec<&FunctionSlices>>::new();
+    for (_, function) in functions {
+        let func_start = function.start();
+
+        // Make sure that we don't already have symbol for the function
+        let None = obj.symbols.iter().find(|s| s.address == func_start as u64) else {
+            continue;
+        };
+        
+        let func_end = function.end();
+        let func_size = func_end - func_start;
+
+        let match_by_size = signatures.iter().enumerate().filter(|s| {
+            let Some(symbol) = s.1.symbols.first() else {
+                return false;
+            };
+
+            symbol.size == func_size
+        });
+
+        let (_, func_data) = obj.section_data(func_start, func_end)?;
+        for (sign_idx, sign) in match_by_size {
+            if check_signature(func_data, sign)? {
+                matched_sigs.entry(sign_idx).and_modify(|curr| curr.push(function)).or_insert_with(|| vec![function]);
+            }
+        }
+    }
+
+    let mut applied_sigs = HashSet::<usize>::with_capacity(matched_sigs.len());
+    for (idx, funcs) in &matched_sigs {
+        if funcs.len() > 1 {
+            continue;
+        }
+
+        let func = funcs.first().unwrap();
+        apply_matched_signatures(obj, func.start(), *idx, &signatures, &matched_sigs, &mut applied_sigs)?;
+    }
+
+    for (idx, funcs) in matched_sigs.iter().filter(|e| !applied_sigs.contains(e.0)) {
+        let signature = &signatures[*idx];
+        let signature_symbol = signature.symbols.first().unwrap();
+        warn!("Failed to apply signature `{}` @ [{}]", signature_symbol.name, funcs.iter().fold(String::new(), |a, b| a + &b.start().to_string() + ", "));
+    }
+
+    Ok(())
+}
+
+fn apply_matched_signatures(obj: &mut ObjInfo, addr: u32, signature_idx: usize, signatures: &Vec<FunctionSignature>, matched_signatures: &BTreeMap<usize, Vec<&FunctionSlices>>, applied_signatures: &mut HashSet<usize>) -> Result<()> {
+    let signature = &signatures[signature_idx];
+    
+    let signature_symbol_name = &signature.symbols.first().unwrap().name;
+    info!("Applying `{}` matched signature @ 0x{:08X}", signature_symbol_name, addr);
+
+    apply_signature(obj, addr, signature)?;
+    applied_signatures.insert(signature_idx);
+
+    for sig_sym in signature.symbols.iter().skip(1).filter(|s| s.kind == ObjSymbolKind::Function) {
+        let sig_sym_name = &sig_sym.name;
+
+        let Some(sig_sym) = obj.symbols.iter().find(|s| &s.name == sig_sym_name) else {
+            continue;
+        };
+
+        let Some(sym_sig_idx) = matched_signatures.keys().filter(|sig_idx| {
+            let signature = &signatures[**sig_idx];
+            !applied_signatures.contains(*sig_idx) && &signature.symbols.first().unwrap().name == sig_sym_name
+        }).next() else {
+            continue;
+        };
+
+        apply_matched_signatures(obj, sig_sym.address as u32, *sym_sig_idx, signatures, matched_signatures, applied_signatures)?;
+    }
+    Ok(())
+}
+
 pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
+    info!("Applying Signatures");
     let entry = obj.entry as u32;
     if let Some(signature) =
         check_signatures_str(obj, entry, include_str!("../../assets/signatures/__start.yml"))?
@@ -493,6 +600,8 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 
     state.detect_functions(&obj)?;
     log::info!("Discovered {} functions", state.function_slices.len());
+
+    match_signatures(&mut obj, &state.function_slices)?;
 
     FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
     FindSaveRestSleds::execute(&mut state, &obj)?;

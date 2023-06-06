@@ -125,7 +125,7 @@ pub enum ObjRelocKind {
     PpcRel14,
     PpcEmbSda21,
 }
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct ObjReloc {
     pub kind: ObjRelocKind,
     pub address: u64,
@@ -182,7 +182,16 @@ impl ObjSection {
                 btree_map::Entry::Vacant(e) => {
                     e.insert(reloc.clone());
                 }
-                btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
+                btree_map::Entry::Occupied(prev) => {
+
+                    // TODO: HACK!
+                    let prev_relocation = prev.get();
+                    if prev_relocation == reloc {
+                        continue;
+                    }
+
+                    bail!("Duplicate relocation @ {address:#010X}");
+                },
             }
         }
         Ok(relocations)
