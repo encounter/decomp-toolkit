@@ -267,12 +267,11 @@ pub fn compare_signature(existing: &mut FunctionSignature, new: &FunctionSignatu
     Ok(())
 }
 
-pub fn generate_signature(path: &Path, symbol_name: &str) -> Result<Option<FunctionSignature>> {
+pub fn generate_signature(obj: &mut ObjInfo, symbol_name: &str) -> Result<Option<FunctionSignature>> {
     let mut out_symbols: Vec<OutSymbol> = Vec::new();
     let mut out_relocs: Vec<OutReloc> = Vec::new();
     let mut symbol_map: BTreeMap<usize, usize> = BTreeMap::new();
 
-    let mut obj = process_elf(path)?;
     if obj.sda2_base.is_none()
         || obj.sda_base.is_none()
         || obj.stack_address.is_none()
@@ -302,7 +301,7 @@ pub fn generate_signature(path: &Path, symbol_name: &str) -> Result<Option<Funct
         }
         tracker.process_function(&obj, symbol)?;
     }
-    tracker.apply(&mut obj, true)?; // true
+    tracker.apply(obj, true)?; // true
     for symbol in &obj.symbols {
         if symbol.kind != ObjSymbolKind::Function {
             continue;

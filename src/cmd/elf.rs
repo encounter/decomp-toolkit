@@ -18,13 +18,13 @@ use crate::{
     obj::{
         signatures::{compare_signature, generate_signature, FunctionSignature},
         split::split_obj,
-        ObjKind,
+        ObjKind, ObjSectionKind, ObjSymbolKind,
     },
     util::{
         asm::write_asm,
         config::{write_splits, write_symbols},
         elf::{process_elf, write_elf},
-        file::buf_reader,
+        file::{buf_reader, sanitize_str_for_filename},
     },
 };
 
@@ -110,6 +110,9 @@ pub struct SignaturesArgs {
     #[argh(option, short = 'o')]
     /// output yml
     out_file: PathBuf,
+    #[argh(switch, short = 'l')]
+    /// symbol is link object name
+    link_object: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -495,31 +498,125 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
         }
     }
 
+    let mut symbol_signatures = HashMap::<String, Vec<String>>::new();
     let mut signatures: HashMap<String, FunctionSignature> = HashMap::new();
     for path in files {
         log::info!("Processing {}", path.display());
-        let signature = match generate_signature(&path, &args.symbol) {
-            Ok(Some(signature)) => signature,
-            Ok(None) => continue,
+
+        let mut obj = match process_elf(path) {
+            Ok(o) => o,
             Err(e) => {
                 eprintln!("Failed: {:?}", e);
                 continue;
             }
         };
-        log::info!("Comparing hash {}", signature.hash);
-        if let Some(existing) = signatures.get_mut(&signature.hash) {
-            compare_signature(existing, &signature)?;
+
+        
+        if !args.link_object {
+            let signature = match generate_signature(&mut obj, &args.symbol) {
+                Ok(Some(signature)) => signature,
+                Ok(None) => continue,
+                Err(e) => {
+                    eprintln!("Failed: {:?}", e);
+                    continue;
+                }
+            };
+            log::info!("Comparing hash {}", signature.hash);
+            if let Some(existing) = signatures.get_mut(&signature.hash) {
+                compare_signature(existing, &signature)?;
+            } else {
+                symbol_signatures.entry(args.symbol.clone()).or_default().push(signature.hash.clone());
+                signatures.insert(signature.hash.clone(), signature);
+            }
         } else {
-            signatures.insert(signature.hash.clone(), signature);
+            let splits: Vec<u32> = obj.splits.iter().filter(|(_, v)| v.contains(&args.symbol))
+            .flat_map(|(addr, v)| v.iter().filter(|i| *i == &args.symbol).map(|_| addr.clone())).collect();
+            let all_splits: Vec<u32> = obj.splits.keys().copied().collect();
+
+            for addr in splits {            
+                let section = obj.section_at(addr)?;
+                if section.kind != ObjSectionKind::Code {
+                    continue;
+                }
+
+                let end = all_splits.iter().find(|s| **s > addr).copied().unwrap_or_else(|| (section.address + section.size) as u32);
+                let section_symbols: Vec<(String, u64)> = obj.symbols.iter().filter(|s| s.kind == ObjSymbolKind::Function && s.address >= addr as u64 && s.address < end as u64).map(|s| (s.name.clone(), s.address)).collect();
+                for (symbol, symbol_addr) in section_symbols {
+                    let signature = match generate_signature(&mut obj, &symbol) {
+                        Ok(Some(signature)) => signature,
+                        Ok(None) => continue,
+                        Err(e) => {
+                            eprintln!("Failed: {:?}", e);
+                            continue;
+                        }
+                    };
+                    log::info!("Symbol `{}` @ {:#010X} Hash {}", symbol, symbol_addr, signature.hash);
+                    if let Some(existing) = signatures.get_mut(&signature.hash) {
+                        compare_signature(existing, &signature)?;
+                    } else {
+                        symbol_signatures.entry(symbol.clone()).or_default().push(signature.hash.clone());
+                        signatures.insert(signature.hash.clone(), signature);
+                    }
+                }
+            }
         }
     }
-    let mut signatures = signatures.into_values().collect::<Vec<FunctionSignature>>();
-    log::info!("{} unique signatures", signatures.len());
-    signatures.sort_by_key(|s| s.signature.len());
-    let out =
-        BufWriter::new(File::create(&args.out_file).with_context(|| {
-            format!("Failed to create output file '{}'", args.out_file.display())
-        })?);
-    serde_yaml::to_writer(out, &signatures)?;
+
+    if args.link_object {
+        let signatures_dir = match args.out_file.metadata() {
+            Ok(m) => {
+                if m.is_dir() {
+                    args.out_file.clone()
+                } else {
+                    if let Some(path) = args.out_file.parent() {
+                        path.join(sanitize_str_for_filename(&args.symbol))
+                    } else {
+                        std::env::current_dir()?.join(sanitize_str_for_filename(&args.symbol))
+                    }
+                }
+            },
+            Err(e) => {
+                if e.kind() != std::io::ErrorKind::NotFound {
+                    log::error!("{:?}", e);
+                    return Err(e.into());
+                } else {
+                    std::fs::create_dir_all(&args.out_file)?;
+                    args.out_file.clone()
+                }
+            },
+        };
+        
+
+        for (symbol, hashes) in &symbol_signatures {
+            let mut signatures = signatures.iter().filter(|(k, _)| hashes.contains(*k)).map(|(_, v)| v).collect::<Vec<&FunctionSignature>>();
+            signatures.sort_by_key(|s| s.signature.len());
+
+            log::info!("Symbol `{}` {} unique signatures", symbol, signatures.len());
+
+            let mut out_path = signatures_dir.join(sanitize_str_for_filename(&symbol));
+            out_path.set_extension("yml");
+
+            let out = match File::create(&out_path) {
+                Ok(f) => f,
+                Err(e) => {
+                    log::error!("Failed to create output file '{}'. {e}", out_path.display());
+                    continue;
+                }
+            };
+            let out = BufWriter::new(out);
+            serde_yaml::to_writer(out, &signatures)?;
+        }
+
+    } else {
+        let mut signatures = signatures.into_values().collect::<Vec<FunctionSignature>>();
+        log::info!("{} unique signatures", signatures.len());
+        signatures.sort_by_key(|s| s.signature.len());
+        let out =
+            BufWriter::new(File::create(&args.out_file).with_context(|| {
+                format!("Failed to create output file '{}'", args.out_file.display())
+            })?);
+        serde_yaml::to_writer(out, &signatures)?;
+    }
+    
     Ok(())
 }
