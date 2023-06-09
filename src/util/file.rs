@@ -1,7 +1,7 @@
 use std::{
     fs::File,
     io::{BufReader, Cursor, Read},
-    path::Path,
+    path::Path, ops::Index,
 };
 
 use anyhow::{Context, Result};
@@ -54,4 +54,21 @@ pub fn read_c_string(reader: &mut Reader, off: u64) -> Result<String> {
     }
     reader.set_position(pos);
     Ok(s)
+}
+
+///SOURCE: https://referencesource.microsoft.com/#mscorlib/system/io/path.cs,88
+static INVALID_FILE_NAME_CHARS: &'static [char] = &['"', '<', '>', '|', '\0', 1 as char, 2 as char, 3 as char, 4 as char, 5 as char, 6 as char, 7 as char, 8 as char, 9 as char, 10 as char, 11 as char, 12 as char, 13 as char, 14 as char, 15 as char, 16 as char, 17 as char, 18 as char, 19 as char, 20 as char, 21 as char, 22 as char, 23 as char, 24 as char, 25 as char, 26 as char, 27 as char, 28 as char, 29 as char, 30 as char, 31 as char, ':', '*', '?', '\\', '/'];
+
+/// Sanitize string for to be file name compatible
+pub fn sanitize_str_for_filename(value: &str) -> String {
+    let mut retval = String::with_capacity(value.len());
+
+    for ch in value.chars() {
+        if let Some(_) = INVALID_FILE_NAME_CHARS.iter().position(|c| *c == ch) {
+            continue;
+        }
+        retval.push(ch)
+    }
+
+    retval
 }
