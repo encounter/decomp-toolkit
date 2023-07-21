@@ -31,11 +31,13 @@ generate the final executable.
 One way to verify that our code is a match is by taking any code that has been decompiled, and
 linking it alongside portions of the original binary that have not been decompiled yet. First, we create relocatable
 objects from the original binary:
+
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="assets/diagram_dark.svg">
   <source media="(prefers-color-scheme: light)" srcset="assets/diagram_light.svg">
   <img alt="Binary split diagram" src="assets/diagram.svg">
 </picture>
+
 (Heavily simplified)
 
 Then, each object can be replaced by a decompiled version as matching code is written. If the linker still generates a
