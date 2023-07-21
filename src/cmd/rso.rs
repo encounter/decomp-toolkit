@@ -35,7 +35,7 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn info(args: InfoArgs) -> Result<()> {
-    let rso = process_rso(&args.rso_file)?;
+    let rso = process_rso(args.rso_file)?;
     println!("Read RSO module {}", rso.name);
     Ok(())
 }

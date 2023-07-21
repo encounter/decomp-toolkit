@@ -11,9 +11,8 @@ use object::{elf, Object, ObjectSection, ObjectSymbol, RelocationKind, Relocatio
 
 use crate::util::{
     dwarf::{
-        process_address, process_offset, process_type, process_variable_location,
-        read_debug_section, type_string, ud_type, ud_type_def, ud_type_string, AttributeKind,
-        TagKind, TypeKind,
+        process_address, process_type, process_variable_location, read_debug_section, type_string,
+        ud_type, ud_type_def, ud_type_string, AttributeKind, TagKind,
     },
     file::map_file,
 };
@@ -61,13 +60,13 @@ fn dump(args: DumpArgs) -> Result<()> {
             };
             let name = String::from_utf8_lossy(e.header().identifier()).to_string();
             let mut data = vec![0u8; e.header().size() as usize];
-            e.read(&mut data)?;
+            e.read_exact(&mut data)?;
             let obj_file = object::read::File::parse(&*data)?;
             let debug_section = match obj_file.section_by_name(".debug") {
                 Some(section) => {
                     log::info!("Processing '{}'", name);
                     section
-                },
+                }
                 None => {
                     log::warn!("Object '{}' missing .debug section", name);
                     continue;
@@ -76,7 +75,7 @@ fn dump(args: DumpArgs) -> Result<()> {
             if let Some(out_path) = &args.out {
                 // TODO make a basename method
                 let name = name.trim_start_matches("D:").replace('\\', "/");
-                let name = name.rsplit_once('/').map(|(a, b)| b).unwrap_or(&name);
+                let name = name.rsplit_once('/').map(|(_, b)| b).unwrap_or(&name);
                 let file_path = out_path.join(format!("{}.txt", name));
                 let mut file = BufWriter::new(File::create(file_path)?);
                 dump_debug_section(&mut file, &obj_file, debug_section)?;

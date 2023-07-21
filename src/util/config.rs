@@ -1,23 +1,26 @@
 use std::{
     io::{BufRead, Write},
-    iter,
     num::ParseIntError,
     str::FromStr,
 };
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, ensure, Result};
 use cwdemangle::{demangle, DemangleOptions};
 use once_cell::sync::Lazy;
 use regex::Regex;
 
-use crate::obj::{ObjInfo, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind};
-use crate::util::nested::NestedVec;
+use crate::{
+    obj::{
+        ObjDataKind, ObjInfo, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+    },
+    util::nested::NestedVec,
+};
 
 fn parse_hex(s: &str) -> Result<u32, ParseIntError> {
     u32::from_str_radix(s.trim_start_matches("0x"), 16)
 }
 
-pub fn parse_symbol_line(line: &str, obj: &ObjInfo) -> Result<Option<ObjSymbol>> {
+pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymbol>> {
     static SYMBOL_LINE: Lazy<Regex> = Lazy::new(|| {
         Regex::new(
             "^\\s*(?P<name>[^\\s=]+)\\s*=\\s*(?:(?P<section>[A-Za-z0-9.]+):)?(?P<addr>[0-9A-Fa-fXx]+);(?:\\s*//\\s*(?P<attrs>.*))?$",
@@ -26,7 +29,7 @@ pub fn parse_symbol_line(line: &str, obj: &ObjInfo) -> Result<Option<ObjSymbol>>
     });
     static COMMENT_LINE: Lazy<Regex> = Lazy::new(|| Regex::new("^\\s*(?://|#).*$").unwrap());
 
-    if let Some(captures) = SYMBOL_LINE.captures(&line) {
+    if let Some(captures) = SYMBOL_LINE.captures(line) {
         let name = captures["name"].to_string();
         let addr = parse_hex(&captures["addr"])?;
         let demangled_name = demangle(&name, &DemangleOptions::default());
@@ -39,6 +42,8 @@ pub fn parse_symbol_line(line: &str, obj: &ObjInfo) -> Result<Option<ObjSymbol>>
             size_known: false,
             flags: Default::default(),
             kind: ObjSymbolKind::Unknown,
+            align: None,
+            data_kind: Default::default(),
         };
         let attrs = captures["attrs"].split(' ');
         for attr in attrs {
@@ -49,21 +54,36 @@ pub fn parse_symbol_line(line: &str, obj: &ObjInfo) -> Result<Option<ObjSymbol>>
                             .ok_or_else(|| anyhow!("Unknown symbol type '{}'", value))?;
                     }
                     "size" => {
-                        symbol.size = parse_hex(&value)? as u64;
+                        symbol.size = parse_hex(value)? as u64;
                         symbol.size_known = true;
                     }
                     "scope" => {
                         symbol.flags.0 |= symbol_flags_from_str(value)
                             .ok_or_else(|| anyhow!("Unknown symbol scope '{}'", value))?;
                     }
-                    _ => bail!("Unknown attribute '{name}'"),
+                    "align" => {
+                        symbol.align = Some(parse_hex(value)?);
+                    }
+                    "data" => {
+                        symbol.data_kind = symbol_data_kind_from_str(value)
+                            .ok_or_else(|| anyhow!("Unknown symbol data type '{}'", value))?;
+                    }
+                    _ => bail!("Unknown symbol attribute '{name}'"),
                 }
             } else {
                 match attr {
                     "hidden" => {
                         symbol.flags.0 |= ObjSymbolFlags::Hidden;
                     }
-                    _ => bail!("Unknown attribute '{attr}'"),
+                    "noreloc" => {
+                        ensure!(
+                            symbol.size != 0,
+                            "Symbol {} requires size != 0 with noreloc",
+                            symbol.name
+                        );
+                        obj.blocked_ranges.insert(addr, addr + symbol.size as u32);
+                    }
+                    _ => bail!("Unknown symbol attribute '{attr}'"),
                 }
             }
         }
@@ -71,7 +91,7 @@ pub fn parse_symbol_line(line: &str, obj: &ObjInfo) -> Result<Option<ObjSymbol>>
     } else if COMMENT_LINE.is_match(line) {
         Ok(None)
     } else {
-        Err(anyhow!("Failed to parse line '{line}'"))
+        Err(anyhow!("Failed to parse symbol line '{line}'"))
     }
 }
 
@@ -86,9 +106,7 @@ fn is_skip_symbol(symbol: &ObjSymbol) -> bool {
 }
 
 pub fn write_symbols<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
-    let mut symbols: Vec<&ObjSymbol> = obj.symbols.iter().map(|s| s).collect();
-    symbols.sort_by_key(|s| s.address);
-    for symbol in symbols {
+    for (_, symbol) in obj.symbols.for_range(..) {
         if symbol.kind == ObjSymbolKind::Section
             // Ignore absolute symbols for now (usually linker-generated)
             || symbol.section.is_none()
@@ -128,8 +146,17 @@ fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Resul
     if let Some(scope) = symbol_flags_to_str(symbol.flags) {
         write!(w, " scope:{scope}")?;
     }
+    if let Some(align) = symbol.align {
+        write!(w, " align:{align:#X}")?;
+    }
+    if let Some(kind) = symbol_data_kind_to_str(symbol.data_kind) {
+        write!(w, " data:{kind}")?;
+    }
     if symbol.flags.0.contains(ObjSymbolFlags::Hidden) {
         write!(w, " hidden")?;
+    }
+    if obj.blocked_ranges.contains_key(&(symbol.address as u32)) {
+        write!(w, " noreloc")?;
     }
     writeln!(w)?;
     Ok(())
@@ -142,6 +169,23 @@ fn symbol_kind_to_str(kind: ObjSymbolKind) -> &'static str {
         ObjSymbolKind::Function => "function",
         ObjSymbolKind::Object => "object",
         ObjSymbolKind::Section => "section",
+    }
+}
+
+#[inline]
+fn symbol_data_kind_to_str(kind: ObjDataKind) -> Option<&'static str> {
+    match kind {
+        ObjDataKind::Unknown => None,
+        ObjDataKind::Byte => Some("byte"),
+        ObjDataKind::Byte2 => Some("2byte"),
+        ObjDataKind::Byte4 => Some("4byte"),
+        ObjDataKind::Byte8 => Some("8byte"),
+        ObjDataKind::Float => Some("float"),
+        ObjDataKind::Double => Some("double"),
+        ObjDataKind::String => Some("string"),
+        ObjDataKind::String16 => Some("wstring"),
+        ObjDataKind::StringTable => Some("string_table"),
+        ObjDataKind::String16Table => Some("wstring_table"),
     }
 }
 
@@ -182,45 +226,36 @@ fn symbol_flags_from_str(s: &str) -> Option<ObjSymbolFlags> {
     }
 }
 
-pub fn write_splits<W: Write>(
-    w: &mut W,
-    obj: &ObjInfo,
-    obj_files: Option<Vec<String>>,
-) -> Result<()> {
-    let mut obj_files_iter = obj_files.map(|v| v.into_iter());
+#[inline]
+fn symbol_data_kind_from_str(s: &str) -> Option<ObjDataKind> {
+    match s {
+        "byte" => Some(ObjDataKind::Byte),
+        "2byte" => Some(ObjDataKind::Byte2),
+        "4byte" => Some(ObjDataKind::Byte4),
+        "8byte" => Some(ObjDataKind::Byte8),
+        "float" => Some(ObjDataKind::Float),
+        "double" => Some(ObjDataKind::Double),
+        "string" => Some(ObjDataKind::String),
+        "wstring" => Some(ObjDataKind::String16),
+        "string_table" => Some(ObjDataKind::StringTable),
+        "wstring_table" => Some(ObjDataKind::String16Table),
+        _ => None,
+    }
+}
+
+pub fn write_splits<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
     for unit in &obj.link_order {
-        let obj_file = if let Some(obj_files_iter) = &mut obj_files_iter {
-            obj_files_iter.next()
-        } else {
-            None
-        };
-        log::info!("Processing {} (obj file {:?})", unit, obj_file);
-        if let Some(obj_file) = obj_file {
-            let trim_unit = unit
-                .trim_end_matches("_1")
-                .trim_end_matches(" (asm)")
-                .trim_end_matches(".o")
-                .trim_end_matches(".cpp")
-                .trim_end_matches(".c");
-            if !obj_file.contains(trim_unit) {
-                bail!("Unit mismatch: {} vs {}", unit, obj_file);
-            }
-            let trim_obj = obj_file
-                .trim_end_matches(" \\")
-                .trim_start_matches("\t$(BUILD_DIR)/")
-                .trim_start_matches("asm/")
-                .trim_start_matches("src/");
-            writeln!(w, "{}:", trim_obj)?;
-        } else {
-            writeln!(w, "{}:", unit)?;
-        }
-        let mut split_iter = obj.splits.iter()
-            .flat_map(|(addr, v)| v.iter().map(move |u| (addr, u))).peekable();
-        while let Some((&addr, it_unit)) = split_iter.next() {
-            if it_unit != unit {
+        writeln!(w, "{}:", unit)?;
+        let mut split_iter = obj.splits_for_range(..).peekable();
+        while let Some((addr, split)) = split_iter.next() {
+            if &split.unit != unit {
                 continue;
             }
-            let end = split_iter.peek().map(|(&addr, _)| addr).unwrap_or(u32::MAX);
+            let end = if split.end > 0 {
+                split.end
+            } else {
+                split_iter.peek().map(|&(addr, _)| addr).unwrap_or(0)
+            };
             let section = obj.section_at(addr)?;
             writeln!(w, "\t{:<11} start:{:#010X} end:{:#010X}", section.name, addr, end)?;
             // align:{}
@@ -232,7 +267,7 @@ pub fn write_splits<W: Write>(
 
 enum SplitLine {
     Unit { name: String },
-    Section { name: String, start: u32, end: u32, align: Option<u32> },
+    Section { name: String, start: u32, end: u32, align: Option<u32>, common: bool },
     None,
 }
 
@@ -245,40 +280,49 @@ fn parse_split_line(line: &str) -> Result<SplitLine> {
 
     if line.is_empty() || COMMENT_LINE.is_match(line) {
         Ok(SplitLine::None)
-    } else if let Some(captures) = UNIT_LINE.captures(&line) {
+    } else if let Some(captures) = UNIT_LINE.captures(line) {
         let name = captures["name"].to_string();
         Ok(SplitLine::Unit { name })
-    } else if let Some(captures) = SECTION_LINE.captures(&line) {
+    } else if let Some(captures) = SECTION_LINE.captures(line) {
         let mut name = captures["name"].to_string();
         let mut start: Option<u32> = None;
         let mut end: Option<u32> = None;
         let mut align: Option<u32> = None;
+        let mut common = false;
 
         let attrs = captures["attrs"].split(' ');
         for attr in attrs {
             if let Some((attr, value)) = attr.split_once(':') {
                 match attr {
                     "start" => {
-                        start = Some(parse_hex(&value)?);
+                        start = Some(parse_hex(value)?);
                     }
                     "end" => {
-                        end = Some(parse_hex(&value)?);
+                        end = Some(parse_hex(value)?);
                     }
                     "align" => align = Some(u32::from_str(value)?),
                     "rename" => name = value.to_string(),
-                    _ => bail!("Unknown attribute '{name}'"),
+                    _ => bail!("Unknown split attribute '{name}'"),
                 }
             } else {
-                bail!("Unknown attribute '{attr}'")
+                match attr {
+                    "common" => {
+                        common = true;
+                        if align.is_none() {
+                            align = Some(4);
+                        }
+                    }
+                    _ => bail!("Unknown split attribute '{attr}'"),
+                }
             }
         }
         if let (Some(start), Some(end)) = (start, end) {
-            Ok(SplitLine::Section { name, start, end, align })
+            Ok(SplitLine::Section { name, start, end, align, common })
         } else {
-            Err(anyhow!("Missing attribute: '{line}'"))
+            Err(anyhow!("Missing split attribute: '{line}'"))
         }
     } else {
-        Err(anyhow!("Failed to parse line: '{line}'"))
+        Err(anyhow!("Failed to parse split line: '{line}'"))
     }
 }
 
@@ -302,10 +346,8 @@ pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
             (SplitState::None, SplitLine::Section { name, .. }) => {
                 bail!("Section {} defined outside of unit", name);
             }
-            (SplitState::Unit(unit), SplitLine::Section { name, start, end, align }) => {
-                let _ = end;
-                let _ = align;
-                obj.splits.nested_push(start, unit.clone());
+            (SplitState::Unit(unit), SplitLine::Section { name, start, end, align, common }) => {
+                obj.splits.nested_push(start, ObjSplit { unit: unit.clone(), end, align, common });
                 obj.named_sections.insert(start, name);
             }
             _ => {}

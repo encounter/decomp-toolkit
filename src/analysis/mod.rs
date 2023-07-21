@@ -7,7 +7,9 @@ use crate::obj::{ObjInfo, ObjSection, ObjSectionKind};
 
 pub mod cfa;
 pub mod executor;
+pub mod objects;
 pub mod pass;
+pub mod signatures;
 pub mod slices;
 pub mod tracker;
 pub mod vm;

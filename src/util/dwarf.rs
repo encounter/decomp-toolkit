@@ -601,7 +601,7 @@ impl Type {
                 let tag = tags
                     .get(&key)
                     .ok_or_else(|| anyhow!("Failed to locate user defined type {}", key))?;
-                let ud_type = ud_type(&tags, tag)?;
+                let ud_type = ud_type(tags, tag)?;
                 ud_type.size(tags)
             }
         }
@@ -784,7 +784,7 @@ pub fn struct_def_string(
         if let Some(bit) = &member.bit {
             write!(out, " : {}", bit.bit_size)?;
         }
-        write!(out, "; // offset {:#X}, size {:#X}\n", member.offset, member.kind.size(tags)?)?;
+        writeln!(out, "; // offset {:#X}, size {:#X}", member.offset, member.kind.size(tags)?)?;
     }
     write!(out, "}}")?;
     Ok(out)
@@ -866,8 +866,16 @@ pub fn process_variable_location(block: &[u8]) -> Result<String> {
     // TODO: float regs
     if block.len() == 5 && block[0] == LocationOp::Register as u8 {
         Ok(format!("r{}", u32::from_be_bytes(block[1..].try_into()?)))
-    } else if block.len() == 11 && block[0] == LocationOp::BaseRegister as u8 && block[5] == LocationOp::Const as u8 && block[10] == LocationOp::Add as u8 {
-        Ok(format!("r{}+{:#X}", u32::from_be_bytes(block[1..5].try_into()?), u32::from_be_bytes(block[6..10].try_into()?)))
+    } else if block.len() == 11
+        && block[0] == LocationOp::BaseRegister as u8
+        && block[5] == LocationOp::Const as u8
+        && block[10] == LocationOp::Add as u8
+    {
+        Ok(format!(
+            "r{}+{:#X}",
+            u32::from_be_bytes(block[1..5].try_into()?),
+            u32::from_be_bytes(block[6..10].try_into()?)
+        ))
     } else {
         Err(anyhow!("Unhandled location data {:?}, expected variable loc", block))
     }

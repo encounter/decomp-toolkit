@@ -162,8 +162,8 @@ impl VM {
             Opcode::Illegal => {
                 return StepResult::Illegal;
             }
+            // add rD, rA, rB
             Opcode::Add => {
-                // add rD, rA, rB
                 let left = self.gpr[ins.field_rA()].value;
                 let right = self.gpr[ins.field_rB()].value;
                 let value = match (left, right) {
@@ -174,8 +174,8 @@ impl VM {
                 };
                 self.gpr[ins.field_rD()].set_direct(value);
             }
+            // addis rD, rA, SIMM
             Opcode::Addis => {
-                // addis rD, rA, SIMM
                 let left = if ins.field_rA() == 0 {
                     GprValue::Constant(0)
                 } else {
@@ -194,10 +194,10 @@ impl VM {
                     self.gpr[ins.field_rD()].set_direct(value);
                 }
             }
+            // addi rD, rA, SIMM
+            // addic rD, rA, SIMM
+            // addic. rD, rA, SIMM
             Opcode::Addi | Opcode::Addic | Opcode::Addic_ => {
-                // addi rD, rA, SIMM
-                // addic rD, rA, SIMM
-                // addic. rD, rA, SIMM
                 let left = if ins.field_rA() == 0 && ins.op == Opcode::Addi {
                     GprValue::Constant(0)
                 } else {
@@ -216,8 +216,8 @@ impl VM {
                     self.gpr[ins.field_rD()].set_lo(value, ins.addr, self.gpr[ins.field_rA()]);
                 }
             }
+            // ori rA, rS, UIMM
             Opcode::Ori => {
-                // ori rA, rS, UIMM
                 let value = match self.gpr[ins.field_rS()].value {
                     GprValue::Constant(value) => {
                         GprValue::Constant(value | ins.field_uimm() as u32)
@@ -226,8 +226,8 @@ impl VM {
                 };
                 self.gpr[ins.field_rA()].set_lo(value, ins.addr, self.gpr[ins.field_rS()]);
             }
+            // or rA, rS, rB
             Opcode::Or => {
-                // or rA, rS, rB
                 if ins.field_rS() == ins.field_rB() {
                     // Register copy
                     self.gpr[ins.field_rA()] = self.gpr[ins.field_rS()];
@@ -428,11 +428,8 @@ impl VM {
             }
             _ => {
                 for field in ins.defs() {
-                    match field.argument() {
-                        Some(Argument::GPR(GPR(reg))) => {
-                            self.gpr[reg as usize].set_direct(GprValue::Unknown);
-                        }
-                        _ => {}
+                    if let Some(Argument::GPR(GPR(reg))) = field.argument() {
+                        self.gpr[reg as usize].set_direct(GprValue::Unknown);
                     }
                 }
             }

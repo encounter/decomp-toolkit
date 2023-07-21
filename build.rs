@@ -311,7 +311,7 @@ fn main() -> Result<()> {
     rmp_serde::encode::write(&mut encoder, &Output { symbols, signatures: out })?;
     let compressed = encoder.finish()?;
     let out_dir = PathBuf::from(env::var("OUT_DIR").unwrap());
-    fs::write(out_dir.join("signatures.bin"), &compressed)?;
+    fs::write(out_dir.join("signatures.bin"), compressed)?;
 
     Ok(())
 }

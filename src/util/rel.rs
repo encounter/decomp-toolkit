@@ -1,4 +1,4 @@
-use std::{io::Read, path::Path};
+use std::io::Read;
 
 use anyhow::{anyhow, bail, ensure, Result};
 use byteorder::{BigEndian, ReadBytesExt};
@@ -9,7 +9,7 @@ use crate::{
         ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
         ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
     },
-    util::file::{map_file, map_reader, read_string},
+    util::file::Reader,
 };
 
 /// Do not relocate anything, but accumulate the offset field for the next relocation offset calculation.
@@ -24,17 +24,14 @@ pub const R_DOLPHIN_END: u32 = 203;
 #[allow(unused)]
 pub const R_DOLPHIN_MRKREF: u32 = 204;
 
-pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
-    let mmap = map_file(path)?;
-    let mut reader = map_reader(&mmap);
-
+pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
     let module_id = reader.read_u32::<BigEndian>()?;
     ensure!(reader.read_u32::<BigEndian>()? == 0, "Expected 'next' to be 0");
     ensure!(reader.read_u32::<BigEndian>()? == 0, "Expected 'prev' to be 0");
     let num_sections = reader.read_u32::<BigEndian>()?;
     let section_info_offset = reader.read_u32::<BigEndian>()?;
-    let name_offset = reader.read_u32::<BigEndian>()?;
-    let name_size = reader.read_u32::<BigEndian>()?;
+    let _name_offset = reader.read_u32::<BigEndian>()?;
+    let _name_size = reader.read_u32::<BigEndian>()?;
     let version = reader.read_u32::<BigEndian>()?;
     ensure!(matches!(version, 1..=3), "Unsupported REL version {}", version);
     let bss_size = reader.read_u32::<BigEndian>()?;
@@ -125,7 +122,7 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 .iter()
                 .find(|section| section.elf_index == section_idx as usize)
                 .ok_or_else(|| anyhow!("Failed to locate {name} section {section_idx}"))?;
-            log::info!("Adding {name} section {section_idx} offset {offset:#X}");
+            log::debug!("Adding {name} section {section_idx} offset {offset:#X}");
             symbols.push(ObjSymbol {
                 name: name.to_string(),
                 demangled_name: None,
@@ -135,6 +132,8 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 size_known: false,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                 kind: ObjSymbolKind::Function,
+                align: None,
+                data_kind: Default::default(),
             });
         }
         Ok(())
@@ -222,31 +221,21 @@ pub fn process_rel<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         reader.set_position(position);
     }
 
-    let name = match name_offset {
-        0 => String::new(),
-        _ => read_string(&mut reader, name_offset as u64, name_size as usize)?,
-    };
-    Ok(ObjInfo {
-        module_id,
-        kind: ObjKind::Relocatable,
-        architecture: ObjArchitecture::PowerPc,
-        name,
+    // let name = match name_offset {
+    //     0 => String::new(),
+    //     _ => read_string(&mut reader, name_offset as u64, name_size as usize).unwrap_or_default(),
+    // };
+    log::debug!("Read REL ID {module_id}");
+    let mut obj = ObjInfo::new(
+        ObjKind::Relocatable,
+        ObjArchitecture::PowerPc,
+        String::new(),
         symbols,
         sections,
-        entry: 0,
-        sda2_base: None,
-        sda_base: None,
-        stack_address: None,
-        stack_end: None,
-        db_stack_addr: None,
-        arena_lo: None,
-        arena_hi: None,
-        splits: Default::default(),
-        named_sections: Default::default(),
-        link_order: vec![],
-        known_functions: Default::default(),
-        unresolved_relocations,
-    })
+    );
+    obj.module_id = module_id;
+    obj.unresolved_relocations = unresolved_relocations;
+    Ok(obj)
 }
 
 #[derive(Debug, Clone)]

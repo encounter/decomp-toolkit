@@ -65,10 +65,10 @@ pub fn run(args: Args) -> Result<()> {
     out.seek(SeekFrom::Start(offset as u64))?;
 
     // Text sections
-    for section in obj_file.sections() {
-        if section.kind() != SectionKind::Text {
-            continue;
-        }
+    for section in
+        obj_file.sections().filter(|s| section_kind(s) == SectionKind::Text && is_alloc(s.flags()))
+    {
+        log::debug!("Processing text section '{}'", section.name().unwrap_or("[error]"));
         let address = section.address() as u32;
         let size = align32(section.size() as u32);
         *header.text_sections.get_mut(header.text_section_count).ok_or_else(|| {
@@ -83,10 +83,10 @@ pub fn run(args: Args) -> Result<()> {
     }
 
     // Data sections
-    for section in obj_file.sections() {
-        if section.kind() != SectionKind::Data && section.kind() != SectionKind::ReadOnlyData {
-            continue;
-        }
+    for section in
+        obj_file.sections().filter(|s| section_kind(s) == SectionKind::Data && is_alloc(s.flags()))
+    {
+        log::debug!("Processing data section '{}'", section.name().unwrap_or("[error]"));
         let address = section.address() as u32;
         let size = align32(section.size() as u32);
         *header.data_sections.get_mut(header.data_section_count).ok_or_else(|| {
@@ -101,10 +101,10 @@ pub fn run(args: Args) -> Result<()> {
     }
 
     // BSS sections
-    for section in obj_file.sections() {
-        if section.kind() != SectionKind::UninitializedData {
-            continue;
-        }
+    for section in obj_file
+        .sections()
+        .filter(|s| section_kind(s) == SectionKind::UninitializedData && is_alloc(s.flags()))
+    {
         let address = section.address() as u32;
         let size = section.size() as u32;
         if header.bss_address == 0 {
@@ -161,4 +161,29 @@ fn write_aligned<T: Write>(out: &mut T, bytes: &[u8], aligned_size: u32) -> std:
         out.write_all(&ZERO_BUF[0..padding as usize])?;
     }
     Ok(())
+}
+
+// Some ELF files don't have the proper section kind set (for small data sections in particular)
+// so we map the section name to the expected section kind when possible.
+#[inline]
+fn section_kind(section: &object::Section) -> SectionKind {
+    section
+        .name()
+        .ok()
+        .and_then(|name| match name {
+            ".init" | ".text" | ".vmtext" | ".dbgtext" => Some(SectionKind::Text),
+            ".ctors" | ".dtors" | ".data" | ".rodata" | ".sdata" | ".sdata2" | "extab"
+            | "extabindex" => Some(SectionKind::Data),
+            ".bss" | ".sbss" | ".sbss2" => Some(SectionKind::UninitializedData),
+            _ => None,
+        })
+        .unwrap_or_else(|| match section.kind() {
+            SectionKind::ReadOnlyData => SectionKind::Data,
+            kind => kind,
+        })
+}
+
+#[inline]
+fn is_alloc(flags: object::SectionFlags) -> bool {
+    matches!(flags, object::SectionFlags::Elf { sh_flags } if sh_flags & object::elf::SHF_ALLOC as u64 != 0)
 }

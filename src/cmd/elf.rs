@@ -2,16 +2,17 @@ use std::{
     collections::{btree_map, hash_map, BTreeMap, HashMap},
     fs,
     fs::{DirBuilder, File},
-    io::{BufRead, BufReader, BufWriter, Write},
+    io::{BufWriter, Write},
     path::PathBuf,
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use argh::FromArgs;
 use object::{
+    elf,
     write::{Mangling, SectionId, SymbolId},
-    Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, SectionFlags,
-    SectionIndex, SectionKind, SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
+    FileFlags, Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, SectionFlags,
+    SectionIndex, SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection,
 };
 
 use crate::{
@@ -24,7 +25,7 @@ use crate::{
         asm::write_asm,
         config::{write_splits, write_symbols},
         elf::{process_elf, write_elf},
-        file::buf_reader,
+        file::process_rsp,
     },
 };
 
@@ -92,9 +93,6 @@ pub struct ConfigArgs {
     #[argh(positional)]
     /// output directory
     out_dir: PathBuf,
-    #[argh(option, short = 'm')]
-    /// path to obj_files.mk
-    obj_files: Option<PathBuf>,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -137,29 +135,12 @@ fn config(args: ConfigArgs) -> Result<()> {
     }
 
     {
-        let obj_files = if let Some(path) = &args.obj_files {
-            Some(
-                BufReader::new(
-                    File::open(path)
-                        .with_context(|| format!("Failed to open '{}'", path.display()))?,
-                )
-                .lines()
-                .filter(|line| match line {
-                    Ok(line) => line.contains(".o"),
-                    Err(_) => false,
-                })
-                .map(|result| result.unwrap())
-                .collect::<Vec<String>>(),
-            )
-        } else {
-            None
-        };
         let splits_path = args.out_dir.join("splits.txt");
         let mut splits_writer = BufWriter::new(
             File::create(&splits_path)
                 .with_context(|| format!("Failed to create '{}'", splits_path.display()))?,
         );
-        write_splits(&mut splits_writer, &obj, obj_files)?;
+        write_splits(&mut splits_writer, &obj)?;
     }
 
     Ok(())
@@ -257,13 +238,22 @@ fn file_name_from_unit(str: &str, suffix: &str) -> String {
 
 const ASM_SUFFIX: &str = " (asm)";
 
+// fn fixup(args: FixupArgs) -> Result<()> {
+//     let obj = process_elf(&args.in_file)?;
+//     let out = write_elf(&obj)?;
+//     fs::write(&args.out_file, &out).context("Failed to create output file")?;
+//     Ok(())
+// }
+
 fn fixup(args: FixupArgs) -> Result<()> {
     let in_buf = fs::read(&args.in_file)
         .with_context(|| format!("Failed to open input file: '{}'", args.in_file.display()))?;
     let in_file = object::read::File::parse(&*in_buf).context("Failed to parse input ELF")?;
     let mut out_file =
         object::write::Object::new(in_file.format(), in_file.architecture(), in_file.endianness());
-    out_file.set_mangling(Mangling::None);
+    out_file.flags =
+        FileFlags::Elf { os_abi: elf::ELFOSABI_SYSV, abi_version: 0, e_flags: elf::EF_PPC_EMB };
+    out_file.mangling = Mangling::None;
 
     // Write file symbol first
     let mut file_symbol_found = false;
@@ -317,7 +307,7 @@ fn fixup(args: FixupArgs) -> Result<()> {
         } else {
             out_section.set_data(section.uncompressed_data()?.into_owned(), section.align());
         }
-        if has_section_flags(section.flags(), object::elf::SHF_ALLOC)? {
+        if has_section_flags(section.flags(), elf::SHF_ALLOC)? {
             // Generate section symbol
             out_file.section_symbol(section_id);
         }
@@ -398,9 +388,9 @@ fn fixup(args: FixupArgs) -> Result<()> {
                 // This is a hack to avoid replacement with a section symbol
                 // See [`object::write::elf::object::elf_fixup_relocation`]
                 RelocationKind::Absolute => RelocationKind::Elf(if addr & 3 == 0 {
-                    object::elf::R_PPC_ADDR32
+                    elf::R_PPC_ADDR32
                 } else {
-                    object::elf::R_PPC_UADDR32
+                    elf::R_PPC_UADDR32
                 }),
                 other => other,
             };
@@ -442,7 +432,9 @@ fn to_write_symbol_section(
     }
 }
 
-fn to_write_symbol_flags(flags: SymbolFlags<SectionIndex>) -> Result<SymbolFlags<SectionId>> {
+fn to_write_symbol_flags(
+    flags: SymbolFlags<SectionIndex, SymbolIndex>,
+) -> Result<SymbolFlags<SectionId, SymbolId>> {
     match flags {
         SymbolFlags::Elf { st_info, st_other } => Ok(SymbolFlags::Elf { st_info, st_other }),
         SymbolFlags::None => Ok(SymbolFlags::None),
@@ -475,25 +467,7 @@ fn has_section_flags(flags: SectionFlags, flag: u32) -> Result<bool> {
 
 fn signatures(args: SignaturesArgs) -> Result<()> {
     // Process response files (starting with '@')
-    let mut files = Vec::with_capacity(args.files.len());
-    for path in args.files {
-        let path_str =
-            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
-        match path_str.strip_prefix('@') {
-            Some(rsp_file) => {
-                let reader = buf_reader(rsp_file)?;
-                for result in reader.lines() {
-                    let line = result?;
-                    if !line.is_empty() {
-                        files.push(PathBuf::from(line));
-                    }
-                }
-            }
-            None => {
-                files.push(path);
-            }
-        }
-    }
+    let files = process_rsp(&args.files)?;
 
     let mut signatures: HashMap<String, FunctionSignature> = HashMap::new();
     for path in files {

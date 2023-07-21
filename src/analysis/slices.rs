@@ -35,6 +35,7 @@ pub enum TailCallResult {
     Not,
     Is,
     Possible,
+    Error(anyhow::Error),
 }
 
 type BlockRange = Range<u32>;
@@ -137,7 +138,7 @@ impl FunctionSlices {
             .with_context(|| format!("While processing {:#010X}", function_start))?;
         self.check_epilogue(section, ins)
             .with_context(|| format!("While processing {:#010X}", function_start))?;
-        if !self.has_conditional_blr && is_conditional_blr(&ins) {
+        if !self.has_conditional_blr && is_conditional_blr(ins) {
             self.has_conditional_blr = true;
         }
         if !self.has_rfi && ins.op == Opcode::Rfi {
@@ -351,13 +352,15 @@ impl FunctionSlices {
         }
 
         let end = self.end();
-        if let Ok(section) = obj.section_at(end) {
-            // FIXME this is real bad
-            if !self.has_conditional_blr {
-                if let Some(ins) = disassemble(&section, end - 4) {
-                    if ins.op == Opcode::B {
-                        if self.function_references.contains(&ins.branch_dest().unwrap()) {
-                            for (_, branches) in &self.branches {
+        match (obj.section_at(end), obj.section_at(end - 4)) {
+            (Ok(section), Ok(other_section)) if section.index == other_section.index => {
+                // FIXME this is real bad
+                if !self.has_conditional_blr {
+                    if let Some(ins) = disassemble(section, end - 4) {
+                        if ins.op == Opcode::B
+                            && self.function_references.contains(&ins.branch_dest().unwrap())
+                        {
+                            for branches in self.branches.values() {
                                 if branches.len() > 1
                                     && branches.contains(self.blocks.last_key_value().unwrap().0)
                                 {
@@ -367,29 +370,28 @@ impl FunctionSlices {
                         }
                     }
                 }
-            }
 
-            // MWCC optimization sometimes leaves an unreachable blr
-            // after generating a conditional blr in the function.
-            if self.has_conditional_blr {
-                if matches!(disassemble(&section, end - 4), Some(ins) if !ins.is_blr())
-                    && matches!(disassemble(&section, end), Some(ins) if ins.is_blr())
+                // MWCC optimization sometimes leaves an unreachable blr
+                // after generating a conditional blr in the function.
+                if self.has_conditional_blr
+                    && matches!(disassemble(section, end - 4), Some(ins) if !ins.is_blr())
+                    && matches!(disassemble(section, end), Some(ins) if ins.is_blr())
                     && !known_functions.contains(&end)
                 {
                     log::trace!("Found trailing blr @ {:#010X}, merging with function", end);
                     self.blocks.insert(end, end + 4);
                 }
-            }
 
-            // Some functions with rfi also include a trailing nop
-            if self.has_rfi {
-                if matches!(disassemble(&section, end), Some(ins) if is_nop(&ins))
+                // Some functions with rfi also include a trailing nop
+                if self.has_rfi
+                    && matches!(disassemble(section, end), Some(ins) if is_nop(&ins))
                     && !known_functions.contains(&end)
                 {
                     log::trace!("Found trailing nop @ {:#010X}, merging with function", end);
                     self.blocks.insert(end, end + 4);
                 }
             }
+            _ => {}
         }
 
         self.finalized = true;
@@ -417,6 +419,14 @@ impl FunctionSlices {
         if addr < function_start {
             return TailCallResult::Is;
         }
+        // If the jump target is in a different section, known tail call.
+        let section = match obj.section_at(function_start) {
+            Ok(section) => section,
+            Err(e) => return TailCallResult::Error(e),
+        };
+        if !section.contains(addr) {
+            return TailCallResult::Is;
+        }
         // If the jump target has 0'd padding before it, known tail call.
         if matches!(obj.section_data(addr - 4, addr), Ok((_, data)) if data == [0u8; 4]) {
             return TailCallResult::Is;
@@ -428,15 +438,16 @@ impl FunctionSlices {
         }
         // If jump target is known to be a function, or there's a function in between
         // this and the jump target, known tail call.
-        log::trace!("Checking {:#010X}..={:#010X}", function_start + 4, addr);
         if self.function_references.range(function_start + 4..=addr).next().is_some()
             || known_functions.range(function_start + 4..=addr).next().is_some()
         {
             return TailCallResult::Is;
         }
         // Perform CFA on jump target to determine more
-        let mut slices = FunctionSlices::default();
-        slices.function_references = self.function_references.clone();
+        let mut slices = FunctionSlices {
+            function_references: self.function_references.clone(),
+            ..Default::default()
+        };
         if let Ok(result) =
             slices.analyze(obj, addr, function_start, Some(function_end), known_functions)
         {

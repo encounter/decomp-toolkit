@@ -3,16 +3,17 @@ pub mod split;
 
 use std::{
     cmp::min,
-    collections::{btree_map, BTreeMap},
+    collections::{btree_map, BTreeMap, HashMap},
     hash::{Hash, Hasher},
+    ops::{Range, RangeBounds},
 };
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, ensure, Result};
 use flagset::{flags, FlagSet};
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use crate::util::{nested::NestedVec, rel::RelReloc};
+use crate::util::{comment::MWComment, nested::NestedVec, rel::RelReloc};
 
 flags! {
     #[repr(u8)]
@@ -23,14 +24,18 @@ flags! {
         Weak,
         Common,
         Hidden,
+        ForceActive,
     }
 }
+
 #[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ObjSymbolFlagSet(pub FlagSet<ObjSymbolFlags>);
-#[allow(clippy::derive_hash_xor_eq)]
+
+#[allow(clippy::derived_hash_with_manual_eq)]
 impl Hash for ObjSymbolFlagSet {
     fn hash<H: Hasher>(&self, state: &mut H) { self.0.bits().hash(state) }
 }
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjSectionKind {
     Code,
@@ -38,6 +43,7 @@ pub enum ObjSectionKind {
     ReadOnlyData,
     Bss,
 }
+
 #[derive(Debug, Clone)]
 pub struct ObjSection {
     pub name: String,
@@ -54,6 +60,7 @@ pub struct ObjSection {
     pub file_offset: u64,
     pub section_known: bool,
 }
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Default, Serialize, Deserialize)]
 pub enum ObjSymbolKind {
     #[default]
@@ -62,7 +69,24 @@ pub enum ObjSymbolKind {
     Object,
     Section,
 }
-#[derive(Debug, Clone, Default)]
+
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
+pub enum ObjDataKind {
+    #[default]
+    Unknown,
+    Byte,
+    Byte2,
+    Byte4,
+    Byte8,
+    Float,
+    Double,
+    String,
+    String16,
+    StringTable,
+    String16Table,
+}
+
+#[derive(Debug, Clone, Default, Eq, PartialEq)]
 pub struct ObjSymbol {
     pub name: String,
     pub demangled_name: Option<String>,
@@ -72,7 +96,10 @@ pub struct ObjSymbol {
     pub size_known: bool,
     pub flags: ObjSymbolFlagSet,
     pub kind: ObjSymbolKind,
+    pub align: Option<u32>,
+    pub data_kind: ObjDataKind,
 }
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjKind {
     /// Fully linked object
@@ -80,18 +107,38 @@ pub enum ObjKind {
     /// Relocatable object
     Relocatable,
 }
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjArchitecture {
     PowerPc,
 }
+
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct ObjSplit {
+    pub unit: String,
+    pub end: u32,
+    pub align: Option<u32>,
+    pub common: bool,
+}
+
+type SymbolIndex = usize;
+
+#[derive(Debug, Clone)]
+pub struct ObjSymbols {
+    symbols: Vec<ObjSymbol>,
+    symbols_by_address: BTreeMap<u32, Vec<SymbolIndex>>,
+    symbols_by_name: HashMap<String, Vec<SymbolIndex>>,
+}
+
 #[derive(Debug, Clone)]
 pub struct ObjInfo {
     pub kind: ObjKind,
     pub architecture: ObjArchitecture,
     pub name: String,
-    pub symbols: Vec<ObjSymbol>,
+    pub symbols: ObjSymbols,
     pub sections: Vec<ObjSection>,
     pub entry: u64,
+    pub mw_comment: MWComment,
 
     // Linker generated
     pub sda2_base: Option<u32>,
@@ -103,9 +150,10 @@ pub struct ObjInfo {
     pub arena_hi: Option<u32>,
 
     // Extracted
-    pub splits: BTreeMap<u32, Vec<String>>,
+    pub splits: BTreeMap<u32, Vec<ObjSplit>>,
     pub named_sections: BTreeMap<u32, String>,
     pub link_order: Vec<String>,
+    pub blocked_ranges: BTreeMap<u32, u32>, // start -> end
 
     // From extab
     pub known_functions: BTreeMap<u32, u32>,
@@ -115,6 +163,7 @@ pub struct ObjInfo {
     pub module_id: u32,
     pub unresolved_relocations: Vec<RelReloc>,
 }
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub enum ObjRelocKind {
     Absolute,
@@ -125,40 +174,287 @@ pub enum ObjRelocKind {
     PpcRel14,
     PpcEmbSda21,
 }
+
 #[derive(Debug, Clone)]
 pub struct ObjReloc {
     pub kind: ObjRelocKind,
     pub address: u64,
-    pub target_symbol: usize,
+    pub target_symbol: SymbolIndex,
     pub addend: i64,
 }
 
-impl ObjInfo {
-    pub fn symbols_for_section(
-        &self,
-        section_idx: usize,
-    ) -> impl Iterator<Item = (usize, &ObjSymbol)> {
-        self.symbols
-            .iter()
-            .enumerate()
-            .filter(move |&(_, symbol)| symbol.section == Some(section_idx))
+impl ObjSymbols {
+    pub fn new(symbols: Vec<ObjSymbol>) -> Self {
+        let mut symbols_by_address = BTreeMap::<u32, Vec<SymbolIndex>>::new();
+        let mut symbols_by_name = HashMap::<String, Vec<SymbolIndex>>::new();
+        for (idx, symbol) in symbols.iter().enumerate() {
+            symbols_by_address.nested_push(symbol.address as u32, idx);
+            if !symbol.name.is_empty() {
+                symbols_by_name.nested_push(symbol.name.clone(), idx);
+            }
+        }
+        Self { symbols, symbols_by_address, symbols_by_name }
     }
 
-    pub fn build_symbol_map(&self, section_idx: usize) -> Result<BTreeMap<u32, Vec<usize>>> {
-        let mut symbols = BTreeMap::<u32, Vec<usize>>::new();
-        for (symbol_idx, symbol) in self.symbols_for_section(section_idx) {
-            symbols.nested_push(symbol.address as u32, symbol_idx);
+    pub fn add(&mut self, in_symbol: ObjSymbol, replace: bool) -> Result<SymbolIndex> {
+        let opt = self.at_address(in_symbol.address as u32).find(|(_, symbol)| {
+            (symbol.kind == in_symbol.kind ||
+                // Replace lbl_* with real symbols
+                (symbol.kind == ObjSymbolKind::Unknown && symbol.name.starts_with("lbl_")))
+                // Hack to avoid replacing different ABS symbols
+                && (symbol.section.is_some() || symbol.name == in_symbol.name)
+        });
+        let target_symbol_idx = if let Some((symbol_idx, existing)) = opt {
+            let size =
+                if existing.size_known && in_symbol.size_known && existing.size != in_symbol.size {
+                    log::warn!(
+                        "Conflicting size for {}: was {:#X}, now {:#X}",
+                        existing.name,
+                        existing.size,
+                        in_symbol.size
+                    );
+                    if replace {
+                        in_symbol.size
+                    } else {
+                        existing.size
+                    }
+                } else if in_symbol.size_known {
+                    in_symbol.size
+                } else {
+                    existing.size
+                };
+            if !replace {
+                // Not replacing existing symbol, but update size
+                if in_symbol.size_known && !existing.size_known {
+                    self.replace(symbol_idx, ObjSymbol {
+                        size: in_symbol.size,
+                        size_known: true,
+                        ..existing.clone()
+                    })?;
+                }
+                return Ok(symbol_idx);
+            }
+            let new_symbol = ObjSymbol {
+                name: in_symbol.name,
+                demangled_name: in_symbol.demangled_name,
+                address: in_symbol.address,
+                section: in_symbol.section,
+                size,
+                size_known: existing.size_known || in_symbol.size != 0,
+                flags: in_symbol.flags,
+                kind: in_symbol.kind,
+                align: in_symbol.align.or(existing.align),
+                data_kind: match in_symbol.data_kind {
+                    ObjDataKind::Unknown => existing.data_kind,
+                    kind => kind,
+                },
+            };
+            if existing != &new_symbol {
+                log::debug!("Replacing {:?} with {:?}", existing, new_symbol);
+                self.replace(symbol_idx, new_symbol)?;
+            }
+            symbol_idx
+        } else {
+            let target_symbol_idx = self.symbols.len();
+            self.add_direct(ObjSymbol {
+                name: in_symbol.name,
+                demangled_name: in_symbol.demangled_name,
+                address: in_symbol.address,
+                section: in_symbol.section,
+                size: in_symbol.size,
+                size_known: in_symbol.size != 0,
+                flags: in_symbol.flags,
+                kind: in_symbol.kind,
+                align: in_symbol.align,
+                data_kind: in_symbol.data_kind,
+            })?;
+            target_symbol_idx
+        };
+        Ok(target_symbol_idx)
+    }
+
+    pub fn add_direct(&mut self, in_symbol: ObjSymbol) -> Result<SymbolIndex> {
+        let symbol_idx = self.symbols.len();
+        self.symbols_by_address.nested_push(in_symbol.address as u32, symbol_idx);
+        if !in_symbol.name.is_empty() {
+            self.symbols_by_name.nested_push(in_symbol.name.clone(), symbol_idx);
         }
-        Ok(symbols)
+        self.symbols.push(in_symbol);
+        Ok(symbol_idx)
+    }
+
+    pub fn at(&self, symbol_idx: SymbolIndex) -> &ObjSymbol { &self.symbols[symbol_idx] }
+
+    pub fn address_of(&self, symbol_idx: SymbolIndex) -> u64 { self.symbols[symbol_idx].address }
+
+    pub fn iter(&self) -> impl DoubleEndedIterator<Item = &ObjSymbol> { self.symbols.iter() }
+
+    pub fn count(&self) -> usize { self.symbols.len() }
+
+    pub fn at_address(
+        &self,
+        addr: u32,
+    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
+        self.symbols_by_address
+            .get(&addr)
+            .into_iter()
+            .flatten()
+            .map(move |&idx| (idx, &self.symbols[idx]))
+    }
+
+    pub fn kind_at_address(
+        &self,
+        addr: u32,
+        kind: ObjSymbolKind,
+    ) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
+        let (count, result) = self
+            .at_address(addr)
+            .filter(|(_, sym)| sym.kind == kind)
+            .fold((0, None), |(i, _), v| (i + 1, Some(v)));
+        ensure!(count <= 1, "Multiple symbols of kind {:?} at address {:#010X}", kind, addr);
+        Ok(result)
+    }
+
+    pub fn for_range<R>(
+        &self,
+        range: R,
+    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)>
+    where
+        R: RangeBounds<u32>,
+    {
+        self.symbols_by_address
+            .range(range)
+            .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u])))
+    }
+
+    pub fn indexes_for_range<R>(
+        &self,
+        range: R,
+    ) -> impl DoubleEndedIterator<Item = (u32, &[SymbolIndex])>
+    where
+        R: RangeBounds<u32>,
+    {
+        self.symbols_by_address.range(range).map(|(k, v)| (*k, v.as_ref()))
+    }
+
+    pub fn for_section(
+        &self,
+        section: &ObjSection,
+    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
+        let section_index = section.index;
+        self.for_range(section.address as u32..(section.address + section.size) as u32)
+            // TODO required?
+            .filter(move |(_, symbol)| symbol.section == Some(section_index))
+    }
+
+    pub fn for_name(
+        &self,
+        name: &str,
+    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
+        self.symbols_by_name
+            .get(name)
+            .into_iter()
+            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u])))
+    }
+
+    pub fn by_name(&self, name: &str) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
+        let mut iter = self.for_name(name);
+        let result = iter.next();
+        if let Some((index, symbol)) = result {
+            if let Some((other_index, other_symbol)) = iter.next() {
+                bail!(
+                    "Multiple symbols with name {}: {} {:?} {:#010X} and {} {:?} {:#010X}",
+                    name,
+                    index,
+                    symbol.kind,
+                    symbol.address,
+                    other_index,
+                    other_symbol.kind,
+                    other_symbol.address
+                );
+            }
+        }
+        Ok(result)
+    }
+
+    pub fn by_kind(&self, kind: ObjSymbolKind) -> impl Iterator<Item = (SymbolIndex, &ObjSymbol)> {
+        self.symbols.iter().enumerate().filter(move |(_, sym)| sym.kind == kind)
+    }
+
+    pub fn replace(&mut self, index: SymbolIndex, symbol: ObjSymbol) -> Result<()> {
+        let symbol_ref = &mut self.symbols[index];
+        ensure!(symbol_ref.address == symbol.address, "Can't modify address with replace_symbol");
+        if symbol_ref.name != symbol.name {
+            if !symbol_ref.name.is_empty() {
+                self.symbols_by_name.nested_remove(&symbol_ref.name, &index);
+            }
+            if !symbol.name.is_empty() {
+                self.symbols_by_name.nested_push(symbol.name.clone(), index);
+            }
+        }
+        *symbol_ref = symbol;
+        Ok(())
+    }
+}
+
+impl ObjInfo {
+    pub fn new(
+        kind: ObjKind,
+        architecture: ObjArchitecture,
+        name: String,
+        symbols: Vec<ObjSymbol>,
+        sections: Vec<ObjSection>,
+    ) -> Self {
+        Self {
+            kind,
+            architecture,
+            name,
+            symbols: ObjSymbols::new(symbols),
+            sections,
+            entry: 0,
+            mw_comment: Default::default(),
+            sda2_base: None,
+            sda_base: None,
+            stack_address: None,
+            stack_end: None,
+            db_stack_addr: None,
+            arena_lo: None,
+            arena_hi: None,
+            splits: Default::default(),
+            named_sections: Default::default(),
+            link_order: vec![],
+            blocked_ranges: Default::default(),
+            known_functions: Default::default(),
+            module_id: 0,
+            unresolved_relocations: vec![],
+        }
+    }
+
+    pub fn add_symbol(&mut self, in_symbol: ObjSymbol, replace: bool) -> Result<SymbolIndex> {
+        match in_symbol.name.as_str() {
+            "_SDA_BASE_" => self.sda_base = Some(in_symbol.address as u32),
+            "_SDA2_BASE_" => self.sda2_base = Some(in_symbol.address as u32),
+            "_stack_addr" => self.stack_address = Some(in_symbol.address as u32),
+            "_stack_end" => self.stack_end = Some(in_symbol.address as u32),
+            "_db_stack_addr" => self.db_stack_addr = Some(in_symbol.address as u32),
+            "__ArenaLo" => self.arena_lo = Some(in_symbol.address as u32),
+            "__ArenaHi" => self.arena_hi = Some(in_symbol.address as u32),
+            _ => {}
+        }
+        self.symbols.add(in_symbol, replace)
     }
 
     pub fn section_at(&self, addr: u32) -> Result<&ObjSection> {
         self.sections
             .iter()
-            .find(|&section| {
-                (addr as u64) >= section.address && (addr as u64) < section.address + section.size
-            })
+            .find(|s| s.contains(addr))
             .ok_or_else(|| anyhow!("Failed to locate section @ {:#010X}", addr))
+    }
+
+    pub fn section_for(&self, range: Range<u32>) -> Result<&ObjSection> {
+        self.sections.iter().find(|s| s.contains_range(range.clone())).ok_or_else(|| {
+            anyhow!("Failed to locate section @ {:#010X}-{:#010X}", range.start, range.end)
+        })
     }
 
     pub fn section_data(&self, start: u32, end: u32) -> Result<(&ObjSection, &[u8])> {
@@ -171,20 +467,76 @@ impl ObjInfo {
         };
         Ok((section, data))
     }
+
+    /// Locate an existing split for the given address.
+    pub fn split_for(&self, address: u32) -> Option<(u32, &ObjSplit)> {
+        match self.splits_for_range(..=address).last() {
+            Some((addr, split)) if split.end == 0 || split.end > address => Some((addr, split)),
+            _ => None,
+        }
+    }
+
+    /// Locate existing splits within the given address range.
+    pub fn splits_for_range<R>(&self, range: R) -> impl Iterator<Item = (u32, &ObjSplit)>
+    where R: RangeBounds<u32> {
+        self.splits.range(range).flat_map(|(addr, v)| v.iter().map(move |u| (*addr, u)))
+    }
+
+    pub fn add_split(&mut self, address: u32, split: ObjSplit) {
+        log::debug!("Adding split @ {:#010X}: {:?}", address, split);
+        // TODO merge with preceding split if possible
+        self.splits.entry(address).or_default().push(split);
+    }
 }
 
 impl ObjSection {
-    pub fn build_relocation_map(&self) -> Result<BTreeMap<u32, ObjReloc>> {
-        let mut relocations = BTreeMap::<u32, ObjReloc>::new();
-        for reloc in &self.relocations {
+    pub fn build_relocation_map(&self) -> Result<BTreeMap<u32, usize>> {
+        let mut relocations = BTreeMap::new();
+        for (idx, reloc) in self.relocations.iter().enumerate() {
             let address = reloc.address as u32;
             match relocations.entry(address) {
                 btree_map::Entry::Vacant(e) => {
-                    e.insert(reloc.clone());
+                    e.insert(idx);
                 }
                 btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
             }
         }
         Ok(relocations)
     }
+
+    pub fn build_relocation_map_cloned(&self) -> Result<BTreeMap<u32, ObjReloc>> {
+        let mut relocations = BTreeMap::new();
+        for reloc in self.relocations.iter().cloned() {
+            let address = reloc.address as u32;
+            match relocations.entry(address) {
+                btree_map::Entry::Vacant(e) => {
+                    e.insert(reloc);
+                }
+                btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
+            }
+        }
+        Ok(relocations)
+    }
+
+    #[inline]
+    pub fn contains(&self, addr: u32) -> bool {
+        (self.address..self.address + self.size).contains(&(addr as u64))
+    }
+
+    #[inline]
+    pub fn contains_range(&self, range: Range<u32>) -> bool {
+        (range.start as u64) >= self.address && (range.end as u64) <= self.address + self.size
+    }
+}
+
+pub fn section_kind_for_section(section_name: &str) -> Result<ObjSectionKind> {
+    Ok(match section_name {
+        ".init" | ".text" | ".dbgtext" | ".vmtext" => ObjSectionKind::Code,
+        ".ctors" | ".dtors" | ".rodata" | ".sdata2" | "extab" | "extabindex" => {
+            ObjSectionKind::ReadOnlyData
+        }
+        ".bss" | ".sbss" | ".sbss2" => ObjSectionKind::Bss,
+        ".data" | ".sdata" => ObjSectionKind::Data,
+        name => bail!("Unknown section {name}"),
+    })
 }

@@ -9,8 +9,8 @@ use ppc750cl::{disasm_iter, Argument, Ins, Opcode};
 
 use crate::{
     obj::{
-        ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlags,
-        ObjSymbolKind,
+        ObjDataKind, ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
+        ObjSymbolFlags, ObjSymbolKind,
     },
     util::nested::NestedVec,
 };
@@ -22,7 +22,7 @@ enum SymbolEntryKind {
     Label,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 struct SymbolEntry {
     index: usize,
     kind: SymbolEntryKind,
@@ -31,20 +31,24 @@ struct SymbolEntry {
 pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
     writeln!(w, ".include \"macros.inc\"")?;
     if !obj.name.is_empty() {
-        writeln!(w, ".file \"{}\"", obj.name.replace('\\', "\\\\"))?;
+        let name = obj
+            .name
+            .rsplit_once('/')
+            .or_else(|| obj.name.rsplit_once('\\'))
+            .or_else(|| obj.name.rsplit_once(' '))
+            .map(|(_, b)| b)
+            .unwrap_or(&obj.name);
+        writeln!(w, ".file \"{}\"", name.replace('\\', "\\\\"))?;
     }
 
     // We'll append generated symbols to the end
-    let mut symbols: Vec<ObjSymbol> = obj.symbols.clone();
+    let mut symbols: Vec<ObjSymbol> = obj.symbols.iter().cloned().collect();
     let mut section_entries: Vec<BTreeMap<u32, Vec<SymbolEntry>>> = vec![];
     let mut section_relocations: Vec<BTreeMap<u32, ObjReloc>> = vec![];
     for (section_idx, section) in obj.sections.iter().enumerate() {
         // Build symbol start/end entries
         let mut entries = BTreeMap::<u32, Vec<SymbolEntry>>::new();
-        for (symbol_index, symbol) in obj.symbols_for_section(section_idx) {
-            if symbol.kind == ObjSymbolKind::Section {
-                continue;
-            }
+        for (symbol_index, symbol) in obj.symbols.for_section(section) {
             entries.nested_push(symbol.address as u32, SymbolEntry {
                 index: symbol_index,
                 kind: SymbolEntryKind::Start,
@@ -57,16 +61,13 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
             }
         }
 
-        let mut relocations = section.build_relocation_map()?;
+        let mut relocations = section.build_relocation_map_cloned()?;
 
         // Generate local jump labels
         if section.kind == ObjSectionKind::Code {
             for ins in disasm_iter(&section.data, section.address as u32) {
                 if let Some(address) = ins.branch_dest() {
-                    if ins.field_AA()
-                        || (address as u64) < section.address
-                        || (address as u64) >= section.address + section.size
-                    {
+                    if ins.field_AA() || !section.contains(address) {
                         continue;
                     }
 
@@ -128,7 +129,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
             if reloc.addend == 0 {
                 continue;
             }
-            let target = &obj.symbols[reloc.target_symbol];
+            let target = &symbols[reloc.target_symbol];
             let target_section_idx = match target.section {
                 Some(v) => v,
                 None => continue,
@@ -154,6 +155,24 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
                 });
                 vec.push(SymbolEntry { index: symbol_idx, kind: SymbolEntryKind::Label });
             }
+        }
+    }
+
+    // Write common symbols
+    let mut common_symbols = Vec::new();
+    for symbol in symbols.iter().filter(|s| s.flags.0.contains(ObjSymbolFlags::Common)) {
+        ensure!(symbol.section.is_none(), "Invalid: common symbol with section {:?}", symbol);
+        common_symbols.push(symbol);
+    }
+    if !common_symbols.is_empty() {
+        writeln!(w)?;
+        for symbol in common_symbols {
+            if let Some(name) = &symbol.demangled_name {
+                writeln!(w, "# {name}")?;
+            }
+            write!(w, ".comm ")?;
+            write_symbol_name(w, &symbol.name)?;
+            writeln!(w, ", {:#X}, 4", symbol.size)?;
         }
     }
 
@@ -336,10 +355,11 @@ fn write_symbol_entry<W: Write>(
     };
     let scope = if symbol.flags.0.contains(ObjSymbolFlags::Weak) {
         "weak"
-    } else if symbol.flags.0.contains(ObjSymbolFlags::Global) {
-        "global"
-    } else {
+    } else if symbol.flags.0.contains(ObjSymbolFlags::Local) {
         "local"
+    } else {
+        // Default to global
+        "global"
     };
 
     match entry.kind {
@@ -397,6 +417,7 @@ fn write_data<W: Write>(
 
     let mut current_address = start;
     let mut current_symbol_kind = ObjSymbolKind::Unknown;
+    let mut current_data_kind = ObjDataKind::Unknown;
     let mut entry = entry_iter.next();
     let mut reloc = reloc_iter.next();
     let mut begin = true;
@@ -413,6 +434,7 @@ fn write_data<W: Write>(
                     write_symbol_entry(w, symbols, entry)?;
                 }
                 current_symbol_kind = find_symbol_kind(current_symbol_kind, symbols, vec)?;
+                current_data_kind = find_data_kind(current_data_kind, symbols, vec)?;
                 entry = entry_iter.next();
             }
         }
@@ -464,7 +486,7 @@ fn write_data<W: Write>(
             );
             write_code_chunk(w, symbols, entries, relocations, section, current_address, data)?;
         } else {
-            write_data_chunk(w, data)?;
+            write_data_chunk(w, data, current_data_kind)?;
         }
         current_address = until;
     }
@@ -497,24 +519,174 @@ fn find_symbol_kind(
     Ok(kind)
 }
 
-fn write_data_chunk<W: Write>(w: &mut W, data: &[u8]) -> Result<()> {
+fn find_data_kind(
+    current_data_kind: ObjDataKind,
+    symbols: &[ObjSymbol],
+    entries: &Vec<SymbolEntry>,
+) -> Result<ObjDataKind> {
+    let mut kind = ObjDataKind::Unknown;
+    let mut found = false;
+    for entry in entries {
+        match entry.kind {
+            SymbolEntryKind::Start => {
+                let new_kind = symbols[entry.index].data_kind;
+                if !matches!(new_kind, ObjDataKind::Unknown) {
+                    ensure!(
+                        !found || new_kind == kind,
+                        "Conflicting data kinds found: {kind:?} and {new_kind:?}"
+                    );
+                    found = true;
+                    kind = new_kind;
+                }
+            }
+            SymbolEntryKind::Label => {
+                // If type is a local label, don't change data types
+                if !found {
+                    kind = current_data_kind;
+                }
+            }
+            _ => continue,
+        }
+    }
+    Ok(kind)
+}
+
+fn write_string<W: Write>(w: &mut W, data: &[u8]) -> Result<()> {
+    let terminated = matches!(data.last(), Some(&b) if b == 0);
+    if terminated {
+        write!(w, "\t.string \"")?;
+    } else {
+        write!(w, "\t.ascii \"")?;
+    }
+    for &b in &data[..data.len() - if terminated { 1 } else { 0 }] {
+        match b as char {
+            '\x08' => write!(w, "\\b")?,
+            '\x09' => write!(w, "\\t")?,
+            '\x0A' => write!(w, "\\n")?,
+            '\x0C' => write!(w, "\\f")?,
+            '\x0D' => write!(w, "\\r")?,
+            '\\' => write!(w, "\\\\")?,
+            '"' => write!(w, "\\\"")?,
+            c if c.is_ascii_graphic() || c.is_ascii_whitespace() => write!(w, "{}", c)?,
+            _ => write!(w, "\\{:03o}", b)?,
+        }
+    }
+    writeln!(w, "\"")?;
+    Ok(())
+}
+
+fn write_string16<W: Write>(w: &mut W, data: &[u16]) -> Result<()> {
+    if matches!(data.last(), Some(&b) if b == 0) {
+        write!(w, "\t.string16 \"")?;
+    } else {
+        bail!("Non-terminated UTF-16 string");
+    }
+    if data.len() > 1 {
+        for result in std::char::decode_utf16(data[..data.len() - 1].iter().cloned()) {
+            let c = match result {
+                Ok(c) => c,
+                Err(_) => bail!("Failed to decode UTF-16"),
+            };
+            match c {
+                '\x08' => write!(w, "\\b")?,
+                '\x09' => write!(w, "\\t")?,
+                '\x0A' => write!(w, "\\n")?,
+                '\x0C' => write!(w, "\\f")?,
+                '\x0D' => write!(w, "\\r")?,
+                '\\' => write!(w, "\\\\")?,
+                '"' => write!(w, "\\\"")?,
+                c if c.is_ascii_graphic() || c.is_ascii_whitespace() => write!(w, "{}", c)?,
+                _ => write!(w, "\\{:#X}", c as u32)?,
+            }
+        }
+    }
+    writeln!(w, "\"")?;
+    Ok(())
+}
+
+fn write_data_chunk<W: Write>(w: &mut W, data: &[u8], data_kind: ObjDataKind) -> Result<()> {
     let remain = data;
-    for chunk in remain.chunks(4) {
-        match chunk.len() {
-            4 => {
-                let data = u32::from_be_bytes(chunk.try_into().unwrap());
-                writeln!(w, "\t.4byte {data:#010X}")?;
+    match data_kind {
+        ObjDataKind::String => {
+            return write_string(w, data);
+        }
+        ObjDataKind::String16 => {
+            if data.len() % 2 != 0 {
+                bail!("Attempted to write wstring with length {:#X}", data.len());
             }
-            3 => {
-                writeln!(w, "\t.byte {:#04X}, {:#04X}, {:#04X}", chunk[0], chunk[1], chunk[2])?;
+            let data = data
+                .chunks_exact(2)
+                .map(|c| u16::from_be_bytes(c.try_into().unwrap()))
+                .collect::<Vec<u16>>();
+            return write_string16(w, &data);
+        }
+        ObjDataKind::StringTable => {
+            for slice in data.split_inclusive(|&b| b == 0) {
+                write_string(w, slice)?;
             }
-            2 => {
-                writeln!(w, "\t.2byte {:#06X}", u16::from_be_bytes(chunk.try_into().unwrap()))?;
+            return Ok(());
+        }
+        ObjDataKind::String16Table => {
+            if data.len() % 2 != 0 {
+                bail!("Attempted to write wstring_table with length {:#X}", data.len());
             }
-            1 => {
-                writeln!(w, "\t.byte {:#04X}", chunk[0])?;
+            let data = data
+                .chunks_exact(2)
+                .map(|c| u16::from_be_bytes(c.try_into().unwrap()))
+                .collect::<Vec<u16>>();
+            for slice in data.split_inclusive(|&b| b == 0) {
+                write_string16(w, slice)?;
             }
-            _ => unreachable!(),
+            return Ok(());
+        }
+        _ => {}
+    }
+    let chunk_size = match data_kind {
+        ObjDataKind::Byte2 => 2,
+        ObjDataKind::Unknown | ObjDataKind::Byte4 | ObjDataKind::Float => 4,
+        ObjDataKind::Byte | ObjDataKind::Byte8 | ObjDataKind::Double => 8,
+        ObjDataKind::String
+        | ObjDataKind::String16
+        | ObjDataKind::StringTable
+        | ObjDataKind::String16Table => unreachable!(),
+    };
+    for chunk in remain.chunks(chunk_size) {
+        if data_kind == ObjDataKind::Byte || matches!(chunk.len(), 1 | 3 | 5..=7) {
+            let bytes = chunk.iter().map(|c| format!("{:#04X}", c)).collect::<Vec<String>>();
+            writeln!(w, "\t.byte {}", bytes.join(", "))?;
+        } else {
+            match chunk.len() {
+                8 if data_kind == ObjDataKind::Double => {
+                    let data = f64::from_be_bytes(chunk.try_into().unwrap());
+                    if data.is_nan() {
+                        let int_data = u64::from_be_bytes(chunk.try_into().unwrap());
+                        writeln!(w, "\t.8byte {int_data:#018X} # {data}")?;
+                    } else {
+                        writeln!(w, "\t.double {data}")?;
+                    }
+                }
+                8 => {
+                    let data = u64::from_be_bytes(chunk.try_into().unwrap());
+                    writeln!(w, "\t.8byte {data:#018X}")?;
+                }
+                4 if data_kind == ObjDataKind::Float => {
+                    let data = f32::from_be_bytes(chunk.try_into().unwrap());
+                    if data.is_nan() {
+                        let int_data = u32::from_be_bytes(chunk.try_into().unwrap());
+                        writeln!(w, "\t.4byte {int_data:#010X} # {data}")?;
+                    } else {
+                        writeln!(w, "\t.float {data}")?;
+                    }
+                }
+                4 => {
+                    let data = u32::from_be_bytes(chunk.try_into().unwrap());
+                    writeln!(w, "\t.4byte {data:#010X}")?;
+                }
+                2 => {
+                    writeln!(w, "\t.2byte {:#06X}", u16::from_be_bytes(chunk.try_into().unwrap()))?;
+                }
+                _ => unreachable!(),
+            }
         }
     }
     Ok(())
@@ -644,6 +816,10 @@ fn write_section_header<W: Write>(
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"a\"")?;
         }
+        ".comment" => {
+            write!(w, ".section {}", section.name)?;
+            write!(w, ", \"\"")?;
+        }
         name => {
             log::warn!("Unknown section {name}");
             write!(w, ".section {}", section.name)?;
@@ -676,7 +852,12 @@ fn write_reloc_symbol<W: Write>(
 }
 
 fn write_symbol_name<W: Write>(w: &mut W, name: &str) -> std::io::Result<()> {
-    if name.contains('@') || name.contains('<') || name.contains('\\') {
+    if name.contains('@')
+        || name.contains('<')
+        || name.contains('\\')
+        || name.contains('-')
+        || name.contains('+')
+    {
         write!(w, "\"{name}\"")?;
     } else {
         write!(w, "{name}")?;

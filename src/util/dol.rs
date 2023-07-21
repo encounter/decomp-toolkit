@@ -33,27 +33,8 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let mmap = map_file(path)?;
         Dol::read_from(map_reader(&mmap))?
     };
-    let mut obj = ObjInfo {
-        module_id: 0,
-        kind: ObjKind::Executable,
-        architecture: ObjArchitecture::PowerPc,
-        name,
-        symbols: vec![],
-        sections: vec![],
-        entry: dol.header.entry_point as u64,
-        sda2_base: None,
-        sda_base: None,
-        stack_address: None,
-        stack_end: None,
-        db_stack_addr: None,
-        arena_lo: None,
-        arena_hi: None,
-        splits: Default::default(),
-        named_sections: Default::default(),
-        link_order: vec![],
-        known_functions: Default::default(),
-        unresolved_relocations: vec![],
-    };
+    let mut obj = ObjInfo::new(ObjKind::Executable, ObjArchitecture::PowerPc, name, vec![], vec![]);
+    obj.entry = dol.header.entry_point as u64;
 
     // Locate _rom_copy_info
     let first_rom_section = dol
@@ -355,46 +336,61 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     if let (Some(rom_copy_info_addr), Some(rom_copy_info_end)) =
         (rom_copy_info_addr, rom_copy_info_end)
     {
-        obj.symbols.push(ObjSymbol {
-            name: "_rom_copy_info".to_string(),
-            demangled_name: None,
-            address: rom_copy_info_addr as u64,
-            section: init_section_index,
-            size: (rom_copy_info_end - rom_copy_info_addr) as u64,
-            size_known: true,
-            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            kind: ObjSymbolKind::Object,
-        });
+        obj.add_symbol(
+            ObjSymbol {
+                name: "_rom_copy_info".to_string(),
+                demangled_name: None,
+                address: rom_copy_info_addr as u64,
+                section: init_section_index,
+                size: (rom_copy_info_end - rom_copy_info_addr) as u64,
+                size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                kind: ObjSymbolKind::Object,
+                align: None,
+                data_kind: Default::default(),
+            },
+            true,
+        )?;
     }
 
     // Generate _bss_init_info symbol
     if let (Some(bss_init_info_addr), Some(bss_init_info_end)) =
         (bss_init_info_addr, bss_init_info_end)
     {
-        obj.symbols.push(ObjSymbol {
-            name: "_bss_init_info".to_string(),
-            demangled_name: None,
-            address: bss_init_info_addr as u64,
-            section: init_section_index,
-            size: (bss_init_info_end - bss_init_info_addr) as u64,
-            size_known: true,
-            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            kind: ObjSymbolKind::Object,
-        });
+        obj.add_symbol(
+            ObjSymbol {
+                name: "_bss_init_info".to_string(),
+                demangled_name: None,
+                address: bss_init_info_addr as u64,
+                section: init_section_index,
+                size: (bss_init_info_end - bss_init_info_addr) as u64,
+                size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                kind: ObjSymbolKind::Object,
+                align: None,
+                data_kind: Default::default(),
+            },
+            true,
+        )?;
     }
 
     // Generate _eti_init_info symbol
     if let Some((eti_init_info_addr, eti_init_info_end)) = eti_init_info_range {
-        obj.symbols.push(ObjSymbol {
-            name: "_eti_init_info".to_string(),
-            demangled_name: None,
-            address: eti_init_info_addr as u64,
-            section: extabindex_section,
-            size: (eti_init_info_end - eti_init_info_addr) as u64,
-            size_known: true,
-            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            kind: ObjSymbolKind::Object,
-        });
+        obj.add_symbol(
+            ObjSymbol {
+                name: "_eti_init_info".to_string(),
+                demangled_name: None,
+                address: eti_init_info_addr as u64,
+                section: extabindex_section,
+                size: (eti_init_info_end - eti_init_info_addr) as u64,
+                size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                kind: ObjSymbolKind::Object,
+                align: None,
+                data_kind: Default::default(),
+            },
+            true,
+        )?;
     }
 
     // Generate symbols for extab & extabindex entries
@@ -402,7 +398,12 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         (extabindex_section, extab_section)
     {
         let extabindex_section = &obj.sections[extabindex_section_idx];
+        let extabindex_section_index = extabindex_section.index;
+        let extabindex_section_address = extabindex_section.address;
+        let extabindex_section_size = extabindex_section.size;
         let extab_section = &obj.sections[extab_section_idx];
+        let extab_section_index = extab_section.index;
+
         for entry in &eti_entries {
             // Add functions from extabindex entries as known function bounds
             if let Some(old_value) = obj.known_functions.insert(entry.function, entry.function_size)
@@ -416,16 +417,21 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                     );
                 }
             }
-            obj.symbols.push(ObjSymbol {
-                name: format!("@eti_{:08X}", entry.address),
-                demangled_name: None,
-                address: entry.address as u64,
-                section: Some(extabindex_section.index),
-                size: 12,
-                size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Local | ObjSymbolFlags::Hidden),
-                kind: ObjSymbolKind::Object,
-            });
+            obj.add_symbol(
+                ObjSymbol {
+                    name: format!("@eti_{:08X}", entry.address),
+                    demangled_name: None,
+                    address: entry.address as u64,
+                    section: Some(extabindex_section_index),
+                    size: 12,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Local | ObjSymbolFlags::Hidden),
+                    kind: ObjSymbolKind::Object,
+                    align: None,
+                    data_kind: Default::default(),
+                },
+                false,
+            )?;
         }
 
         let mut entry_iter = eti_entries.iter().peekable();
@@ -434,20 +440,25 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 (Some(a), Some(&b)) => (a.extab_addr, b.extab_addr - a.extab_addr),
                 (Some(a), None) => (
                     a.extab_addr,
-                    (extabindex_section.address + extabindex_section.size) as u32 - a.extab_addr,
+                    (extabindex_section_address + extabindex_section_size) as u32 - a.extab_addr,
                 ),
                 _ => break,
             };
-            obj.symbols.push(ObjSymbol {
-                name: format!("@etb_{:08X}", addr),
-                demangled_name: None,
-                address: addr as u64,
-                section: Some(extab_section.index),
-                size: size as u64,
-                size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Local | ObjSymbolFlags::Hidden),
-                kind: ObjSymbolKind::Object,
-            });
+            obj.add_symbol(
+                ObjSymbol {
+                    name: format!("@etb_{:08X}", addr),
+                    demangled_name: None,
+                    address: addr as u64,
+                    section: Some(extab_section_index),
+                    size: size as u64,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Local | ObjSymbolFlags::Hidden),
+                    kind: ObjSymbolKind::Object,
+                    align: None,
+                    data_kind: Default::default(),
+                },
+                false,
+            )?;
         }
     }
 
@@ -456,26 +467,36 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         Ok(true) => {
             let sda2_base = obj.sda2_base.unwrap();
             let sda_base = obj.sda_base.unwrap();
-            obj.symbols.push(ObjSymbol {
-                name: "_SDA2_BASE_".to_string(),
-                demangled_name: None,
-                address: sda2_base as u64,
-                section: None,
-                size: 0,
-                size_known: false,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                kind: ObjSymbolKind::Unknown,
-            });
-            obj.symbols.push(ObjSymbol {
-                name: "_SDA_BASE_".to_string(),
-                demangled_name: None,
-                address: sda_base as u64,
-                section: None,
-                size: 0,
-                size_known: false,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                kind: ObjSymbolKind::Unknown,
-            });
+            obj.add_symbol(
+                ObjSymbol {
+                    name: "_SDA2_BASE_".to_string(),
+                    demangled_name: None,
+                    address: sda2_base as u64,
+                    section: None,
+                    size: 0,
+                    size_known: false,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    kind: ObjSymbolKind::Unknown,
+                    align: None,
+                    data_kind: Default::default(),
+                },
+                true,
+            )?;
+            obj.add_symbol(
+                ObjSymbol {
+                    name: "_SDA_BASE_".to_string(),
+                    demangled_name: None,
+                    address: sda_base as u64,
+                    section: None,
+                    size: 0,
+                    size_known: false,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    kind: ObjSymbolKind::Unknown,
+                    align: None,
+                    data_kind: Default::default(),
+                },
+                true,
+            )?;
         }
         Ok(false) => {
             log::warn!("Unable to locate SDA bases");
@@ -512,17 +533,17 @@ struct EtiEntry {
 }
 
 fn read_eti_init_info(dol: &Dol, addr: u32) -> Result<EtiInitInfo> {
-    let eti_start = read_u32(&dol, addr)?;
-    let eti_end = read_u32(&dol, addr + 4)?;
-    let code_start = read_u32(&dol, addr + 8)?;
-    let code_size = read_u32(&dol, addr + 12)?;
+    let eti_start = read_u32(dol, addr)?;
+    let eti_end = read_u32(dol, addr + 4)?;
+    let code_start = read_u32(dol, addr + 8)?;
+    let code_size = read_u32(dol, addr + 12)?;
     Ok(EtiInitInfo { eti_start, eti_end, code_start, code_size })
 }
 
 fn read_eti_entry(dol: &Dol, address: u32) -> Result<EtiEntry> {
-    let function = read_u32(&dol, address)?;
-    let function_size = read_u32(&dol, address + 4)?;
-    let extab_addr = read_u32(&dol, address + 8)?;
+    let function = read_u32(dol, address)?;
+    let function_size = read_u32(dol, address + 4)?;
+    let extab_addr = read_u32(dol, address + 8)?;
     Ok(EtiEntry { address, function, function_size, extab_addr })
 }
 
@@ -538,7 +559,7 @@ fn validate_eti_init_info(
         && eti_init_info.eti_end >= eti_section.target
         && eti_init_info.eti_end < eti_section_end
     {
-        if let Some(code_section) = section_by_address(&dol, eti_init_info.code_start) {
+        if let Some(code_section) = section_by_address(dol, eti_init_info.code_start) {
             let code_section_size = match rom_sections.get(&code_section.target) {
                 Some(&size) => size,
                 None => code_section.size,

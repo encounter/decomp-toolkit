@@ -1,10 +1,11 @@
 use std::{
-    collections::{btree_map::Entry, hash_map, BTreeMap, HashMap},
+    collections::{hash_map, BTreeMap, HashMap},
     io::Cursor,
     path::Path,
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
+use byteorder::{BigEndian, WriteBytesExt};
 use cwdemangle::demangle;
 use flagset::Flags;
 use indexmap::IndexMap;
@@ -16,24 +17,20 @@ use object::{
         StringId,
     },
     Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
-    RelocationKind, RelocationTarget, Section, SectionKind, Symbol, SymbolKind, SymbolScope,
-    SymbolSection,
+    RelocationKind, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection,
 };
 
 use crate::{
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
-        ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+        ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
     },
     util::{
-        dwarf::{
-            process_address, process_type, read_debug_section, type_string, ud_type,
-            ud_type_string, AttributeKind, TagKind, TypeKind,
-        },
+        comment::{write_comment_sym, MWComment},
         file::map_file,
+        nested::NestedVec,
     },
 };
-use crate::util::nested::NestedVec;
 
 enum BoundaryState {
     /// Looking for a file symbol, any section symbols are queued
@@ -70,11 +67,17 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let mut sections: Vec<ObjSection> = vec![];
     let mut section_indexes: Vec<Option<usize>> = vec![];
     for section in obj_file.sections() {
+        if section.size() == 0 {
+            section_indexes.push(None);
+            continue;
+        }
+        let section_name = section.name()?;
         let section_kind = match section.kind() {
             SectionKind::Text => ObjSectionKind::Code,
             SectionKind::Data => ObjSectionKind::Data,
             SectionKind::ReadOnlyData => ObjSectionKind::ReadOnlyData,
             SectionKind::UninitializedData => ObjSectionKind::Bss,
+            // SectionKind::Other if section_name == ".comment" => ObjSectionKind::Comment,
             _ => {
                 section_indexes.push(None);
                 continue;
@@ -82,7 +85,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         };
         section_indexes.push(Some(sections.len()));
         sections.push(ObjSection {
-            name: section.name()?.to_string(),
+            name: section_name.to_string(),
             kind: section_kind,
             address: section.address(),
             size: section.size(),
@@ -232,14 +235,14 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                     }
                     BoundaryState::FilesEnded => {}
                 },
-                SymbolSection::Undefined => {}
+                SymbolSection::Common | SymbolSection::Undefined => {}
                 _ => bail!("Unsupported symbol section type {symbol:?}"),
             },
         }
 
         // Generate symbols
         if matches!(symbol.kind(), SymbolKind::Null | SymbolKind::File)
-            || matches!(symbol.section_index(), Some(idx) if section_indexes[idx.0] == None)
+            || matches!(symbol.section_index(), Some(idx) if section_indexes[idx.0].is_none())
         {
             symbol_indexes.push(None);
             continue;
@@ -249,7 +252,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     }
 
     let mut link_order = Vec::<String>::new();
-    let mut splits = BTreeMap::<u32, Vec<String>>::new();
+    let mut splits = BTreeMap::<u32, Vec<ObjSplit>>::new();
     if kind == ObjKind::Executable {
         // Link order is trivially deduced
         for file_name in section_starts.keys() {
@@ -259,7 +262,12 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         // Create a map of address -> file splits
         for (file_name, sections) in section_starts {
             for (address, _) in sections {
-                splits.nested_push(address as u32, file_name.clone());
+                splits.nested_push(address as u32, ObjSplit {
+                    unit: file_name.clone(),
+                    end: 0, // TODO
+                    align: None,
+                    common: false, // TODO
+                });
             }
         }
 
@@ -283,27 +291,30 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         }
     }
 
-    Ok(ObjInfo {
-        module_id: 0,
-        kind,
-        architecture,
-        name: obj_name,
-        symbols,
-        sections,
-        entry: obj_file.entry(),
-        sda2_base,
-        sda_base,
-        stack_address,
-        stack_end,
-        db_stack_addr,
-        arena_lo,
-        arena_hi,
-        splits,
-        named_sections: Default::default(),
-        link_order,
-        known_functions: Default::default(),
-        unresolved_relocations: vec![],
-    })
+    let mw_comment = if let Some(comment_section) = obj_file.section_by_name(".comment") {
+        let data = comment_section.uncompressed_data()?;
+        let mut reader = Cursor::new(&*data);
+        let header = MWComment::parse_header(&mut reader)?;
+        log::info!("Loaded comment header {:?}", header);
+
+        header
+    } else {
+        MWComment::default()
+    };
+
+    let mut obj = ObjInfo::new(kind, architecture, obj_name, symbols, sections);
+    obj.entry = obj_file.entry();
+    obj.mw_comment = mw_comment;
+    obj.sda2_base = sda2_base;
+    obj.sda_base = sda_base;
+    obj.stack_address = stack_address;
+    obj.stack_end = stack_end;
+    obj.db_stack_addr = db_stack_addr;
+    obj.arena_lo = arena_lo;
+    obj.arena_hi = arena_hi;
+    obj.splits = splits;
+    obj.link_order = link_order;
+    Ok(obj)
 }
 
 pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
@@ -319,6 +330,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         rela_name: Option<StringId>,
     }
     struct OutSymbol {
+        #[allow(dead_code)]
         index: SymbolIndex,
         sym: object::write::elf::Sym,
     }
@@ -337,26 +349,50 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             rela_name: None,
         });
     }
+
     let mut rela_names: Vec<String> = vec![Default::default(); obj.sections.len()];
     for ((section, out_section), rela_name) in
         obj.sections.iter().zip(&mut out_sections).zip(&mut rela_names)
     {
-        if !section.relocations.is_empty() {
-            *rela_name = format!(".rela{}", section.name);
-            out_section.rela_name = Some(writer.add_section_name(rela_name.as_bytes()));
-            out_section.rela_index = Some(writer.reserve_section_index());
+        if section.relocations.is_empty() {
+            continue;
         }
+        *rela_name = format!(".rela{}", section.name);
+        out_section.rela_name = Some(writer.add_section_name(rela_name.as_bytes()));
+        out_section.rela_index = Some(writer.reserve_section_index());
     }
-    let symtab = writer.reserve_symtab_section_index();
-    writer.reserve_shstrtab_section_index();
-    writer.reserve_strtab_section_index();
 
-    // Add symbols
-    let mut out_symbols: Vec<OutSymbol> = Vec::with_capacity(obj.symbols.len());
-    let mut symbol_offset = 0;
+    let symtab = writer.reserve_symtab_section_index();
+    writer.reserve_strtab_section_index();
+    writer.reserve_shstrtab_section_index();
+
+    // Generate comment section
+    let mut comment_data = if obj.kind == ObjKind::Relocatable {
+        // let mut comment_data = Vec::<u8>::with_capacity(0x2C + obj.symbols.len() * 8);
+        // let name = writer.add_section_name(".comment".as_bytes());
+        // let index = writer.reserve_section_index();
+        // out_sections.push(OutSection {
+        //     index,
+        //     rela_index: None,
+        //     offset: 0,
+        //     rela_offset: 0,
+        //     name,
+        //     rela_name: None,
+        // });
+        // obj.mw_comment.write_header(&mut comment_data)?;
+        // Some(comment_data)
+        None::<Vec<u8>>
+    } else {
+        None
+    };
+
+    let mut out_symbols: Vec<OutSymbol> = Vec::with_capacity(obj.symbols.count());
+    let mut symbol_map = vec![None; obj.symbols.count()];
+    let mut section_symbol_offset = 0;
     let mut num_local = 0;
+
+    // Add file symbol
     if !obj.name.is_empty() {
-        // Add file symbol
         let name_index = writer.add_string(obj.name.as_bytes());
         let index = writer.reserve_symbol_index(None);
         out_symbols.push(OutSymbol {
@@ -375,9 +411,42 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                 st_size: 0,
             },
         });
-        symbol_offset += 1;
+        if let Some(comment_data) = &mut comment_data {
+            comment_data.write_u64::<BigEndian>(0)?;
+        }
+        section_symbol_offset += 1;
     }
-    for symbol in &obj.symbols {
+
+    // Add section symbols for relocatable objects
+    if obj.kind == ObjKind::Relocatable {
+        for section in &obj.sections {
+            let section_index = out_sections.get(section.index).map(|s| s.index);
+            let index = writer.reserve_symbol_index(section_index);
+            let name_index = writer.add_string(section.name.as_bytes());
+            let sym = object::write::elf::Sym {
+                name: Some(name_index),
+                section: section_index,
+                st_info: (elf::STB_LOCAL << 4) + elf::STT_SECTION,
+                st_other: elf::STV_DEFAULT,
+                st_shndx: 0,
+                st_value: 0,
+                st_size: section.size,
+            };
+            num_local = writer.symbol_count();
+            out_symbols.push(OutSymbol { index, sym });
+        }
+    }
+
+    // Add symbols
+    for (symbol, symbol_map) in obj.symbols.iter().zip(&mut symbol_map) {
+        if obj.kind == ObjKind::Relocatable && symbol.kind == ObjSymbolKind::Section {
+            // We wrote section symbols above, so skip them here
+            let section_index =
+                symbol.section.ok_or_else(|| anyhow!("section symbol without section index"))?;
+            *symbol_map = Some(section_symbol_offset + section_index as u32);
+            continue;
+        }
+
         let section_index = symbol.section.and_then(|idx| out_sections.get(idx)).map(|s| s.index);
         let index = writer.reserve_symbol_index(section_index);
         let name_index = if symbol.name.is_empty() {
@@ -429,6 +498,10 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             num_local = writer.symbol_count();
         }
         out_symbols.push(OutSymbol { index, sym });
+        *symbol_map = Some(index.0);
+        if let Some(comment_data) = &mut comment_data {
+            write_comment_sym(comment_data, symbol)?;
+        }
     }
 
     writer.reserve_file_header();
@@ -438,23 +511,35 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
     }
 
     for (section, out_section) in obj.sections.iter().zip(&mut out_sections) {
-        match section.kind {
-            ObjSectionKind::Code | ObjSectionKind::Data | ObjSectionKind::ReadOnlyData => {}
-            ObjSectionKind::Bss => continue,
+        if section.kind == ObjSectionKind::Bss {
+            continue;
         }
-        ensure!(section.data.len() as u64 == section.size, "Mismatched section size");
-        out_section.offset = writer.reserve(section.data.len(), 32);
+        ensure!(section.data.len() as u64 == section.size);
+        if section.size == 0 {
+            // Bug in Writer::reserve doesn't align when len is 0
+            let offset = (writer.reserved_len() + 31) & !31;
+            writer.reserve_until(offset);
+            out_section.offset = offset;
+        } else {
+            out_section.offset = writer.reserve(section.data.len(), 32);
+        }
     }
-
-    writer.reserve_shstrtab();
-    writer.reserve_strtab();
-    writer.reserve_symtab();
 
     for (section, out_section) in obj.sections.iter().zip(&mut out_sections) {
         if section.relocations.is_empty() {
             continue;
         }
         out_section.rela_offset = writer.reserve_relocations(section.relocations.len(), true);
+    }
+
+    writer.reserve_symtab();
+    writer.reserve_strtab();
+    writer.reserve_shstrtab();
+
+    // Reserve comment section
+    if let Some(comment_data) = &comment_data {
+        let out_section = out_sections.last_mut().unwrap();
+        out_section.offset = writer.reserve(comment_data.len(), 32);
     }
 
     writer.reserve_section_headers();
@@ -499,16 +584,8 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             continue;
         }
         writer.write_align(32);
-        debug_assert_eq!(writer.len(), out_section.offset);
+        ensure!(writer.len() == out_section.offset);
         writer.write(&section.data);
-    }
-
-    writer.write_shstrtab();
-    writer.write_strtab();
-
-    writer.write_null_symbol();
-    for out_symbol in &out_symbols {
-        writer.write_symbol(&out_symbol.sym);
     }
 
     for (section, out_section) in obj.sections.iter().zip(&out_sections) {
@@ -516,7 +593,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             continue;
         }
         writer.write_align_relocation();
-        debug_assert_eq!(writer.len(), out_section.rela_offset);
+        ensure!(writer.len() == out_section.rela_offset);
         for reloc in &section.relocations {
             let mut r_offset = reloc.address;
             let r_type = match reloc.kind {
@@ -540,11 +617,11 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                     elf::R_PPC_ADDR16_LO
                 }
                 ObjRelocKind::PpcRel24 => {
-                    r_offset = r_offset & !3;
+                    r_offset &= !3;
                     elf::R_PPC_REL24
                 }
                 ObjRelocKind::PpcRel14 => {
-                    r_offset = r_offset & !3;
+                    r_offset &= !3;
                     elf::R_PPC_REL14
                 }
                 ObjRelocKind::PpcEmbSda21 => {
@@ -552,13 +629,26 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                     elf::R_PPC_EMB_SDA21
                 }
             };
-            writer.write_relocation(true, &Rel {
-                r_offset,
-                r_sym: (reloc.target_symbol + symbol_offset + 1) as u32,
-                r_type,
-                r_addend: reloc.addend,
-            });
+            let r_sym = symbol_map[reloc.target_symbol]
+                .ok_or_else(|| anyhow!("Relocation against stripped symbol"))?;
+            writer.write_relocation(true, &Rel { r_offset, r_sym, r_type, r_addend: reloc.addend });
         }
+    }
+
+    writer.write_null_symbol();
+    for out_symbol in &out_symbols {
+        writer.write_symbol(&out_symbol.sym);
+    }
+
+    writer.write_strtab();
+    writer.write_shstrtab();
+
+    // Write comment section
+    if let Some(comment_data) = &comment_data {
+        let out_section = out_sections.last().unwrap();
+        writer.write_align(32);
+        ensure!(writer.len() == out_section.offset);
+        writer.write(comment_data);
     }
 
     writer.write_null_section_header();
@@ -598,11 +688,29 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             true,
         );
     }
-    writer.write_symtab_section_header(num_local);
-    writer.write_shstrtab_section_header();
-    writer.write_strtab_section_header();
 
-    debug_assert_eq!(writer.reserved_len(), writer.len());
+    writer.write_symtab_section_header(num_local);
+    writer.write_strtab_section_header();
+    writer.write_shstrtab_section_header();
+
+    // Write comment section header
+    if let Some(comment_data) = &comment_data {
+        let out_section = out_sections.last().unwrap();
+        writer.write_section_header(&SectionHeader {
+            name: Some(out_section.name),
+            sh_type: SHT_PROGBITS,
+            sh_flags: 0,
+            sh_addr: 0,
+            sh_offset: out_section.offset as u64,
+            sh_size: comment_data.len() as u64,
+            sh_link: 0,
+            sh_info: 0,
+            sh_addralign: 1,
+            sh_entsize: 1,
+        });
+    }
+
+    ensure!(writer.reserved_len() == writer.len());
     Ok(out_data)
 }
 
@@ -655,6 +763,9 @@ fn to_obj_symbol(
             SymbolKind::Section => ObjSymbolKind::Section,
             _ => bail!("Unsupported symbol kind: {:?}", symbol.kind()),
         },
+        // TODO common symbol value?
+        align: None,
+        data_kind: Default::default(),
     })
 }
 

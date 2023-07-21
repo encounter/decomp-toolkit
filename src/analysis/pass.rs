@@ -38,6 +38,8 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
                     size_known: true,
                     flags: ObjSymbolFlagSet(FlagSet::from(ObjSymbolFlags::Global)),
                     kind: ObjSymbolKind::Unknown,
+                    align: None,
+                    data_kind: Default::default(),
                 });
                 let end = start + TRK_TABLE_SIZE;
                 state.known_symbols.insert(end, ObjSymbol {
@@ -49,19 +51,21 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
                     size_known: true,
                     flags: ObjSymbolFlagSet(FlagSet::from(ObjSymbolFlags::Global)),
                     kind: ObjSymbolKind::Unknown,
+                    align: None,
+                    data_kind: Default::default(),
                 });
 
                 return Ok(());
             }
         }
-        log::info!("gTRKInterruptVectorTable not found");
+        log::debug!("gTRKInterruptVectorTable not found");
         Ok(())
     }
 }
 
 pub struct FindSaveRestSleds {}
 
-const SLEDS: [([u8; 4], &'static str, &'static str); 4] = [
+const SLEDS: [([u8; 4], &str, &str); 4] = [
     ([0xd9, 0xcb, 0xff, 0x70], "__save_fpr", "_savefpr_"),
     ([0xc9, 0xcb, 0xff, 0x70], "__restore_fpr", "_restfpr_"),
     ([0x91, 0xcb, 0xff, 0xb8], "__save_gpr", "_savegpr_"),
@@ -77,7 +81,7 @@ impl AnalysisPass for FindSaveRestSleds {
             let (section, data) = obj.section_data(start, 0)?;
             for (needle, func, label) in &SLEDS {
                 if data.starts_with(needle) {
-                    log::info!("Found {} @ {:#010X}", func, start);
+                    log::debug!("Found {} @ {:#010X}", func, start);
                     clear_ranges.push(start + 4..start + SLED_SIZE as u32);
                     state.known_symbols.insert(start, ObjSymbol {
                         name: func.to_string(),
@@ -88,6 +92,8 @@ impl AnalysisPass for FindSaveRestSleds {
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                         kind: ObjSymbolKind::Function,
+                        align: None,
+                        data_kind: Default::default(),
                     });
                     for i in 14..=31 {
                         let addr = start + (i - 14) * 4;
@@ -100,6 +106,8 @@ impl AnalysisPass for FindSaveRestSleds {
                             size_known: true,
                             flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                             kind: ObjSymbolKind::Unknown,
+                            align: None,
+                            data_kind: Default::default(),
                         });
                     }
                 }

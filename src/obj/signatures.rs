@@ -13,7 +13,8 @@ use crate::{
     analysis::tracker::{Relocation, Tracker},
     array_ref,
     obj::{
-        ObjInfo, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind,
+        section_kind_for_section, ObjInfo, ObjReloc, ObjRelocKind, ObjSymbol, ObjSymbolFlagSet,
+        ObjSymbolKind,
     },
     util::elf::process_elf,
 };
@@ -112,15 +113,7 @@ pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> R
         if !target_section.section_known {
             if let Some(section_name) = &sig_symbol.section {
                 target_section.name = section_name.clone();
-                target_section.kind = match section_name.as_str() {
-                    ".init" | ".text" | ".dbgtext" => ObjSectionKind::Code,
-                    ".ctors" | ".dtors" | ".rodata" | ".sdata2" | "extab" | "extabindex" => {
-                        ObjSectionKind::ReadOnlyData
-                    }
-                    ".bss" | ".sbss" | ".sbss2" => ObjSectionKind::Bss,
-                    ".data" | ".sdata" => ObjSectionKind::Data,
-                    name => bail!("Unknown section {name}"),
-                };
+                target_section.kind = section_kind_for_section(section_name)?;
                 target_section.section_known = true;
             }
         }
@@ -131,49 +124,22 @@ pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> R
         // Hack to mark linker generated symbols as ABS
         target_section_index = None;
     }
-    let target_symbol_idx = if let Some((symbol_idx, existing)) =
-        obj.symbols.iter_mut().enumerate().find(|(_, symbol)| {
-            symbol.address == target as u64
-                && symbol.kind == sig_symbol.kind
-                // Hack to avoid replacing different ABS symbols
-                && (symbol.section.is_some() || symbol.name == sig_symbol.name)
-        }) {
-        log::debug!("Replacing {:?} with {:?}", existing, sig_symbol);
-        *existing = ObjSymbol {
+    let demangled_name = demangle(&sig_symbol.name, &DemangleOptions::default());
+    let target_symbol_idx = obj.add_symbol(
+        ObjSymbol {
             name: sig_symbol.name.clone(),
-            demangled_name: demangle(&sig_symbol.name, &DemangleOptions::default()),
-            address: target as u64,
-            section: target_section_index,
-            size: if sig_symbol.size == 0 { existing.size } else { sig_symbol.size as u64 },
-            size_known: existing.size_known || sig_symbol.size != 0,
-            flags: sig_symbol.flags,
-            kind: sig_symbol.kind,
-        };
-        symbol_idx
-    } else {
-        let target_symbol_idx = obj.symbols.len();
-        obj.symbols.push(ObjSymbol {
-            name: sig_symbol.name.clone(),
-            demangled_name: demangle(&sig_symbol.name, &DemangleOptions::default()),
+            demangled_name,
             address: target as u64,
             section: target_section_index,
             size: sig_symbol.size as u64,
-            size_known: sig_symbol.size != 0,
+            size_known: sig_symbol.size > 0 || sig_symbol.kind == ObjSymbolKind::Unknown,
             flags: sig_symbol.flags,
             kind: sig_symbol.kind,
-        });
-        target_symbol_idx
-    };
-    match sig_symbol.name.as_str() {
-        "_SDA_BASE_" => obj.sda_base = Some(target),
-        "_SDA2_BASE_" => obj.sda2_base = Some(target),
-        "_stack_addr" => obj.stack_address = Some(target),
-        "_stack_end" => obj.stack_end = Some(target),
-        "_db_stack_addr" => obj.db_stack_addr = Some(target),
-        "__ArenaLo" => obj.arena_lo = Some(target),
-        "__ArenaHi" => obj.arena_hi = Some(target),
-        _ => {}
-    }
+            align: None,
+            data_kind: Default::default(),
+        },
+        true,
+    )?;
     Ok(target_symbol_idx)
 }
 
@@ -185,7 +151,7 @@ pub fn apply_signature(obj: &mut ObjInfo, addr: u32, signature: &FunctionSignatu
     for reloc in &signature.relocations {
         tracker.known_relocations.insert(addr + reloc.offset);
     }
-    tracker.process_function(obj, &obj.symbols[symbol_idx])?;
+    tracker.process_function(obj, obj.symbols.at(symbol_idx))?;
     for (&reloc_addr, reloc) in &tracker.relocations {
         if reloc_addr < addr || reloc_addr >= addr + in_symbol.size {
             continue;
@@ -293,26 +259,20 @@ pub fn generate_signature(path: &Path, symbol_name: &str) -> Result<Option<Funct
     }
     let mut tracker = Tracker::new(&obj);
     // tracker.ignore_addresses.insert(0x80004000);
-    for symbol in &obj.symbols {
-        if symbol.kind != ObjSymbolKind::Function {
-            continue;
-        }
+    for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {
         if symbol.name != symbol_name && symbol.name != symbol_name.replace("TRK", "TRK_") {
             continue;
         }
         tracker.process_function(&obj, symbol)?;
     }
     tracker.apply(&mut obj, true)?; // true
-    for symbol in &obj.symbols {
-        if symbol.kind != ObjSymbolKind::Function {
-            continue;
-        }
+    for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {
         if symbol.name != symbol_name && symbol.name != symbol_name.replace("TRK", "TRK_") {
             continue;
         }
         let section_idx = symbol.section.unwrap();
         let section = &obj.sections[section_idx];
-        let out_symbol_idx = out_symbols.len();
+        // let out_symbol_idx = out_symbols.len();
         out_symbols.push(OutSymbol {
             kind: symbol.kind,
             name: symbol.name.clone(),
@@ -334,10 +294,11 @@ pub fn generate_signature(path: &Path, symbol_name: &str) -> Result<Option<Funct
             .collect::<Vec<(u32, u32)>>();
         for (idx, (ins, pat)) in instructions.iter_mut().enumerate() {
             let addr = (symbol.address as usize + idx * 4) as u32;
-            if let Some(reloc) = relocations.get(&addr) {
+            if let Some(&reloc_idx) = relocations.get(&addr) {
+                let reloc = &section.relocations[reloc_idx];
                 let symbol_idx = match symbol_map.entry(reloc.target_symbol) {
                     btree_map::Entry::Vacant(e) => {
-                        let target = &obj.symbols[reloc.target_symbol];
+                        let target = obj.symbols.at(reloc.target_symbol);
                         let symbol_idx = out_symbols.len();
                         e.insert(symbol_idx);
                         out_symbols.push(OutSymbol {
@@ -363,19 +324,19 @@ pub fn generate_signature(path: &Path, symbol_name: &str) -> Result<Option<Funct
                     ObjRelocKind::PpcAddr16Hi
                     | ObjRelocKind::PpcAddr16Ha
                     | ObjRelocKind::PpcAddr16Lo => {
-                        *ins = *ins & !0xFFFF;
+                        *ins &= !0xFFFF;
                         *pat = !0xFFFF;
                     }
                     ObjRelocKind::PpcRel24 => {
-                        *ins = *ins & !0x3FFFFFC;
+                        *ins &= !0x3FFFFFC;
                         *pat = !0x3FFFFFC;
                     }
                     ObjRelocKind::PpcRel14 => {
-                        *ins = *ins & !0xFFFC;
+                        *ins &= !0xFFFC;
                         *pat = !0xFFFC;
                     }
                     ObjRelocKind::PpcEmbSda21 => {
-                        *ins = *ins & !0x1FFFFF;
+                        *ins &= !0x1FFFFF;
                         *pat = !0x1FFFFF;
                     }
                 }

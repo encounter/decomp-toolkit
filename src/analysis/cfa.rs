@@ -1,6 +1,6 @@
 use std::collections::{BTreeMap, BTreeSet};
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{bail, Context, Result};
 
 use crate::{
     analysis::{
@@ -9,7 +9,7 @@ use crate::{
         slices::{FunctionSlices, TailCallResult},
         vm::{BranchTarget, GprValue, StepResult, VM},
     },
-    obj::{ObjInfo, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
+    obj::{ObjInfo, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
 };
 
 #[derive(Debug, Default)]
@@ -29,102 +29,66 @@ impl AnalyzerState {
             if end == 0 {
                 continue;
             }
-            if let Some(existing_symbol) = obj
-                .symbols
-                .iter_mut()
-                .find(|sym| sym.address == start as u64 && sym.kind == ObjSymbolKind::Function)
-            {
-                let new_size = (end - start) as u64;
-                if !existing_symbol.size_known || existing_symbol.size == 0 {
-                    existing_symbol.size = new_size;
-                    existing_symbol.size_known = true;
-                } else if existing_symbol.size != new_size {
-                    log::warn!(
-                        "Conflicting size for {}: was {:#X}, now {:#X}",
-                        existing_symbol.name,
-                        existing_symbol.size,
-                        new_size
-                    );
-                }
-                continue;
-            }
-            let section = obj
-                .sections
-                .iter()
-                .find(|section| {
-                    (start as u64) >= section.address
-                        && (end as u64) <= section.address + section.size
-                })
-                .ok_or_else(|| {
-                    anyhow!("Failed to locate section for function {:#010X}-{:#010X}", start, end)
-                })?;
-            obj.symbols.push(ObjSymbol {
-                name: format!("fn_{:08X}", start),
-                demangled_name: None,
-                address: start as u64,
-                section: Some(section.index),
-                size: (end - start) as u64,
-                size_known: true,
-                flags: Default::default(),
-                kind: ObjSymbolKind::Function,
-            });
+            let section_index =
+                obj.section_for(start..end).context("Failed to locate section for function")?.index;
+            obj.add_symbol(
+                ObjSymbol {
+                    name: format!("fn_{:08X}", start),
+                    demangled_name: None,
+                    address: start as u64,
+                    section: Some(section_index),
+                    size: (end - start) as u64,
+                    size_known: true,
+                    flags: Default::default(),
+                    kind: ObjSymbolKind::Function,
+                    align: None,
+                    data_kind: Default::default(),
+                },
+                false,
+            )?;
         }
         for (&addr, &size) in &self.jump_tables {
-            let section = obj
-                .sections
-                .iter()
-                .find(|section| {
-                    (addr as u64) >= section.address
-                        && ((addr + size) as u64) <= section.address + section.size
-                })
-                .ok_or_else(|| anyhow!("Failed to locate section for jump table"))?;
-            if let Some(existing_symbol) = obj
-                .symbols
-                .iter_mut()
-                .find(|sym| sym.address == addr as u64 && sym.kind == ObjSymbolKind::Object)
-            {
-                let new_size = size as u64;
-                if !existing_symbol.size_known || existing_symbol.size == 0 {
-                    existing_symbol.size = new_size;
-                    existing_symbol.size_known = true;
-                    // existing_symbol.flags.0 &= ObjSymbolFlags::Global;
-                    // existing_symbol.flags.0 |= ObjSymbolFlags::Local;
-                } else if existing_symbol.size != new_size {
-                    log::warn!(
-                        "Conflicting size for {}: was {:#X}, now {:#X}",
-                        existing_symbol.name,
-                        existing_symbol.size,
-                        new_size
-                    );
-                }
-                continue;
-            }
-            obj.symbols.push(ObjSymbol {
-                name: format!("jumptable_{:08X}", addr),
-                demangled_name: None,
-                address: addr as u64,
-                section: Some(section.index),
-                size: size as u64,
-                size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Local.into()),
-                kind: ObjSymbolKind::Object,
-            });
+            let section_index = obj
+                .section_for(addr..addr + size)
+                .context("Failed to locate section for jump table")?
+                .index;
+            obj.add_symbol(
+                ObjSymbol {
+                    name: format!("jumptable_{:08X}", addr),
+                    demangled_name: None,
+                    address: addr as u64,
+                    section: Some(section_index),
+                    size: size as u64,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Local.into()),
+                    kind: ObjSymbolKind::Object,
+                    align: None,
+                    data_kind: Default::default(),
+                },
+                false,
+            )?;
         }
         for (&_addr, symbol) in &self.known_symbols {
-            if let Some(existing_symbol) = obj
-                .symbols
-                .iter_mut()
-                .find(|e| symbol.address == e.address && symbol.kind == e.kind)
-            {
-                *existing_symbol = symbol.clone();
-                continue;
-            }
-            obj.symbols.push(symbol.clone());
+            obj.add_symbol(symbol.clone(), true)?;
         }
         Ok(())
     }
 
     pub fn detect_functions(&mut self, obj: &ObjInfo) -> Result<()> {
+        // Apply known functions from extab
+        for (&addr, &size) in &obj.known_functions {
+            self.function_entries.insert(addr);
+            self.function_bounds.insert(addr, addr + size);
+        }
+        // Apply known functions from symbols
+        for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {
+            self.function_entries.insert(symbol.address as u32);
+            if symbol.size_known {
+                self.function_bounds
+                    .insert(symbol.address as u32, (symbol.address + symbol.size) as u32);
+            }
+        }
+
         // Process known functions first
         let known_functions = self.function_entries.clone();
         for addr in known_functions {
@@ -189,6 +153,7 @@ impl AnalyzerState {
                             )?;
                         }
                     }
+                    TailCallResult::Error(e) => return Err(e),
                 }
             }
             if slices.can_finalize() {
@@ -249,13 +214,11 @@ impl AnalyzerState {
             match self.first_unbounded_function() {
                 Some(addr) => {
                     log::trace!("Processing {:#010X}", addr);
-                    self.process_function_at(&obj, addr)?;
+                    self.process_function_at(obj, addr)?;
                 }
                 None => {
-                    if !self.finalize_functions(obj, false)? {
-                        if !self.detect_new_functions(obj)? {
-                            break;
-                        }
+                    if !self.finalize_functions(obj, false)? && !self.detect_new_functions(obj)? {
+                        break;
                     }
                 }
             }
@@ -291,9 +254,6 @@ impl AnalyzerState {
     fn process_function(&mut self, obj: &ObjInfo, start: u32) -> Result<Option<FunctionSlices>> {
         let mut slices = FunctionSlices::default();
         let function_end = self.function_bounds.get(&start).cloned();
-        if start == 0x801FC300 {
-            log::info!("Processing TRKExceptionHandler");
-        }
         Ok(match slices.analyze(obj, start, start, function_end, &self.function_entries)? {
             true => Some(slices),
             false => None,
@@ -302,27 +262,56 @@ impl AnalyzerState {
 
     fn detect_new_functions(&mut self, obj: &ObjInfo) -> Result<bool> {
         let mut found_new = false;
-        let mut iter = self.function_bounds.iter().peekable();
-        while let (Some((&first_begin, &first_end)), Some(&(&second_begin, &second_end))) =
-            (iter.next(), iter.peek())
-        {
-            if first_end == 0 || first_end > second_begin {
+        for section in &obj.sections {
+            if section.kind != ObjSectionKind::Code {
                 continue;
             }
-            let addr = match skip_alignment(obj, first_end, second_begin) {
-                Some(addr) => addr,
-                None => continue,
-            };
-            if second_begin > addr && self.function_entries.insert(addr) {
-                log::trace!(
-                    "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X})",
-                    addr,
-                    first_begin,
-                    first_end,
-                    second_begin,
-                    second_end,
-                );
-                found_new = true;
+
+            let section_start = section.address as u32;
+            let section_end = (section.address + section.size) as u32;
+            let mut iter = self.function_bounds.range(section_start..section_end).peekable();
+            loop {
+                match (iter.next(), iter.peek()) {
+                    (Some((&first_begin, &first_end)), Some(&(&second_begin, &second_end))) => {
+                        if first_end == 0 || first_end > second_begin {
+                            continue;
+                        }
+                        let addr = match skip_alignment(obj, first_end, second_begin) {
+                            Some(addr) => addr,
+                            None => continue,
+                        };
+                        if second_begin > addr && self.function_entries.insert(addr) {
+                            log::trace!(
+                                "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X})",
+                                addr,
+                                first_begin,
+                                first_end,
+                                second_begin,
+                                second_end,
+                            );
+                            found_new = true;
+                        }
+                    }
+                    (Some((&last_begin, &last_end)), None) => {
+                        if last_end > 0 && last_end < section_end {
+                            let addr = match skip_alignment(obj, last_end, section_end) {
+                                Some(addr) => addr,
+                                None => continue,
+                            };
+                            if addr < section_end && self.function_entries.insert(addr) {
+                                log::debug!(
+                                    "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X})",
+                                    addr,
+                                    last_begin,
+                                    last_end,
+                                    section_end,
+                                );
+                                found_new = true;
+                            }
+                        }
+                    }
+                    _ => break,
+                }
             }
         }
         Ok(found_new)
@@ -342,19 +331,15 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
                     return Ok(ExecCbResult::Continue);
                 }
                 StepResult::Illegal => bail!("Illegal instruction @ {:#010X}", ins.addr),
-                StepResult::Jump(target) => match target {
-                    BranchTarget::Address(addr) => {
+                StepResult::Jump(target) => {
+                    if let BranchTarget::Address(addr) = target {
                         return Ok(ExecCbResult::Jump(addr));
                     }
-                    _ => {}
-                },
+                }
                 StepResult::Branch(branches) => {
                     for branch in branches {
-                        match branch.target {
-                            BranchTarget::Address(addr) => {
-                                executor.push(addr, branch.vm, false);
-                            }
-                            _ => {}
+                        if let BranchTarget::Address(addr) = branch.target {
+                            executor.push(addr, branch.vm, false);
                         }
                     }
                 }

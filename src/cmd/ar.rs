@@ -1,7 +1,7 @@
 use std::{
     collections::{btree_map::Entry, BTreeMap},
     fs::File,
-    io::{BufRead, BufWriter, Write},
+    io::{BufWriter, Write},
     path::PathBuf,
 };
 
@@ -9,7 +9,7 @@ use anyhow::{anyhow, bail, Result};
 use argh::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
 
-use crate::util::file::{buf_reader, map_file};
+use crate::util::file::{map_file, process_rsp};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing static libraries.
@@ -45,25 +45,7 @@ pub fn run(args: Args) -> Result<()> {
 
 fn create(args: CreateArgs) -> Result<()> {
     // Process response files (starting with '@')
-    let mut files = Vec::with_capacity(args.files.len());
-    for path in args.files {
-        let path_str =
-            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
-        match path_str.strip_prefix('@') {
-            Some(rsp_file) => {
-                let reader = buf_reader(rsp_file)?;
-                for result in reader.lines() {
-                    let line = result?;
-                    if !line.is_empty() {
-                        files.push(PathBuf::from(line));
-                    }
-                }
-            }
-            None => {
-                files.push(path);
-            }
-        }
-    }
+    let files = process_rsp(&args.files)?;
 
     // Build identifiers & symbol table
     let mut identifiers = Vec::with_capacity(files.len());

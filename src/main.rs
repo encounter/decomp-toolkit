@@ -1,3 +1,6 @@
+#![feature(seek_stream_len)]
+use std::io::Write;
+
 use argh::FromArgs;
 
 pub mod analysis;
@@ -22,7 +25,7 @@ enum SubCommand {
     Dwarf(cmd::dwarf::Args),
     Elf(cmd::elf::Args),
     Elf2Dol(cmd::elf2dol::Args),
-    Map(cmd::map::Args),
+    // Map(cmd::map::Args),
     MetroidBuildInfo(cmd::metroidbuildinfo::Args),
     Rel(cmd::rel::Args),
     Rso(cmd::rso::Args),
@@ -30,7 +33,9 @@ enum SubCommand {
 }
 
 fn main() {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
+        .format(|f, r| writeln!(f, "[{}] {}", r.level(), r.args()))
+        .init();
 
     let args: TopLevel = argh_version::from_env();
     let result = match args.command {
@@ -40,7 +45,7 @@ fn main() {
         SubCommand::Dwarf(c_args) => cmd::dwarf::run(c_args),
         SubCommand::Elf(c_args) => cmd::elf::run(c_args),
         SubCommand::Elf2Dol(c_args) => cmd::elf2dol::run(c_args),
-        SubCommand::Map(c_args) => cmd::map::run(c_args),
+        // SubCommand::Map(c_args) => cmd::map::run(c_args),
         SubCommand::MetroidBuildInfo(c_args) => cmd::metroidbuildinfo::run(c_args),
         SubCommand::Rel(c_args) => cmd::rel::run(c_args),
         SubCommand::Rso(c_args) => cmd::rso::run(c_args),

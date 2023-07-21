@@ -32,8 +32,8 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let prolog_offset = reader.read_u32::<BigEndian>()?;
     let epilog_offset = reader.read_u32::<BigEndian>()?;
     let unresolved_offset = reader.read_u32::<BigEndian>()?;
-    let internal_rel_offset = reader.read_u32::<BigEndian>()?;
-    let internal_rel_size = reader.read_u32::<BigEndian>()?;
+    let _internal_rel_offset = reader.read_u32::<BigEndian>()?;
+    let _internal_rel_size = reader.read_u32::<BigEndian>()?;
     let external_rel_offset = reader.read_u32::<BigEndian>()?;
     let external_rel_size = reader.read_u32::<BigEndian>()?;
     let export_table_offset = reader.read_u32::<BigEndian>()?;
@@ -118,6 +118,8 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 size_known: false,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                 kind: ObjSymbolKind::Function,
+                align: None,
+                data_kind: Default::default(),
             });
         }
         Ok(())
@@ -172,6 +174,8 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             size_known: false,
             flags: Default::default(),
             kind: Default::default(),
+            align: None,
+            data_kind: Default::default(),
         });
     }
     reader.set_position(import_table_offset as u64);
@@ -187,32 +191,14 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         0 => String::new(),
         _ => read_string(&mut reader, name_offset as u64, name_size as usize)?,
     };
-    Ok(ObjInfo {
-        kind: ObjKind::Relocatable,
-        architecture: ObjArchitecture::PowerPc,
-        name,
-        symbols,
-        sections,
-        entry: 0,
-        sda2_base: None,
-        sda_base: None,
-        stack_address: None,
-        stack_end: None,
-        db_stack_addr: None,
-        arena_lo: None,
-        arena_hi: None,
-        splits: Default::default(),
-        named_sections: Default::default(),
-        link_order: vec![],
-        known_functions: Default::default(),
-        module_id: 0,
-        unresolved_relocations: vec![],
-    })
+
+    let obj = ObjInfo::new(ObjKind::Relocatable, ObjArchitecture::PowerPc, name, symbols, sections);
+    Ok(obj)
 }
 
 fn symbol_hash(s: &str) -> u32 {
     s.bytes().fold(0u32, |hash, c| {
-        let mut m = (hash << 4) + c as u32;
+        let mut m = (hash << 4).wrapping_add(c as u32);
         let n = m & 0xF0000000;
         if n != 0 {
             m ^= n >> 24;

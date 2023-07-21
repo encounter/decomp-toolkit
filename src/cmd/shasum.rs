@@ -9,6 +9,8 @@ use argh::FromArgs;
 use filetime::{set_file_mtime, FileTime};
 use sha1::{Digest, Sha1};
 
+use crate::util::file::process_rsp;
+
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Print or check SHA1 (160-bit) checksums.
 #[argh(subcommand, name = "shasum")]
@@ -17,8 +19,8 @@ pub struct Args {
     /// check SHA sums against given list
     check: bool,
     #[argh(positional)]
-    /// path to file
-    file: PathBuf,
+    /// path to input file(s)
+    files: Vec<PathBuf>,
     #[argh(option, short = 'o')]
     /// touch output file on successful check
     output: Option<PathBuf>,
@@ -27,16 +29,23 @@ pub struct Args {
 const DEFAULT_BUF_SIZE: usize = 8192;
 
 pub fn run(args: Args) -> Result<()> {
-    let file = File::open(&args.file)
-        .with_context(|| format!("Failed to open file '{}'", args.file.display()))?;
-    if args.check {
-        check(args, file)
-    } else {
-        hash(args, file)
+    for path in process_rsp(&args.files)? {
+        let file = File::open(&path)
+            .with_context(|| format!("Failed to open file '{}'", path.display()))?;
+        if args.check {
+            check(file)?
+        } else {
+            hash(file, &path)?
+        }
     }
+    if let Some(out_path) = args.output {
+        touch(&out_path)
+            .with_context(|| format!("Failed to touch output file '{}'", out_path.display()))?;
+    }
+    Ok(())
 }
 
-fn check(args: Args, file: File) -> Result<()> {
+fn check(file: File) -> Result<()> {
     let reader = BufReader::new(file);
     let mut mismatches = 0usize;
     for line in reader.lines() {
@@ -68,19 +77,15 @@ fn check(args: Args, file: File) -> Result<()> {
         eprintln!("WARNING: {mismatches} computed checksum did NOT match");
         std::process::exit(1);
     }
-    if let Some(out_path) = args.output {
-        touch(&out_path)
-            .with_context(|| format!("Failed to touch output file '{}'", out_path.display()))?;
-    }
     Ok(())
 }
 
-fn hash(args: Args, file: File) -> Result<()> {
+fn hash(file: File, path: &Path) -> Result<()> {
     let hash = file_sha1(file)?;
     let mut hash_buf = [0u8; 40];
     let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
         .map_err(|e| anyhow!("Failed to encode hash: {e}"))?;
-    println!("{}  {}", hash_str, args.file.display());
+    println!("{}  {}", hash_str, path.display());
     Ok(())
 }
 

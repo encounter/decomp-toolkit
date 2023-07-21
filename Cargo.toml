@@ -21,43 +21,46 @@ panic = "abort"
 strip = "debuginfo"
 
 [dependencies]
-anyhow = { version = "1.0.64", features = ["backtrace"] }
+anyhow = { version = "1.0.71", features = ["backtrace"] }
 ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_table" }
-argh = "0.1.8"
-base16ct = "0.1.1"
-base64 = "0.21.0"
+argh = "0.1.10"
+base16ct = "0.2.0"
+base64 = "0.21.2"
 byteorder = "1.4.3"
-cwdemangle = "0.1.3"
+cwdemangle = "0.1.5"
 dol = { git = "https://github.com/encounter/ppc750cl", rev = "5f6e991bf495388c4104f188d2e90c79da9f78de" }
 env_logger = "0.10.0"
-filetime = "0.2.18"
+filetime = "0.2.21"
 fixedbitset = "0.4.2"
 flagset = { version = "0.4.3", features = ["serde"] }
+flate2 = "1.0.26"
+glob = "0.3.1"
 hex = "0.4.3"
-indexmap = "1.9.2"
-log = "0.4.17"
+indexmap = "2.0.0"
+itertools = "0.11.0"
+log = "0.4.19"
 memchr = "2.5.0"
-memmap2 = "0.5.7"
-multimap = "0.8.3"
-num_enum = "0.5.7"
-object = { version = "0.30.0", features = ["read_core", "std", "elf", "write_std"], default-features = false }
-once_cell = "1.17.0"
+memmap2 = "0.7.1"
+multimap = "0.9.0"
+num_enum = "0.6.1"
+object = { version = "0.31.1", features = ["read_core", "std", "elf", "write_std"], default-features = false }
+once_cell = "1.18.0"
 ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "5f6e991bf495388c4104f188d2e90c79da9f78de" }
-regex = "1.6.0"
-serde = "1.0.152"
-serde_repr = "0.1.10"
-serde_yaml = "0.9.16"
-sha-1 = "0.10.0"
-smallvec = "1.10.0"
+regex = "1.9.0"
+serde = "1.0.166"
+serde_repr = "0.1.14"
+serde_yaml = "0.9.22"
+sha-1 = "0.10.1"
+smallvec = "1.11.0"
 topological-sort = "0.2.2"
-flate2 = "1.0.25"
+
 
 [build-dependencies]
-anyhow = { version = "1.0.64", features = ["backtrace"] }
-base64 = "0.21.0"
+anyhow = { version = "1.0.71", features = ["backtrace"] }
+base64 = "0.21.2"
 flagset = { version = "0.4.3", features = ["serde"] }
-serde = "1.0.152"
-serde_repr = "0.1.10"
-serde_yaml = "0.9.16"
+serde = "1.0.166"
+serde_repr = "0.1.14"
+serde_yaml = "0.9.22"
 rmp-serde = "1.1.1"
-flate2 = "1.0.25"
+flate2 = "1.0.26"
