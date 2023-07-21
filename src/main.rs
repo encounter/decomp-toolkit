@@ -1,4 +1,3 @@
-#![feature(seek_stream_len)]
 use std::io::Write;
 
 use argh::FromArgs;
