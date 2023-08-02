@@ -10,6 +10,8 @@ use anyhow::{anyhow, bail, ensure, Context, Result};
 use byteorder::{BigEndian, ReadBytesExt};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
+use crate::array_ref;
+
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u16)]
 pub enum TagKind {
@@ -413,6 +415,7 @@ fn read_tag<R: BufRead + Seek>(reader: &mut R) -> Result<Tag> {
     let position = reader.stream_position()?;
     let size = reader.read_u32::<BigEndian>()?;
     if size < 8 {
+        // Null entry
         if size > 4 {
             reader.seek(SeekFrom::Current(size as i64 - 4))?;
         }
@@ -422,8 +425,13 @@ fn read_tag<R: BufRead + Seek>(reader: &mut R) -> Result<Tag> {
     let tag =
         TagKind::try_from(reader.read_u16::<BigEndian>()?).context("Unknown DWARF tag type")?;
     let mut attributes = Vec::new();
-    while reader.stream_position()? < position + size as u64 {
-        attributes.push(read_attribute(reader)?);
+    if tag == TagKind::Padding {
+        reader.seek(SeekFrom::Start(position + size as u64))?; // Skip padding
+    } else {
+        while reader.stream_position()? < position + size as u64 {
+            let attribute = read_attribute(reader)?;
+            attributes.push(attribute);
+        }
     }
     Ok(Tag { key: position as u32, kind: tag, attributes })
 }
@@ -848,7 +856,7 @@ pub fn fund_type_string(ft: FundType) -> Result<&'static str> {
 pub fn process_offset(block: &[u8]) -> Result<u32> {
     if block.len() == 6 && block[0] == LocationOp::Const as u8 && block[5] == LocationOp::Add as u8
     {
-        Ok(u32::from_be_bytes(block[1..5].try_into()?))
+        Ok(u32::from_be_bytes(*array_ref!(block, 1, 4)))
     } else {
         Err(anyhow!("Unhandled location data, expected offset"))
     }
@@ -856,25 +864,51 @@ pub fn process_offset(block: &[u8]) -> Result<u32> {
 
 pub fn process_address(block: &[u8]) -> Result<u32> {
     if block.len() == 5 && block[0] == LocationOp::Address as u8 {
-        Ok(u32::from_be_bytes(block[1..].try_into()?))
+        Ok(u32::from_be_bytes(*array_ref!(block, 1, 4)))
     } else {
         Err(anyhow!("Unhandled location data, expected address"))
     }
 }
 
+pub const REGISTER_NAMES: [&str; 109] = [
+    "r0", "r1", "r2", "r3", "r4", "r5", "r6", "r7", // 0-7
+    "r8", "r9", "r10", "r11", "r12", "r13", "r14", "r15", // 8-15
+    "r16", "r17", "r18", "r19", "r20", "r21", "r22", "r23", // 16-23
+    "r24", "r25", "r26", "r27", "r28", "r29", "r30", "r31", // 24-31
+    "f0", "f1", "f2", "f3", "f4", "f5", "f6", "f7", // 32-39
+    "f8", "f9", "f10", "f11", "f12", "f13", "f14", "f15", // 40-47
+    "f16", "f17", "f18", "f19", "f20", "f21", "f22", "f23", // 48-55
+    "f24", "f25", "f26", "f27", "f28", "f29", "f30", "f31", // 56-63
+    "mq", "lr", "ctr", "ap", "cr0", "cr1", "cr2", "cr3", // 64-71
+    "cr4", "cr5", "cr6", "cr7", "xer", "v0", "v1", "v2", // 72-79
+    "v3", "v4", "v5", "v6", "v7", "v8", "v9", "v10", // 80-87
+    "v11", "v12", "v13", "v14", "v15", "v16", "v17", "v18", // 88-95
+    "v19", "v20", "v21", "v22", "v23", "v24", "v25", "v26", // 96-103
+    "v27", "v28", "v29", "v30", "v31", // 104-108
+];
+
+pub const fn register_name(reg: u32) -> &'static str {
+    if reg < REGISTER_NAMES.len() as u32 {
+        REGISTER_NAMES[reg as usize]
+    } else {
+        "[invalid]"
+    }
+}
+
 pub fn process_variable_location(block: &[u8]) -> Result<String> {
-    // TODO: float regs
     if block.len() == 5 && block[0] == LocationOp::Register as u8 {
-        Ok(format!("r{}", u32::from_be_bytes(block[1..].try_into()?)))
+        Ok(register_name(u32::from_be_bytes(*array_ref!(block, 1, 4))).to_string())
+    } else if block.len() == 5 && block[0] == LocationOp::Address as u8 {
+        Ok(format!("@ {:#010X}", u32::from_be_bytes(*array_ref!(block, 1, 4))))
     } else if block.len() == 11
         && block[0] == LocationOp::BaseRegister as u8
         && block[5] == LocationOp::Const as u8
         && block[10] == LocationOp::Add as u8
     {
         Ok(format!(
-            "r{}+{:#X}",
-            u32::from_be_bytes(block[1..5].try_into()?),
-            u32::from_be_bytes(block[6..10].try_into()?)
+            "{}+{:#X}",
+            register_name(u32::from_be_bytes(*array_ref!(block, 1, 4))),
+            u32::from_be_bytes(*array_ref!(block, 6, 4))
         ))
     } else {
         Err(anyhow!("Unhandled location data {:?}, expected variable loc", block))

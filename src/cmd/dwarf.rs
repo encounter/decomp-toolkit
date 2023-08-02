@@ -169,13 +169,6 @@ fn dump_debug_section<W: Write>(
                                         TagKind::LocalVariable => {}
                                         _ => continue,
                                     }
-                                    let address = if let Some(location) =
-                                        tag.block_attribute(AttributeKind::Location)
-                                    {
-                                        process_variable_location(location)?
-                                    } else {
-                                        "[unknown]".to_string()
-                                    };
                                     let type_attr = tag.type_attribute().ok_or_else(|| {
                                         anyhow!("LocalVariable without type attr")
                                     })?;
@@ -184,11 +177,19 @@ fn dump_debug_section<W: Write>(
                                     let name = tag
                                         .string_attribute(AttributeKind::Name)
                                         .ok_or_else(|| anyhow!("LocalVariable without name"))?;
-                                    writeln!(
-                                        w,
-                                        "\t{} {}{}; // {}",
-                                        ts.prefix, name, ts.suffix, address
-                                    )?;
+                                    write!(w, "\t{} {}{};", ts.prefix, name, ts.suffix)?;
+                                    if let Some(location) =
+                                        tag.block_attribute(AttributeKind::Location)
+                                    {
+                                        if !location.is_empty() {
+                                            write!(
+                                                w,
+                                                " // {}",
+                                                process_variable_location(location)?
+                                            )?;
+                                        }
+                                    }
+                                    writeln!(w)?;
                                 }
                                 writeln!(w, "}}")?;
                             }
