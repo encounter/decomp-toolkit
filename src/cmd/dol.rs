@@ -217,12 +217,14 @@ fn split(args: SplitArgs) -> Result<()> {
     }
 
     let mut rsp_file = BufWriter::new(File::create(args.out_dir.join("rsp"))?);
+    let mut units_file = BufWriter::new(File::create(args.out_dir.join("units"))?);
     for unit in &obj.link_order {
         let object = file_map
             .get(unit)
             .ok_or_else(|| anyhow!("Failed to find object file for unit '{unit}'"))?;
         let out_path = obj_dir.join(obj_path_for_unit(unit));
         writeln!(rsp_file, "{}", out_path.display())?;
+        writeln!(units_file, "{}:{}", out_path.display(), unit)?;
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
         }
@@ -232,19 +234,12 @@ fn split(args: SplitArgs) -> Result<()> {
         file.flush()?;
     }
     rsp_file.flush()?;
+    units_file.flush()?;
 
     // Generate ldscript.lcf
     fs::write(args.out_dir.join("ldscript.lcf"), generate_ldscript(&obj)?)?;
 
     log::info!("Writing disassembly");
-    // let mut files_out = File::create(args.out_dir.join("build.ps1"))?;
-    // writeln!(files_out, "$ErrorActionPreference = 'Stop'")?;
-    // writeln!(
-    //     files_out,
-    //     "$asflags = '-mgekko', '-I', '{}', '--defsym', 'version=0', '-W', '--strip-local-absolute', '-gdwarf-2'",
-    //     include_dir.display()
-    // )?;
-    // writeln!(files_out, "$env:PATH = \"$env:PATH;C:\\devkitPro\\devkitPPC\\bin\"")?;
     for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
         let out_path = asm_dir.join(asm_path_for_unit(unit));
 
@@ -254,23 +249,7 @@ fn split(args: SplitArgs) -> Result<()> {
         let mut w = BufWriter::new(File::create(&out_path)?);
         write_asm(&mut w, split_obj)?;
         w.flush()?;
-
-        // let obj_path = obj_dir.join(obj_path_for_unit(unit));
-        // writeln!(files_out, "Write-Host 'Compiling {}'", obj_path.display())?;
-        // writeln!(
-        //     files_out,
-        //     "powerpc-eabi-as @asflags -o '{}' '{}'",
-        //     obj_path.display(),
-        //     out_path.display()
-        // )?;
-        // writeln!(
-        //     files_out,
-        //     "dtk elf fixup '{}' '{}'",
-        //     obj_path.display(),
-        //     obj_path.display()
-        // )?;
     }
-    // files_out.flush()?;
 
     // (debugging) validate against ELF
     if let Some(file) = &args.elf_file {
