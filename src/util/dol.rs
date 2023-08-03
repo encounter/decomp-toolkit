@@ -399,10 +399,10 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     {
         let extabindex_section = &obj.sections[extabindex_section_idx];
         let extabindex_section_index = extabindex_section.index;
-        let extabindex_section_address = extabindex_section.address;
-        let extabindex_section_size = extabindex_section.size;
         let extab_section = &obj.sections[extab_section_idx];
         let extab_section_index = extab_section.index;
+        let extab_section_address = extab_section.address;
+        let extab_section_size = extab_section.size;
 
         for entry in &eti_entries {
             // Add functions from extabindex entries as known function bounds
@@ -440,7 +440,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 (Some(a), Some(&b)) => (a.extab_addr, b.extab_addr - a.extab_addr),
                 (Some(a), None) => (
                     a.extab_addr,
-                    (extabindex_section_address + extabindex_section_size) as u32 - a.extab_addr,
+                    (extab_section_address + extab_section_size) as u32 - a.extab_addr,
                 ),
                 _ => break,
             };
