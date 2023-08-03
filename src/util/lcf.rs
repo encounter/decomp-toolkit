@@ -23,8 +23,14 @@ pub fn generate_ldscript(obj: &ObjInfo) -> Result<String> {
         force_files.push(obj_path.file_name().unwrap().to_str().unwrap().to_string());
     }
 
+    // Hack to handle missing .sbss2 section... what's the proper way?
+    let last_section_name = obj.sections.last().unwrap().name.clone();
+    let last_section_symbol = format!("_f_{}", last_section_name.trim_start_matches('.'));
+
     let out = include_str!("../../assets/ldscript.lcf")
         .replacen("$SECTIONS", &section_defs, 1)
+        .replace("$LAST_SECTION_SYMBOL", &last_section_symbol)
+        .replace("$LAST_SECTION_NAME", &last_section_name)
         .replacen("$STACKSIZE", &format!("{:#X}", stack_size), 1)
         .replacen("$FORCEFILES", &force_files.join("\n    "), 1);
     Ok(out)
