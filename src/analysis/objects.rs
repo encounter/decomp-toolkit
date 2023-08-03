@@ -85,6 +85,9 @@ pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
         }
         fn is_string(data: &[u8]) -> StringResult {
             let bytes = trim_zeroes_end(data);
+            if bytes.is_empty() {
+                return StringResult::None;
+            }
             if bytes.iter().all(|&c| c.is_ascii_graphic() || c.is_ascii_whitespace()) {
                 return StringResult::String {
                     length: bytes.len(),
@@ -124,25 +127,24 @@ pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
             match is_string(data) {
                 StringResult::None => {}
                 StringResult::String { length, terminated } => {
-                    if length > 0 {
+                    let size = if terminated { length + 1 } else { length };
+                    if !symbol.size_known || symbol.size == size as u64 {
                         let str = String::from_utf8_lossy(&data[..length]);
                         log::debug!("Found string '{}' @ {}", str, symbol.name);
-                        symbols_set.push((
-                            symbol_idx,
-                            ObjDataKind::String,
-                            if terminated { length + 1 } else { length },
-                        ));
+                        symbols_set.push((symbol_idx, ObjDataKind::String, size));
                     }
                 }
                 StringResult::WString { length, str } => {
-                    if length > 0 {
+                    let size = length + 2;
+                    if !symbol.size_known || symbol.size == size as u64 {
                         log::debug!("Found wide string '{}' @ {}", str, symbol.name);
-                        symbols_set.push((symbol_idx, ObjDataKind::String16, length + 2));
+                        symbols_set.push((symbol_idx, ObjDataKind::String16, size));
                     }
                 }
             }
         }
     }
+
     for (symbol_idx, data_kind, size) in symbols_set {
         let mut symbol = obj.symbols.at(symbol_idx).clone();
         log::debug!("Setting {} ({:#010X}) to size {:#X}", symbol.name, symbol.address, size);
