@@ -462,7 +462,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                     ObjSymbolKind::Unknown => elf::STT_NOTYPE,
                     ObjSymbolKind::Function => elf::STT_FUNC,
                     ObjSymbolKind::Object => {
-                        if symbol.flags.0.contains(ObjSymbolFlags::Common) {
+                        if symbol.flags.is_common() {
                             elf::STT_COMMON
                         } else {
                             elf::STT_OBJECT
@@ -470,20 +470,16 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                     }
                     ObjSymbolKind::Section => elf::STT_SECTION,
                 };
-                let st_bind = if symbol.flags.0.contains(ObjSymbolFlags::Weak) {
+                let st_bind = if symbol.flags.is_weak() {
                     elf::STB_WEAK
-                } else if symbol.flags.0.contains(ObjSymbolFlags::Local) {
+                } else if symbol.flags.is_local() {
                     elf::STB_LOCAL
                 } else {
                     elf::STB_GLOBAL
                 };
                 (st_bind << 4) + st_type
             },
-            st_other: if symbol.flags.0.contains(ObjSymbolFlags::Hidden) {
-                elf::STV_HIDDEN
-            } else {
-                elf::STV_DEFAULT
-            },
+            st_other: if symbol.flags.is_hidden() { elf::STV_HIDDEN } else { elf::STV_DEFAULT },
             st_shndx: if section_index.is_some() {
                 0
             } else if symbol.address != 0 {

@@ -132,7 +132,7 @@ pub fn write_comment_sym<W: Write>(w: &mut W, symbol: &ObjSymbol) -> Result<()> 
     let align = match symbol.align {
         Some(align) => align,
         None => {
-            if symbol.flags.0.contains(ObjSymbolFlags::Common) {
+            if symbol.flags.is_common() {
                 symbol.address as u32
             } else {
                 match symbol.kind {
@@ -146,12 +146,12 @@ pub fn write_comment_sym<W: Write>(w: &mut W, symbol: &ObjSymbol) -> Result<()> 
     };
     w.write_u32::<BigEndian>(align)?;
     let mut vis_flags = 0;
-    if symbol.flags.0.contains(ObjSymbolFlags::Weak) {
+    if symbol.flags.is_weak() {
         vis_flags |= 0xE; // TODO 0xD?
     }
     w.write_u8(vis_flags)?;
     let mut active_flags = 0;
-    if symbol.flags.0.contains(ObjSymbolFlags::ForceActive) {
+    if symbol.flags.is_force_active() {
         active_flags |= 8;
     }
     w.write_u8(active_flags)?;

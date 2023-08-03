@@ -160,7 +160,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
 
     // Write common symbols
     let mut common_symbols = Vec::new();
-    for symbol in symbols.iter().filter(|s| s.flags.0.contains(ObjSymbolFlags::Common)) {
+    for symbol in symbols.iter().filter(|s| s.flags.is_common()) {
         ensure!(symbol.section.is_none(), "Invalid: common symbol with section {:?}", symbol);
         common_symbols.push(symbol);
     }
@@ -353,9 +353,9 @@ fn write_symbol_entry<W: Write>(
         ObjSymbolKind::Unknown => "sym",
         ObjSymbolKind::Section => bail!("Attempted to write section symbol: {symbol:?}"),
     };
-    let scope = if symbol.flags.0.contains(ObjSymbolFlags::Weak) {
+    let scope = if symbol.flags.is_weak() {
         "weak"
-    } else if symbol.flags.0.contains(ObjSymbolFlags::Local) {
+    } else if symbol.flags.is_local() {
         "local"
     } else {
         // Default to global
@@ -392,7 +392,7 @@ fn write_symbol_entry<W: Write>(
     }
 
     if matches!(entry.kind, SymbolEntryKind::Start | SymbolEntryKind::Label)
-        && symbol.flags.0.contains(ObjSymbolFlags::Hidden)
+        && symbol.flags.is_hidden()
     {
         write!(w, ".hidden ")?;
         write_symbol_name(w, &symbol.name)?;

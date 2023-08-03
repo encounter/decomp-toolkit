@@ -637,7 +637,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
 
                         // If the symbol is local, we'll upgrade the scope to global
                         // and rename it to avoid conflicts
-                        if target_sym.flags.0.contains(ObjSymbolFlags::Local) {
+                        if target_sym.flags.is_local() {
                             let address_str = format!("{:08X}", target_sym.address);
                             let new_name = if target_sym.name.ends_with(&address_str) {
                                 target_sym.name.clone()
@@ -694,10 +694,9 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
             if let Some(symbol_idx) = symbol_map[*globalize_idx] {
                 let mut symbol = obj.symbols.at(symbol_idx).clone();
                 symbol.name = new_name.clone();
-                if symbol.flags.0.contains(ObjSymbolFlags::Local) {
+                if symbol.flags.is_local() {
                     log::debug!("Globalizing {} in {}", symbol.name, obj.name);
-                    symbol.flags.0 &= !ObjSymbolFlags::Local;
-                    symbol.flags.0 |= ObjSymbolFlags::Global;
+                    symbol.flags.set_global();
                 }
                 obj.symbols.replace(symbol_idx, symbol)?;
             }

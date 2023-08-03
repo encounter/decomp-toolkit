@@ -152,7 +152,7 @@ fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Resul
     if let Some(kind) = symbol_data_kind_to_str(symbol.data_kind) {
         write!(w, " data:{kind}")?;
     }
-    if symbol.flags.0.contains(ObjSymbolFlags::Hidden) {
+    if symbol.flags.is_hidden() {
         write!(w, " hidden")?;
     }
     if obj.blocked_ranges.contains_key(&(symbol.address as u32)) {

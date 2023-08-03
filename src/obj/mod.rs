@@ -31,6 +31,32 @@ flags! {
 #[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
 pub struct ObjSymbolFlagSet(pub FlagSet<ObjSymbolFlags>);
 
+impl ObjSymbolFlagSet {
+    #[inline]
+    pub fn is_local(&self) -> bool { self.0.contains(ObjSymbolFlags::Local) }
+
+    #[inline]
+    pub fn is_global(&self) -> bool { !self.is_local() }
+
+    #[inline]
+    pub fn is_common(&self) -> bool { self.0.contains(ObjSymbolFlags::Common) }
+
+    #[inline]
+    pub fn is_weak(&self) -> bool { self.0.contains(ObjSymbolFlags::Weak) }
+
+    #[inline]
+    pub fn is_hidden(&self) -> bool { self.0.contains(ObjSymbolFlags::Hidden) }
+
+    #[inline]
+    pub fn is_force_active(&self) -> bool { self.0.contains(ObjSymbolFlags::ForceActive) }
+
+    #[inline]
+    pub fn set_global(&mut self) {
+        self.0 =
+            (self.0 & !(ObjSymbolFlags::Local | ObjSymbolFlags::Weak)) | ObjSymbolFlags::Global;
+    }
+}
+
 #[allow(clippy::derived_hash_with_manual_eq)]
 impl Hash for ObjSymbolFlagSet {
     fn hash<H: Hasher>(&self, state: &mut H) { self.0.bits().hash(state) }
