@@ -8,8 +8,8 @@ use itertools::Itertools;
 use petgraph::{graph::NodeIndex, Graph};
 
 use crate::obj::{
-    ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
-    ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, SymbolIndex,
+    ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjSection, ObjSectionKind, ObjSplit, ObjSymbol,
+    ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
 };
 
 /// Create splits for function pointers in the given section.
