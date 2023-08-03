@@ -40,6 +40,37 @@ pub enum TailCallResult {
 
 type BlockRange = Range<u32>;
 
+#[inline(always)]
+fn next_ins(section: &ObjSection, ins: &Ins) -> Option<Ins> { disassemble(section, ins.addr + 4) }
+
+type InsCheck = dyn Fn(&Ins) -> bool;
+
+#[inline(always)]
+fn check_sequence(
+    section: &ObjSection,
+    ins: &Ins,
+    sequence: &[(&InsCheck, &InsCheck)],
+) -> Result<bool> {
+    let mut found = false;
+
+    for &(first, second) in sequence {
+        if first(ins) {
+            if let Some(next) = next_ins(section, ins) {
+                if second(&next)
+                    // Also check the following instruction, in case the scheduler
+                    // put something in between.
+                    || (!next.is_branch() && matches!(next_ins(section, &next), Some(ins) if second(&ins)))
+                {
+                    found = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    Ok(found)
+}
+
 impl FunctionSlices {
     pub fn end(&self) -> u32 { self.blocks.last_key_value().map(|(_, &end)| end).unwrap_or(0) }
 
@@ -68,56 +99,58 @@ impl FunctionSlices {
     }
 
     fn check_prologue(&mut self, section: &ObjSection, ins: &Ins) -> Result<()> {
-        let next_ins = match disassemble(section, ins.addr + 4) {
-            Some(ins) => ins,
-            None => return Ok(()),
-        };
-        // stwu r1, d(r1)
-        // mfspr r0, LR
-        if ((ins.op == Opcode::Stwu && ins.field_rS() == 1 && ins.field_rA() == 1)
-            && (next_ins.op == Opcode::Mfspr
-                && next_ins.field_rD() == 0
-                && next_ins.field_spr() == 8))
+        #[inline(always)]
+        fn is_mflr(ins: &Ins) -> bool {
             // mfspr r0, LR
+            ins.op == Opcode::Mfspr && ins.field_rD() == 0 && ins.field_spr() == 8
+        }
+        #[inline(always)]
+        fn is_stwu(ins: &Ins) -> bool {
+            // stwu r1, d(r1)
+            ins.op == Opcode::Stwu && ins.field_rS() == 1 && ins.field_rA() == 1
+        }
+        #[inline(always)]
+        fn is_stw(ins: &Ins) -> bool {
             // stw r0, d(r1)
-            || ((ins.op == Opcode::Mfspr && ins.field_rD() == 0 && ins.field_spr() == 8)
-                && (next_ins.op == Opcode::Stw
-                    && next_ins.field_rS() == 0
-                    && next_ins.field_rA() == 1))
-        {
-            match self.prologue {
-                Some(prologue) if prologue != ins.addr && prologue != ins.addr - 4 => {
+            ins.op == Opcode::Stw && ins.field_rS() == 0 && ins.field_rA() == 1
+        }
+
+        if check_sequence(section, ins, &[(&is_stwu, &is_mflr), (&is_mflr, &is_stw)])? {
+            if let Some(prologue) = self.prologue {
+                if prologue != ins.addr && prologue != ins.addr - 4 {
                     bail!("Found duplicate prologue: {:#010X} and {:#010X}", prologue, ins.addr)
                 }
-                _ => self.prologue = Some(ins.addr),
+            } else {
+                self.prologue = Some(ins.addr);
             }
         }
         Ok(())
     }
 
     fn check_epilogue(&mut self, section: &ObjSection, ins: &Ins) -> Result<()> {
-        let next_ins = match disassemble(section, ins.addr + 4) {
-            Some(ins) => ins,
-            None => return Ok(()),
-        };
-        // mtspr SPR, r0
-        // addi rD, rA, SIMM
-        if ((ins.op == Opcode::Mtspr && ins.field_rS() == 0 && ins.field_spr() == 8)
-            && (next_ins.op == Opcode::Addi
-                && next_ins.field_rD() == 1
-                && next_ins.field_rA() == 1))
+        #[inline(always)]
+        fn is_mtlr(ins: &Ins) -> bool {
+            // mtspr LR, r0
+            ins.op == Opcode::Mtspr && ins.field_rS() == 0 && ins.field_spr() == 8
+        }
+        #[inline(always)]
+        fn is_addi(ins: &Ins) -> bool {
+            // addi r1, r1, SIMM
+            ins.op == Opcode::Addi && ins.field_rD() == 1 && ins.field_rA() == 1
+        }
+        #[inline(always)]
+        fn is_or(ins: &Ins) -> bool {
             // or r1, rA, rB
-            // mtspr SPR, r0
-            || ((ins.op == Opcode::Or && ins.field_rA() == 1)
-                && (next_ins.op == Opcode::Mtspr
-                    && next_ins.field_rS() == 0
-                    && next_ins.field_spr() == 8))
-        {
-            match self.epilogue {
-                Some(epilogue) if epilogue != ins.addr => {
+            ins.op == Opcode::Or && ins.field_rD() == 1
+        }
+
+        if check_sequence(section, ins, &[(&is_mtlr, &is_addi), (&is_or, &is_mtlr)])? {
+            if let Some(epilogue) = self.epilogue {
+                if epilogue != ins.addr {
                     bail!("Found duplicate epilogue: {:#010X} and {:#010X}", epilogue, ins.addr)
                 }
-                _ => self.epilogue = Some(ins.addr),
+            } else {
+                self.epilogue = Some(ins.addr);
             }
         }
         Ok(())
