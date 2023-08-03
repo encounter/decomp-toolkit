@@ -16,7 +16,7 @@ use crate::{
         tracker::Tracker,
     },
     array_ref_mut,
-    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSymbol, ObjSymbolKind},
+    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSymbol},
     util::{
         dol::process_dol,
         elf::write_elf,

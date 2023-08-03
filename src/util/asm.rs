@@ -10,7 +10,7 @@ use ppc750cl::{disasm_iter, Argument, Ins, Opcode};
 use crate::{
     obj::{
         ObjDataKind, ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
-        ObjSymbolFlags, ObjSymbolKind,
+        ObjSymbolKind,
     },
     util::nested::NestedVec,
 };

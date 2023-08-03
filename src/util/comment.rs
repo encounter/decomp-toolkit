@@ -7,7 +7,7 @@ use anyhow::{bail, Context, Result};
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-use crate::obj::{ObjSymbol, ObjSymbolFlags, ObjSymbolKind};
+use crate::obj::{ObjSymbol, ObjSymbolKind};
 
 #[derive(Debug, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u8)]
