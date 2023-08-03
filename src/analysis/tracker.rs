@@ -519,67 +519,9 @@ impl Tracker {
                         Some(v) => v,
                         None => continue,
                     };
-                    // Try to find a previous sized symbol that encompasses the target
-                    let target_symbol = {
-                        let mut result = None;
-                        for (_addr, symbol_idxs) in obj.symbols.indexes_for_range(..=target).rev() {
-                            let symbol_idx = if symbol_idxs.len() == 1 {
-                                symbol_idxs.first().cloned().unwrap()
-                            } else {
-                                let mut symbol_idxs = symbol_idxs.to_vec();
-                                symbol_idxs.sort_by_key(|&symbol_idx| {
-                                    let symbol = obj.symbols.at(symbol_idx);
-                                    let mut rank = match symbol.kind {
-                                        ObjSymbolKind::Function | ObjSymbolKind::Object => {
-                                            match reloc_kind {
-                                                ObjRelocKind::PpcAddr16Hi
-                                                | ObjRelocKind::PpcAddr16Ha
-                                                | ObjRelocKind::PpcAddr16Lo => 1,
-                                                ObjRelocKind::Absolute
-                                                | ObjRelocKind::PpcRel24
-                                                | ObjRelocKind::PpcRel14
-                                                | ObjRelocKind::PpcEmbSda21 => 2,
-                                            }
-                                        }
-                                        // Label
-                                        ObjSymbolKind::Unknown => match reloc_kind {
-                                            ObjRelocKind::PpcAddr16Hi
-                                            | ObjRelocKind::PpcAddr16Ha
-                                            | ObjRelocKind::PpcAddr16Lo
-                                                if !symbol.name.starts_with("..") =>
-                                            {
-                                                3
-                                            }
-                                            _ => 1,
-                                        },
-                                        ObjSymbolKind::Section => -1,
-                                    };
-                                    if symbol.size > 0 {
-                                        rank += 1;
-                                    }
-                                    -rank
-                                });
-                                match symbol_idxs.first().cloned() {
-                                    Some(v) => v,
-                                    None => continue,
-                                }
-                            };
-                            let symbol = obj.symbols.at(symbol_idx);
-                            if symbol.address == target as u64 {
-                                result = Some(symbol_idx);
-                                break;
-                            }
-                            if symbol.size > 0 {
-                                if symbol.address + symbol.size > target as u64 {
-                                    result = Some(symbol_idx);
-                                }
-                                break;
-                            }
-                        }
-                        result
-                    };
-                    if let Some(symbol_idx) = target_symbol {
-                        let symbol = obj.symbols.at(symbol_idx);
+                    if let Some((symbol_idx, symbol)) =
+                        obj.symbols.for_relocation(target, reloc_kind)?
+                    {
                         let symbol_address = symbol.address;
                         // TODO meh
                         if data_kind != ObjDataKind::Unknown

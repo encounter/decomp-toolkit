@@ -106,7 +106,7 @@ fn is_skip_symbol(symbol: &ObjSymbol) -> bool {
 }
 
 pub fn write_symbols<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
-    for (_, symbol) in obj.symbols.for_range(..) {
+    for (_, symbol) in obj.symbols.iter_ordered() {
         if symbol.kind == ObjSymbolKind::Section
             // Ignore absolute symbols for now (usually linker-generated)
             || symbol.section.is_none()

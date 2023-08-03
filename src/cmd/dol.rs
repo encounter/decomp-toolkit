@@ -109,7 +109,7 @@ fn info(args: InfoArgs) -> Result<()> {
     }
     println!("\nDiscovered symbols:");
     println!("\t{: >23} | {: <10} | {: <10}", "Name", "Address", "Size");
-    for (_, symbol) in obj.symbols.for_range(..) {
+    for (_, symbol) in obj.symbols.iter_ordered() {
         if symbol.name.starts_with('@') || symbol.name.starts_with("fn_") {
             continue;
         }

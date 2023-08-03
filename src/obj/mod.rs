@@ -341,6 +341,14 @@ impl ObjSymbols {
         Ok(result)
     }
 
+    // Iterate over all in address ascending order, including ABS symbols
+    pub fn iter_ordered(&self) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
+        self.symbols_by_address
+            .iter()
+            .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u])))
+    }
+
+    // Iterate over range in address ascending order, excluding ABS symbols
     pub fn for_range<R>(
         &self,
         range: R,
@@ -351,6 +359,8 @@ impl ObjSymbols {
         self.symbols_by_address
             .range(range)
             .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u])))
+            // Ignore ABS symbols
+            .filter(move |(_, sym)| sym.section.is_some())
     }
 
     pub fn indexes_for_range<R>(
@@ -420,6 +430,68 @@ impl ObjSymbols {
         }
         *symbol_ref = symbol;
         Ok(())
+    }
+
+    // Try to find a previous sized symbol that encompasses the target
+    pub fn for_relocation(
+        &self,
+        target_addr: u32,
+        reloc_kind: ObjRelocKind,
+    ) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
+        let mut result = None;
+        for (_addr, symbol_idxs) in self.indexes_for_range(..=target_addr).rev() {
+            let symbol_idx = if symbol_idxs.len() == 1 {
+                symbol_idxs.first().cloned().unwrap()
+            } else {
+                let mut symbol_idxs = symbol_idxs.to_vec();
+                symbol_idxs.sort_by_key(|&symbol_idx| {
+                    let symbol = self.at(symbol_idx);
+                    let mut rank = match symbol.kind {
+                        ObjSymbolKind::Function | ObjSymbolKind::Object => match reloc_kind {
+                            ObjRelocKind::PpcAddr16Hi
+                            | ObjRelocKind::PpcAddr16Ha
+                            | ObjRelocKind::PpcAddr16Lo => 1,
+                            ObjRelocKind::Absolute
+                            | ObjRelocKind::PpcRel24
+                            | ObjRelocKind::PpcRel14
+                            | ObjRelocKind::PpcEmbSda21 => 2,
+                        },
+                        // Label
+                        ObjSymbolKind::Unknown => match reloc_kind {
+                            ObjRelocKind::PpcAddr16Hi
+                            | ObjRelocKind::PpcAddr16Ha
+                            | ObjRelocKind::PpcAddr16Lo
+                                if !symbol.name.starts_with("..") =>
+                            {
+                                3
+                            }
+                            _ => 1,
+                        },
+                        ObjSymbolKind::Section => -1,
+                    };
+                    if symbol.size > 0 {
+                        rank += 1;
+                    }
+                    -rank
+                });
+                match symbol_idxs.first().cloned() {
+                    Some(v) => v,
+                    None => continue,
+                }
+            };
+            let symbol = self.at(symbol_idx);
+            if symbol.address == target_addr as u64 {
+                result = Some((symbol_idx, symbol));
+                break;
+            }
+            if symbol.size > 0 {
+                if symbol.address + symbol.size > target_addr as u64 {
+                    result = Some((symbol_idx, symbol));
+                }
+                break;
+            }
+        }
+        Ok(result)
     }
 }
 
