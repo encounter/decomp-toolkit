@@ -1,29 +1,29 @@
 use std::path::PathBuf;
 
 use anyhow::Result;
-use argh::FromArgs;
+use argp::FromArgs;
 
 use crate::util::rso::process_rso;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing RSO files.
-#[argh(subcommand, name = "rso")]
+#[argp(subcommand, name = "rso")]
 pub struct Args {
-    #[argh(subcommand)]
+    #[argp(subcommand)]
     command: SubCommand,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+#[argp(subcommand)]
 enum SubCommand {
     Info(InfoArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Views RSO file information.
-#[argh(subcommand, name = "info")]
+#[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// RSO file
     rso_file: PathBuf,
 }

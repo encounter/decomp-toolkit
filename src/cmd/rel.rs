@@ -6,7 +6,7 @@ use std::{
 };
 
 use anyhow::{bail, ensure, Context, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 
 use crate::{
     analysis::{
@@ -28,14 +28,14 @@ use crate::{
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing REL files.
-#[argh(subcommand, name = "rel")]
+#[argp(subcommand, name = "rel")]
 pub struct Args {
-    #[argh(subcommand)]
+    #[argp(subcommand)]
     command: SubCommand,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+#[argp(subcommand)]
 enum SubCommand {
     Info(InfoArgs),
     Merge(MergeArgs),
@@ -43,24 +43,24 @@ enum SubCommand {
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Views REL file information.
-#[argh(subcommand, name = "info")]
+#[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// REL file
     rel_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Merges a DOL + REL(s) into an ELF.
-#[argh(subcommand, name = "merge")]
+#[argp(subcommand, name = "merge")]
 pub struct MergeArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// DOL file
     dol_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// REL file(s)
     rel_files: Vec<PathBuf>,
-    #[argh(option, short = 'o')]
+    #[argp(option, short = 'o')]
     /// output ELF
     out_file: PathBuf,
 }

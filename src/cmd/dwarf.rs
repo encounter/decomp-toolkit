@@ -6,7 +6,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use object::{elf, Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, Section};
 
 use crate::util::{
@@ -18,28 +18,28 @@ use crate::util::{
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
-/// process DWARF 1.1 information
-#[argh(subcommand, name = "dwarf")]
+/// Commands for processing DWARF 1.1 information.
+#[argp(subcommand, name = "dwarf")]
 pub struct Args {
-    #[argh(subcommand)]
+    #[argp(subcommand)]
     command: SubCommand,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+#[argp(subcommand)]
 enum SubCommand {
     Dump(DumpArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// dumps DWARF 1.1 info from an object or archive
-#[argh(subcommand, name = "dump")]
+/// Dumps DWARF 1.1 info from an object or archive.
+#[argp(subcommand, name = "dump")]
 pub struct DumpArgs {
-    #[argh(positional)]
-    /// input object (ELF or archive)
+    #[argp(positional)]
+    /// Input object. (ELF or archive)
     in_file: PathBuf,
-    #[argh(option, short = 'o')]
-    /// output file (or directory, for archive)
+    #[argp(option, short = 'o')]
+    /// Output file. (Or directory, for archive)
     out: Option<PathBuf>,
 }
 

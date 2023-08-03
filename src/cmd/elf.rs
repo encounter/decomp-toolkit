@@ -7,7 +7,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use object::{
     elf,
     write::{Mangling, SectionId, SymbolId},
@@ -31,14 +31,14 @@ use crate::{
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing ELF files.
-#[argh(subcommand, name = "elf")]
+#[argp(subcommand, name = "elf")]
 pub struct Args {
-    #[argh(subcommand)]
+    #[argp(subcommand)]
     command: SubCommand,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+#[argp(subcommand)]
 enum SubCommand {
     Config(ConfigArgs),
     Disasm(DisasmArgs),
@@ -49,63 +49,63 @@ enum SubCommand {
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Disassembles an ELF file.
-#[argh(subcommand, name = "disasm")]
+#[argp(subcommand, name = "disasm")]
 pub struct DisasmArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// input file
     elf_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// output file (.o) or directory (.elf)
     out: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Fixes issues with GNU assembler built object files.
-#[argh(subcommand, name = "fixup")]
+#[argp(subcommand, name = "fixup")]
 pub struct FixupArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// input file
     in_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// output file
     out_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Splits an executable ELF into relocatable objects.
-#[argh(subcommand, name = "split")]
+#[argp(subcommand, name = "split")]
 pub struct SplitArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// input file
     in_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// output directory
     out_dir: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Generates configuration files from an executable ELF.
-#[argh(subcommand, name = "config")]
+#[argp(subcommand, name = "config")]
 pub struct ConfigArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// input file
     in_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// output directory
     out_dir: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Builds function signatures from an ELF file.
-#[argh(subcommand, name = "sigs")]
+#[argp(subcommand, name = "sigs")]
 pub struct SignaturesArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// input file(s)
     files: Vec<PathBuf>,
-    #[argh(option, short = 's')]
+    #[argp(option, short = 's')]
     /// symbol name
     symbol: String,
-    #[argh(option, short = 'o')]
+    #[argp(option, short = 'o')]
     /// output yml
     out_file: PathBuf,
 }

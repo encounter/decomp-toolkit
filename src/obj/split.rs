@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Result};
 use itertools::Itertools;
-use topological_sort::TopologicalSort;
+use petgraph::{graph::NodeIndex, Graph};
 
 use crate::obj::{
     ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjSection, ObjSectionKind, ObjSplit, ObjSymbol,
@@ -376,8 +376,23 @@ pub fn update_splits(obj: &mut ObjInfo) -> Result<()> {
 /// There can be ambiguities, but any solution that satisfies the link order
 /// constraints is considered valid.
 fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<String>> {
-    let mut global_unit_order = Vec::<String>::new();
-    let mut t_sort = TopologicalSort::<String>::new();
+    #[allow(dead_code)]
+    #[derive(Debug, Copy, Clone)]
+    struct SplitEdge {
+        from: u32,
+        to: u32,
+    }
+
+    let mut graph = Graph::<String, SplitEdge>::new();
+    let mut unit_to_index_map = BTreeMap::<String, NodeIndex>::new();
+    for (_, split) in obj.splits_for_range(..) {
+        unit_to_index_map.insert(split.unit.clone(), NodeIndex::new(0));
+    }
+    for (unit, index) in unit_to_index_map.iter_mut() {
+        let new_index = graph.add_node(unit.clone());
+        *index = new_index;
+    }
+
     for section in &obj.sections {
         let mut iter = obj
             .splits_for_range(section.address as u32..(section.address + section.size) as u32)
@@ -387,38 +402,46 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<String>> {
             let skipped = iter.next();
             log::debug!("Skipping split {:?} (next: {:?})", skipped, iter.peek());
         }
-        loop {
-            match (iter.next(), iter.peek()) {
-                (Some((a_addr, a)), Some((b_addr, b))) => {
-                    if a.unit != b.unit {
-                        log::debug!(
-                            "Adding dependency {} ({:#010X}) -> {} ({:#010X})",
-                            a.unit,
-                            a_addr,
-                            b.unit,
-                            b_addr
-                        );
-                        t_sort.add_dependency(a.unit.clone(), b.unit.clone());
-                    }
-                }
-                (Some((_, a)), None) => {
-                    t_sort.insert(a.unit.clone());
-                    break;
-                }
-                _ => break,
+        while let (Some((a_addr, a)), Some(&(b_addr, b))) = (iter.next(), iter.peek()) {
+            if a.unit != b.unit {
+                log::debug!(
+                    "Adding dependency {} ({:#010X}) -> {} ({:#010X})",
+                    a.unit,
+                    a_addr,
+                    b.unit,
+                    b_addr
+                );
+                let a_index = *unit_to_index_map.get(&a.unit).unwrap();
+                let b_index = *unit_to_index_map.get(&b.unit).unwrap();
+                graph.add_edge(a_index, b_index, SplitEdge { from: a_addr, to: b_addr });
             }
         }
     }
-    for unit in &mut t_sort {
-        global_unit_order.push(unit);
+
+    // use petgraph::{
+    //     dot::{Config, Dot},
+    //     graph::EdgeReference,
+    // };
+    // let get_edge_attributes = |_, e: EdgeReference<SplitEdge>| {
+    //     let &SplitEdge { from, to } = e.weight();
+    //     let section_name = &obj.section_at(from).unwrap().name;
+    //     format!("label=\"{} {:#010X} -> {:#010X}\"", section_name, from, to)
+    // };
+    // let dot = Dot::with_attr_getters(
+    //     &graph,
+    //     &[Config::EdgeNoLabel, Config::NodeNoLabel],
+    //     &get_edge_attributes,
+    //     &|_, (_, s)| format!("label=\"{}\"", s),
+    // );
+    // println!("{:?}", dot);
+
+    match petgraph::algo::toposort(&graph, None) {
+        Ok(vec) => Ok(vec.iter().map(|&idx| graph[idx].clone()).collect_vec()),
+        Err(e) => Err(anyhow!(
+            "Cyclic dependency (involving {}) encountered while resolving link order",
+            graph[e.node_id()]
+        )),
     }
-    // An incomplete topological sort indicates that a cyclic dependency was encountered.
-    ensure!(t_sort.is_empty(), "Cyclic dependency encountered while resolving link order");
-    // Sanity check, did we get all TUs in the final order?
-    for unit in obj.splits.values().flatten().map(|s| &s.unit) {
-        ensure!(global_unit_order.contains(unit), "Failed to find an order for {unit}");
-    }
-    Ok(global_unit_order)
 }
 
 /// Split an executable object into relocatable objects.

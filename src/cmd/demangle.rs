@@ -1,15 +1,15 @@
 use anyhow::{anyhow, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use cwdemangle::{demangle, DemangleOptions};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Demangle a CodeWarrior C++ symbol.
-#[argh(subcommand, name = "demangle")]
+#[argp(subcommand, name = "demangle")]
 pub struct Args {
-    #[argh(positional)]
+    #[argp(positional)]
     /// symbol to demangle
     symbol: String,
-    #[argh(switch)]
+    #[argp(switch)]
     /// disable replacing `(void)` with `()`
     keep_void: bool,
 }

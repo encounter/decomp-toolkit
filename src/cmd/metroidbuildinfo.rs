@@ -1,18 +1,18 @@
 use std::path::PathBuf;
 
 use anyhow::{bail, ensure, Context, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use memchr::memmem;
 use memmap2::MmapOptions;
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Sets the MetroidBuildInfo tag value in a given binary.
-#[argh(subcommand, name = "metroidbuildinfo")]
+#[argp(subcommand, name = "metroidbuildinfo")]
 pub struct Args {
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to source binary
     binary: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to build info string
     build_info: PathBuf,
 }

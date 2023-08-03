@@ -12,7 +12,6 @@ use cwdemangle::{demangle, DemangleOptions};
 use multimap::MultiMap;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
-use topological_sort::TopologicalSort;
 
 use crate::{
     obj::{
@@ -142,43 +141,6 @@ fn resolve_section_order(
     }
 
     Ok(ordering)
-}
-
-/// The ordering of TUs inside of each section represents a directed edge in a DAG.
-/// We can use a topological sort to determine a valid global TU order.
-/// There can be ambiguities, but any solution that satisfies the link order
-/// constraints is considered valid.
-// TODO account for library ordering
-pub fn resolve_link_order(section_unit_order: &[(String, Vec<String>)]) -> Result<Vec<String>> {
-    let mut global_unit_order = Vec::<String>::new();
-    let mut t_sort = TopologicalSort::<String>::new();
-    for (section, order) in section_unit_order {
-        let mut order = order.clone();
-        if matches!(section.as_str(), ".ctors" | ".dtors" | "extab") {
-            continue;
-            // if order.len() > 1 {
-            //     // __init_cpp_exceptions.o has symbols that get ordered to the beginning of
-            //     // .ctors and .dtors, so our topological sort would fail if we added them.
-            //     // Always skip the first TU of .ctors and .dtors.
-            //     order = order[1..].to_vec();
-            // }
-        }
-        for iter in order.windows(2) {
-            t_sort.add_dependency(iter[0].clone(), iter[1].clone());
-        }
-    }
-    for unit in &mut t_sort {
-        global_unit_order.push(unit);
-    }
-    // An incomplete topological sort indicates that a cyclic dependency was encountered.
-    ensure!(t_sort.is_empty(), "Cyclic dependency encountered while resolving link order");
-    // Sanity check, did we get all TUs in the final order?
-    for (_, order) in section_unit_order {
-        for unit in order {
-            ensure!(global_unit_order.contains(unit), "Failed to find an order for {unit}");
-        }
-    }
-    Ok(global_unit_order)
 }
 
 macro_rules! static_regex {
@@ -752,7 +714,8 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
         section_order.push((section.clone(), units));
     }
     log::info!("Section order: {:#?}", section_order);
-    obj.link_order = resolve_link_order(&section_order)?;
+    // TODO
+    // obj.link_order = resolve_link_order(&section_order)?;
     Ok(())
 }
 

@@ -5,19 +5,19 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, SectionKind};
 
 use crate::util::file::map_file;
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Converts an ELF file to a DOL file.
-#[argh(subcommand, name = "elf2dol")]
+#[argp(subcommand, name = "elf2dol")]
 pub struct Args {
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to input ELF
     elf_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to output DOL
     dol_file: PathBuf,
 }

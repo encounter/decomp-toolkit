@@ -6,33 +6,33 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
 
 use crate::util::file::{map_file, process_rsp};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing static libraries.
-#[argh(subcommand, name = "ar")]
+#[argp(subcommand, name = "ar")]
 pub struct Args {
-    #[argh(subcommand)]
+    #[argp(subcommand)]
     command: SubCommand,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+#[argp(subcommand)]
 enum SubCommand {
     Create(CreateArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Creates a static library.
-#[argh(subcommand, name = "create")]
+#[argp(subcommand, name = "create")]
 pub struct CreateArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// output file
     out: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// input files
     files: Vec<PathBuf>,
 }

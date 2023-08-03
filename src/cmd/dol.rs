@@ -7,7 +7,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 
 use crate::{
     analysis::{
@@ -33,14 +33,14 @@ use crate::{
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing DOL files.
-#[argh(subcommand, name = "dol")]
+#[argp(subcommand, name = "dol")]
 pub struct Args {
-    #[argh(subcommand)]
+    #[argp(subcommand)]
     command: SubCommand,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+#[argp(subcommand)]
 enum SubCommand {
     Info(InfoArgs),
     Split(SplitArgs),
@@ -48,30 +48,30 @@ enum SubCommand {
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Views DOL file information.
-#[argh(subcommand, name = "info")]
+#[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// DOL file
     dol_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Splits a DOL into relocatable objects.
-#[argh(subcommand, name = "split")]
+#[argp(subcommand, name = "split")]
 pub struct SplitArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// input file
     in_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// output directory
     out_dir: PathBuf,
-    #[argh(option, short = 's')]
+    #[argp(option, short = 's')]
     /// path to symbols file
     symbols_file: Option<PathBuf>,
-    #[argh(option, short = 'p')]
+    #[argp(option, short = 'p')]
     /// path to splits file
     splits_file: Option<PathBuf>,
-    #[argh(option, short = 'e')]
+    #[argp(option, short = 'e')]
     /// ELF file to validate against (debugging only)
     elf_file: Option<PathBuf>,
 }

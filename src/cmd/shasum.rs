@@ -5,7 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, Context, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use filetime::{set_file_mtime, FileTime};
 use sha1::{Digest, Sha1};
 
@@ -13,15 +13,15 @@ use crate::util::file::process_rsp;
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Print or check SHA1 (160-bit) checksums.
-#[argh(subcommand, name = "shasum")]
+#[argp(subcommand, name = "shasum")]
 pub struct Args {
-    #[argh(switch, short = 'c')]
+    #[argp(switch, short = 'c')]
     /// check SHA sums against given list
     check: bool,
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to input file(s)
     files: Vec<PathBuf>,
-    #[argh(option, short = 'o')]
+    #[argp(option, short = 'o')]
     /// touch output file on successful check
     output: Option<PathBuf>,
 }

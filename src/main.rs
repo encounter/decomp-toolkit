@@ -1,22 +1,76 @@
-use std::io::Write;
+use std::{ffi::OsStr, io::Write, path::PathBuf, str::FromStr};
 
-use argh::FromArgs;
+use argp::{FromArgValue, FromArgs};
 
 pub mod analysis;
-pub mod argh_version;
+pub mod argp_version;
 pub mod cmd;
 pub mod obj;
 pub mod util;
 
-#[derive(FromArgs, PartialEq, Debug)]
-/// GameCube/Wii decompilation project tools.
-struct TopLevel {
-    #[argh(subcommand)]
-    command: SubCommand,
+#[derive(Debug, Eq, PartialEq, Copy, Clone)]
+enum LogLevel {
+    Error,
+    Warn,
+    Info,
+    Debug,
+    Trace,
+}
+
+impl FromStr for LogLevel {
+    type Err = ();
+
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        Ok(match s {
+            "error" => Self::Error,
+            "warn" => Self::Warn,
+            "info" => Self::Info,
+            "debug" => Self::Debug,
+            "trace" => Self::Trace,
+            _ => return Err(()),
+        })
+    }
+}
+
+impl ToString for LogLevel {
+    fn to_string(&self) -> String {
+        match self {
+            LogLevel::Error => "error",
+            LogLevel::Warn => "warn",
+            LogLevel::Info => "info",
+            LogLevel::Debug => "debug",
+            LogLevel::Trace => "trace",
+        }
+        .to_string()
+    }
+}
+
+impl FromArgValue for LogLevel {
+    fn from_arg_value(value: &OsStr) -> Result<Self, String> {
+        String::from_arg_value(value)
+            .and_then(|s| Self::from_str(&s).map_err(|_| format!("Invalid log level")))
+    }
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+/// Yet another GameCube/Wii decompilation toolkit.
+struct TopLevel {
+    #[argp(subcommand)]
+    command: SubCommand,
+    #[argp(option, short = 'C')]
+    /// Change working directory.
+    chdir: Option<PathBuf>,
+    #[argp(option, short = 'L', default = "LogLevel::Info")]
+    /// Minimum logging level. (Default: info)
+    /// Possible values: error, warn, info, debug, trace
+    log_level: LogLevel,
+    /// Print version information and exit.
+    #[argp(switch, short = 'V')]
+    version: bool,
+}
+
+#[derive(FromArgs, PartialEq, Debug)]
+#[argp(subcommand)]
 enum SubCommand {
     Ar(cmd::ar::Args),
     Demangle(cmd::demangle::Args),
@@ -32,12 +86,21 @@ enum SubCommand {
 }
 
 fn main() {
-    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info"))
-        .format(|f, r| writeln!(f, "[{}] {}", r.level(), r.args()))
-        .init();
+    let args: TopLevel = argp_version::from_env();
+    env_logger::Builder::from_env(
+        env_logger::Env::default().default_filter_or(args.log_level.to_string()),
+    )
+    .format(|f, r| writeln!(f, "[{}] {}", r.level(), r.args()))
+    .init();
 
-    let args: TopLevel = argh_version::from_env();
-    let result = match args.command {
+    let mut result = Ok(());
+    if let Some(dir) = &args.chdir {
+        result = std::env::set_current_dir(dir).map_err(|e| {
+            anyhow::Error::new(e)
+                .context(format!("Failed to change working directory to '{}'", dir.display()))
+        });
+    }
+    result = result.and_then(|_| match args.command {
         SubCommand::Ar(c_args) => cmd::ar::run(c_args),
         SubCommand::Demangle(c_args) => cmd::demangle::run(c_args),
         SubCommand::Dol(c_args) => cmd::dol::run(c_args),
@@ -49,7 +112,7 @@ fn main() {
         SubCommand::Rel(c_args) => cmd::rel::run(c_args),
         SubCommand::Rso(c_args) => cmd::rso::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
-    };
+    });
     if let Err(e) = result {
         eprintln!("Failed: {e:?}");
         std::process::exit(1);

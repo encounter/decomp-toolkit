@@ -2,7 +2,7 @@
 use std::path::PathBuf;
 
 use anyhow::{bail, Result};
-use argh::FromArgs;
+use argp::FromArgs;
 use cwdemangle::{demangle, DemangleOptions};
 
 use crate::util::{
@@ -12,14 +12,14 @@ use crate::util::{
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing CodeWarrior maps.
-#[argh(subcommand, name = "map")]
+#[argp(subcommand, name = "map")]
 pub struct Args {
-    #[argh(subcommand)]
+    #[argp(subcommand)]
     command: SubCommand,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
-#[argh(subcommand)]
+#[argp(subcommand)]
 enum SubCommand {
     Entries(EntriesArgs),
     Symbol(SymbolArgs),
@@ -30,51 +30,51 @@ enum SubCommand {
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Displays all entries for a particular TU.
-#[argh(subcommand, name = "entries")]
+#[argp(subcommand, name = "entries")]
 pub struct EntriesArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to input map
     map_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// TU to display entries for
     unit: String,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Displays all references to a symbol.
-#[argh(subcommand, name = "symbol")]
+#[argp(subcommand, name = "symbol")]
 pub struct SymbolArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to input map
     map_file: PathBuf,
-    #[argh(positional)]
+    #[argp(positional)]
     /// symbol to display references for
     symbol: String,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Attempts to resolve global link order.
-#[argh(subcommand, name = "order")]
+#[argp(subcommand, name = "order")]
 pub struct OrderArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to input map
     map_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Emits a slices.yml for ppcdis. (WIP)
-#[argh(subcommand, name = "slices")]
+#[argp(subcommand, name = "slices")]
 pub struct SlicesArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to input map
     map_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Emits a symbols.yml for ppcdis. (WIP)
-#[argh(subcommand, name = "symbols")]
+#[argp(subcommand, name = "symbols")]
 pub struct SymbolsArgs {
-    #[argh(positional)]
+    #[argp(positional)]
     /// path to input map
     map_file: PathBuf,
 }
