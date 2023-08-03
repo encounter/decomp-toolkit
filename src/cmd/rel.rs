@@ -12,7 +12,7 @@ use crate::{
     analysis::{
         cfa::AnalyzerState,
         pass::{AnalysisPass, FindSaveRestSleds, FindTRKInterruptVectorTable},
-        signatures::apply_signatures,
+        signatures::{apply_signatures, apply_signatures_post},
         tracker::Tracker,
     },
     array_ref_mut,
@@ -201,6 +201,8 @@ fn merge(args: MergeArgs) -> Result<()> {
     FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
     FindSaveRestSleds::execute(&mut state, &obj)?;
     state.apply(&mut obj)?;
+
+    apply_signatures_post(&mut obj)?;
 
     log::info!("Performing relocation analysis");
     let mut tracker = Tracker::new(&obj);

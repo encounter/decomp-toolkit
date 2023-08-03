@@ -164,6 +164,8 @@ fn split(args: SplitArgs) -> Result<()> {
     FindSaveRestSleds::execute(&mut state, &obj)?;
     state.apply(&mut obj)?;
 
+    apply_signatures_post(&mut obj)?;
+
     log::info!("Performing relocation analysis");
     let mut tracker = Tracker::new(&obj);
     tracker.process(&obj)?;
