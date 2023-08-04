@@ -48,7 +48,7 @@ impl ToString for LogLevel {
 impl FromArgValue for LogLevel {
     fn from_arg_value(value: &OsStr) -> Result<Self, String> {
         String::from_arg_value(value)
-            .and_then(|s| Self::from_str(&s).map_err(|_| format!("Invalid log level")))
+            .and_then(|s| Self::from_str(&s).map_err(|_| "Invalid log level".to_string()))
     }
 }
 

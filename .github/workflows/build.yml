@@ -23,11 +23,27 @@ jobs:
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
-          components: rustfmt, clippy
+          components: clippy
       - name: Cargo check
-        run: cargo check --all-features
+        run: cargo check --all-features --all-targets
       - name: Cargo clippy
-        run: cargo clippy --all-features
+        run: cargo clippy --all-features --all-targets
+
+  fmt:
+    name: Format
+    runs-on: ubuntu-latest
+    env:
+      RUSTFLAGS: -D warnings
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Rust toolchain
+        # We use nightly options in rustfmt.toml
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: rustfmt
+      - name: Cargo fmt
+        run: cargo fmt --all --check
 
   deny:
     name: Deny
@@ -72,7 +88,7 @@ jobs:
           - platform: ubuntu-latest
             target: i686-unknown-linux-musl
             name: linux-x86
-            build: zigbuild          
+            build: zigbuild
           - platform: ubuntu-latest
             target: aarch64-unknown-linux-musl
             name: linux-aarch64
