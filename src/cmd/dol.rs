@@ -204,7 +204,7 @@ fn split(args: SplitArgs) -> Result<()> {
     // Create out dirs
     let asm_dir = args.out_dir.join("asm");
     let include_dir = args.out_dir.join("include");
-    let obj_dir = args.out_dir.clone();
+    let obj_dir = args.out_dir.join("obj");
     DirBuilder::new().recursive(true).create(&include_dir)?;
     fs::write(include_dir.join("macros.inc"), include_str!("../../assets/macros.inc"))?;
 
@@ -218,14 +218,12 @@ fn split(args: SplitArgs) -> Result<()> {
         };
     }
 
-    let mut rsp_file = BufWriter::new(File::create(args.out_dir.join("rsp"))?);
-    let mut units_file = BufWriter::new(File::create(args.out_dir.join("units"))?);
+    let mut units_file = BufWriter::new(File::create(args.out_dir.join("units.txt"))?);
     for unit in &obj.link_order {
         let object = file_map
             .get(unit)
             .ok_or_else(|| anyhow!("Failed to find object file for unit '{unit}'"))?;
         let out_path = obj_dir.join(obj_path_for_unit(unit));
-        writeln!(rsp_file, "{}", out_path.display())?;
         writeln!(units_file, "{}:{}", out_path.display(), unit)?;
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
@@ -235,7 +233,6 @@ fn split(args: SplitArgs) -> Result<()> {
         file.write_all(object)?;
         file.flush()?;
     }
-    rsp_file.flush()?;
     units_file.flush()?;
 
     // Generate ldscript.lcf
