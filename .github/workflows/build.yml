@@ -125,7 +125,7 @@ jobs:
           sudo apt-get -y install ${{ matrix.packages }}
       - name: Install cargo-zigbuild
         if: matrix.build == 'zigbuild'
-        run: pip install cargo-zigbuild
+        run: pip install ziglang==0.10.1.post1 cargo-zigbuild==0.17.0
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
