@@ -1,6 +1,7 @@
 pub mod asm;
 pub mod comment;
 pub mod config;
+pub mod dep;
 pub mod dol;
 pub mod dwarf;
 pub mod elf;

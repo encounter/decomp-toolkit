@@ -269,8 +269,10 @@ $ dtk dol info input.dol
 Analyzes and splits a DOL file into relocatable objects based on user configuration.
 
 ```shell
-$ dtk dol split input.dol target -s config/symbols.txt -p config/splits.txt
+$ dtk dol split config.yml target
 ```
+
+TODO: document configuration file
 
 ### dwarf dump
 

@@ -214,7 +214,7 @@ dependencies = [
 
 [[package]]
 name = "decomp-toolkit"
-version = "0.3.0"
+version = "0.3.2"
 dependencies = [
  "anyhow",
  "ar",
@@ -245,6 +245,7 @@ dependencies = [
  "regex",
  "rmp-serde",
  "serde",
+ "serde_json",
  "serde_repr",
  "serde_yaml",
  "sha-1",
@@ -771,6 +772,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.23",
+]
+
+[[package]]
+name = "serde_json"
+version = "1.0.104"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "076066c5f1078eac5b722a31827a8832fe108bed65dfa75e233c89f8206e976c"
+dependencies = [
+ "itoa",
+ "ryu",
+ "serde",
 ]
 
 [[package]]

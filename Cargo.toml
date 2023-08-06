@@ -3,7 +3,7 @@ name = "decomp-toolkit"
 description = "Yet another GameCube/Wii decompilation toolkit."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.3.1"
+version = "0.3.2"
 edition = "2021"
 publish = false
 build = "build.rs"
@@ -49,6 +49,7 @@ petgraph = "0.6.3"
 ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "5f6e991bf495388c4104f188d2e90c79da9f78de" }
 regex = "1.9.0"
 serde = "1.0.166"
+serde_json = "1.0.104"
 serde_repr = "0.1.14"
 serde_yaml = "0.9.22"
 sha-1 = "0.10.1"

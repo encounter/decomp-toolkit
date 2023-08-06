@@ -402,8 +402,7 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<String>> {
         unit_to_index_map.insert(split.unit.clone(), NodeIndex::new(0));
     }
     for (unit, index) in unit_to_index_map.iter_mut() {
-        let new_index = graph.add_node(unit.clone());
-        *index = new_index;
+        *index = graph.add_node(unit.clone());
     }
 
     for section in &obj.sections {
