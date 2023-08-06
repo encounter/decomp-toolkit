@@ -1,11 +1,12 @@
 use std::{
-    fs::File,
+    fs::{File, OpenOptions},
     io::{BufRead, BufReader, Cursor, Read},
     path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, Context, Result};
 use byteorder::ReadBytesExt;
+use filetime::{set_file_mtime, FileTime};
 use memmap2::{Mmap, MmapOptions};
 
 use crate::util::{rarc, rarc::Node, yaz0};
@@ -233,4 +234,15 @@ impl Iterator for FileIterator {
     type Item = Result<(PathBuf, FileEntry)>;
 
     fn next(&mut self) -> Option<Self::Item> { self.next_rarc().or_else(|| self.next_path()) }
+}
+
+pub fn touch<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
+    if path.as_ref().exists() {
+        set_file_mtime(path, FileTime::now())
+    } else {
+        match OpenOptions::new().create(true).write(true).open(path) {
+            Ok(_) => Ok(()),
+            Err(e) => Err(e),
+        }
+    }
 }

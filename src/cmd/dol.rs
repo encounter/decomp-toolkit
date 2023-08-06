@@ -26,7 +26,7 @@ use crate::{
         config::{apply_splits, parse_symbol_line, write_splits, write_symbols},
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{map_file, map_reader},
+        file::{map_file, map_reader, touch},
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
     },
 };
@@ -74,6 +74,9 @@ pub struct SplitArgs {
     #[argp(option, short = 'e')]
     /// ELF file to validate against (debugging only)
     elf_file: Option<PathBuf>,
+    #[argp(switch)]
+    /// skip updating splits & symbol files (for build systems)
+    no_update: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -179,20 +182,22 @@ fn split(args: SplitArgs) -> Result<()> {
     log::info!("Detecting strings");
     detect_strings(&mut obj)?;
 
-    if let Some(symbols_path) = &args.symbols_file {
-        let mut symbols_writer = BufWriter::new(
-            File::create(symbols_path)
-                .with_context(|| format!("Failed to create '{}'", symbols_path.display()))?,
-        );
-        write_symbols(&mut symbols_writer, &obj)?;
-    }
+    if !args.no_update {
+        if let Some(symbols_path) = &args.symbols_file {
+            let mut symbols_writer = BufWriter::new(
+                File::create(symbols_path)
+                    .with_context(|| format!("Failed to create '{}'", symbols_path.display()))?,
+            );
+            write_symbols(&mut symbols_writer, &obj)?;
+        }
 
-    if let Some(splits_path) = &args.splits_file {
-        let mut splits_writer = BufWriter::new(
-            File::create(splits_path)
-                .with_context(|| format!("Failed to create '{}'", splits_path.display()))?,
-        );
-        write_splits(&mut splits_writer, &obj)?;
+        if let Some(splits_path) = &args.splits_file {
+            let mut splits_writer = BufWriter::new(
+                File::create(splits_path)
+                    .with_context(|| format!("Failed to create '{}'", splits_path.display()))?,
+            );
+            write_splits(&mut splits_writer, &obj)?;
+        }
     }
 
     log::info!("Adjusting splits");
@@ -202,6 +207,7 @@ fn split(args: SplitArgs) -> Result<()> {
     let split_objs = split_obj(&obj)?;
 
     // Create out dirs
+    touch(&args.out_dir)?;
     let asm_dir = args.out_dir.join("asm");
     let include_dir = args.out_dir.join("include");
     let obj_dir = args.out_dir.join("obj");

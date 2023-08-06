@@ -88,7 +88,7 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
             }
         }
         Ok(Some(symbol))
-    } else if COMMENT_LINE.is_match(line) {
+    } else if line.is_empty() || COMMENT_LINE.is_match(line) {
         Ok(None)
     } else {
         Err(anyhow!("Failed to parse symbol line '{line}'"))

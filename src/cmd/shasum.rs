@@ -1,15 +1,14 @@
 use std::{
-    fs::{File, OpenOptions},
+    fs::File,
     io::{BufRead, BufReader, Read},
     path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
-use filetime::{set_file_mtime, FileTime};
 use sha1::{Digest, Sha1};
 
-use crate::util::file::process_rsp;
+use crate::util::file::{process_rsp, touch};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Print or check SHA1 (160-bit) checksums.
@@ -99,15 +98,4 @@ fn file_sha1(mut file: File) -> Result<sha1::digest::Output<Sha1>> {
         }
         hasher.update(&buf[0..read]);
     })
-}
-
-fn touch<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
-    if path.as_ref().exists() {
-        set_file_mtime(path, FileTime::now())
-    } else {
-        match OpenOptions::new().create(true).write(true).open(path) {
-            Ok(_) => Ok(()),
-            Err(e) => Err(e),
-        }
-    }
 }

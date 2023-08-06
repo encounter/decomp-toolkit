@@ -286,7 +286,7 @@ impl StateMachine {
             }
             ProcessMapState::SectionLayout(ref mut state) => {
                 if let Some(captures) = SECTION_LAYOUT_SYMBOL.captures(&line) {
-                    StateMachine::section_layout_entry(captures, state, &mut self.result)?;
+                    StateMachine::section_layout_entry(captures, state, &self.result)?;
                 } else if let Some(captures) = SECTION_LAYOUT_START.captures(&line) {
                     self.switch_state(ProcessMapState::SectionLayout(SectionLayoutState {
                         current_section: captures["section"].to_string(),
@@ -493,7 +493,7 @@ impl StateMachine {
     fn section_layout_entry(
         captures: Captures,
         state: &mut SectionLayoutState,
-        result: &mut MapInfo,
+        result: &MapInfo,
     ) -> Result<()> {
         if captures["rom_addr"].trim() == "UNUSED" {
             return Ok(());
