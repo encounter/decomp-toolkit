@@ -264,8 +264,19 @@ pub fn write_splits<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
                 split_iter.peek().map(|&(addr, _)| addr).unwrap_or(0)
             };
             let section = obj.section_at(addr)?;
-            writeln!(w, "\t{:<11} start:{:#010X} end:{:#010X}", section.name, addr, end)?;
-            // align:{}
+            write!(w, "\t{:<11} start:{:#010X} end:{:#010X}", section.name, addr, end)?;
+            // if let Some(align) = split.align {
+            //     write!(w, " align:{}", align)?;
+            // }
+            if split.common {
+                write!(w, " common")?;
+            }
+            if let Some(name) = obj.named_sections.get(&addr) {
+                if name != &section.name {
+                    write!(w, " rename:{}", name)?;
+                }
+            }
+            writeln!(w)?;
         }
     }
     Ok(())
