@@ -57,7 +57,7 @@ fn split_ctors_dtors(obj: &mut ObjInfo, section_start: u32, section_end: u32) ->
                     .section
                     .and_then(|idx| obj.sections.get(idx).map(|s| s.name.clone()))
                     .unwrap_or_else(|| "unknown".to_string());
-                format!("{}_{}", function_symbol.name, section_name)
+                format!("{}_{}", function_symbol.name, section_name.trim_start_matches('.'))
             });
             log::debug!("Adding splits to unit {}", unit);
 
@@ -200,7 +200,7 @@ fn split_extabindex(obj: &mut ObjInfo, section_index: usize, section_start: u32)
                     .section
                     .and_then(|idx| obj.sections.get(idx).map(|s| s.name.clone()))
                     .unwrap_or_else(|| "unknown".to_string());
-                format!("{}_{}", function_symbol.name, section_name)
+                format!("{}_{}", function_symbol.name, section_name.trim_start_matches('.'))
             });
             log::debug!("Adding splits to unit {}", unit);
 
@@ -316,7 +316,8 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                     current_address,
                     new_split_end
                 );
-                let unit = format!("{:08X}_{}", current_address, section.name);
+                let unit =
+                    format!("{:08X}_{}", current_address, section.name.trim_start_matches('.'));
                 new_splits.insert(current_address, ObjSplit {
                     unit: unit.clone(),
                     end: new_split_end,
