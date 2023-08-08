@@ -349,6 +349,32 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
     Ok(())
 }
 
+/// Ensures that all .bss splits following a common split are also marked as common.
+fn update_common_splits(obj: &mut ObjInfo) -> Result<()> {
+    let Some(bss_section) = obj.sections.iter().find(|s| s.name == ".bss") else {
+        return Ok(());
+    };
+    let bss_section_start = bss_section.address as u32;
+    let bss_section_end = (bss_section.address + bss_section.size) as u32;
+    let Some(common_bss_start) = obj
+        .splits_for_range(bss_section_start..bss_section_end)
+        .find(|(_, split)| split.common)
+        .map(|(addr, _)| addr)
+    else {
+        return Ok(());
+    };
+    log::debug!("Found common BSS start at {:#010X}", common_bss_start);
+    for (addr, vec) in obj.splits.range_mut(common_bss_start..bss_section_end) {
+        for split in vec {
+            if !split.common {
+                split.common = true;
+                log::debug!("Added common flag to split {} at {:#010X}", split.unit, addr);
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Perform any necessary adjustments to allow relinking.
 /// This includes:
 /// - Ensuring .ctors & .dtors entries are split with their associated function
@@ -377,6 +403,9 @@ pub fn update_splits(obj: &mut ObjInfo) -> Result<()> {
 
     // Create gap splits
     create_gap_splits(obj)?;
+
+    // Update common BSS splits
+    update_common_splits(obj)?;
 
     // Resolve link order
     obj.link_order = resolve_link_order(obj)?;
@@ -415,6 +444,11 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<String>> {
             log::debug!("Skipping split {:?} (next: {:?})", skipped, iter.peek());
         }
         while let (Some((a_addr, a)), Some(&(b_addr, b))) = (iter.next(), iter.peek()) {
+            if !a.common && b.common {
+                // This marks the beginning of the common BSS section.
+                continue;
+            }
+
             if a.unit != b.unit {
                 log::debug!(
                     "Adding dependency {} ({:#010X}) -> {} ({:#010X})",
@@ -742,7 +776,7 @@ pub fn default_section_align(section: &ObjSection) -> u64 {
         ObjSectionKind::Code => 4,
         _ => match section.name.as_str() {
             ".ctors" | ".dtors" | "extab" | "extabindex" => 4,
-            ".sbss" => 1, // ?
+            ".sbss" => 4, // ?
             _ => 8,
         },
     }
