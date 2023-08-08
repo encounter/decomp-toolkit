@@ -393,8 +393,15 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
     let mut num_local = 0;
 
     // Add file symbol
+    let obj_name;
     if !obj.name.is_empty() {
-        let name_index = writer.add_string(obj.name.as_bytes());
+        // Only write filename
+        obj_name = Path::new(&obj.name)
+            .file_name()
+            .map(|s| s.to_string_lossy().to_string())
+            .unwrap_or_else(|| obj.name.clone());
+
+        let name_index = writer.add_string(obj_name.as_bytes());
         let index = writer.reserve_symbol_index(None);
         out_symbols.push(OutSymbol {
             index,
@@ -462,13 +469,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                 let st_type = match symbol.kind {
                     ObjSymbolKind::Unknown => elf::STT_NOTYPE,
                     ObjSymbolKind::Function => elf::STT_FUNC,
-                    ObjSymbolKind::Object => {
-                        if symbol.flags.is_common() {
-                            elf::STT_COMMON
-                        } else {
-                            elf::STT_OBJECT
-                        }
-                    }
+                    ObjSymbolKind::Object => elf::STT_OBJECT,
                     ObjSymbolKind::Section => elf::STT_SECTION,
                 };
                 let st_bind = if symbol.flags.is_weak() {
@@ -483,6 +484,8 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             st_other: if symbol.flags.is_hidden() { elf::STV_HIDDEN } else { elf::STV_DEFAULT },
             st_shndx: if section_index.is_some() {
                 0
+            } else if symbol.flags.is_common() {
+                elf::SHN_COMMON
             } else if symbol.address != 0 {
                 elf::SHN_ABS
             } else {
