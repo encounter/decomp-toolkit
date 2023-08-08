@@ -26,7 +26,7 @@ use crate::{
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
     },
     util::{
-        comment::{write_comment_sym, MWComment},
+        comment::{read_comment_sym, write_comment_sym, CommentSym, MWComment},
         file::map_file,
         nested::NestedVec,
     },
@@ -296,8 +296,12 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let data = comment_section.uncompressed_data()?;
         let mut reader = Cursor::new(&*data);
         let header = MWComment::parse_header(&mut reader)?;
-        log::info!("Loaded comment header {:?}", header);
-
+        log::debug!("Loaded comment header {:?}", header);
+        for symbol in obj_file.symbols() {
+            let comment_sym = read_comment_sym(&mut reader, &symbol)?;
+            log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
+        }
+        ensure!(data.len() - reader.position() as usize == 0, "Comment data not fully read");
         header
     } else {
         MWComment::default()
@@ -369,20 +373,25 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
 
     // Generate comment section
     let mut comment_data = if obj.kind == ObjKind::Relocatable {
-        // let mut comment_data = Vec::<u8>::with_capacity(0x2C + obj.symbols.len() * 8);
-        // let name = writer.add_section_name(".comment".as_bytes());
-        // let index = writer.reserve_section_index();
-        // out_sections.push(OutSection {
-        //     index,
-        //     rela_index: None,
-        //     offset: 0,
-        //     rela_offset: 0,
-        //     name,
-        //     rela_name: None,
-        // });
-        // obj.mw_comment.write_header(&mut comment_data)?;
-        // Some(comment_data)
-        None::<Vec<u8>>
+        let mut comment_data = Vec::<u8>::with_capacity(0x2C + obj.symbols.count() * 8);
+        let name = writer.add_section_name(".comment".as_bytes());
+        let index = writer.reserve_section_index();
+        out_sections.push(OutSection {
+            index,
+            rela_index: None,
+            offset: 0,
+            rela_offset: 0,
+            name,
+            rela_name: None,
+        });
+        obj.mw_comment.write_header(&mut comment_data)?;
+        // Null symbol
+        write_comment_sym(&mut comment_data, CommentSym {
+            align: 0,
+            vis_flags: 0,
+            active_flags: 0,
+        })?;
+        Some(comment_data)
     } else {
         None
     };
@@ -420,7 +429,11 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             },
         });
         if let Some(comment_data) = &mut comment_data {
-            comment_data.write_u64::<BigEndian>(0)?;
+            write_comment_sym(comment_data, CommentSym {
+                align: 1,
+                vis_flags: 0,
+                active_flags: 0,
+            })?;
         }
         section_symbol_offset += 1;
     }
@@ -438,10 +451,17 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                 st_other: elf::STV_DEFAULT,
                 st_shndx: 0,
                 st_value: 0,
-                st_size: section.size,
+                st_size: 0, // section.size
             };
             num_local = writer.symbol_count();
             out_symbols.push(OutSymbol { index, sym });
+            if let Some(comment_data) = &mut comment_data {
+                write_comment_sym(comment_data, CommentSym {
+                    align: section.align as u32,
+                    vis_flags: 0,
+                    active_flags: 0,
+                })?;
+            }
         }
     }
 
@@ -500,7 +520,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         out_symbols.push(OutSymbol { index, sym });
         *symbol_map = Some(index.0);
         if let Some(comment_data) = &mut comment_data {
-            write_comment_sym(comment_data, symbol)?;
+            write_comment_sym(comment_data, CommentSym::from(symbol))?;
         }
     }
 
@@ -625,7 +645,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
                     elf::R_PPC_REL14
                 }
                 ObjRelocKind::PpcEmbSda21 => {
-                    r_offset = (r_offset & !3) + 2;
+                    r_offset &= !3;
                     elf::R_PPC_EMB_SDA21
                 }
             };
@@ -759,9 +779,9 @@ fn to_obj_symbol(
         kind: match symbol.kind() {
             SymbolKind::Text => ObjSymbolKind::Function,
             SymbolKind::Data => ObjSymbolKind::Object,
-            SymbolKind::Unknown => ObjSymbolKind::Unknown,
+            SymbolKind::Unknown | SymbolKind::Label => ObjSymbolKind::Unknown,
             SymbolKind::Section => ObjSymbolKind::Section,
-            _ => bail!("Unsupported symbol kind: {:?}", symbol.kind()),
+            _ => bail!("Unsupported symbol kind: {:?}", symbol),
         },
         // TODO common symbol value?
         align: None,
@@ -798,7 +818,9 @@ fn to_obj_reloc(
     let target_symbol = symbol_indexes[symbol.index().0]
         .ok_or_else(|| anyhow!("Relocation against stripped symbol: {symbol:?}"))?;
     let addend = match symbol.kind() {
-        SymbolKind::Text | SymbolKind::Data | SymbolKind::Unknown => Ok(reloc.addend()),
+        SymbolKind::Text | SymbolKind::Data | SymbolKind::Unknown | SymbolKind::Label => {
+            Ok(reloc.addend())
+        }
         SymbolKind::Section => {
             let addend = if reloc.has_implicit_addend() {
                 let addend = u32::from_be_bytes(

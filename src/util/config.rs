@@ -75,6 +75,9 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                     "hidden" => {
                         symbol.flags.0 |= ObjSymbolFlags::Hidden;
                     }
+                    "force_active" => {
+                        symbol.flags.0 |= ObjSymbolFlags::ForceActive;
+                    }
                     "noreloc" => {
                         ensure!(
                             symbol.size != 0,
@@ -155,6 +158,9 @@ fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Resul
     if symbol.flags.is_hidden() {
         write!(w, " hidden")?;
     }
+    if symbol.flags.is_force_active() {
+        write!(w, " force_active")?;
+    }
     if obj.blocked_ranges.contains_key(&(symbol.address as u32)) {
         write!(w, " noreloc")?;
     }
@@ -202,9 +208,7 @@ fn symbol_kind_from_str(s: &str) -> Option<ObjSymbolKind> {
 
 #[inline]
 fn symbol_flags_to_str(flags: ObjSymbolFlagSet) -> Option<&'static str> {
-    if flags.0.contains(ObjSymbolFlags::Common) {
-        Some("common")
-    } else if flags.0.contains(ObjSymbolFlags::Weak) {
+    if flags.0.contains(ObjSymbolFlags::Weak) {
         Some("weak")
     } else if flags.0.contains(ObjSymbolFlags::Global) {
         Some("global")
