@@ -363,7 +363,7 @@ impl ObjSymbols {
             .range(range)
             .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u])))
             // Ignore ABS symbols
-            .filter(move |(_, sym)| sym.section.is_some())
+            .filter(move |(_, sym)| sym.section.is_some() || sym.flags.is_common())
     }
 
     pub fn indexes_for_range<R>(
@@ -382,7 +382,6 @@ impl ObjSymbols {
     ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
         let section_index = section.index;
         self.for_range(section.address as u32..(section.address + section.size) as u32)
-            // TODO required?
             .filter(move |(_, symbol)| symbol.section == Some(section_index))
     }
 
