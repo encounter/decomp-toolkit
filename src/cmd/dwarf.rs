@@ -1,7 +1,6 @@
 use std::{
     collections::{btree_map, BTreeMap},
-    fs::File,
-    io::{stdout, BufWriter, Cursor, Read, Write},
+    io::{stdout, Cursor, Read, Write},
     path::PathBuf,
 };
 
@@ -14,7 +13,7 @@ use crate::util::{
         process_address, process_type, process_variable_location, read_debug_section, type_string,
         ud_type, ud_type_def, ud_type_string, AttributeKind, TagKind,
     },
-    file::map_file,
+    file::{buf_writer, map_file},
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -77,7 +76,7 @@ fn dump(args: DumpArgs) -> Result<()> {
                 let name = name.trim_start_matches("D:").replace('\\', "/");
                 let name = name.rsplit_once('/').map(|(_, b)| b).unwrap_or(&name);
                 let file_path = out_path.join(format!("{}.txt", name));
-                let mut file = BufWriter::new(File::create(file_path)?);
+                let mut file = buf_writer(file_path)?;
                 dump_debug_section(&mut file, &obj_file, debug_section)?;
                 file.flush()?;
             } else {
@@ -91,7 +90,7 @@ fn dump(args: DumpArgs) -> Result<()> {
             .section_by_name(".debug")
             .ok_or_else(|| anyhow!("Failed to locate .debug section"))?;
         if let Some(out_path) = &args.out {
-            let mut file = BufWriter::new(File::create(out_path)?);
+            let mut file = buf_writer(out_path)?;
             dump_debug_section(&mut file, &obj_file, debug_section)?;
             file.flush()?;
         } else {

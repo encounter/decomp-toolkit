@@ -1,6 +1,6 @@
 use std::{
     fs::{File, OpenOptions},
-    io::{BufRead, BufReader, Cursor, Read},
+    io::{BufRead, BufReader, BufWriter, Cursor, Read},
     path::{Path, PathBuf},
 };
 
@@ -31,6 +31,13 @@ pub fn buf_reader<P: AsRef<Path>>(path: P) -> Result<BufReader<File>> {
     let file = File::open(&path)
         .with_context(|| format!("Failed to open file '{}'", path.as_ref().display()))?;
     Ok(BufReader::new(file))
+}
+
+/// Creates a buffered writer around a file (not memory mapped).
+pub fn buf_writer<P: AsRef<Path>>(path: P) -> Result<BufWriter<File>> {
+    let file = File::create(&path)
+        .with_context(|| format!("Failed to create file '{}'", path.as_ref().display()))?;
+    Ok(BufWriter::new(file))
 }
 
 /// Reads a string with known size at the specified offset.

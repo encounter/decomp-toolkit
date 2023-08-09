@@ -1,8 +1,8 @@
 use std::{
-    collections::{hash_map, BTreeMap, HashMap},
+    collections::{btree_map::Entry, hash_map, BTreeMap, HashMap},
     fs,
     fs::{DirBuilder, File},
-    io::{BufRead, BufWriter, Write},
+    io::Write,
     path::{Path, PathBuf},
 };
 
@@ -19,17 +19,21 @@ use crate::{
         tracker::Tracker,
     },
     obj::{
-        split::{split_obj, update_splits},
-        ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbolKind,
+        split::{is_linker_generated_object, split_obj, update_splits},
+        ObjDataKind, ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
+        ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SymbolIndex,
     },
     util::{
         asm::write_asm,
-        config::{apply_splits, parse_symbol_line, write_splits, write_symbols},
+        comment::MWComment,
+        config::{apply_splits, apply_symbols_file, write_splits_file, write_symbols_file},
         dep::DepFile,
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{map_file, map_reader, touch},
+        file::{buf_writer, map_file, map_reader, touch},
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
+        map::apply_map_file,
+        rel::process_rel,
     },
 };
 
@@ -46,6 +50,8 @@ pub struct Args {
 enum SubCommand {
     Info(InfoArgs),
     Split(SplitArgs),
+    Diff(DiffArgs),
+    Apply(ApplyArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -72,6 +78,36 @@ pub struct SplitArgs {
     no_update: bool,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Diffs symbols in a linked ELF.
+#[argp(subcommand, name = "diff")]
+pub struct DiffArgs {
+    #[argp(positional)]
+    /// input configuration file
+    config: PathBuf,
+    #[argp(positional)]
+    /// linked ELF
+    elf_file: PathBuf,
+    #[argp(positional)]
+    /// map file
+    map_file: PathBuf,
+}
+
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Applies updated symbols from a linked ELF to the project configuration.
+#[argp(subcommand, name = "apply")]
+pub struct ApplyArgs {
+    #[argp(positional)]
+    /// input configuration file
+    config: PathBuf,
+    #[argp(positional)]
+    /// linked ELF
+    elf_file: PathBuf,
+    #[argp(positional)]
+    /// map file
+    map_file: PathBuf,
+}
+
 #[inline]
 fn bool_true() -> bool { true }
 
@@ -80,6 +116,10 @@ pub struct ProjectConfig {
     pub object: PathBuf,
     pub splits: Option<PathBuf>,
     pub symbols: Option<PathBuf>,
+    /// Version of the MW `.comment` section format.
+    /// If not present, no `.comment` sections will be written.
+    pub mw_comment_version: Option<u8>,
+    pub modules: Vec<ModuleConfig>,
     // Analysis options
     #[serde(default = "bool_true")]
     pub detect_objects: bool,
@@ -87,6 +127,13 @@ pub struct ProjectConfig {
     pub detect_strings: bool,
     #[serde(default = "bool_true")]
     pub write_asm: bool,
+    #[serde(default = "bool_true")]
+    pub auto_force_files: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone)]
+pub struct ModuleConfig {
+    pub object: PathBuf,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -105,6 +152,8 @@ pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Info(c_args) => info(c_args),
         SubCommand::Split(c_args) => split(c_args),
+        SubCommand::Diff(c_args) => diff(c_args),
+        SubCommand::Apply(c_args) => apply(c_args),
     }
 }
 
@@ -162,6 +211,22 @@ fn split(args: SplitArgs) -> Result<()> {
     let mut obj = process_dol(&config.object)?;
     dep.push(config.object.clone());
 
+    if let Some(comment_version) = config.mw_comment_version {
+        obj.mw_comment = Some(MWComment::new(comment_version)?);
+    }
+
+    let mut modules = BTreeMap::<u32, ObjInfo>::new();
+    for module_config in &config.modules {
+        log::info!("Loading {}", module_config.object.display());
+        let map = map_file(&module_config.object)?;
+        let rel_obj = process_rel(map_reader(&map))?;
+        match modules.entry(rel_obj.module_id) {
+            Entry::Vacant(e) => e.insert(rel_obj),
+            Entry::Occupied(_) => bail!("Duplicate module ID {}", obj.module_id),
+        };
+        dep.push(module_config.object.clone());
+    }
+
     if let Some(splits_path) = &config.splits {
         dep.push(splits_path.clone());
         if splits_path.is_file() {
@@ -174,23 +239,55 @@ fn split(args: SplitArgs) -> Result<()> {
 
     if let Some(symbols_path) = &config.symbols {
         dep.push(symbols_path.clone());
-        if symbols_path.is_file() {
-            let map = map_file(symbols_path)?;
-            for result in map_reader(&map).lines() {
-                let line = match result {
-                    Ok(line) => line,
-                    Err(e) => bail!("Failed to process symbols file: {e:?}"),
-                };
-                if let Some(symbol) = parse_symbol_line(&line, &mut obj)? {
-                    obj.add_symbol(symbol, true)?;
-                }
-            }
-        }
+        apply_symbols_file(symbols_path, &mut obj)?;
     }
 
     // TODO move before symbols?
     log::info!("Performing signature analysis");
     apply_signatures(&mut obj)?;
+
+    if !modules.is_empty() {
+        log::info!("Applying module relocations");
+        for (module_id, module_obj) in modules {
+            for rel_reloc in &module_obj.unresolved_relocations {
+                // TODO also apply inter-module relocations
+                if rel_reloc.module_id != 0 {
+                    continue;
+                }
+                let target = rel_reloc.addend;
+                if let Some((symbol_index, symbol)) =
+                    obj.symbols.for_relocation(target, rel_reloc.kind)?
+                {
+                    let addend = target as i64 - symbol.address as i64;
+                    if addend != 0 {
+                        bail!(
+                            "Module {} relocation to {:#010X} for symbol {} has non-zero addend {:#010X}",
+                            module_id,
+                            symbol.address,
+                            symbol.name,
+                            addend
+                        );
+                    }
+                    obj.symbols.set_externally_referenced(symbol_index, true);
+                } else {
+                    // Add label
+                    let target_section = obj.section_at(target)?;
+                    obj.symbols.add_direct(ObjSymbol {
+                        name: format!("lbl_{:08X}", target),
+                        demangled_name: None,
+                        address: target as u64,
+                        section: Some(target_section.index),
+                        size: 0,
+                        size_known: false,
+                        flags: ObjSymbolFlagSet(ObjSymbolFlags::ForceActive.into()),
+                        kind: Default::default(),
+                        align: None,
+                        data_kind: ObjDataKind::Unknown,
+                    })?;
+                }
+            }
+        }
+    }
 
     log::info!("Detecting function boundaries");
     state.detect_functions(&obj)?;
@@ -224,19 +321,10 @@ fn split(args: SplitArgs) -> Result<()> {
 
     if !args.no_update {
         if let Some(symbols_path) = &config.symbols {
-            let mut symbols_writer = BufWriter::new(
-                File::create(symbols_path)
-                    .with_context(|| format!("Failed to create '{}'", symbols_path.display()))?,
-            );
-            write_symbols(&mut symbols_writer, &obj)?;
+            write_symbols_file(symbols_path, &obj)?;
         }
-
         if let Some(splits_path) = &config.splits {
-            let mut splits_writer = BufWriter::new(
-                File::create(splits_path)
-                    .with_context(|| format!("Failed to create '{}'", splits_path.display()))?,
-            );
-            write_splits(&mut splits_writer, &obj)?;
+            write_splits_file(splits_path, &obj)?;
         }
     }
 
@@ -255,48 +343,49 @@ fn split(args: SplitArgs) -> Result<()> {
     let mut file_map = HashMap::<String, Vec<u8>>::new();
     for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
         let out_obj = write_elf(split_obj)?;
-        match file_map.entry(unit.clone()) {
+        match file_map.entry(unit.name.clone()) {
             hash_map::Entry::Vacant(e) => e.insert(out_obj),
-            hash_map::Entry::Occupied(_) => bail!("Duplicate file {unit}"),
+            hash_map::Entry::Occupied(_) => bail!("Duplicate file {}", unit.name),
         };
     }
 
     let mut out_config = OutputConfig::default();
     for unit in &obj.link_order {
         let object = file_map
-            .get(unit)
-            .ok_or_else(|| anyhow!("Failed to find object file for unit '{unit}'"))?;
-        let out_path = obj_dir.join(obj_path_for_unit(unit));
+            .get(&unit.name)
+            .ok_or_else(|| anyhow!("Failed to find object file for unit '{}'", unit.name))?;
+        let out_path = obj_dir.join(obj_path_for_unit(&unit.name));
         out_config.units.push(OutputUnit {
             object: out_path.clone(),
-            name: unit.clone(),
-            autogenerated: obj.is_unit_autogenerated(unit),
+            name: unit.name.clone(),
+            autogenerated: unit.autogenerated,
         });
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
         }
-        let mut file = File::create(&out_path)
-            .with_context(|| format!("Failed to create '{}'", out_path.display()))?;
-        file.write_all(object)?;
-        file.flush()?;
+        fs::write(&out_path, object)
+            .with_context(|| format!("Failed to write '{}'", out_path.display()))?;
     }
     {
-        let mut out_file = BufWriter::new(File::create(&out_config_path)?);
+        let mut out_file = buf_writer(&out_config_path)?;
         serde_json::to_writer_pretty(&mut out_file, &out_config)?;
         out_file.flush()?;
     }
 
     // Generate ldscript.lcf
-    fs::write(args.out_dir.join("ldscript.lcf"), generate_ldscript(&obj)?)?;
+    fs::write(
+        args.out_dir.join("ldscript.lcf"),
+        generate_ldscript(&obj, config.auto_force_files)?,
+    )?;
 
     log::info!("Writing disassembly");
     for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
-        let out_path = asm_dir.join(asm_path_for_unit(unit));
+        let out_path = asm_dir.join(asm_path_for_unit(&unit.name));
 
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
         }
-        let mut w = BufWriter::new(File::create(&out_path)?);
+        let mut w = buf_writer(&out_path)?;
         write_asm(&mut w, split_obj)?;
         w.flush()?;
     }
@@ -304,10 +393,7 @@ fn split(args: SplitArgs) -> Result<()> {
     // Write dep file
     {
         let dep_path = args.out_dir.join("dep");
-        let mut dep_file = BufWriter::new(
-            File::create(&dep_path)
-                .with_context(|| format!("Failed to create dep file '{}'", dep_path.display()))?,
-        );
+        let mut dep_file = buf_writer(dep_path)?;
         dep.write(&mut dep_file)?;
         dep_file.flush()?;
     }
@@ -468,5 +554,234 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
             }
         }
     }
+    Ok(())
+}
+
+fn diff(args: DiffArgs) -> Result<()> {
+    log::info!("Loading {}", args.config.display());
+    let mut config_file = File::open(&args.config)
+        .with_context(|| format!("Failed to open config file '{}'", args.config.display()))?;
+    let config: ProjectConfig = serde_yaml::from_reader(&mut config_file)?;
+
+    log::info!("Loading {}", config.object.display());
+    let mut obj = process_dol(&config.object)?;
+
+    if let Some(symbols_path) = &config.symbols {
+        apply_symbols_file(symbols_path, &mut obj)?;
+    }
+
+    log::info!("Loading {}", args.elf_file.display());
+    let mut linked_obj = process_elf(&args.elf_file)?;
+
+    log::info!("Loading {}", args.map_file.display());
+    apply_map_file(&args.map_file, &mut linked_obj)?;
+
+    for orig_sym in obj.symbols.iter() {
+        let linked_sym = linked_obj
+            .symbols
+            .at_address(orig_sym.address as u32)
+            .find(|(_, sym)| sym.name == orig_sym.name)
+            .or_else(|| {
+                linked_obj
+                    .symbols
+                    .at_address(orig_sym.address as u32)
+                    .find(|(_, sym)| sym.kind == orig_sym.kind)
+            });
+        let mut found = false;
+        if let Some((_, linked_sym)) = linked_sym {
+            if linked_sym.name.starts_with(&orig_sym.name) {
+                if linked_sym.size != orig_sym.size {
+                    log::error!(
+                        "Expected {} (type {:?}) to have size {:#X}, but found {:#X}",
+                        orig_sym.name,
+                        orig_sym.kind,
+                        orig_sym.size,
+                        linked_sym.size
+                    );
+                }
+                found = true;
+            } else if linked_sym.kind == orig_sym.kind && linked_sym.size == orig_sym.size {
+                // Fuzzy match
+                let orig_data = obj
+                    .section_data(
+                        orig_sym.address as u32,
+                        orig_sym.address as u32 + orig_sym.size as u32,
+                    )?
+                    .1;
+                let linked_data = linked_obj
+                    .section_data(
+                        linked_sym.address as u32,
+                        linked_sym.address as u32 + linked_sym.size as u32,
+                    )?
+                    .1;
+                if orig_data == linked_data {
+                    found = true;
+                }
+            }
+        }
+        if !found {
+            log::error!(
+                "Expected to find symbol {} (type {:?}, size {:#X}) at {:#010X}",
+                orig_sym.name,
+                orig_sym.kind,
+                orig_sym.size,
+                orig_sym.address
+            );
+            for (_, linked_sym) in linked_obj.symbols.at_address(orig_sym.address as u32) {
+                log::error!(
+                    "At {:#010X}, found: {} (type {:?}, size {:#X})",
+                    linked_sym.address,
+                    linked_sym.name,
+                    linked_sym.kind,
+                    linked_sym.size,
+                );
+            }
+            for (_, linked_sym) in linked_obj.symbols.for_name(&orig_sym.name) {
+                log::error!(
+                    "Instead, found {} (type {:?}, size {:#X}) at {:#010X}",
+                    linked_sym.name,
+                    linked_sym.kind,
+                    linked_sym.size,
+                    linked_sym.address,
+                );
+            }
+            break;
+        }
+    }
+
+    Ok(())
+}
+
+fn apply(args: ApplyArgs) -> Result<()> {
+    log::info!("Loading {}", args.config.display());
+    let mut config_file = File::open(&args.config)
+        .with_context(|| format!("Failed to open config file '{}'", args.config.display()))?;
+    let config: ProjectConfig = serde_yaml::from_reader(&mut config_file)?;
+
+    log::info!("Loading {}", config.object.display());
+    let mut obj = process_dol(&config.object)?;
+
+    if let Some(symbols_path) = &config.symbols {
+        if !apply_symbols_file(symbols_path, &mut obj)? {
+            bail!("Symbols file '{}' does not exist", symbols_path.display());
+        }
+    } else {
+        bail!("No symbols file specified in config");
+    }
+
+    log::info!("Loading {}", args.elf_file.display());
+    let mut linked_obj = process_elf(&args.elf_file)?;
+
+    log::info!("Loading {}", args.map_file.display());
+    apply_map_file(&args.map_file, &mut linked_obj)?;
+
+    let mut replacements: Vec<(SymbolIndex, Option<ObjSymbol>)> = vec![];
+    for (orig_idx, orig_sym) in obj.symbols.iter().enumerate() {
+        let linked_sym = linked_obj
+            .symbols
+            .at_address(orig_sym.address as u32)
+            .find(|(_, sym)| sym.name == orig_sym.name)
+            .or_else(|| {
+                linked_obj
+                    .symbols
+                    .at_address(orig_sym.address as u32)
+                    .find(|(_, sym)| sym.kind == orig_sym.kind)
+            });
+        if let Some((_, linked_sym)) = linked_sym {
+            let mut updated_sym = orig_sym.clone();
+            let is_globalized = linked_sym.name.ends_with(&format!("_{:08X}", linked_sym.address));
+            if (is_globalized && !linked_sym.name.starts_with(&orig_sym.name))
+                || (!is_globalized && linked_sym.name != orig_sym.name)
+            {
+                log::info!(
+                    "Changing name of {} (type {:?}) to {}",
+                    orig_sym.name,
+                    orig_sym.kind,
+                    linked_sym.name
+                );
+                updated_sym.name = linked_sym.name.clone();
+            }
+            if linked_sym.size != orig_sym.size {
+                log::info!(
+                    "Changing size of {} (type {:?}) from {:#X} to {:#X}",
+                    orig_sym.name,
+                    orig_sym.kind,
+                    orig_sym.size,
+                    linked_sym.size
+                );
+                updated_sym.size = linked_sym.size;
+            }
+            let linked_scope = linked_sym.flags.scope();
+            if linked_scope != ObjSymbolScope::Unknown
+                && !is_globalized
+                && linked_scope != orig_sym.flags.scope()
+            {
+                log::info!(
+                    "Changing scope of {} (type {:?}) from {:?} to {:?}",
+                    orig_sym.name,
+                    orig_sym.kind,
+                    orig_sym.flags.scope(),
+                    linked_scope
+                );
+                updated_sym.flags.set_scope(linked_scope);
+            }
+            if updated_sym != *orig_sym {
+                replacements.push((orig_idx, Some(updated_sym)));
+            }
+        } else {
+            log::warn!(
+                "Symbol not in linked ELF: {} (type {:?}, size {:#X}) at {:#010X}",
+                orig_sym.name,
+                orig_sym.kind,
+                orig_sym.size,
+                orig_sym.address
+            );
+            // TODO
+            // replacements.push((orig_idx, None));
+        }
+    }
+
+    // Add symbols from the linked object that aren't in the original
+    for linked_sym in linked_obj.symbols.iter() {
+        if matches!(linked_sym.kind, ObjSymbolKind::Section)
+            || is_linker_generated_object(&linked_sym.name)
+        {
+            continue;
+        }
+
+        let orig_sym = obj
+            .symbols
+            .at_address(linked_sym.address as u32)
+            .find(|(_, sym)| sym.name == linked_sym.name)
+            .or_else(|| {
+                linked_obj
+                    .symbols
+                    .at_address(linked_sym.address as u32)
+                    .find(|(_, sym)| sym.kind == linked_sym.kind)
+            });
+        if orig_sym.is_none() {
+            log::info!(
+                "Adding symbol {} (type {:?}, size {:#X}) at {:#010X}",
+                linked_sym.name,
+                linked_sym.kind,
+                linked_sym.size,
+                linked_sym.address
+            );
+            obj.symbols.add_direct(linked_sym.clone())?;
+        }
+    }
+
+    // Apply replacements
+    for (idx, replacement) in replacements {
+        if let Some(replacement) = replacement {
+            obj.symbols.replace(idx, replacement)?;
+        } else {
+            // TODO
+            // obj.symbols.remove(idx)?;
+        }
+    }
+
+    write_symbols_file(config.symbols.as_ref().unwrap(), &obj)?;
+
     Ok(())
 }

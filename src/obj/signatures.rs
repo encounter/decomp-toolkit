@@ -12,10 +12,7 @@ use sha1::{Digest, Sha1};
 use crate::{
     analysis::tracker::{Relocation, Tracker},
     array_ref,
-    obj::{
-        section_kind_for_section, ObjInfo, ObjReloc, ObjRelocKind, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolKind,
-    },
+    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind},
     util::elf::process_elf,
 };
 
@@ -112,9 +109,7 @@ pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> R
         let target_section = &mut obj.sections[target_section_index];
         if !target_section.section_known {
             if let Some(section_name) = &sig_symbol.section {
-                target_section.name = section_name.clone();
-                target_section.kind = section_kind_for_section(section_name)?;
-                target_section.section_known = true;
+                target_section.rename(section_name.clone())?;
             }
         }
     }
@@ -233,7 +228,10 @@ pub fn compare_signature(existing: &mut FunctionSignature, new: &FunctionSignatu
     Ok(())
 }
 
-pub fn generate_signature(path: &Path, symbol_name: &str) -> Result<Option<FunctionSignature>> {
+pub fn generate_signature<P: AsRef<Path>>(
+    path: P,
+    symbol_name: &str,
+) -> Result<Option<FunctionSignature>> {
     let mut out_symbols: Vec<OutSymbol> = Vec::new();
     let mut out_relocs: Vec<OutReloc> = Vec::new();
     let mut symbol_map: BTreeMap<usize, usize> = BTreeMap::new();

@@ -1,14 +1,13 @@
 use std::{
-    fs::File,
-    io::{BufWriter, Seek, SeekFrom, Write},
+    io::{Seek, SeekFrom, Write},
     path::PathBuf,
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{anyhow, bail, ensure, Result};
 use argp::FromArgs;
 use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, SectionKind};
 
-use crate::util::file::map_file;
+use crate::util::file::{buf_writer, map_file};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Converts an ELF file to a DOL file.
@@ -58,10 +57,7 @@ pub fn run(args: Args) -> Result<()> {
 
     let mut header = DolHeader { entry_point: obj_file.entry() as u32, ..Default::default() };
     let mut offset = 0x100u32;
-    let mut out = BufWriter::new(
-        File::create(&args.dol_file)
-            .with_context(|| format!("Failed to create DOL file '{}'", args.dol_file.display()))?,
-    );
+    let mut out = buf_writer(&args.dol_file)?;
     out.seek(SeekFrom::Start(offset as u64))?;
 
     // Text sections

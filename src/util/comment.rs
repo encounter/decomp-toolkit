@@ -6,7 +6,6 @@ use std::{
 use anyhow::{bail, ensure, Context, Result};
 use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
-use object::Symbol;
 
 use crate::obj::{ObjSymbol, ObjSymbolKind};
 
@@ -20,7 +19,7 @@ pub enum MWFloatKind {
 
 #[derive(Debug, Clone)]
 pub struct MWComment {
-    pub comment_version: u8,
+    pub version: u8,
     pub compiler_version: [u8; 4],
     pub pool_data: bool,
     pub float: MWFloatKind,
@@ -30,38 +29,35 @@ pub struct MWComment {
     pub unsafe_global_reg_vars: bool,
 }
 
-impl Default for MWComment {
-    fn default() -> Self {
-        Self {
-            comment_version: 10,
-            // Metrowerks C/C++ Compiler for Embedded PowerPC
+impl MWComment {
+    pub fn new(version: u8) -> Result<Self> {
+        // Metrowerks C/C++ Compiler for Embedded PowerPC.
+        let compiler_version = match version {
+            // Version 2.3.3 build 144
+            // (CodeWarrior for GameCube 1.0)
+            8 => [2, 3, 0, 1],
             // Version 2.4.2 build 81
             // (CodeWarrior for GameCube 1.3.2)
-            compiler_version: [2, 4, 2, 1],
+            10 => [2, 4, 2, 1],
+            // Version 2.4.7 build 108
+            // (CodeWarrior for GameCube 2.7)
+            11 => [2, 4, 7, 1],
+            // Version 4.1 build 60126
+            // (CodeWarrior for GameCube 3.0 Alpha 3)
+            14 | 15 => [4, 0, 0, 1],
+            _ => bail!("Unsupported MW .comment version {version}"),
+        };
+        Ok(Self {
+            version,
+            compiler_version,
             pool_data: true,
             float: MWFloatKind::Hard,
             processor: 0x16, // gekko
             incompatible_return_small_structs: false,
             incompatible_sfpe_double_params: false,
             unsafe_global_reg_vars: false,
-        }
+        })
     }
-
-    // fn default() -> Self {
-    //     Self {
-    //         comment_version: 11,
-    //         // Metrowerks C/C++ Compiler for Embedded PowerPC.
-    //         // Version 2.4.7 build 108
-    //         // (CodeWarrior for GameCube 2.7)
-    //         compiler_version: [2, 4, 7, 1],
-    //         pool_data: true,
-    //         float: MWFloatKind::Hard,
-    //         processor: 0x16, // gekko
-    //         incompatible_return_small_structs: false,
-    //         incompatible_sfpe_double_params: false,
-    //         unsafe_global_reg_vars: false,
-    //     }
-    // }
 }
 
 const MAGIC: &[u8] = "CodeWarrior".as_bytes();
@@ -70,7 +66,7 @@ const PADDING: &[u8] = &[0u8; 0x16];
 impl MWComment {
     pub fn parse_header<R: Read + Seek>(reader: &mut R) -> Result<MWComment> {
         let mut header = MWComment {
-            comment_version: 0,
+            version: 0,
             compiler_version: [0; 4],
             pool_data: false,
             float: MWFloatKind::None,
@@ -83,14 +79,14 @@ impl MWComment {
         let mut magic = vec![0u8; MAGIC.len()];
         reader.read_exact(&mut magic).context("While reading magic")?;
         if magic.deref() != MAGIC {
-            bail!("Invalid comment section magic: {:?}", magic);
+            bail!("Invalid .comment section magic: {:?}", magic);
         }
         // 0xB
-        header.comment_version = reader.read_u8()?;
+        header.version = reader.read_u8()?;
         ensure!(
-            matches!(header.comment_version, 8 | 10 | 11),
-            "Unknown comment version: {}",
-            header.comment_version
+            matches!(header.version, 8 | 10 | 11 | 14 | 15),
+            "Unknown .comment section version: {}",
+            header.version
         );
         // 0xC - 0xF
         reader
@@ -136,7 +132,7 @@ impl MWComment {
         // 0x0 - 0xA
         w.write_all(MAGIC)?;
         // 0xB
-        w.write_u8(self.comment_version)?;
+        w.write_u8(self.version)?;
         // 0xC - 0xF
         w.write_all(&self.compiler_version)?;
         // 0x10
@@ -183,8 +179,14 @@ impl CommentSym {
                     match symbol.kind {
                         ObjSymbolKind::Unknown => 0,
                         ObjSymbolKind::Function => 4,
-                        ObjSymbolKind::Object => 4,
-                        ObjSymbolKind::Section => 8, // TODO?
+                        ObjSymbolKind::Object => {
+                            if symbol.address & 3 == 0 {
+                                4
+                            } else {
+                                1
+                            }
+                        }
+                        ObjSymbolKind::Section => 8,
                     }
                 }
             }
@@ -194,7 +196,7 @@ impl CommentSym {
             vis_flags |= 0xD;
         }
         let mut active_flags = 0;
-        if symbol.flags.is_force_active() {
+        if symbol.flags.is_force_active() || symbol.flags.is_externally_referenced() {
             active_flags |= 0x8; // TODO what is 0x10?
         }
         Self { align, vis_flags, active_flags }
@@ -210,7 +212,7 @@ pub fn write_comment_sym<W: Write>(w: &mut W, symbol: CommentSym) -> Result<()> 
     Ok(())
 }
 
-pub fn read_comment_sym<R: Read>(r: &mut R, x: &Symbol) -> Result<CommentSym> {
+pub fn read_comment_sym<R: Read>(r: &mut R) -> Result<CommentSym> {
     let mut out = CommentSym { align: 0, vis_flags: 0, active_flags: 0 };
     out.align = r.read_u32::<BigEndian>()?;
     out.vis_flags = r.read_u8()?;

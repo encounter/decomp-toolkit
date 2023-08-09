@@ -1,7 +1,7 @@
 use std::{
     collections::{btree_map::Entry, BTreeMap},
     fs::File,
-    io::{BufWriter, Write},
+    io::Write,
     path::PathBuf,
 };
 
@@ -9,7 +9,7 @@ use anyhow::{anyhow, bail, Result};
 use argp::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
 
-use crate::util::file::{map_file, process_rsp};
+use crate::util::file::{buf_writer, map_file, process_rsp};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing static libraries.
@@ -70,7 +70,7 @@ fn create(args: CreateArgs) -> Result<()> {
     }
 
     // Write archive
-    let out = BufWriter::new(File::create(&args.out)?);
+    let out = buf_writer(&args.out)?;
     let mut builder = ar::GnuBuilder::new_with_symbol_table(
         out,
         true,

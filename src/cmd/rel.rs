@@ -1,7 +1,6 @@
 use std::{
     collections::{btree_map, BTreeMap},
-    fs::File,
-    io::Write,
+    fs,
     path::PathBuf,
 };
 
@@ -212,12 +211,8 @@ fn merge(args: MergeArgs) -> Result<()> {
     tracker.apply(&mut obj, false)?;
 
     // Write ELF
-    let mut file = File::create(&args.out_file)
-        .with_context(|| format!("Failed to create '{}'", args.out_file.display()))?;
     log::info!("Writing {}", args.out_file.display());
-    let out_object = write_elf(&obj)?;
-    file.write_all(&out_object)?;
-    file.flush()?;
+    fs::write(&args.out_file, write_elf(&obj)?)?;
     Ok(())
 }
 

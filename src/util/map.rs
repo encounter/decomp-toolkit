@@ -5,6 +5,7 @@ use std::{
     hash::Hash,
     io::BufRead,
     mem::replace,
+    path::Path,
 };
 
 use anyhow::{anyhow, bail, ensure, Error, Result};
@@ -18,7 +19,10 @@ use crate::{
         section_kind_for_section, ObjInfo, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags,
         ObjSymbolKind,
     },
-    util::nested::NestedVec,
+    util::{
+        file::{map_file, map_reader},
+        nested::NestedVec,
+    },
 };
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -31,6 +35,7 @@ pub enum SymbolKind {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum SymbolVisibility {
+    Unknown,
     Global,
     Local,
     Weak,
@@ -327,8 +332,8 @@ impl StateMachine {
 
     fn end_state(&mut self, old_state: ProcessMapState) -> Result<()> {
         match old_state {
-            ProcessMapState::LinkMap { .. } => {
-                self.has_link_map = true;
+            ProcessMapState::LinkMap(state) => {
+                self.has_link_map = !state.last_symbol_name.is_empty();
             }
             ProcessMapState::SectionLayout(state) => {
                 StateMachine::end_section_layout(state, &mut self.result)?;
@@ -535,7 +540,7 @@ impl StateMachine {
                 align,
             }
         } else {
-            let visibility = if state.has_link_map {
+            let mut visibility = if state.has_link_map {
                 log::warn!(
                     "Symbol not in link map: {} ({}). Type and visibility unknown.",
                     sym_name,
@@ -543,12 +548,24 @@ impl StateMachine {
                 );
                 SymbolVisibility::Local
             } else {
-                SymbolVisibility::Global
+                SymbolVisibility::Unknown
+            };
+            let kind = if sym_name.starts_with('.') {
+                visibility = SymbolVisibility::Local;
+                SymbolKind::Section
+            } else if size > 0 {
+                if is_code_section(&state.current_section) {
+                    SymbolKind::Function
+                } else {
+                    SymbolKind::Object
+                }
+            } else {
+                SymbolKind::NoType
             };
             SymbolEntry {
                 name: sym_name.to_string(),
                 demangled: None,
-                kind: SymbolKind::NoType,
+                kind,
                 visibility,
                 unit: Some(tu.clone()),
                 address,
@@ -634,6 +651,12 @@ pub fn process_map<R: BufRead>(reader: R) -> Result<MapInfo> {
     Ok(entries)
 }
 
+pub fn apply_map_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<()> {
+    let file = map_file(&path)?;
+    let info = process_map(map_reader(&file))?;
+    apply_map(&info, obj)
+}
+
 pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
     for section in &mut obj.sections {
         if let Some(info) = result.sections.get(&(section.address as u32)) {
@@ -714,8 +737,8 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
         }
         section_order.push((section.clone(), units));
     }
-    log::info!("Section order: {:#?}", section_order);
     // TODO
+    // log::info!("Section order: {:#?}", section_order);
     // obj.link_order = resolve_link_order(&section_order)?;
     Ok(())
 }
@@ -730,14 +753,12 @@ fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usi
             section,
             size: symbol_entry.size as u64,
             size_known: symbol_entry.size != 0,
-            flags: ObjSymbolFlagSet(
-                match symbol_entry.visibility {
-                    SymbolVisibility::Global => ObjSymbolFlags::Global,
-                    SymbolVisibility::Local => ObjSymbolFlags::Local,
-                    SymbolVisibility::Weak => ObjSymbolFlags::Weak,
-                }
-                .into(),
-            ),
+            flags: ObjSymbolFlagSet(match symbol_entry.visibility {
+                SymbolVisibility::Unknown => Default::default(),
+                SymbolVisibility::Global => ObjSymbolFlags::Global.into(),
+                SymbolVisibility::Local => ObjSymbolFlags::Local.into(),
+                SymbolVisibility::Weak => ObjSymbolFlags::Weak.into(),
+            }),
             kind: match symbol_entry.kind {
                 SymbolKind::Function => ObjSymbolKind::Function,
                 SymbolKind::Object => ObjSymbolKind::Object,

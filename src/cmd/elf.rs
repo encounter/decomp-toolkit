@@ -1,8 +1,8 @@
 use std::{
     collections::{btree_map, hash_map, BTreeMap, HashMap},
     fs,
-    fs::{DirBuilder, File},
-    io::{BufWriter, Write},
+    fs::DirBuilder,
+    io::Write,
     path::PathBuf,
 };
 
@@ -23,9 +23,9 @@ use crate::{
     },
     util::{
         asm::write_asm,
-        config::{write_splits, write_symbols},
+        config::{write_splits_file, write_symbols_file},
         elf::{process_elf, write_elf},
-        file::process_rsp,
+        file::{buf_writer, process_rsp},
     },
 };
 
@@ -125,24 +125,8 @@ fn config(args: ConfigArgs) -> Result<()> {
     let obj = process_elf(&args.in_file)?;
 
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
-    {
-        let symbols_path = args.out_dir.join("symbols.txt");
-        let mut symbols_writer = BufWriter::new(
-            File::create(&symbols_path)
-                .with_context(|| format!("Failed to create '{}'", symbols_path.display()))?,
-        );
-        write_symbols(&mut symbols_writer, &obj)?;
-    }
-
-    {
-        let splits_path = args.out_dir.join("splits.txt");
-        let mut splits_writer = BufWriter::new(
-            File::create(&splits_path)
-                .with_context(|| format!("Failed to create '{}'", splits_path.display()))?,
-        );
-        write_splits(&mut splits_writer, &obj)?;
-    }
-
+    write_symbols_file(args.out_dir.join("symbols.txt"), &obj)?;
+    write_splits_file(args.out_dir.join("splits.txt"), &obj)?;
     Ok(())
 }
 
@@ -159,19 +143,19 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             DirBuilder::new().recursive(true).create(&include_dir)?;
             fs::write(include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
 
-            let mut files_out = File::create(args.out.join("link_order.txt"))?;
+            let mut files_out = buf_writer(args.out.join("link_order.txt"))?;
             for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
-                let out_path = asm_dir.join(file_name_from_unit(unit, ".s"));
+                let out_path = asm_dir.join(file_name_from_unit(&unit.name, ".s"));
                 log::info!("Writing {}", out_path.display());
 
                 if let Some(parent) = out_path.parent() {
                     DirBuilder::new().recursive(true).create(parent)?;
                 }
-                let mut w = BufWriter::new(File::create(out_path)?);
+                let mut w = buf_writer(out_path)?;
                 write_asm(&mut w, split_obj)?;
                 w.flush()?;
 
-                writeln!(files_out, "{}", file_name_from_unit(unit, ".o"))?;
+                writeln!(files_out, "{}", file_name_from_unit(&unit.name, ".o"))?;
             }
             files_out.flush()?;
         }
@@ -179,8 +163,9 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             if let Some(parent) = args.out.parent() {
                 DirBuilder::new().recursive(true).create(parent)?;
             }
-            let mut w = BufWriter::new(File::create(args.out)?);
+            let mut w = buf_writer(args.out)?;
             write_asm(&mut w, &obj)?;
+            w.flush()?;
         }
     }
     Ok(())
@@ -195,26 +180,24 @@ fn split(args: SplitArgs) -> Result<()> {
     let split_objs = split_obj(&obj)?;
     for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
         let out_obj = write_elf(split_obj)?;
-        match file_map.entry(unit.clone()) {
+        match file_map.entry(unit.name.clone()) {
             hash_map::Entry::Vacant(e) => e.insert(out_obj),
-            hash_map::Entry::Occupied(_) => bail!("Duplicate file {unit}"),
+            hash_map::Entry::Occupied(_) => bail!("Duplicate file {}", unit.name),
         };
     }
 
-    let mut rsp_file = BufWriter::new(File::create("rsp")?);
+    let mut rsp_file = buf_writer("rsp")?;
     for unit in &obj.link_order {
         let object = file_map
-            .get(unit)
-            .ok_or_else(|| anyhow!("Failed to find object file for unit '{unit}'"))?;
-        let out_path = args.out_dir.join(file_name_from_unit(unit, ".o"));
+            .get(&unit.name)
+            .ok_or_else(|| anyhow!("Failed to find object file for unit '{}'", unit.name))?;
+        let out_path = args.out_dir.join(file_name_from_unit(&unit.name, ".o"));
         writeln!(rsp_file, "{}", out_path.display())?;
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
         }
-        let mut file = File::create(&out_path)
-            .with_context(|| format!("Failed to create '{}'", out_path.display()))?;
-        file.write_all(object)?;
-        file.flush()?;
+        fs::write(&out_path, object)
+            .with_context(|| format!("Failed to write '{}'", out_path.display()))?;
     }
     rsp_file.flush()?;
     Ok(())
@@ -406,10 +389,7 @@ fn fixup(args: FixupArgs) -> Result<()> {
         }
     }
 
-    let mut out =
-        BufWriter::new(File::create(&args.out_file).with_context(|| {
-            format!("Failed to create output file: '{}'", args.out_file.display())
-        })?);
+    let mut out = buf_writer(&args.out_file)?;
     out_file.write_stream(&mut out).map_err(|e| anyhow!("{e:?}"))?;
     out.flush()?;
     Ok(())
@@ -490,10 +470,8 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
     let mut signatures = signatures.into_values().collect::<Vec<FunctionSignature>>();
     log::info!("{} unique signatures", signatures.len());
     signatures.sort_by_key(|s| s.signature.len());
-    let out =
-        BufWriter::new(File::create(&args.out_file).with_context(|| {
-            format!("Failed to create output file '{}'", args.out_file.display())
-        })?);
-    serde_yaml::to_writer(out, &signatures)?;
+    let mut out = buf_writer(&args.out_file)?;
+    serde_yaml::to_writer(&mut out, &signatures)?;
+    out.flush()?;
     Ok(())
 }
