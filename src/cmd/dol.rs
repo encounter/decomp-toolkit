@@ -119,6 +119,7 @@ pub struct ProjectConfig {
     /// Version of the MW `.comment` section format.
     /// If not present, no `.comment` sections will be written.
     pub mw_comment_version: Option<u8>,
+    #[serde(default)]
     pub modules: Vec<ModuleConfig>,
     // Analysis options
     #[serde(default = "bool_true")]
@@ -258,6 +259,14 @@ fn split(args: SplitArgs) -> Result<()> {
                 if let Some((symbol_index, symbol)) =
                     obj.symbols.for_relocation(target, rel_reloc.kind)?
                 {
+                    if symbol.flags.is_local() {
+                        bail!(
+                            "Module {} relocation to {:#010X} found local symbol {}",
+                            module_id,
+                            symbol.address,
+                            symbol.name
+                        );
+                    }
                     let addend = target as i64 - symbol.address as i64;
                     if addend != 0 {
                         bail!(
@@ -268,7 +277,7 @@ fn split(args: SplitArgs) -> Result<()> {
                             addend
                         );
                     }
-                    obj.symbols.set_externally_referenced(symbol_index, true);
+                    obj.symbols.flags(symbol_index).set_force_active(true);
                 } else {
                     // Add label
                     let target_section = obj.section_at(target)?;
@@ -577,6 +586,10 @@ fn diff(args: DiffArgs) -> Result<()> {
     apply_map_file(&args.map_file, &mut linked_obj)?;
 
     for orig_sym in obj.symbols.iter() {
+        if orig_sym.kind == ObjSymbolKind::Section || orig_sym.section.is_none() {
+            continue;
+        }
+
         let linked_sym = linked_obj
             .symbols
             .at_address(orig_sym.address as u32)

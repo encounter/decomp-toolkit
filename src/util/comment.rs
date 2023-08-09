@@ -196,7 +196,7 @@ impl CommentSym {
             vis_flags |= 0xD;
         }
         let mut active_flags = 0;
-        if symbol.flags.is_force_active() || symbol.flags.is_externally_referenced() {
+        if symbol.flags.is_force_active() {
             active_flags |= 0x8; // TODO what is 0x10?
         }
         Self { align, vis_flags, active_flags }

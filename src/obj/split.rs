@@ -97,7 +97,7 @@ fn split_ctors_dtors(obj: &mut ObjInfo, section_start: u32, section_end: u32) ->
 
     // Hack to avoid deadstripping
     for symbol_idx in referenced_symbols {
-        obj.symbols.set_externally_referenced(symbol_idx, true);
+        obj.symbols.flags(symbol_idx).set_force_active(true);
     }
 
     Ok(())

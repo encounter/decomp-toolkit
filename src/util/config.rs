@@ -200,9 +200,9 @@ fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Resul
     if symbol.flags.is_hidden() {
         write!(w, " hidden")?;
     }
-    if symbol.flags.is_force_active() {
-        write!(w, " force_active")?;
-    }
+    // if symbol.flags.is_force_active() {
+    //     write!(w, " force_active")?;
+    // }
     if obj.blocked_ranges.contains_key(&(symbol.address as u32)) {
         write!(w, " noreloc")?;
     }

@@ -34,8 +34,6 @@ flags! {
         Common,
         Hidden,
         ForceActive,
-        // Same as ForceActive, but used internally
-        ExternallyReferenced,
     }
 }
 
@@ -75,11 +73,6 @@ impl ObjSymbolFlagSet {
     pub fn is_force_active(&self) -> bool { self.0.contains(ObjSymbolFlags::ForceActive) }
 
     #[inline]
-    pub fn is_externally_referenced(&self) -> bool {
-        self.0.contains(ObjSymbolFlags::ExternallyReferenced)
-    }
-
-    #[inline]
     pub fn set_scope(&mut self, scope: ObjSymbolScope) {
         match scope {
             ObjSymbolScope::Unknown => {
@@ -101,11 +94,11 @@ impl ObjSymbolFlagSet {
     }
 
     #[inline]
-    pub fn set_externally_referenced(&mut self, value: bool) {
+    pub fn set_force_active(&mut self, value: bool) {
         if value {
-            self.0 |= ObjSymbolFlags::ExternallyReferenced;
+            self.0 |= ObjSymbolFlags::ForceActive;
         } else {
-            self.0 &= !ObjSymbolFlags::ExternallyReferenced;
+            self.0 &= !ObjSymbolFlags::ForceActive;
         }
     }
 }
@@ -562,8 +555,9 @@ impl ObjSymbols {
         Ok(result)
     }
 
-    pub fn set_externally_referenced(&mut self, idx: SymbolIndex, value: bool) {
-        self.symbols[idx].flags.set_externally_referenced(value);
+    #[inline]
+    pub fn flags(&mut self, idx: SymbolIndex) -> &mut ObjSymbolFlagSet {
+        &mut self.symbols[idx].flags
     }
 }
 
@@ -629,6 +623,18 @@ impl ObjInfo {
 
     pub fn section_data(&self, start: u32, end: u32) -> Result<(&ObjSection, &[u8])> {
         let section = self.section_at(start)?;
+        ensure!(
+            section.contains_range(start..end),
+            "Range {:#010X}-{:#010X} outside of section {}: {:#010X}-{:#010X}",
+            start,
+            end,
+            section.name,
+            section.address,
+            section.address + section.size
+        );
+        if section.kind == ObjSectionKind::Bss {
+            return Ok((section, &[]));
+        }
         let data = if end == 0 {
             &section.data[(start as u64 - section.address) as usize..]
         } else {
