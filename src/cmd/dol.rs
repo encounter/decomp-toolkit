@@ -121,6 +121,10 @@ pub struct ProjectConfig {
     /// Version of the MW `.comment` section format.
     /// If not present, no `.comment` sections will be written.
     pub mw_comment_version: Option<u8>,
+    /// Disables some time-consuming analysis passes.
+    /// Useful when the symbols file is already created.
+    #[serde(default)]
+    pub quick_analysis: bool,
     #[serde(default)]
     pub modules: Vec<ModuleConfig>,
     // Analysis options
@@ -130,7 +134,8 @@ pub struct ProjectConfig {
     pub detect_strings: bool,
     #[serde(default = "bool_true")]
     pub write_asm: bool,
-    #[serde(default = "bool_true")]
+    /// Adds all objects to FORCEFILES in the linker script.
+    #[serde(default)]
     pub auto_force_files: bool,
 }
 
@@ -325,13 +330,15 @@ fn split(args: SplitArgs) -> Result<()> {
         }
     }
 
-    log::info!("Detecting function boundaries");
-    state.detect_functions(&obj)?;
-    log::info!("Discovered {} functions", state.function_slices.len());
+    if !config.quick_analysis {
+        log::info!("Detecting function boundaries");
+        state.detect_functions(&obj)?;
+        log::info!("Discovered {} functions", state.function_slices.len());
 
-    FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
-    FindSaveRestSleds::execute(&mut state, &obj)?;
-    state.apply(&mut obj)?;
+        FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
+        FindSaveRestSleds::execute(&mut state, &obj)?;
+        state.apply(&mut obj)?;
+    }
 
     apply_signatures_post(&mut obj)?;
 
