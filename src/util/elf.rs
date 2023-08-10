@@ -99,6 +99,27 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         });
     }
 
+    let mw_comment = if let Some(comment_section) = obj_file.section_by_name(".comment") {
+        let data = comment_section.uncompressed_data()?;
+        let mut reader = Cursor::new(&*data);
+        let header =
+            MWComment::parse_header(&mut reader).context("While reading .comment section")?;
+        log::debug!("Loaded .comment section header {:?}", header);
+        let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
+        for symbol in obj_file.symbols() {
+            let comment_sym = read_comment_sym(&mut reader)?;
+            log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
+            comment_syms.push(comment_sym);
+        }
+        ensure!(
+            data.len() - reader.position() as usize == 0,
+            ".comment section data not fully read"
+        );
+        Some((header, comment_syms))
+    } else {
+        None
+    };
+
     let mut symbols: Vec<ObjSymbol> = vec![];
     let mut symbol_indexes: Vec<Option<usize>> = vec![];
     let mut section_starts = IndexMap::<String, Vec<(u64, String)>>::new();
@@ -247,7 +268,8 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             continue;
         }
         symbol_indexes.push(Some(symbols.len()));
-        symbols.push(to_obj_symbol(&obj_file, &symbol, &section_indexes)?);
+        let align = mw_comment.as_ref().map(|(_, vec)| vec[symbol.index().0].align);
+        symbols.push(to_obj_symbol(&obj_file, &symbol, &section_indexes, align)?);
     }
 
     let mut link_order = Vec::<ObjUnit>::new();
@@ -294,28 +316,9 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         }
     }
 
-    let mw_comment = if let Some(comment_section) = obj_file.section_by_name(".comment") {
-        let data = comment_section.uncompressed_data()?;
-        let mut reader = Cursor::new(&*data);
-        let header =
-            MWComment::parse_header(&mut reader).context("While reading .comment section")?;
-        log::debug!("Loaded .comment section header {:?}", header);
-        for symbol in obj_file.symbols() {
-            let comment_sym = read_comment_sym(&mut reader)?;
-            log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
-        }
-        ensure!(
-            data.len() - reader.position() as usize == 0,
-            ".comment section data not fully read"
-        );
-        Some(header)
-    } else {
-        None
-    };
-
     let mut obj = ObjInfo::new(kind, architecture, obj_name, symbols, sections);
     obj.entry = obj_file.entry();
-    obj.mw_comment = mw_comment;
+    obj.mw_comment = mw_comment.map(|(header, _)| header);
     obj.sda2_base = sda2_base;
     obj.sda_base = sda_base;
     obj.stack_address = stack_address;
@@ -743,6 +746,7 @@ fn to_obj_symbol(
     obj_file: &object::File<'_>,
     symbol: &Symbol<'_, '_>,
     section_indexes: &[Option<usize>],
+    align: Option<u32>,
 ) -> Result<ObjSymbol> {
     let section = match symbol.section_index() {
         Some(idx) => Some(obj_file.section_by_index(idx)?),
@@ -788,8 +792,7 @@ fn to_obj_symbol(
             SymbolKind::Section => ObjSymbolKind::Section,
             _ => bail!("Unsupported symbol kind: {:?}", symbol),
         },
-        // TODO common symbol value?
-        align: None,
+        align,
         data_kind: Default::default(),
     })
 }
