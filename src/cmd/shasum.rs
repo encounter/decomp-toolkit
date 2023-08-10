@@ -88,7 +88,7 @@ fn hash(file: File, path: &Path) -> Result<()> {
     Ok(())
 }
 
-fn file_sha1(mut file: File) -> Result<sha1::digest::Output<Sha1>> {
+pub fn file_sha1(mut file: File) -> Result<sha1::digest::Output<Sha1>> {
     let mut buf = [0u8; DEFAULT_BUF_SIZE];
     let mut hasher = Sha1::new();
     Ok(loop {

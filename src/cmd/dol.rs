@@ -18,6 +18,7 @@ use crate::{
         signatures::{apply_signatures, apply_signatures_post},
         tracker::Tracker,
     },
+    cmd::shasum::file_sha1,
     obj::{
         split::{is_linker_generated_object, split_obj, update_splits},
         ObjDataKind, ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
@@ -114,6 +115,7 @@ fn bool_true() -> bool { true }
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ProjectConfig {
     pub object: PathBuf,
+    pub hash: Option<String>,
     pub splits: Option<PathBuf>,
     pub symbols: Option<PathBuf>,
     /// Version of the MW `.comment` section format.
@@ -135,6 +137,7 @@ pub struct ProjectConfig {
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ModuleConfig {
     pub object: PathBuf,
+    pub hash: Option<String>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -199,6 +202,24 @@ fn info(args: InfoArgs) -> Result<()> {
     Ok(())
 }
 
+fn verify_hash<P: AsRef<Path>>(path: P, hash_str: &str) -> Result<()> {
+    let mut hash_bytes = [0u8; 20];
+    hex::decode_to_slice(hash_str, &mut hash_bytes)
+        .with_context(|| format!("Invalid SHA-1 '{hash_str}'"))?;
+    let file = File::open(path.as_ref())
+        .with_context(|| format!("Failed to open file '{}'", path.as_ref().display()))?;
+    let found_hash = file_sha1(file)?;
+    if found_hash.as_ref() == hash_bytes {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "Hash mismatch: expected {}, but was {}",
+            hex::encode(hash_bytes),
+            hex::encode(found_hash)
+        ))
+    }
+}
+
 fn split(args: SplitArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
     let mut config_file = File::open(&args.config)
@@ -209,6 +230,9 @@ fn split(args: SplitArgs) -> Result<()> {
     let mut dep = DepFile::new(out_config_path.clone());
 
     log::info!("Loading {}", config.object.display());
+    if let Some(hash_str) = &config.hash {
+        verify_hash(&config.object, hash_str)?;
+    }
     let mut obj = process_dol(&config.object)?;
     dep.push(config.object.clone());
 
@@ -219,6 +243,9 @@ fn split(args: SplitArgs) -> Result<()> {
     let mut modules = BTreeMap::<u32, ObjInfo>::new();
     for module_config in &config.modules {
         log::info!("Loading {}", module_config.object.display());
+        if let Some(hash_str) = &module_config.hash {
+            verify_hash(&module_config.object, hash_str)?;
+        }
         let map = map_file(&module_config.object)?;
         let rel_obj = process_rel(map_reader(&map))?;
         match modules.entry(rel_obj.module_id) {
