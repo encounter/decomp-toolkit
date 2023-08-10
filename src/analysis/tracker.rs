@@ -266,7 +266,9 @@ impl Tracker {
                     if is_function_addr(addr) {
                         Ok(ExecCbResult::Jump(addr))
                     } else {
-                        self.relocations.insert(ins.addr, Relocation::Rel24(addr));
+                        if ins.is_direct_branch() {
+                            self.relocations.insert(ins.addr, Relocation::Rel24(addr));
+                        }
                         Ok(ExecCbResult::EndBlock)
                     }
                 }
@@ -295,7 +297,8 @@ impl Tracker {
                             if branch.link || !is_function_addr(addr) {
                                 self.relocations.insert(ins.addr, match ins.op {
                                     Opcode::B => Relocation::Rel24(addr),
-                                    _ => Relocation::Rel14(addr),
+                                    Opcode::Bc => Relocation::Rel14(addr),
+                                    _ => continue,
                                 });
                             } else if is_function_addr(addr) {
                                 executor.push(addr, branch.vm, true);
