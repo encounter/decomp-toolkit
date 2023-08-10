@@ -10,10 +10,14 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Result};
 use flagset::{flags, FlagSet};
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
-use crate::util::{comment::MWComment, nested::NestedVec, rel::RelReloc};
+use crate::{
+    obj::split::is_linker_generated_label,
+    util::{comment::MWComment, nested::NestedVec, rel::RelReloc},
+};
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
 pub enum ObjSymbolScope {
@@ -501,12 +505,24 @@ impl ObjSymbols {
     ) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
         let mut result = None;
         for (_addr, symbol_idxs) in self.indexes_for_range(..=target_addr).rev() {
-            let symbol_idx = if symbol_idxs.len() == 1 {
-                symbol_idxs.first().cloned().unwrap()
+            let mut symbols = symbol_idxs
+                .iter()
+                .map(|&idx| (idx, self.at(idx)))
+                .filter(|(_, sym)| {
+                    // Linker generated labels can only be used with @ha/@h/@l relocations
+                    !is_linker_generated_label(&sym.name)
+                        || (matches!(
+                            reloc_kind,
+                            ObjRelocKind::PpcAddr16Ha
+                                | ObjRelocKind::PpcAddr16Hi
+                                | ObjRelocKind::PpcAddr16Lo
+                        ))
+                })
+                .collect_vec();
+            let (symbol_idx, symbol) = if symbols.len() == 1 {
+                symbols.pop().unwrap()
             } else {
-                let mut symbol_idxs = symbol_idxs.to_vec();
-                symbol_idxs.sort_by_key(|&symbol_idx| {
-                    let symbol = self.at(symbol_idx);
+                symbols.sort_by_key(|&(_, symbol)| {
                     let mut rank = match symbol.kind {
                         ObjSymbolKind::Function | ObjSymbolKind::Object => match reloc_kind {
                             ObjRelocKind::PpcAddr16Hi
@@ -535,12 +551,11 @@ impl ObjSymbols {
                     }
                     -rank
                 });
-                match symbol_idxs.first().cloned() {
-                    Some(v) => v,
+                match symbols.first() {
+                    Some(&v) => v,
                     None => continue,
                 }
             };
-            let symbol = self.at(symbol_idx);
             if symbol.address == target_addr as u64 {
                 result = Some((symbol_idx, symbol));
                 break;
