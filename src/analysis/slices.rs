@@ -80,7 +80,7 @@ impl FunctionSlices {
 
     pub fn add_block_start(&mut self, addr: u32) -> bool {
         // Slice previous block.
-        if let Some((_, end)) = self.blocks.range_mut(..addr).last() {
+        if let Some((_, end)) = self.blocks.range_mut(..addr).next_back() {
             let last_end = *end;
             if last_end > addr {
                 *end = addr;

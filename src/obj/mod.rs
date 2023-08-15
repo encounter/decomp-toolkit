@@ -478,7 +478,10 @@ impl ObjSymbols {
         Ok(result)
     }
 
-    pub fn by_kind(&self, kind: ObjSymbolKind) -> impl Iterator<Item = (SymbolIndex, &ObjSymbol)> {
+    pub fn by_kind(
+        &self,
+        kind: ObjSymbolKind,
+    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
         self.symbols.iter().enumerate().filter(move |(_, sym)| sym.kind == kind)
     }
 
@@ -661,15 +664,20 @@ impl ObjInfo {
 
     /// Locate an existing split for the given address.
     pub fn split_for(&self, address: u32) -> Option<(u32, &ObjSplit)> {
-        match self.splits_for_range(..=address).last() {
+        match self.splits_for_range(..=address).next_back() {
             Some((addr, split)) if split.end == 0 || split.end > address => Some((addr, split)),
             _ => None,
         }
     }
 
     /// Locate existing splits within the given address range.
-    pub fn splits_for_range<R>(&self, range: R) -> impl Iterator<Item = (u32, &ObjSplit)>
-    where R: RangeBounds<u32> {
+    pub fn splits_for_range<R>(
+        &self,
+        range: R,
+    ) -> impl DoubleEndedIterator<Item = (u32, &ObjSplit)>
+    where
+        R: RangeBounds<u32>,
+    {
         self.splits.range(range).flat_map(|(addr, v)| v.iter().map(move |u| (*addr, u)))
     }
 

@@ -386,6 +386,67 @@ fn update_common_splits(obj: &mut ObjInfo) -> Result<()> {
     Ok(())
 }
 
+/// Final validation of splits.
+fn validate_splits(obj: &ObjInfo) -> Result<()> {
+    let mut last_split_end = 0;
+    for (addr, split) in obj.splits_for_range(..) {
+        let section = obj.section_at(addr)?;
+        ensure!(
+            addr >= last_split_end,
+            "Split {} {} {:#010X}..{:#010X} overlaps with previous split",
+            split.unit,
+            section.name,
+            addr,
+            split.end
+        );
+        ensure!(
+            split.end > 0 && split.end > addr,
+            "Invalid split end {} {} {:#010X}..{:#010X}",
+            split.unit,
+            section.name,
+            addr,
+            split.end
+        );
+        last_split_end = split.end;
+
+        if let Some((_, symbol)) =
+            obj.symbols.for_range(..addr).filter(|&(_, s)| s.size_known && s.size > 0).next_back()
+        {
+            ensure!(
+                addr >= symbol.address as u32 + symbol.size as u32,
+                "Split {} {} {:#010X}..{:#010X} overlaps symbol '{}' {:#010X}..{:#010X}",
+                split.unit,
+                section.name,
+                addr,
+                split.end,
+                symbol.name,
+                symbol.address,
+                symbol.address + symbol.size
+            );
+        }
+
+        if let Some((_, symbol)) = obj
+            .symbols
+            .for_range(..split.end)
+            .filter(|&(_, s)| s.size_known && s.size > 0)
+            .next_back()
+        {
+            ensure!(
+                split.end >= symbol.address as u32 + symbol.size as u32,
+                "Split {} {} ({:#010X}..{:#010X}) ends within symbol '{}' ({:#010X}..{:#010X})",
+                split.unit,
+                section.name,
+                addr,
+                split.end,
+                symbol.name,
+                symbol.address,
+                symbol.address + symbol.size
+            );
+        }
+    }
+    Ok(())
+}
+
 /// Perform any necessary adjustments to allow relinking.
 /// This includes:
 /// - Ensuring .ctors & .dtors entries are split with their associated function
@@ -417,6 +478,9 @@ pub fn update_splits(obj: &mut ObjInfo) -> Result<()> {
 
     // Update common BSS splits
     update_common_splits(obj)?;
+
+    // Ensure splits don't overlap symbols or each other
+    validate_splits(obj)?;
 
     // Resolve link order
     obj.link_order = resolve_link_order(obj)?;
@@ -908,7 +972,7 @@ pub fn end_for_section(obj: &ObjInfo, section_index: usize) -> Result<u32> {
             .symbols
             .for_range(section_start..section_end)
             .filter(|(_, s)| s.kind == ObjSymbolKind::Object && s.size_known && s.size > 0)
-            .last();
+            .next_back();
         match last_symbol {
             Some((_, symbol)) if is_linker_generated_object(&symbol.name) => {
                 log::debug!(

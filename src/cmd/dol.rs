@@ -509,7 +509,7 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
             continue;
         }
         if !real_functions.contains_key(&start) {
-            let (real_addr, real_name) = real_functions.range(..start).last().unwrap();
+            let (real_addr, real_name) = real_functions.range(..start).next_back().unwrap();
             log::warn!(
                 "Function {:#010X} not real (actually a part of {} @ {:#010X})",
                 start,

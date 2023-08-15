@@ -376,7 +376,7 @@ impl Tracker {
         if self.ignore_addresses.contains(&addr) {
             return false;
         }
-        if let Some((&start, &end)) = obj.blocked_ranges.range(..=from).last() {
+        if let Some((&start, &end)) = obj.blocked_ranges.range(..=from).next_back() {
             if from >= start && from < end {
                 return false;
             }
