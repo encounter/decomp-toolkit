@@ -172,7 +172,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
             }
             write!(w, ".comm ")?;
             write_symbol_name(w, &symbol.name)?;
-            writeln!(w, ", {:#X}, 4", symbol.size)?;
+            writeln!(w, ", {:#X}, {}", symbol.size, symbol.align.unwrap_or(4))?;
         }
     }
 
