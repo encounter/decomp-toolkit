@@ -241,9 +241,7 @@ fn apply_selfile(obj: &mut ObjInfo, selfile: &Path) -> Result<()> {
                     demangled_name: symbol.demangled_name.clone(),
                     address: address as u64,
                     section,
-                    flags: ObjSymbolFlagSet(
-                        (ObjSymbolFlags::Global | ObjSymbolFlags::ForceActive).into(),
-                    ),
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::ForceActive),
                     ..*symbol
                 },
                 false,
@@ -267,8 +265,8 @@ fn info(args: InfoArgs) -> Result<()> {
 
     apply_signatures_post(&mut obj)?;
 
-    if let Some(selfile) = args.selfile {
-        apply_selfile(&mut obj, &selfile)?;
+    if let Some(selfile) = &args.selfile {
+        apply_selfile(&mut obj, selfile)?;
     }
 
     println!("{}:", obj.name);
@@ -437,7 +435,7 @@ fn split(args: SplitArgs) -> Result<()> {
         if let Some(hash) = &config.selfile_hash {
             verify_hash(selfile, hash)?;
         }
-        apply_selfile(&mut obj, &selfile)?;
+        apply_selfile(&mut obj, selfile)?;
     }
 
     log::info!("Performing relocation analysis");

@@ -427,6 +427,7 @@ fn write_data<W: Write>(
             break;
         }
         if let Some((&sym_addr, vec)) = entry {
+            #[allow(clippy::comparison_chain)]
             if current_address == sym_addr {
                 for entry in vec {
                     if entry.kind == SymbolEntryKind::End && begin {
