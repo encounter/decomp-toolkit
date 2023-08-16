@@ -5,6 +5,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
+use itertools::Itertools;
 use ppc750cl::{disasm_iter, Argument, Ins, Opcode};
 
 use crate::{
@@ -425,8 +426,8 @@ fn write_data<W: Write>(
         if current_address == end {
             break;
         }
-        if let Some((sym_addr, vec)) = entry {
-            if current_address == *sym_addr {
+        if let Some((&sym_addr, vec)) = entry {
+            if current_address == sym_addr {
                 for entry in vec {
                     if entry.kind == SymbolEntryKind::End && begin {
                         continue;
@@ -436,6 +437,13 @@ fn write_data<W: Write>(
                 current_symbol_kind = find_symbol_kind(current_symbol_kind, symbols, vec)?;
                 current_data_kind = find_data_kind(current_data_kind, symbols, vec)?;
                 entry = entry_iter.next();
+            } else if current_address > sym_addr {
+                let dbg_symbols = vec.iter().map(|e| &symbols[e.index]).collect_vec();
+                bail!(
+                    "Unaligned symbol entry @ {:#010X}:\n\t{:?}",
+                    section.original_address as u32 + sym_addr,
+                    dbg_symbols
+                );
             }
         }
         begin = false;
@@ -472,12 +480,20 @@ fn write_data<W: Write>(
             (Some((addr, _)), None) | (None, Some((addr, _))) => *addr,
             (None, None) => end,
         };
+        ensure!(
+            until > current_address,
+            "Invalid address range: {}..{}\n\tNext entry: {:?}\n\tNext reloc: {:?}",
+            current_address,
+            until,
+            entries,
+            reloc
+        );
         let data = &section.data[(current_address - section.address as u32) as usize
             ..(until - section.address as u32) as usize];
         if symbol_kind == ObjSymbolKind::Function {
             ensure!(
                 current_address & 3 == 0 && data.len() & 3 == 0,
-                "Unaligned code write @ {} {:#010X} size {:#X} (next entry: {:?}, reloc: {:?})",
+                "Unaligned code write @ {} {:#010X} size {:#X}\n\tNext entry: {:?}\n\tNext reloc: {:?}",
                 section.name,
                 current_address,
                 data.len(),
