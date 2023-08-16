@@ -88,6 +88,10 @@ impl AnalyzerState {
                     .insert(symbol.address as u32, (symbol.address + symbol.size) as u32);
             }
         }
+        // Also check the beginning of every code section
+        for section in obj.sections.iter().filter(|s| s.kind == ObjSectionKind::Code) {
+            self.function_entries.insert(section.address as u32);
+        }
 
         // Process known functions first
         let known_functions = self.function_entries.clone();
