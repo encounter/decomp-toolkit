@@ -8,6 +8,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
+use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 
 use crate::{
@@ -35,6 +36,7 @@ use crate::{
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         rel::process_rel,
+        rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_NAMES},
     },
 };
 
@@ -62,6 +64,9 @@ pub struct InfoArgs {
     #[argp(positional)]
     /// DOL file
     dol_file: PathBuf,
+    #[argp(option, short = 's')]
+    /// optional path to selfile.sel
+    selfile: Option<PathBuf>,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -118,6 +123,8 @@ pub struct ProjectConfig {
     pub hash: Option<String>,
     pub splits: Option<PathBuf>,
     pub symbols: Option<PathBuf>,
+    pub selfile: Option<PathBuf>,
+    pub selfile_hash: Option<String>,
     /// Version of the MW `.comment` section format.
     /// If not present, no `.comment` sections will be written.
     pub mw_comment_version: Option<u8>,
@@ -166,6 +173,86 @@ pub fn run(args: Args) -> Result<()> {
     }
 }
 
+fn apply_selfile(obj: &mut ObjInfo, selfile: &Path) -> Result<()> {
+    let rso = process_rso(selfile)?;
+    for symbol in rso.symbols.iter() {
+        let dol_section_index = match symbol.section {
+            Some(section) => section,
+            None => bail!(
+                "Expected section for symbol '{}' @ {:#010X} in selfile",
+                symbol.name,
+                symbol.address
+            ),
+        };
+        let (section, address, section_kind) = if dol_section_index == DOL_SECTION_ABS as usize {
+            (None, symbol.address as u32, None)
+        } else {
+            let dol_section_name =
+                DOL_SECTION_NAMES.get(dol_section_index).and_then(|&opt| opt).ok_or_else(|| {
+                    anyhow!("Can't add symbol for unknown DOL section {}", dol_section_index)
+                })?;
+            let dol_section = obj
+                .sections
+                .iter()
+                .find(|section| section.name == dol_section_name)
+                .ok_or_else(|| anyhow!("Failed to locate DOL section {}", dol_section_name))?;
+            (
+                Some(dol_section.index),
+                dol_section.address as u32 + symbol.address as u32,
+                Some(dol_section.kind),
+            )
+        };
+
+        let symbol_kind = match section_kind {
+            Some(ObjSectionKind::Code) => ObjSymbolKind::Function,
+            Some(_) => ObjSymbolKind::Object,
+            None => ObjSymbolKind::Unknown,
+        };
+        let existing_symbols = obj.symbols.at_address(address).collect_vec();
+        let existing_symbol = existing_symbols
+            .iter()
+            .find(|(_, s)| s.section == section && s.name == symbol.name)
+            .cloned()
+            .or_else(|| {
+                existing_symbols
+                    .iter()
+                    .find(|(_, s)| s.section == section && s.kind == symbol_kind)
+                    .cloned()
+            });
+        if let Some((existing_symbol_idx, existing_symbol)) = existing_symbol {
+            log::debug!("Mapping symbol {} to {}", symbol.name, existing_symbol.name);
+            obj.symbols.replace(existing_symbol_idx, ObjSymbol {
+                name: symbol.name.clone(),
+                demangled_name: symbol.demangled_name.clone(),
+                address: address as u64,
+                section,
+                size: existing_symbol.size,
+                size_known: existing_symbol.size_known,
+                flags: ObjSymbolFlagSet(existing_symbol.flags.0 | ObjSymbolFlags::ForceActive),
+                kind: existing_symbol.kind,
+                align: existing_symbol.align,
+                data_kind: existing_symbol.data_kind,
+            })?;
+        } else {
+            log::debug!("Creating symbol {} at {:#010X}", symbol.name, address);
+            obj.symbols.add(
+                ObjSymbol {
+                    name: symbol.name.clone(),
+                    demangled_name: symbol.demangled_name.clone(),
+                    address: address as u64,
+                    section,
+                    flags: ObjSymbolFlagSet(
+                        (ObjSymbolFlags::Global | ObjSymbolFlags::ForceActive).into(),
+                    ),
+                    ..*symbol
+                },
+                false,
+            )?;
+        }
+    }
+    Ok(())
+}
+
 fn info(args: InfoArgs) -> Result<()> {
     let mut obj = process_dol(&args.dol_file)?;
     apply_signatures(&mut obj)?;
@@ -179,6 +266,10 @@ fn info(args: InfoArgs) -> Result<()> {
     state.apply(&mut obj)?;
 
     apply_signatures_post(&mut obj)?;
+
+    if let Some(selfile) = args.selfile {
+        apply_selfile(&mut obj, &selfile)?;
+    }
 
     println!("{}:", obj.name);
     println!("Entry point: {:#010X}", obj.entry);
@@ -342,6 +433,13 @@ fn split(args: SplitArgs) -> Result<()> {
 
     apply_signatures_post(&mut obj)?;
 
+    if let Some(selfile) = &config.selfile {
+        if let Some(hash) = &config.selfile_hash {
+            verify_hash(selfile, hash)?;
+        }
+        apply_selfile(&mut obj, &selfile)?;
+    }
+
     log::info!("Performing relocation analysis");
     let mut tracker = Tracker::new(&obj);
     tracker.process(&obj)?;
@@ -429,7 +527,8 @@ fn split(args: SplitArgs) -> Result<()> {
             DirBuilder::new().recursive(true).create(parent)?;
         }
         let mut w = buf_writer(&out_path)?;
-        write_asm(&mut w, split_obj)?;
+        write_asm(&mut w, split_obj)
+            .with_context(|| format!("Failed to write {}", out_path.display()))?;
         w.flush()?;
     }
 
@@ -692,10 +791,50 @@ fn diff(args: DiffArgs) -> Result<()> {
                     linked_sym.address,
                 );
             }
-            break;
+            return Ok(());
         }
     }
 
+    // Data diff
+    for orig_sym in obj.symbols.iter() {
+        if orig_sym.kind == ObjSymbolKind::Section || orig_sym.section.is_none() {
+            continue;
+        }
+
+        let (_, linked_sym) = linked_obj
+            .symbols
+            .at_address(orig_sym.address as u32)
+            .find(|(_, sym)| sym.name == orig_sym.name)
+            .or_else(|| {
+                linked_obj
+                    .symbols
+                    .at_address(orig_sym.address as u32)
+                    .find(|(_, sym)| sym.kind == orig_sym.kind)
+            })
+            .unwrap();
+
+        let orig_data = obj
+            .section_data(orig_sym.address as u32, orig_sym.address as u32 + orig_sym.size as u32)?
+            .1;
+        let linked_data = linked_obj
+            .section_data(
+                linked_sym.address as u32,
+                linked_sym.address as u32 + linked_sym.size as u32,
+            )?
+            .1;
+        if orig_data != linked_data {
+            log::error!(
+                "Data mismatch for {} (type {:?}, size {:#X}) at {:#010X}",
+                orig_sym.name,
+                orig_sym.kind,
+                orig_sym.size,
+                orig_sym.address
+            );
+            return Ok(());
+        }
+    }
+
+    log::info!("OK");
     Ok(())
 }
 

@@ -12,6 +12,26 @@ use crate::{
     util::file::{map_file, map_reader, read_c_string, read_string},
 };
 
+/// For RSO references to the DOL, the sections are hardcoded.
+pub const DOL_SECTION_NAMES: [Option<&str>; 14] = [
+    None, // s_null
+    Some(".init"),
+    Some(".text"),
+    Some(".ctors"),
+    Some(".dtors"),
+    Some(".rodata"),
+    Some(".data"),
+    Some(".bss"),
+    Some(".sdata"),
+    Some(".sdata2"),
+    None, // s_zero
+    Some(".sbss"),
+    Some(".sbss2"),
+    None, // s_zero2
+];
+/// ABS symbol section index.
+pub const DOL_SECTION_ABS: u32 = 65521;
+
 pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let mmap = map_file(path)?;
     let mut reader = map_reader(&mmap);
@@ -49,7 +69,7 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     for idx in 0..num_sections {
         let offset = reader.read_u32::<BigEndian>()?;
         let size = reader.read_u32::<BigEndian>()?;
-        log::info!("Section {}: {:#X} {:#X}", idx, offset, size);
+        log::debug!("Section {}: offset {:#X}, size {:#X}", idx, offset, size);
         if size == 0 {
             continue;
         }
@@ -108,7 +128,7 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
                 .iter()
                 .find(|section| section.elf_index == section_idx as usize)
                 .ok_or_else(|| anyhow!("Failed to locate {name} section {section_idx}"))?;
-            log::info!("Adding {name} section {section_idx} offset {offset:#X}");
+            log::debug!("Adding {name} section {section_idx} offset {offset:#X}");
             symbols.push(ObjSymbol {
                 name: name.to_string(),
                 demangled_name: None,
@@ -135,7 +155,7 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let id = (id_and_type & 0xFFFFFF00) >> 8;
         let rel_type = id_and_type & 0xFF;
         let sym_offset = reader.read_u32::<BigEndian>()?;
-        log::info!(
+        log::debug!(
             "Reloc offset: {:#X}, id: {}, type: {}, sym offset: {:#X}",
             offset,
             id,
@@ -152,24 +172,32 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let section_idx = reader.read_u32::<BigEndian>()?;
         let hash_n = reader.read_u32::<BigEndian>()?;
         let calc = symbol_hash(&name);
+        ensure!(
+            hash_n == calc,
+            "Mismatched calculated hash for symbol {}: {:#X} != {:#X}",
+            name,
+            hash_n,
+            calc
+        );
         let demangled_name = demangle(&name, &DemangleOptions::default());
         let section = sections
             .iter()
             .find(|section| section.elf_index == section_idx as usize)
-            .map(|section| section.index);
-        log::info!(
-            "Export: {}, sym off: {:#X}, section: {}, ELF hash: {:#X}, {:#X}",
+            .map(|section| section.index)
+            // HACK: selfiles won't have any sections
+            .unwrap_or(section_idx as usize);
+        log::debug!(
+            "Export: {}, sym off: {:#X}, section: {}, ELF hash: {:#X}",
             demangled_name.as_deref().unwrap_or(&name),
             sym_off,
             section_idx,
-            hash_n,
-            calc
+            hash_n
         );
         symbols.push(ObjSymbol {
             name,
             demangled_name,
             address: sym_off as u64,
-            section,
+            section: Some(section),
             size: 0,
             size_known: false,
             flags: Default::default(),
@@ -184,7 +212,7 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let name = read_c_string(&mut reader, (import_table_name_offset + name_off) as u64)?;
         let sym_off = reader.read_u32::<BigEndian>()?;
         let section_idx = reader.read_u32::<BigEndian>()?;
-        log::info!("Import: {}, sym off: {}, section: {}", name, sym_off, section_idx);
+        log::debug!("Import: {}, sym off: {}, section: {}", name, sym_off, section_idx);
     }
 
     let name = match name_offset {
