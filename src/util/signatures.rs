@@ -12,7 +12,9 @@ use sha1::{Digest, Sha1};
 use crate::{
     analysis::tracker::{Relocation, Tracker},
     array_ref,
-    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind},
+    obj::{
+        ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind,
+    },
     util::elf::process_elf,
 };
 
@@ -69,19 +71,19 @@ pub fn parse_signatures(sig_str: &str) -> Result<Vec<FunctionSignature>> {
 }
 
 pub fn check_signatures_str(
-    obj: &ObjInfo,
+    section: &ObjSection,
     addr: u32,
     sig_str: &str,
 ) -> Result<Option<FunctionSignature>> {
-    check_signatures(obj, addr, &parse_signatures(sig_str)?)
+    check_signatures(section, addr, &parse_signatures(sig_str)?)
 }
 
 pub fn check_signatures(
-    obj: &ObjInfo,
+    section: &ObjSection,
     addr: u32,
     signatures: &Vec<FunctionSignature>,
 ) -> Result<Option<FunctionSignature>> {
-    let (_, data) = obj.section_data(addr, 0)?;
+    let data = section.data_range(addr, 0)?;
     let mut name = None;
     for signature in signatures {
         if name.is_none() {
@@ -104,7 +106,7 @@ pub fn check_signatures(
 }
 
 pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> Result<usize> {
-    let mut target_section_index = obj.section_at(target).ok().map(|section| section.index);
+    let mut target_section_index = obj.sections.at_address(target).ok().map(|(idx, _)| idx);
     if let Some(target_section_index) = target_section_index {
         let target_section = &mut obj.sections[target_section_index];
         if !target_section.section_known {
@@ -138,15 +140,19 @@ pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> R
     Ok(target_symbol_idx)
 }
 
-pub fn apply_signature(obj: &mut ObjInfo, addr: u32, signature: &FunctionSignature) -> Result<()> {
-    let section_index = obj.section_at(addr)?.index;
+pub fn apply_signature(
+    obj: &mut ObjInfo,
+    section_index: usize,
+    addr: u32,
+    signature: &FunctionSignature,
+) -> Result<()> {
     let in_symbol = &signature.symbols[signature.symbol];
     let symbol_idx = apply_symbol(obj, addr, in_symbol)?;
     let mut tracker = Tracker::new(obj);
     for reloc in &signature.relocations {
         tracker.known_relocations.insert(addr + reloc.offset);
     }
-    tracker.process_function(obj, obj.symbols.at(symbol_idx))?;
+    tracker.process_function(obj, &obj.symbols[symbol_idx])?;
     for (&reloc_addr, reloc) in &tracker.relocations {
         if reloc_addr < addr || reloc_addr >= addr + in_symbol.size {
             continue;
@@ -175,6 +181,7 @@ pub fn apply_signature(obj: &mut ObjInfo, addr: u32, signature: &FunctionSignatu
             address: reloc_addr as u64,
             target_symbol: target_symbol_idx,
             addend: sig_reloc.addend as i64,
+            module: None,
         };
         // log::info!("Applying relocation {:#010X?}", obj_reloc);
         obj.sections[section_index].relocations.push(obj_reloc);
@@ -296,7 +303,7 @@ pub fn generate_signature<P: AsRef<Path>>(
                 let reloc = &section.relocations[reloc_idx];
                 let symbol_idx = match symbol_map.entry(reloc.target_symbol) {
                     btree_map::Entry::Vacant(e) => {
-                        let target = obj.symbols.at(reloc.target_symbol);
+                        let target = &obj.symbols[reloc.target_symbol];
                         let symbol_idx = out_symbols.len();
                         e.insert(symbol_idx);
                         out_symbols.push(OutSymbol {
@@ -308,7 +315,10 @@ pub fn generate_signature<P: AsRef<Path>>(
                                 target.size as u32
                             },
                             flags: target.flags,
-                            section: target.section.map(|idx| obj.sections[idx].name.clone()),
+                            section: target
+                                .section
+                                .and_then(|idx| obj.sections.get(idx))
+                                .map(|section| section.name.clone()),
                         });
                         symbol_idx
                     }

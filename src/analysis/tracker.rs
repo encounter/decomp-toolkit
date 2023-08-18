@@ -73,8 +73,8 @@ impl Tracker {
                 // Stack ends after all BSS sections
                 obj.sections
                     .iter()
-                    .rfind(|s| s.kind == ObjSectionKind::Bss)
-                    .map(|s| (s.address + s.size) as u32)
+                    .rfind(|&(_, s)| s.kind == ObjSectionKind::Bss)
+                    .map(|(_, s)| (s.address + s.size) as u32)
             }),
             db_stack_addr: obj.db_stack_addr,
             arena_lo: obj
@@ -92,21 +92,23 @@ impl Tracker {
     pub fn process(&mut self, obj: &ObjInfo) -> Result<()> {
         log::debug!("Processing code sections");
         self.process_code(obj)?;
-        for section in &obj.sections {
-            if matches!(section.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData) {
-                log::debug!("Processing section {}, address {:#X}", section.index, section.address);
-                self.process_data(obj, section)?;
-            }
+        for (section_index, section) in obj
+            .sections
+            .iter()
+            .filter(|(_, s)| matches!(s.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData))
+        {
+            log::debug!("Processing section {}, address {:#X}", section_index, section.address);
+            self.process_data(obj, section)?;
         }
         Ok(())
     }
 
     fn process_code(&mut self, obj: &ObjInfo) -> Result<()> {
         self.process_function_by_address(obj, obj.entry as u32)?;
-        for section in obj.sections.iter().filter(|s| s.kind == ObjSectionKind::Code) {
+        for (section_index, _) in obj.sections.by_kind(ObjSectionKind::Code) {
             for (_, symbol) in obj
                 .symbols
-                .for_range(section.address as u32..(section.address + section.size) as u32)
+                .for_section(section_index)
                 .filter(|(_, symbol)| symbol.kind == ObjSymbolKind::Function && symbol.size_known)
             {
                 let addr = symbol.address as u32;
@@ -124,9 +126,10 @@ impl Tracker {
             return Ok(());
         }
         self.processed_functions.insert(addr);
+        let (section_index, _) = obj.sections.at_address(addr)?;
         if let Some((_, symbol)) = obj
             .symbols
-            .at_address(addr)
+            .at_section_address(section_index, addr)
             .find(|(_, symbol)| symbol.kind == ObjSymbolKind::Function && symbol.size_known)
         {
             self.process_function(obj, symbol)?;
@@ -144,7 +147,8 @@ impl Tracker {
         function_end: u32,
         possible_missed_branches: &mut BTreeMap<u32, Box<VM>>,
     ) -> Result<ExecCbResult<()>> {
-        let ExecCbData { executor, vm, result, section: _, ins, block_start: _ } = data;
+        let ExecCbData { executor, vm, result, section_index: _, section: _, ins, block_start: _ } =
+            data;
         let is_function_addr = |addr: u32| addr >= function_start && addr < function_end;
 
         match result {
@@ -344,11 +348,11 @@ impl Tracker {
             }
             let mut added = false;
             for (addr, vm) in take(&mut possible_missed_branches) {
-                let section = match obj.section_at(addr) {
+                let (section_index, section) = match obj.sections.at_address(addr) {
                     Ok(section) => section,
                     Err(_) => continue,
                 };
-                if !executor.visited(section, addr) {
+                if !executor.visited(section_index, section.address as u32, addr) {
                     executor.push(addr, vm, true);
                     added = true;
                 }
@@ -397,7 +401,7 @@ impl Tracker {
         // if addr > 0x80000000 && addr < 0x80003100 {
         //     return true;
         // }
-        if let Ok(section) = obj.section_at(addr) {
+        if let Ok((_, section)) = obj.sections.at_address(addr) {
             // References to code sections will never be unaligned
             return section.kind != ObjSectionKind::Code || addr & 3 == 0;
         }
@@ -450,7 +454,7 @@ impl Tracker {
             section.name = new_name;
         }
 
-        for section in &mut obj.sections {
+        for (_, section) in obj.sections.iter_mut() {
             if !section.section_known {
                 if section.kind == ObjSectionKind::Code {
                     apply_section_name(section, ".text");
@@ -485,7 +489,7 @@ impl Tracker {
         }
 
         let mut relocation_maps = Vec::new();
-        for section in &obj.sections {
+        for (_, section) in obj.sections.iter() {
             relocation_maps.push(section.build_relocation_map()?);
         }
 
@@ -516,7 +520,7 @@ impl Tracker {
                 if let Some(symbol) = self.special_symbol(obj, target, reloc_kind) {
                     (symbol, 0)
                 } else {
-                    let target_section = match obj.sections.iter().find(|s| {
+                    let (target_section_index, _) = match obj.sections.iter().find(|&(_, s)| {
                         target >= s.address as u32 && target < (s.address + s.size) as u32
                     }) {
                         Some(v) => v,
@@ -541,7 +545,7 @@ impl Tracker {
                             name: format!("lbl_{:08X}", target),
                             demangled_name: None,
                             address: target as u64,
-                            section: Some(target_section.index),
+                            section: Some(target_section_index),
                             size: 0,
                             size_known: false,
                             flags: Default::default(),
@@ -552,31 +556,34 @@ impl Tracker {
                         (symbol_idx, 0)
                     }
                 };
-            let reloc = ObjReloc { kind: reloc_kind, address: addr as u64, target_symbol, addend };
-            let section = match obj
-                .sections
-                .iter_mut()
-                .find(|s| addr >= s.address as u32 && addr < (s.address + s.size) as u32)
-            {
-                Some(v) => v,
-                None => bail!(
-                    "Failed to locate source section for relocation @ {:#010X} {:#010X?}",
-                    addr,
-                    reloc
-                ),
+            let reloc = ObjReloc {
+                kind: reloc_kind,
+                address: addr as u64,
+                target_symbol,
+                addend,
+                module: None,
             };
+            let (section_index, section) =
+                match obj.sections.iter_mut().find(|(_, s)| s.contains(addr)) {
+                    Some(v) => v,
+                    None => bail!(
+                        "Failed to locate source section for relocation @ {:#010X} {:#010X?}",
+                        addr,
+                        reloc
+                    ),
+                };
 
-            let reloc_map = &mut relocation_maps[section.index];
+            let reloc_map = &mut relocation_maps[section_index];
             match reloc_map.entry(addr) {
                 Entry::Vacant(e) => {
                     e.insert(section.relocations.len());
                     section.relocations.push(reloc);
                 }
                 Entry::Occupied(e) => {
-                    let reloc_symbol = obj.symbols.at(reloc.target_symbol);
+                    let reloc_symbol = &obj.symbols[reloc.target_symbol];
                     if reloc_symbol.name != "_unresolved" {
                         let v = &mut section.relocations[*e.get()];
-                        let iter_symbol = obj.symbols.at(v.target_symbol);
+                        let iter_symbol = &obj.symbols[v.target_symbol];
                         if iter_symbol.address as i64 + v.addend
                             != reloc_symbol.address as i64 + reloc.addend
                         {

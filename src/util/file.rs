@@ -1,5 +1,5 @@
 use std::{
-    fs::{File, OpenOptions},
+    fs::{DirBuilder, File, OpenOptions},
     io::{BufRead, BufReader, BufWriter, Cursor, Read},
     path::{Path, PathBuf},
 };
@@ -35,6 +35,9 @@ pub fn buf_reader<P: AsRef<Path>>(path: P) -> Result<BufReader<File>> {
 
 /// Creates a buffered writer around a file (not memory mapped).
 pub fn buf_writer<P: AsRef<Path>>(path: P) -> Result<BufWriter<File>> {
+    if let Some(parent) = path.as_ref().parent() {
+        DirBuilder::new().recursive(true).create(parent)?;
+    }
     let file = File::create(&path)
         .with_context(|| format!("Failed to create file '{}'", path.as_ref().display()))?;
     Ok(BufWriter::new(file))

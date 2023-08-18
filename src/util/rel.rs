@@ -79,7 +79,6 @@ pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
 
         // println!("Section {} offset {:#X} size {:#X}", idx, offset, size);
 
-        let index = sections.len();
         sections.push(ObjSection {
             name: format!(".section{}", idx),
             kind: if offset == 0 {
@@ -97,12 +96,12 @@ pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
                 _ => align,
             }
             .unwrap_or_default() as u64,
-            index,
             elf_index: idx as usize,
             relocations: vec![],
             original_address: 0,
             file_offset: offset as u64,
             section_known: false,
+            splits: Default::default(),
         });
         if offset == 0 {
             total_bss_size += size;
@@ -116,18 +115,19 @@ pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
     );
 
     let mut symbols = Vec::new();
-    let mut add_symbol = |section_idx: u8, offset: u32, name: &str| -> Result<()> {
-        if section_idx > 0 {
-            let section = sections
+    let mut add_symbol = |rel_section_idx: u8, offset: u32, name: &str| -> Result<()> {
+        if rel_section_idx > 0 {
+            let (section_index, _) = sections
                 .iter()
-                .find(|section| section.elf_index == section_idx as usize)
-                .ok_or_else(|| anyhow!("Failed to locate {name} section {section_idx}"))?;
-            log::debug!("Adding {name} section {section_idx} offset {offset:#X}");
+                .enumerate()
+                .find(|&(_, section)| section.elf_index == rel_section_idx as usize)
+                .ok_or_else(|| anyhow!("Failed to locate {name} section {rel_section_idx}"))?;
+            log::debug!("Adding {name} section {rel_section_idx} offset {offset:#X}");
             symbols.push(ObjSymbol {
                 name: name.to_string(),
                 demangled_name: None,
                 address: offset as u64,
-                section: Some(section.index),
+                section: Some(section_index),
                 size: 0,
                 size_known: false,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),

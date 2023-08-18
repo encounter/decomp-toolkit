@@ -1,5 +1,5 @@
 use std::{
-    collections::{hash_map, BTreeMap, HashMap},
+    collections::{hash_map, HashMap},
     io::Cursor,
     path::Path,
 };
@@ -27,7 +27,6 @@ use crate::{
     util::{
         comment::{read_comment_sym, write_comment_sym, CommentSym, MWComment},
         file::map_file,
-        nested::NestedVec,
     },
 };
 
@@ -90,12 +89,12 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             size: section.size(),
             data: section.uncompressed_data()?.to_vec(),
             align: section.align(),
-            index: sections.len(),
             elf_index: section.index().0,
             relocations: vec![],
             original_address: 0, // TODO load from abs symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
             section_known: true,
+            splits: Default::default(),
         });
     }
 
@@ -273,7 +272,6 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     }
 
     let mut link_order = Vec::<ObjUnit>::new();
-    let mut splits = BTreeMap::<u32, Vec<ObjSplit>>::new();
     if kind == ObjKind::Executable {
         // Link order is trivially deduced
         for file_name in section_starts.keys() {
@@ -285,9 +283,17 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         }
 
         // Create a map of address -> file splits
-        for (file_name, sections) in section_starts {
-            for (address, _) in sections {
-                splits.nested_push(address as u32, ObjSplit {
+        for (file_name, section_addrs) in section_starts {
+            for (address, _) in section_addrs {
+                let section =
+                    sections.iter_mut().find(|s| s.contains(address as u32)).ok_or_else(|| {
+                        anyhow!(
+                            "Failed to find section containing address {:#010X} in file {}",
+                            address,
+                            file_name
+                        )
+                    })?;
+                section.splits.push(address as u32, ObjSplit {
                     unit: file_name.clone(),
                     end: 0, // TODO
                     align: None,
@@ -326,7 +332,6 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     obj.db_stack_addr = db_stack_addr;
     obj.arena_lo = arena_lo;
     obj.arena_hi = arena_hi;
-    obj.splits = splits;
     obj.link_order = link_order;
     Ok(obj)
 }
@@ -350,8 +355,8 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
     }
 
     writer.reserve_null_section_index();
-    let mut out_sections: Vec<OutSection> = Vec::with_capacity(obj.sections.len());
-    for section in &obj.sections {
+    let mut out_sections: Vec<OutSection> = Vec::with_capacity(obj.sections.count());
+    for (_, section) in obj.sections.iter() {
         let name = writer.add_section_name(section.name.as_bytes());
         let index = writer.reserve_section_index();
         out_sections.push(OutSection {
@@ -364,8 +369,8 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         });
     }
 
-    let mut rela_names: Vec<String> = vec![Default::default(); obj.sections.len()];
-    for ((section, out_section), rela_name) in
+    let mut rela_names: Vec<String> = vec![Default::default(); obj.sections.count()];
+    for (((_, section), out_section), rela_name) in
         obj.sections.iter().zip(&mut out_sections).zip(&mut rela_names)
     {
         if section.relocations.is_empty() {
@@ -449,12 +454,12 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
 
     // Add section symbols for relocatable objects
     if obj.kind == ObjKind::Relocatable {
-        for section in &obj.sections {
-            let section_index = out_sections.get(section.index).map(|s| s.index);
-            let index = writer.reserve_symbol_index(section_index);
+        for (section_index, section) in obj.sections.iter() {
+            let out_section_index = out_sections.get(section_index).map(|s| s.index);
+            let index = writer.reserve_symbol_index(out_section_index);
             let sym = object::write::elf::Sym {
                 name: None,
-                section: section_index,
+                section: out_section_index,
                 st_info: (elf::STB_LOCAL << 4) + elf::STT_SECTION,
                 st_other: elf::STV_DEFAULT,
                 st_shndx: 0,
@@ -535,10 +540,10 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
     writer.reserve_file_header();
 
     if obj.kind == ObjKind::Executable {
-        writer.reserve_program_headers(obj.sections.len() as u32);
+        writer.reserve_program_headers(obj.sections.count() as u32);
     }
 
-    for (section, out_section) in obj.sections.iter().zip(&mut out_sections) {
+    for ((_, section), out_section) in obj.sections.iter().zip(&mut out_sections) {
         if section.kind == ObjSectionKind::Bss {
             continue;
         }
@@ -553,7 +558,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         }
     }
 
-    for (section, out_section) in obj.sections.iter().zip(&mut out_sections) {
+    for ((_, section), out_section) in obj.sections.iter().zip(&mut out_sections) {
         if section.relocations.is_empty() {
             continue;
         }
@@ -586,7 +591,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
 
     if obj.kind == ObjKind::Executable {
         writer.write_align_program_headers();
-        for (section, out_section) in obj.sections.iter().zip(&out_sections) {
+        for ((_, section), out_section) in obj.sections.iter().zip(&out_sections) {
             writer.write_program_header(&ProgramHeader {
                 p_type: elf::PT_LOAD,
                 p_flags: match section.kind {
@@ -607,7 +612,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         }
     }
 
-    for (section, out_section) in obj.sections.iter().zip(&out_sections) {
+    for ((_, section), out_section) in obj.sections.iter().zip(&out_sections) {
         if section.kind == ObjSectionKind::Bss {
             continue;
         }
@@ -616,7 +621,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         writer.write(&section.data);
     }
 
-    for (section, out_section) in obj.sections.iter().zip(&out_sections) {
+    for ((_, section), out_section) in obj.sections.iter().zip(&out_sections) {
         if section.relocations.is_empty() {
             continue;
         }
@@ -680,7 +685,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
     }
 
     writer.write_null_section_header();
-    for (section, out_section) in obj.sections.iter().zip(&out_sections) {
+    for ((_, section), out_section) in obj.sections.iter().zip(&out_sections) {
         writer.write_section_header(&SectionHeader {
             name: Some(out_section.name),
             sh_type: match section.kind {
@@ -703,7 +708,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             sh_entsize: 0, // TODO?
         });
     }
-    for (section, out_section) in obj.sections.iter().zip(&out_sections) {
+    for ((_, section), out_section) in obj.sections.iter().zip(&out_sections) {
         let Some(rela_name) = out_section.rela_name else {
             continue;
         };
@@ -853,6 +858,6 @@ fn to_obj_reloc(
         _ => Err(anyhow!("Unhandled relocation symbol type {:?}", symbol.kind())),
     }?;
     let address = address & !3; // TODO hack: round down for instruction
-    let reloc_data = ObjReloc { kind: reloc_kind, address, target_symbol, addend };
+    let reloc_data = ObjReloc { kind: reloc_kind, address, target_symbol, addend, module: None };
     Ok(Some(reloc_data))
 }

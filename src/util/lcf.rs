@@ -9,16 +9,16 @@ use crate::obj::ObjInfo;
 const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
 
 pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String> {
-    let origin = obj.sections.iter().map(|s| s.address).min().unwrap();
+    let origin = obj.sections.iter().map(|(_, s)| s.address).min().unwrap();
     let stack_size = match (obj.stack_address, obj.stack_end) {
         (Some(stack_address), Some(stack_end)) => stack_address - stack_end,
         _ => 65535, // default
     };
 
     // Guess section alignment
-    let mut alignments = Vec::with_capacity(obj.sections.len());
+    let mut alignments = Vec::with_capacity(obj.sections.count());
     let mut last_section_end = origin as u32;
-    for section in &obj.sections {
+    for (_, section) in obj.sections.iter() {
         let section_start = section.address as u32;
         let mut align = 0x20;
         while align_up(last_section_end, align) < section_start {
@@ -40,7 +40,7 @@ pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String
         .sections
         .iter()
         .zip(alignments)
-        .map(|(s, align)| format!("{} ALIGN({:#X}):{{}}", s.name, align))
+        .map(|((_, s), align)| format!("{} ALIGN({:#X}):{{}}", s.name, align))
         .join("\n        ");
 
     let mut force_files = Vec::with_capacity(obj.link_order.len());
@@ -57,7 +57,7 @@ pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String
     }
 
     // Hack to handle missing .sbss2 section... what's the proper way?
-    let last_section_name = obj.sections.last().unwrap().name.clone();
+    let last_section_name = obj.sections.iter().next_back().unwrap().1.name.clone();
     let last_section_symbol = format!("_f_{}", last_section_name.trim_start_matches('.'));
 
     let mut out = include_str!("../../assets/ldscript.lcf")

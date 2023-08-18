@@ -1,180 +1,23 @@
-pub mod signatures;
-pub mod split;
+mod sections;
+mod splits;
+mod symbols;
 
 use std::{
     cmp::{max, min},
-    collections::{btree_map, BTreeMap, BTreeSet, HashMap},
-    hash::{Hash, Hasher},
-    ops::{Range, RangeBounds},
+    collections::{BTreeMap, BTreeSet},
+    hash::Hash,
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
-use flagset::{flags, FlagSet};
-use itertools::Itertools;
+pub use sections::{section_kind_for_section, ObjSection, ObjSectionKind, ObjSections};
 use serde::{Deserialize, Serialize};
-use serde_repr::{Deserialize_repr, Serialize_repr};
-
-use crate::{
-    obj::split::is_linker_generated_label,
-    util::{comment::MWComment, nested::NestedVec, rel::RelReloc},
+pub use splits::{ObjSplit, ObjSplits};
+pub use symbols::{
+    ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
+    ObjSymbols, SymbolIndex,
 };
 
-#[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
-pub enum ObjSymbolScope {
-    #[default]
-    Unknown,
-    Global,
-    Weak,
-    Local,
-}
-
-flags! {
-    #[repr(u8)]
-    #[derive(Deserialize_repr, Serialize_repr)]
-    pub enum ObjSymbolFlags: u8 {
-        Global,
-        Local,
-        Weak,
-        Common,
-        Hidden,
-        ForceActive,
-    }
-}
-
-#[derive(Debug, Copy, Clone, Default, Eq, PartialEq, Serialize, Deserialize)]
-pub struct ObjSymbolFlagSet(pub FlagSet<ObjSymbolFlags>);
-
-impl ObjSymbolFlagSet {
-    #[inline]
-    pub fn scope(&self) -> ObjSymbolScope {
-        if self.is_local() {
-            ObjSymbolScope::Local
-        } else if self.is_weak() {
-            ObjSymbolScope::Weak
-        } else if self.0.contains(ObjSymbolFlags::Global) {
-            ObjSymbolScope::Global
-        } else {
-            ObjSymbolScope::Unknown
-        }
-    }
-
-    #[inline]
-    pub fn is_local(&self) -> bool { self.0.contains(ObjSymbolFlags::Local) }
-
-    #[inline]
-    pub fn is_global(&self) -> bool { !self.is_local() }
-
-    #[inline]
-    pub fn is_common(&self) -> bool { self.0.contains(ObjSymbolFlags::Common) }
-
-    #[inline]
-    pub fn is_weak(&self) -> bool { self.0.contains(ObjSymbolFlags::Weak) }
-
-    #[inline]
-    pub fn is_hidden(&self) -> bool { self.0.contains(ObjSymbolFlags::Hidden) }
-
-    #[inline]
-    pub fn is_force_active(&self) -> bool { self.0.contains(ObjSymbolFlags::ForceActive) }
-
-    #[inline]
-    pub fn set_scope(&mut self, scope: ObjSymbolScope) {
-        match scope {
-            ObjSymbolScope::Unknown => {
-                self.0 &= !(ObjSymbolFlags::Local | ObjSymbolFlags::Global | ObjSymbolFlags::Weak)
-            }
-            ObjSymbolScope::Global => {
-                self.0 = (self.0 & !(ObjSymbolFlags::Local | ObjSymbolFlags::Weak))
-                    | ObjSymbolFlags::Global
-            }
-            ObjSymbolScope::Weak => {
-                self.0 = (self.0 & !(ObjSymbolFlags::Local | ObjSymbolFlags::Global))
-                    | ObjSymbolFlags::Weak
-            }
-            ObjSymbolScope::Local => {
-                self.0 = (self.0 & !(ObjSymbolFlags::Global | ObjSymbolFlags::Weak))
-                    | ObjSymbolFlags::Local
-            }
-        }
-    }
-
-    #[inline]
-    pub fn set_force_active(&mut self, value: bool) {
-        if value {
-            self.0 |= ObjSymbolFlags::ForceActive;
-        } else {
-            self.0 &= !ObjSymbolFlags::ForceActive;
-        }
-    }
-}
-
-#[allow(clippy::derived_hash_with_manual_eq)]
-impl Hash for ObjSymbolFlagSet {
-    fn hash<H: Hasher>(&self, state: &mut H) { self.0.bits().hash(state) }
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
-pub enum ObjSectionKind {
-    Code,
-    Data,
-    ReadOnlyData,
-    Bss,
-}
-
-#[derive(Debug, Clone)]
-pub struct ObjSection {
-    pub name: String,
-    pub kind: ObjSectionKind,
-    pub address: u64,
-    pub size: u64,
-    pub data: Vec<u8>,
-    pub align: u64,
-    pub index: usize,
-    /// REL files reference the original ELF section indices
-    pub elf_index: usize,
-    pub relocations: Vec<ObjReloc>,
-    pub original_address: u64,
-    pub file_offset: u64,
-    pub section_known: bool,
-}
-
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Default, Serialize, Deserialize)]
-pub enum ObjSymbolKind {
-    #[default]
-    Unknown,
-    Function,
-    Object,
-    Section,
-}
-
-#[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
-pub enum ObjDataKind {
-    #[default]
-    Unknown,
-    Byte,
-    Byte2,
-    Byte4,
-    Byte8,
-    Float,
-    Double,
-    String,
-    String16,
-    StringTable,
-    String16Table,
-}
-
-#[derive(Debug, Clone, Default, Eq, PartialEq)]
-pub struct ObjSymbol {
-    pub name: String,
-    pub demangled_name: Option<String>,
-    pub address: u64,
-    pub section: Option<usize>,
-    pub size: u64,
-    pub size_known: bool,
-    pub flags: ObjSymbolFlagSet,
-    pub kind: ObjSymbolKind,
-    pub align: Option<u32>,
-    pub data_kind: ObjDataKind,
-}
+use crate::util::{comment::MWComment, rel::RelReloc};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjKind {
@@ -199,34 +42,13 @@ pub struct ObjUnit {
     pub comment_version: Option<u8>,
 }
 
-/// Marks a split point within a section.
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct ObjSplit {
-    pub unit: String,
-    pub end: u32,
-    pub align: Option<u32>,
-    /// Whether this is a part of common BSS.
-    pub common: bool,
-    /// Generated, replaceable by user.
-    pub autogenerated: bool,
-}
-
-pub type SymbolIndex = usize;
-
-#[derive(Debug, Clone)]
-pub struct ObjSymbols {
-    symbols: Vec<ObjSymbol>,
-    symbols_by_address: BTreeMap<u32, Vec<SymbolIndex>>,
-    symbols_by_name: HashMap<String, Vec<SymbolIndex>>,
-}
-
 #[derive(Debug, Clone)]
 pub struct ObjInfo {
     pub kind: ObjKind,
     pub architecture: ObjArchitecture,
     pub name: String,
     pub symbols: ObjSymbols,
-    pub sections: Vec<ObjSection>,
+    pub sections: ObjSections,
     pub entry: u64,
     pub mw_comment: Option<MWComment>,
 
@@ -240,7 +62,6 @@ pub struct ObjInfo {
     pub arena_hi: Option<u32>,
 
     // Extracted
-    pub splits: BTreeMap<u32, Vec<ObjSplit>>,
     pub named_sections: BTreeMap<u32, String>,
     pub link_order: Vec<ObjUnit>,
     pub blocked_ranges: BTreeMap<u32, u32>, // start -> end
@@ -271,312 +92,8 @@ pub struct ObjReloc {
     pub address: u64,
     pub target_symbol: SymbolIndex,
     pub addend: i64,
-}
-
-impl ObjSymbols {
-    pub fn new(symbols: Vec<ObjSymbol>) -> Self {
-        let mut symbols_by_address = BTreeMap::<u32, Vec<SymbolIndex>>::new();
-        let mut symbols_by_name = HashMap::<String, Vec<SymbolIndex>>::new();
-        for (idx, symbol) in symbols.iter().enumerate() {
-            symbols_by_address.nested_push(symbol.address as u32, idx);
-            if !symbol.name.is_empty() {
-                symbols_by_name.nested_push(symbol.name.clone(), idx);
-            }
-        }
-        Self { symbols, symbols_by_address, symbols_by_name }
-    }
-
-    pub fn add(&mut self, in_symbol: ObjSymbol, replace: bool) -> Result<SymbolIndex> {
-        let opt = self.at_address(in_symbol.address as u32).find(|(_, symbol)| {
-            (symbol.kind == in_symbol.kind ||
-                // Replace lbl_* with real symbols
-                (symbol.kind == ObjSymbolKind::Unknown && symbol.name.starts_with("lbl_")))
-                // Hack to avoid replacing different ABS symbols
-                && (symbol.section.is_some() || symbol.name == in_symbol.name)
-                // Avoid replacing symbols with ABS symbols, and vice versa
-                && (symbol.section == in_symbol.section)
-        });
-        let target_symbol_idx = if let Some((symbol_idx, existing)) = opt {
-            let size =
-                if existing.size_known && in_symbol.size_known && existing.size != in_symbol.size {
-                    log::warn!(
-                        "Conflicting size for {}: was {:#X}, now {:#X}",
-                        existing.name,
-                        existing.size,
-                        in_symbol.size
-                    );
-                    if replace {
-                        in_symbol.size
-                    } else {
-                        existing.size
-                    }
-                } else if in_symbol.size_known {
-                    in_symbol.size
-                } else {
-                    existing.size
-                };
-            if !replace {
-                // Not replacing existing symbol, but update size
-                if in_symbol.size_known && !existing.size_known {
-                    self.replace(symbol_idx, ObjSymbol {
-                        size: in_symbol.size,
-                        size_known: true,
-                        ..existing.clone()
-                    })?;
-                }
-                return Ok(symbol_idx);
-            }
-            let new_symbol = ObjSymbol {
-                name: in_symbol.name,
-                demangled_name: in_symbol.demangled_name,
-                address: in_symbol.address,
-                section: in_symbol.section,
-                size,
-                size_known: existing.size_known || in_symbol.size != 0,
-                flags: in_symbol.flags,
-                kind: in_symbol.kind,
-                align: in_symbol.align.or(existing.align),
-                data_kind: match in_symbol.data_kind {
-                    ObjDataKind::Unknown => existing.data_kind,
-                    kind => kind,
-                },
-            };
-            if existing != &new_symbol {
-                log::debug!("Replacing {:?} with {:?}", existing, new_symbol);
-                self.replace(symbol_idx, new_symbol)?;
-            }
-            symbol_idx
-        } else {
-            let target_symbol_idx = self.symbols.len();
-            self.add_direct(ObjSymbol {
-                name: in_symbol.name,
-                demangled_name: in_symbol.demangled_name,
-                address: in_symbol.address,
-                section: in_symbol.section,
-                size: in_symbol.size,
-                size_known: in_symbol.size != 0,
-                flags: in_symbol.flags,
-                kind: in_symbol.kind,
-                align: in_symbol.align,
-                data_kind: in_symbol.data_kind,
-            })?;
-            target_symbol_idx
-        };
-        Ok(target_symbol_idx)
-    }
-
-    pub fn add_direct(&mut self, in_symbol: ObjSymbol) -> Result<SymbolIndex> {
-        let symbol_idx = self.symbols.len();
-        self.symbols_by_address.nested_push(in_symbol.address as u32, symbol_idx);
-        if !in_symbol.name.is_empty() {
-            self.symbols_by_name.nested_push(in_symbol.name.clone(), symbol_idx);
-        }
-        self.symbols.push(in_symbol);
-        Ok(symbol_idx)
-    }
-
-    pub fn at(&self, symbol_idx: SymbolIndex) -> &ObjSymbol { &self.symbols[symbol_idx] }
-
-    pub fn address_of(&self, symbol_idx: SymbolIndex) -> u64 { self.symbols[symbol_idx].address }
-
-    pub fn iter(&self) -> impl DoubleEndedIterator<Item = &ObjSymbol> { self.symbols.iter() }
-
-    pub fn count(&self) -> usize { self.symbols.len() }
-
-    pub fn at_address(
-        &self,
-        addr: u32,
-    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
-        self.symbols_by_address
-            .get(&addr)
-            .into_iter()
-            .flatten()
-            .map(move |&idx| (idx, &self.symbols[idx]))
-    }
-
-    pub fn kind_at_address(
-        &self,
-        addr: u32,
-        kind: ObjSymbolKind,
-    ) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
-        let (count, result) = self
-            .at_address(addr)
-            .filter(|(_, sym)| sym.kind == kind)
-            .fold((0, None), |(i, _), v| (i + 1, Some(v)));
-        ensure!(count <= 1, "Multiple symbols of kind {:?} at address {:#010X}", kind, addr);
-        Ok(result)
-    }
-
-    // Iterate over all in address ascending order, including ABS symbols
-    pub fn iter_ordered(&self) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
-        self.symbols_by_address
-            .iter()
-            .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u])))
-    }
-
-    // Iterate over range in address ascending order, excluding ABS symbols
-    pub fn for_range<R>(
-        &self,
-        range: R,
-    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)>
-    where
-        R: RangeBounds<u32>,
-    {
-        self.symbols_by_address
-            .range(range)
-            .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u])))
-            // Ignore ABS symbols
-            .filter(move |(_, sym)| sym.section.is_some() || sym.flags.is_common())
-    }
-
-    pub fn indexes_for_range<R>(
-        &self,
-        range: R,
-    ) -> impl DoubleEndedIterator<Item = (u32, &[SymbolIndex])>
-    where
-        R: RangeBounds<u32>,
-    {
-        self.symbols_by_address.range(range).map(|(k, v)| (*k, v.as_ref()))
-    }
-
-    pub fn for_section(
-        &self,
-        section: &ObjSection,
-    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
-        let section_index = section.index;
-        self.for_range(section.address as u32..(section.address + section.size) as u32)
-            .filter(move |(_, symbol)| symbol.section == Some(section_index))
-    }
-
-    pub fn for_name(
-        &self,
-        name: &str,
-    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
-        self.symbols_by_name
-            .get(name)
-            .into_iter()
-            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u])))
-    }
-
-    pub fn by_name(&self, name: &str) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
-        let mut iter = self.for_name(name);
-        let result = iter.next();
-        if let Some((index, symbol)) = result {
-            if let Some((other_index, other_symbol)) = iter.next() {
-                bail!(
-                    "Multiple symbols with name {}: {} {:?} {:#010X} and {} {:?} {:#010X}",
-                    name,
-                    index,
-                    symbol.kind,
-                    symbol.address,
-                    other_index,
-                    other_symbol.kind,
-                    other_symbol.address
-                );
-            }
-        }
-        Ok(result)
-    }
-
-    pub fn by_kind(
-        &self,
-        kind: ObjSymbolKind,
-    ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
-        self.symbols.iter().enumerate().filter(move |(_, sym)| sym.kind == kind)
-    }
-
-    pub fn replace(&mut self, index: SymbolIndex, symbol: ObjSymbol) -> Result<()> {
-        let symbol_ref = &mut self.symbols[index];
-        ensure!(symbol_ref.address == symbol.address, "Can't modify address with replace_symbol");
-        if symbol_ref.name != symbol.name {
-            if !symbol_ref.name.is_empty() {
-                self.symbols_by_name.nested_remove(&symbol_ref.name, &index);
-            }
-            if !symbol.name.is_empty() {
-                self.symbols_by_name.nested_push(symbol.name.clone(), index);
-            }
-        }
-        *symbol_ref = symbol;
-        Ok(())
-    }
-
-    // Try to find a previous sized symbol that encompasses the target
-    pub fn for_relocation(
-        &self,
-        target_addr: u32,
-        reloc_kind: ObjRelocKind,
-    ) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
-        let mut result = None;
-        for (_addr, symbol_idxs) in self.indexes_for_range(..=target_addr).rev() {
-            let mut symbols = symbol_idxs
-                .iter()
-                .map(|&idx| (idx, self.at(idx)))
-                .filter(|(_, sym)| {
-                    // Linker generated labels can only be used with @ha/@h/@l relocations
-                    !is_linker_generated_label(&sym.name)
-                        || (matches!(
-                            reloc_kind,
-                            ObjRelocKind::PpcAddr16Ha
-                                | ObjRelocKind::PpcAddr16Hi
-                                | ObjRelocKind::PpcAddr16Lo
-                        ))
-                })
-                .collect_vec();
-            let (symbol_idx, symbol) = if symbols.len() == 1 {
-                symbols.pop().unwrap()
-            } else {
-                symbols.sort_by_key(|&(_, symbol)| {
-                    let mut rank = match symbol.kind {
-                        ObjSymbolKind::Function | ObjSymbolKind::Object => match reloc_kind {
-                            ObjRelocKind::PpcAddr16Hi
-                            | ObjRelocKind::PpcAddr16Ha
-                            | ObjRelocKind::PpcAddr16Lo => 1,
-                            ObjRelocKind::Absolute
-                            | ObjRelocKind::PpcRel24
-                            | ObjRelocKind::PpcRel14
-                            | ObjRelocKind::PpcEmbSda21 => 2,
-                        },
-                        // Label
-                        ObjSymbolKind::Unknown => match reloc_kind {
-                            ObjRelocKind::PpcAddr16Hi
-                            | ObjRelocKind::PpcAddr16Ha
-                            | ObjRelocKind::PpcAddr16Lo
-                                if !symbol.name.starts_with("..") =>
-                            {
-                                3
-                            }
-                            _ => 1,
-                        },
-                        ObjSymbolKind::Section => -1,
-                    };
-                    if symbol.size > 0 {
-                        rank += 1;
-                    }
-                    -rank
-                });
-                match symbols.first() {
-                    Some(&v) => v,
-                    None => continue,
-                }
-            };
-            if symbol.address == target_addr as u64 {
-                result = Some((symbol_idx, symbol));
-                break;
-            }
-            if symbol.size > 0 {
-                if symbol.address + symbol.size > target_addr as u64 {
-                    result = Some((symbol_idx, symbol));
-                }
-                break;
-            }
-        }
-        Ok(result)
-    }
-
-    #[inline]
-    pub fn flags(&mut self, idx: SymbolIndex) -> &mut ObjSymbolFlagSet {
-        &mut self.symbols[idx].flags
-    }
+    /// If present, relocation against external module
+    pub module: Option<u32>,
 }
 
 impl ObjInfo {
@@ -591,8 +108,8 @@ impl ObjInfo {
             kind,
             architecture,
             name,
-            symbols: ObjSymbols::new(symbols),
-            sections,
+            symbols: ObjSymbols::new(kind, symbols),
+            sections: ObjSections::new(kind, sections),
             entry: 0,
             mw_comment: Default::default(),
             sda2_base: None,
@@ -602,7 +119,7 @@ impl ObjInfo {
             db_stack_addr: None,
             arena_lo: None,
             arena_hi: None,
-            splits: Default::default(),
+            // splits: Default::default(),
             named_sections: Default::default(),
             link_order: vec![],
             blocked_ranges: Default::default(),
@@ -626,86 +143,11 @@ impl ObjInfo {
         self.symbols.add(in_symbol, replace)
     }
 
-    pub fn section_at(&self, addr: u32) -> Result<&ObjSection> {
-        self.sections
-            .iter()
-            .find(|s| s.contains(addr))
-            .ok_or_else(|| anyhow!("Failed to locate section @ {:#010X}", addr))
-    }
-
-    pub fn section_for(&self, range: Range<u32>) -> Result<&ObjSection> {
-        self.sections.iter().find(|s| s.contains_range(range.clone())).ok_or_else(|| {
-            anyhow!("Failed to locate section @ {:#010X}-{:#010X}", range.start, range.end)
-        })
-    }
-
-    pub fn section_data(&self, start: u32, end: u32) -> Result<(&ObjSection, &[u8])> {
-        let section = self.section_at(start)?;
-        ensure!(
-            section.contains_range(start..end),
-            "Range {:#010X}-{:#010X} outside of section {}: {:#010X}-{:#010X}",
-            start,
-            end,
-            section.name,
-            section.address,
-            section.address + section.size
-        );
-        if section.kind == ObjSectionKind::Bss {
-            return Ok((section, &[]));
-        }
-        let data = if end == 0 {
-            &section.data[(start as u64 - section.address) as usize..]
-        } else {
-            &section.data[(start as u64 - section.address) as usize
-                ..min(section.data.len(), (end as u64 - section.address) as usize)]
-        };
-        Ok((section, data))
-    }
-
-    /// Locate an existing split for the given address.
-    pub fn split_for(&self, address: u32) -> Option<(u32, &ObjSplit)> {
-        match self.splits_for_range(..=address).next_back() {
-            Some((addr, split)) if split.end == 0 || split.end > address => Some((addr, split)),
-            _ => None,
-        }
-    }
-
-    /// Locate existing splits within the given address range.
-    pub fn splits_for_range<R>(
-        &self,
-        range: R,
-    ) -> impl DoubleEndedIterator<Item = (u32, &ObjSplit)>
-    where
-        R: RangeBounds<u32>,
-    {
-        self.splits.range(range).flat_map(|(addr, v)| v.iter().map(move |u| (*addr, u)))
-    }
-
-    pub fn split_for_unit(
-        &self,
-        unit: &str,
-        section: &ObjSection,
-    ) -> Result<Option<(u32, &ObjSplit)>> {
-        let mut result = None::<(u32, &ObjSplit)>;
-        for (addr, split) in self
-            .splits_for_range(section.address as u32..(section.address + section.size) as u32)
-            .filter(|(_, split)| split.unit == unit)
-        {
-            ensure!(
-                result.is_none(),
-                "Multiple splits for unit {} in section {}: {:#010X}, {:#010X}",
-                unit,
-                section.name,
-                result.unwrap().0,
-                addr
-            );
-            result = Some((addr, split));
-        }
-        Ok(result)
-    }
-
-    pub fn add_split(&mut self, address: u32, split: ObjSplit) -> Result<()> {
-        let section = self.section_at(address)?;
+    pub fn add_split(&mut self, section_index: usize, address: u32, split: ObjSplit) -> Result<()> {
+        let section = self
+            .sections
+            .get_mut(section_index)
+            .ok_or_else(|| anyhow!("Invalid section index {}", section_index))?;
         let section_start = section.address as u32;
         let section_end = (section.address + section.size) as u32;
         ensure!(
@@ -719,7 +161,7 @@ impl ObjInfo {
             section_end
         );
 
-        if let Some((existing_addr, existing_split)) = self.split_for_unit(&split.unit, section)? {
+        if let Some((existing_addr, existing_split)) = section.splits.for_unit(&split.unit)? {
             let new_start = min(existing_addr, address);
             let new_end = max(existing_split.end, split.end);
 
@@ -788,7 +230,7 @@ impl ObjInfo {
             // Check if new split overlaps any existing splits
             let mut to_remove = BTreeSet::new();
             let mut to_rename = BTreeSet::new();
-            for (existing_addr, existing_split) in self.splits_for_range(new_start..new_end) {
+            for (existing_addr, existing_split) in section.splits.for_range(new_start..new_end) {
                 // TODO the logic in this method should be reworked, this is a hack
                 if split.autogenerated && !existing_split.autogenerated {
                     log::debug!(
@@ -827,15 +269,15 @@ impl ObjInfo {
 
             // Remove overlapping splits
             for addr in to_remove {
-                self.splits.remove(&addr);
+                section.splits.remove(addr);
             }
             // Rename any units that were overwritten
             // TODO this should also merge with existing splits
             for unit in to_rename {
                 for (existing_addr, existing) in self
-                    .splits
+                    .sections
                     .iter_mut()
-                    .flat_map(|(addr, v)| v.iter_mut().map(move |u| (addr, u)))
+                    .flat_map(|(_, section)| section.splits.iter_mut())
                     .filter(|(_, split)| split.unit == unit)
                 {
                     log::debug!(
@@ -848,7 +290,7 @@ impl ObjInfo {
                     existing.unit = split.unit.clone();
                 }
             }
-            self.add_split(new_start, ObjSplit {
+            self.add_split(section_index, new_start, ObjSplit {
                 unit: split.unit,
                 end: new_end,
                 align: new_align,
@@ -859,72 +301,14 @@ impl ObjInfo {
         }
 
         log::debug!("Adding split @ {} {:#010X}: {:?}", section.name, address, split);
-        self.splits.entry(address).or_default().push(split);
+        section.splits.push(address, split);
         Ok(())
     }
 
     pub fn is_unit_autogenerated(&self, unit: &str) -> bool {
-        self.splits_for_range(..)
-            .filter(|(_, split)| split.unit == unit)
-            .all(|(_, split)| split.autogenerated)
+        self.sections
+            .all_splits()
+            .filter(|(_, _, _, split)| split.unit == unit)
+            .all(|(_, _, _, split)| split.autogenerated)
     }
-}
-
-impl ObjSection {
-    pub fn build_relocation_map(&self) -> Result<BTreeMap<u32, usize>> {
-        let mut relocations = BTreeMap::new();
-        for (idx, reloc) in self.relocations.iter().enumerate() {
-            let address = reloc.address as u32;
-            match relocations.entry(address) {
-                btree_map::Entry::Vacant(e) => {
-                    e.insert(idx);
-                }
-                btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
-            }
-        }
-        Ok(relocations)
-    }
-
-    pub fn build_relocation_map_cloned(&self) -> Result<BTreeMap<u32, ObjReloc>> {
-        let mut relocations = BTreeMap::new();
-        for reloc in self.relocations.iter().cloned() {
-            let address = reloc.address as u32;
-            match relocations.entry(address) {
-                btree_map::Entry::Vacant(e) => {
-                    e.insert(reloc);
-                }
-                btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
-            }
-        }
-        Ok(relocations)
-    }
-
-    #[inline]
-    pub fn contains(&self, addr: u32) -> bool {
-        (self.address..self.address + self.size).contains(&(addr as u64))
-    }
-
-    #[inline]
-    pub fn contains_range(&self, range: Range<u32>) -> bool {
-        (range.start as u64) >= self.address && (range.end as u64) <= self.address + self.size
-    }
-
-    pub fn rename(&mut self, name: String) -> Result<()> {
-        self.kind = section_kind_for_section(&name)?;
-        self.name = name;
-        self.section_known = true;
-        Ok(())
-    }
-}
-
-pub fn section_kind_for_section(section_name: &str) -> Result<ObjSectionKind> {
-    Ok(match section_name {
-        ".init" | ".text" | ".dbgtext" | ".vmtext" => ObjSectionKind::Code,
-        ".ctors" | ".dtors" | ".rodata" | ".sdata2" | "extab" | "extabindex" => {
-            ObjSectionKind::ReadOnlyData
-        }
-        ".bss" | ".sbss" | ".sbss2" => ObjSectionKind::Bss,
-        ".data" | ".sdata" => ObjSectionKind::Data,
-        name => bail!("Unknown section {name}"),
-    })
 }

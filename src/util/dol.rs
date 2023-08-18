@@ -33,8 +33,6 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let mmap = map_file(path)?;
         Dol::read_from(map_reader(&mmap))?
     };
-    let mut obj = ObjInfo::new(ObjKind::Executable, ObjArchitecture::PowerPc, name, vec![], vec![]);
-    obj.entry = dol.header.entry_point as u64;
 
     // Locate _rom_copy_info
     let first_rom_section = dol
@@ -227,6 +225,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     }
 
     // Add text and data sections
+    let mut sections = vec![];
     for dol_section in
         dol.header.sections.iter().filter(|section| section.kind != DolSectionType::Bss)
     {
@@ -263,19 +262,19 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             }
         };
 
-        obj.sections.push(ObjSection {
+        sections.push(ObjSection {
             name,
             kind,
             address: dol_section.target as u64,
             size: size as u64,
             data: dol.virtual_data_at(dol_section.target, size)?.to_vec(),
             align: 0,
-            index: 0,
             elf_index: 0,
             relocations: vec![],
             original_address: 0,
             file_offset: dol_section.offset as u64,
             section_known: known,
+            splits: Default::default(),
         });
     }
 
@@ -292,28 +291,28 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             bss_section.target + bss_section.size
         );
 
-        obj.sections.push(ObjSection {
+        sections.push(ObjSection {
             name: format!(".bss{}", idx),
             kind: ObjSectionKind::Bss,
             address: addr as u64,
             size: size as u64,
             data: vec![],
             align: 0,
-            index: 0,
             elf_index: 0,
             relocations: vec![],
             original_address: 0,
             file_offset: 0,
             section_known: false,
+            splits: Default::default(),
         });
     }
 
     // Sort sections by address ascending
-    obj.sections.sort_by_key(|s| s.address);
+    sections.sort_by_key(|s| s.address);
 
     // Apply section indices
     let mut init_section_index = None;
-    for (idx, section) in obj.sections.iter_mut().enumerate() {
+    for (idx, section) in sections.iter_mut().enumerate() {
         match section.name.as_str() {
             ".init" => {
                 init_section_index = Some(idx);
@@ -326,11 +325,15 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             }
             _ => {}
         }
-        section.index = idx;
         // Assume the original ELF section index is +1
         // ELF files start with a NULL section
         section.elf_index = idx + 1;
     }
+
+    // Create object
+    let mut obj =
+        ObjInfo::new(ObjKind::Executable, ObjArchitecture::PowerPc, name, vec![], sections);
+    obj.entry = dol.header.entry_point as u64;
 
     // Generate _rom_copy_info symbol
     if let (Some(rom_copy_info_addr), Some(rom_copy_info_end)) =
@@ -394,13 +397,10 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     }
 
     // Generate symbols for extab & extabindex entries
-    if let (Some(extabindex_section_idx), Some(extab_section_idx)) =
+    if let (Some(extabindex_section_index), Some(extab_section_index)) =
         (extabindex_section, extab_section)
     {
-        let extabindex_section = &obj.sections[extabindex_section_idx];
-        let extabindex_section_index = extabindex_section.index;
-        let extab_section = &obj.sections[extab_section_idx];
-        let extab_section_index = extab_section.index;
+        let extab_section = &obj.sections[extab_section_index];
         let extab_section_address = extab_section.address;
         let extab_section_size = extab_section.size;
 

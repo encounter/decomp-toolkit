@@ -21,8 +21,9 @@ pub const TRK_TABLE_SIZE: u32 = 0x1F34; // always?
 impl AnalysisPass for FindTRKInterruptVectorTable {
     fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
         for (&start, _) in state.function_bounds.iter().filter(|&(_, &end)| end == 0) {
-            let (section, data) = match obj.section_data(start, 0) {
-                Ok((section, data)) => (section, data),
+            let (section_index, section) = obj.sections.at_address(start)?;
+            let data = match section.data_range(start, 0) {
+                Ok(ret) => ret,
                 Err(_) => continue,
             };
             if data.starts_with(TRK_TABLE_HEADER.as_bytes())
@@ -33,7 +34,7 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
                     name: "gTRKInterruptVectorTable".to_string(),
                     demangled_name: None,
                     address: start as u64,
-                    section: Some(section.index),
+                    section: Some(section_index),
                     size: 0,
                     size_known: true,
                     flags: ObjSymbolFlagSet(FlagSet::from(ObjSymbolFlags::Global)),
@@ -46,7 +47,7 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
                     name: "gTRKInterruptVectorTableEnd".to_string(),
                     demangled_name: None,
                     address: end as u64,
-                    section: Some(section.index),
+                    section: Some(section_index),
                     size: 0,
                     size_known: true,
                     flags: ObjSymbolFlagSet(FlagSet::from(ObjSymbolFlags::Global)),
@@ -78,7 +79,11 @@ impl AnalysisPass for FindSaveRestSleds {
         const SLED_SIZE: usize = 19 * 4; // registers 14-31 + blr
         let mut clear_ranges: Vec<Range<u32>> = vec![];
         for (&start, _) in state.function_bounds.iter().filter(|&(_, &end)| end != 0) {
-            let (section, data) = obj.section_data(start, 0)?;
+            let (section_index, section) = obj.sections.at_address(start)?;
+            let data = match section.data_range(start, 0) {
+                Ok(ret) => ret,
+                Err(_) => continue,
+            };
             for (needle, func, label) in &SLEDS {
                 if data.starts_with(needle) {
                     log::debug!("Found {} @ {:#010X}", func, start);
@@ -87,7 +92,7 @@ impl AnalysisPass for FindSaveRestSleds {
                         name: func.to_string(),
                         demangled_name: None,
                         address: start as u64,
-                        section: Some(section.index),
+                        section: Some(section_index),
                         size: SLED_SIZE as u64,
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
@@ -101,7 +106,7 @@ impl AnalysisPass for FindSaveRestSleds {
                             name: format!("{}{}", label, i),
                             demangled_name: None,
                             address: addr as u64,
-                            section: Some(section.index),
+                            section: Some(section_index),
                             size: 0,
                             size_known: true,
                             flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),

@@ -29,8 +29,10 @@ impl AnalyzerState {
             if end == 0 {
                 continue;
             }
-            let section_index =
-                obj.section_for(start..end).context("Failed to locate section for function")?.index;
+            let (section_index, _) = obj
+                .sections
+                .with_range(start..end)
+                .context("Failed to locate section for function")?;
             obj.add_symbol(
                 ObjSymbol {
                     name: format!("fn_{:08X}", start),
@@ -48,10 +50,10 @@ impl AnalyzerState {
             )?;
         }
         for (&addr, &size) in &self.jump_tables {
-            let section_index = obj
-                .section_for(addr..addr + size)
-                .context("Failed to locate section for jump table")?
-                .index;
+            let (section_index, _) = obj
+                .sections
+                .with_range(addr..addr + size)
+                .context("Failed to locate section for jump table")?;
             obj.add_symbol(
                 ObjSymbol {
                     name: format!("jumptable_{:08X}", addr),
@@ -89,7 +91,7 @@ impl AnalyzerState {
             }
         }
         // Also check the beginning of every code section
-        for section in obj.sections.iter().filter(|s| s.kind == ObjSectionKind::Code) {
+        for (_, section) in obj.sections.by_kind(ObjSectionKind::Code) {
             self.function_entries.insert(section.address as u32);
         }
 
@@ -266,11 +268,7 @@ impl AnalyzerState {
 
     fn detect_new_functions(&mut self, obj: &ObjInfo) -> Result<bool> {
         let mut found_new = false;
-        for section in &obj.sections {
-            if section.kind != ObjSectionKind::Code {
-                continue;
-            }
-
+        for (_, section) in obj.sections.by_kind(ObjSectionKind::Code) {
             let section_start = section.address as u32;
             let section_end = (section.address + section.size) as u32;
             let mut iter = self.function_bounds.range(section_start..section_end).peekable();
@@ -280,7 +278,7 @@ impl AnalyzerState {
                         if first_end == 0 || first_end > second_begin {
                             continue;
                         }
-                        let addr = match skip_alignment(obj, first_end, second_begin) {
+                        let addr = match skip_alignment(section, first_end, second_begin) {
                             Some(addr) => addr,
                             None => continue,
                         };
@@ -298,7 +296,7 @@ impl AnalyzerState {
                     }
                     (Some((&last_begin, &last_end)), None) => {
                         if last_end > 0 && last_end < section_end {
-                            let addr = match skip_alignment(obj, last_end, section_end) {
+                            let addr = match skip_alignment(section, last_end, section_end) {
                                 Some(addr) => addr,
                                 None => continue,
                             };
@@ -329,7 +327,7 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
     executor.push(obj.entry as u32, VM::new(), false);
     let result = executor.run(
         obj,
-        |ExecCbData { executor, vm, result, section: _, ins, block_start: _ }| {
+        |ExecCbData { executor, vm, result, section_index: _, section: _, ins, block_start: _ }| {
             match result {
                 StepResult::Continue | StepResult::LoadStore { .. } => {
                     return Ok(ExecCbResult::Continue);

@@ -3,7 +3,10 @@ use std::{collections::BTreeSet, num::NonZeroU32};
 use anyhow::{Context, Result};
 use ppc750cl::Ins;
 
-use crate::obj::{ObjInfo, ObjSection, ObjSectionKind};
+use crate::{
+    array_ref,
+    obj::{ObjInfo, ObjSection, ObjSectionKind},
+};
 
 pub mod cfa;
 pub mod executor;
@@ -23,11 +26,11 @@ pub fn read_u32(data: &[u8], address: u32, section_address: u32) -> Option<u32> 
     if data.len() < offset + 4 {
         return None;
     }
-    Some(u32::from_be_bytes(data[offset..offset + 4].try_into().unwrap()))
+    Some(u32::from_be_bytes(*array_ref!(data, offset, 4)))
 }
 
 fn is_valid_jump_table_addr(obj: &ObjInfo, addr: u32) -> bool {
-    matches!(obj.section_at(addr), Ok(section) if section.kind != ObjSectionKind::Bss)
+    matches!(obj.sections.at_address(addr), Ok((_, section)) if section.kind != ObjSectionKind::Bss)
 }
 
 fn get_jump_table_entries(
@@ -38,7 +41,7 @@ fn get_jump_table_entries(
     function_start: u32,
     function_end: u32,
 ) -> Result<(Vec<u32>, u32)> {
-    let section = obj.section_at(addr).with_context(|| {
+    let (_, section) = obj.sections.at_address(addr).with_context(|| {
         format!("Failed to get jump table entries @ {:#010X} size {:?}", addr, size)
     })?;
     let offset = (addr as u64 - section.address) as usize;
@@ -90,9 +93,9 @@ pub fn uniq_jump_table_entries(
     Ok((BTreeSet::from_iter(entries.iter().cloned().filter(|&addr| addr != 0)), size))
 }
 
-pub fn skip_alignment(obj: &ObjInfo, mut addr: u32, end: u32) -> Option<u32> {
-    let mut data = match obj.section_data(addr, end) {
-        Ok((_, data)) => data,
+pub fn skip_alignment(section: &ObjSection, mut addr: u32, end: u32) -> Option<u32> {
+    let mut data = match section.data_range(addr, end) {
+        Ok(data) => data,
         Err(_) => return None,
     };
     loop {

@@ -1,16 +1,18 @@
 use anyhow::Result;
 
-use crate::obj::{
-    split::is_linker_generated_label, ObjDataKind, ObjInfo, ObjSectionKind, ObjSymbolKind,
+use crate::{
+    obj::{ObjDataKind, ObjInfo, ObjSectionKind, ObjSymbolKind},
+    util::split::is_linker_generated_label,
 };
 
 pub fn detect_object_boundaries(obj: &mut ObjInfo) -> Result<()> {
-    for section in obj.sections.iter().filter(|s| s.kind != ObjSectionKind::Code) {
-        let section_start = section.address as u32;
+    for (section_index, section) in
+        obj.sections.iter_mut().filter(|(_, s)| s.kind != ObjSectionKind::Code)
+    {
         let section_end = (section.address + section.size) as u32;
 
         let mut replace_symbols = vec![];
-        for (idx, symbol) in obj.symbols.for_range(section_start..section_end) {
+        for (idx, symbol) in obj.symbols.for_section(section_index) {
             let mut symbol = symbol.clone();
             if is_linker_generated_label(&symbol.name) {
                 continue;
@@ -25,7 +27,7 @@ pub fn detect_object_boundaries(obj: &mut ObjInfo) -> Result<()> {
             if !symbol.size_known {
                 let next_addr = obj
                     .symbols
-                    .for_range(symbol.address as u32 + 1..section_end)
+                    .for_section_range(section_index, symbol.address as u32 + 1..)
                     .next()
                     .map_or(section_end, |(_, symbol)| symbol.address as u32);
                 let new_size = next_addr - symbol.address as u32;
@@ -35,9 +37,9 @@ pub fn detect_object_boundaries(obj: &mut ObjInfo) -> Result<()> {
                     (2 | 4, 2) => expected_size,
                     (..=8, 1 | 2 | 4) => {
                         // alignment to double
-                        if obj.symbols.at_address(next_addr).any(|(_, sym)| sym.data_kind == ObjDataKind::Double)
+                        if obj.symbols.at_section_address(section_index, next_addr).any(|(_, sym)| sym.data_kind == ObjDataKind::Double)
                         // If we're at a TU boundary, we can assume it's just padding
-                        || obj.splits.contains_key(&(symbol.address as u32 + new_size))
+                        || section.splits.has_split_at(symbol.address as u32 + new_size)
                         {
                             expected_size
                         } else {
@@ -63,10 +65,10 @@ pub fn detect_object_boundaries(obj: &mut ObjInfo) -> Result<()> {
 
 pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
     let mut symbols_set = Vec::<(usize, ObjDataKind, usize)>::new();
-    for section in obj
+    for (section_index, section) in obj
         .sections
         .iter()
-        .filter(|s| matches!(s.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData))
+        .filter(|(_, s)| matches!(s.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData))
     {
         enum StringResult {
             None,
@@ -119,11 +121,10 @@ pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
         }
         for (symbol_idx, symbol) in obj
             .symbols
-            .for_section(section)
+            .for_section(section_index)
             .filter(|(_, sym)| sym.data_kind == ObjDataKind::Unknown)
         {
-            let (_section, data) =
-                obj.section_data(symbol.address as u32, (symbol.address + symbol.size) as u32)?;
+            let data = section.symbol_data(symbol)?;
             match is_string(data) {
                 StringResult::None => {}
                 StringResult::String { length, terminated } => {
@@ -146,7 +147,7 @@ pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
     }
 
     for (symbol_idx, data_kind, size) in symbols_set {
-        let mut symbol = obj.symbols.at(symbol_idx).clone();
+        let mut symbol = obj.symbols[symbol_idx].clone();
         log::debug!("Setting {} ({:#010X}) to size {:#X}", symbol.name, symbol.address, size);
         symbol.data_kind = data_kind;
         symbol.size = size as u64;

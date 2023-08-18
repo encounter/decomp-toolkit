@@ -3,12 +3,10 @@ use anyhow::{anyhow, Result};
 use crate::{
     analysis::{cfa::AnalyzerState, read_u32},
     obj::{
-        signatures::{
-            apply_signature, check_signatures, check_signatures_str, parse_signatures,
-            FunctionSignature,
-        },
-        ObjInfo, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+        ObjInfo, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags,
+        ObjSymbolKind,
     },
+    util::signatures::{apply_signature, check_signatures, check_signatures_str, parse_signatures},
 };
 
 const SIGNATURES: &[(&str, &str)] = &[
@@ -197,17 +195,23 @@ const POST_SIGNATURES: &[(&str, &str)] = &[
 
 pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
     let entry = obj.entry as u32;
-    if let Some(signature) =
-        check_signatures_str(obj, entry, include_str!("../../assets/signatures/__start.yml"))?
-    {
-        apply_signature(obj, entry, &signature)?;
+    let (entry_section_index, entry_section) = obj.sections.at_address(entry)?;
+    if let Some(signature) = check_signatures_str(
+        entry_section,
+        entry,
+        include_str!("../../assets/signatures/__start.yml"),
+    )? {
+        apply_signature(obj, entry_section_index, entry, &signature)?;
     }
 
     for &(name, sig_str) in SIGNATURES {
         if let Some((_, symbol)) = obj.symbols.by_name(name)? {
             let addr = symbol.address as u32;
-            if let Some(signature) = check_signatures_str(obj, addr, sig_str)? {
-                apply_signature(obj, addr, &signature)?;
+            let section_index =
+                symbol.section.ok_or_else(|| anyhow!("Symbol '{}' missing section", name))?;
+            let section = &obj.sections[section_index];
+            if let Some(signature) = check_signatures_str(section, addr, sig_str)? {
+                apply_signature(obj, section_index, addr, &signature)?;
             }
         }
     }
@@ -217,12 +221,13 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
         let mut analyzer = AnalyzerState::default();
         analyzer.process_function_at(obj, symbol.address as u32)?;
         for addr in analyzer.function_entries {
+            let (section_index, section) = obj.sections.at_address(addr)?;
             if let Some(signature) = check_signatures_str(
-                obj,
+                section,
                 addr,
                 include_str!("../../assets/signatures/__init_cpp.yml"),
             )? {
-                apply_signature(obj, addr, &signature)?;
+                apply_signature(obj, section_index, addr, &signature)?;
                 break;
             }
         }
@@ -230,24 +235,27 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
 
     if let Some((_, symbol)) = obj.symbols.by_name("_ctors")? {
         // First entry of ctors is __init_cpp_exceptions
-        let section = obj.section_at(symbol.address as u32)?;
-        let target = read_u32(&section.data, symbol.address as u32, section.address as u32)
-            .ok_or_else(|| anyhow!("Failed to read _ctors data"))?;
+        let ctors_section_index =
+            symbol.section.ok_or_else(|| anyhow!("Missing _ctors symbol section"))?;
+        let ctors_section = &obj.sections[ctors_section_index];
+        let target =
+            read_u32(&ctors_section.data, symbol.address as u32, ctors_section.address as u32)
+                .ok_or_else(|| anyhow!("Failed to read _ctors data"))?;
         if target != 0 {
+            let (target_section_index, target_section) = obj.sections.at_address(target)?;
             if let Some(signature) = check_signatures_str(
-                obj,
+                target_section,
                 target,
                 include_str!("../../assets/signatures/__init_cpp_exceptions.yml"),
             )? {
                 let address = symbol.address;
-                let section_index = section.index;
-                apply_signature(obj, target, &signature)?;
-                obj.add_symbol(
+                apply_signature(obj, target_section_index, target, &signature)?;
+                obj.symbols.add(
                     ObjSymbol {
                         name: "__init_cpp_exceptions_reference".to_string(),
                         demangled_name: None,
                         address,
-                        section: Some(section_index),
+                        section: Some(ctors_section_index),
                         size: 4,
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
@@ -257,8 +265,8 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
                     },
                     true,
                 )?;
-                if obj.split_for(address as u32).is_none() {
-                    obj.add_split(address as u32, ObjSplit {
+                if obj.sections[ctors_section_index].splits.for_address(address as u32).is_none() {
+                    obj.add_split(ctors_section_index, address as u32, ObjSplit {
                         unit: "__init_cpp_exceptions.cpp".to_string(),
                         end: address as u32 + 4,
                         align: None,
@@ -271,30 +279,32 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
     }
 
     if let Some((_, symbol)) = obj.symbols.by_name("_dtors")? {
-        let section = obj.section_at(symbol.address as u32)?;
+        let dtors_section_index =
+            symbol.section.ok_or_else(|| anyhow!("Missing _dtors symbol section"))?;
+        let dtors_section = &obj.sections[dtors_section_index];
         let address = symbol.address;
-        let section_address = section.address;
-        let section_index = section.index;
+        let section_address = dtors_section.address;
         // First entry of dtors is __destroy_global_chain
-        let dgc_target = read_u32(&section.data, address as u32, section_address as u32)
+        let dgc_target = read_u32(&dtors_section.data, address as u32, section_address as u32)
             .ok_or_else(|| anyhow!("Failed to read _dtors data"))?;
-        let fce_target = read_u32(&section.data, address as u32 + 4, section_address as u32)
+        let fce_target = read_u32(&dtors_section.data, address as u32 + 4, section_address as u32)
             .ok_or_else(|| anyhow!("Failed to read _dtors data"))?;
         let mut found_dgc = false;
         let mut found_fce = false;
         if dgc_target != 0 {
+            let (target_section_index, target_section) = obj.sections.at_address(dgc_target)?;
             if let Some(signature) = check_signatures_str(
-                obj,
+                target_section,
                 dgc_target,
                 include_str!("../../assets/signatures/__destroy_global_chain.yml"),
             )? {
-                apply_signature(obj, dgc_target, &signature)?;
+                apply_signature(obj, target_section_index, dgc_target, &signature)?;
                 obj.add_symbol(
                     ObjSymbol {
                         name: "__destroy_global_chain_reference".to_string(),
                         demangled_name: None,
                         address,
-                        section: Some(section_index),
+                        section: Some(dtors_section_index),
                         size: 4,
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
@@ -314,18 +324,19 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
         }
         // Second entry of dtors is __fini_cpp_exceptions
         if fce_target != 0 {
+            let (target_section_index, target_section) = obj.sections.at_address(fce_target)?;
             if let Some(signature) = check_signatures_str(
-                obj,
+                target_section,
                 fce_target,
                 include_str!("../../assets/signatures/__fini_cpp_exceptions.yml"),
             )? {
-                apply_signature(obj, fce_target, &signature)?;
+                apply_signature(obj, target_section_index, fce_target, &signature)?;
                 obj.add_symbol(
                     ObjSymbol {
                         name: "__fini_cpp_exceptions_reference".to_string(),
                         demangled_name: None,
                         address: address + 4,
-                        section: Some(section_index),
+                        section: Some(dtors_section_index),
                         size: 4,
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
@@ -344,8 +355,8 @@ pub fn apply_signatures(obj: &mut ObjInfo) -> Result<()> {
             if found_fce {
                 end += 4;
             }
-            if obj.split_for(address as u32).is_none() {
-                obj.add_split(address as u32, ObjSplit {
+            if obj.sections[dtors_section_index].splits.for_address(address as u32).is_none() {
+                obj.add_split(dtors_section_index, address as u32, ObjSplit {
                     unit: "__init_cpp_exceptions.cpp".to_string(),
                     end,
                     align: None,
@@ -363,19 +374,28 @@ pub fn apply_signatures_post(obj: &mut ObjInfo) -> Result<()> {
     log::info!("Checking post CFA signatures...");
     for &(_name, sig_str) in POST_SIGNATURES {
         let signatures = parse_signatures(sig_str)?;
-        let mut iter = obj.symbols.by_kind(ObjSymbolKind::Function);
-        let opt = loop {
-            let Some((_, symbol)) = iter.next() else {
-                break Option::<(u32, FunctionSignature)>::None;
-            };
-            if let Some(signature) = check_signatures(obj, symbol.address as u32, &signatures)? {
-                break Some((symbol.address as u32, signature));
+        let mut found_signature = None;
+        'outer: for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
+            for (symbol_index, symbol) in obj
+                .symbols
+                .for_section(section_index)
+                .filter(|(_, sym)| sym.kind == ObjSymbolKind::Function)
+            {
+                if let Some(signature) =
+                    check_signatures(section, symbol.address as u32, &signatures)?
+                {
+                    found_signature = Some((symbol_index, signature));
+                    break 'outer;
+                }
             }
-        };
-        if let Some((addr, signature)) = opt {
-            drop(iter);
-            apply_signature(obj, addr, &signature)?;
-            break;
+        }
+        if let Some((symbol_index, signature)) = found_signature {
+            let symbol = &obj.symbols[symbol_index];
+            let section_index = symbol
+                .section
+                .ok_or_else(|| anyhow!("Symbol '{}' missing section", symbol.name))?;
+            let address = symbol.address as u32;
+            apply_signature(obj, section_index, address, &signature)?;
         }
     }
     log::info!("Done!");

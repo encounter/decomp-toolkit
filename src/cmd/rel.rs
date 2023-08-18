@@ -107,25 +107,24 @@ fn merge(args: MergeArgs) -> Result<()> {
     let mut section_map: BTreeMap<u32, BTreeMap<u32, u32>> = BTreeMap::new();
     let mut offset = align32(arena_lo + 0x2000);
     for module in module_map.values() {
-        for mod_section in &module.sections {
-            let section_idx = obj.sections.len();
+        for (mod_section_index, mod_section) in module.sections.iter() {
             ensure!(mod_section.relocations.is_empty(), "Unsupported relocations during merge");
-            obj.sections.push(ObjSection {
+            let section_idx = obj.sections.push(ObjSection {
                 name: format!("{}:{}", mod_section.name, module.module_id),
                 kind: mod_section.kind,
                 address: offset as u64,
                 size: mod_section.size,
                 data: mod_section.data.clone(),
                 align: mod_section.align,
-                index: section_idx,
                 elf_index: mod_section.elf_index,
                 relocations: vec![],
                 original_address: mod_section.original_address,
                 file_offset: mod_section.file_offset,
                 section_known: mod_section.section_known,
+                splits: mod_section.splits.clone(),
             });
             section_map.nested_insert(module.module_id, mod_section.elf_index as u32, offset)?;
-            for (_, mod_symbol) in module.symbols.for_section(mod_section) {
+            for (_, mod_symbol) in module.symbols.for_section(mod_section_index) {
                 obj.symbols.add_direct(ObjSymbol {
                     name: mod_symbol.name.clone(),
                     demangled_name: mod_symbol.demangled_name.clone(),
@@ -157,8 +156,8 @@ fn merge(args: MergeArgs) -> Result<()> {
                 })?;
                 section_map[&(rel_reloc.target_section as u32)] + rel_reloc.addend
             };
-            let source_section_index = obj.section_at(source_addr)?.index;
-            let target_section_index = obj.section_at(target_addr)?.index;
+            let (source_section_index, _) = obj.sections.at_address(source_addr)?;
+            let (target_section_index, _) = obj.sections.at_address(target_addr)?;
 
             let (symbol_idx, addend) = if let Some((symbol_idx, symbol)) =
                 obj.symbols.for_relocation(target_addr, rel_reloc.kind)?
@@ -185,6 +184,7 @@ fn merge(args: MergeArgs) -> Result<()> {
                 address: source_addr as u64,
                 target_symbol: symbol_idx,
                 addend,
+                module: None,
             });
         }
     }
@@ -217,11 +217,11 @@ fn merge(args: MergeArgs) -> Result<()> {
 }
 
 fn link_relocations(obj: &mut ObjInfo) -> Result<()> {
-    for section in &mut obj.sections {
+    for (_, section) in obj.sections.iter_mut() {
         for reloc in &section.relocations {
             let source_address = reloc.address /*& !3*/;
             let target_address =
-                (obj.symbols.address_of(reloc.target_symbol) as i64 + reloc.addend) as u32;
+                (obj.symbols[reloc.target_symbol].address as i64 + reloc.addend) as u32;
             let ins_ref =
                 array_ref_mut!(section.data, (source_address - section.address) as usize, 4);
             let mut ins = u32::from_be_bytes(*ins_ref);

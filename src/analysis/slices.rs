@@ -164,7 +164,7 @@ impl FunctionSlices {
         function_end: Option<u32>,
         known_functions: &BTreeSet<u32>,
     ) -> Result<ExecCbResult<bool>> {
-        let ExecCbData { executor, vm, result, section, ins, block_start } = data;
+        let ExecCbData { executor, vm, result, section_index, section, ins, block_start } = data;
 
         // Track discovered prologue(s) and epilogue(s)
         self.check_prologue(section, ins)
@@ -187,7 +187,7 @@ impl FunctionSlices {
             StepResult::Continue | StepResult::LoadStore { .. } => {
                 let next_address = ins.addr + 4;
                 // If we already visited the next address, connect the blocks and end
-                if executor.visited(section, next_address) {
+                if executor.visited(section_index, section.address as u32, next_address) {
                     self.blocks.insert(block_start, next_address);
                     self.branches.insert(ins.addr, vec![next_address]);
                     Ok(ExecCbResult::EndBlock)
@@ -233,7 +233,7 @@ impl FunctionSlices {
                         if self.add_block_start(addr) {
                             return Ok(ExecCbResult::Jump(addr));
                         }
-                    } else if matches!(obj.section_data(ins.addr, ins.addr + 4), Ok((_, data)) if data == [0u8; 4])
+                    } else if matches!(section.data_range(ins.addr, ins.addr + 4), Ok(data) if data == [0u8; 4])
                     {
                         // If this branch has zeroed padding after it, assume tail call.
                         self.function_references.insert(addr);
@@ -385,8 +385,10 @@ impl FunctionSlices {
         }
 
         let end = self.end();
-        match (obj.section_at(end), obj.section_at(end - 4)) {
-            (Ok(section), Ok(other_section)) if section.index == other_section.index => {
+        match (obj.sections.at_address(end), obj.sections.at_address(end - 4)) {
+            (Ok((section_index, section)), Ok((other_section_index, _other_section)))
+                if section_index == other_section_index =>
+            {
                 // FIXME this is real bad
                 if !self.has_conditional_blr {
                     if let Some(ins) = disassemble(section, end - 4) {
@@ -453,15 +455,15 @@ impl FunctionSlices {
             return TailCallResult::Is;
         }
         // If the jump target is in a different section, known tail call.
-        let section = match obj.section_at(function_start) {
+        let (_, target_section) = match obj.sections.at_address(addr) {
             Ok(section) => section,
             Err(e) => return TailCallResult::Error(e),
         };
-        if !section.contains(addr) {
+        if !target_section.contains(function_start) {
             return TailCallResult::Is;
         }
         // If the jump target has 0'd padding before it, known tail call.
-        if matches!(obj.section_data(addr - 4, addr), Ok((_, data)) if data == [0u8; 4]) {
+        if matches!(target_section.data_range(addr - 4, addr), Ok(data) if data == [0u8; 4]) {
             return TailCallResult::Is;
         }
         // If we're not sure where the function ends yet, mark as possible tail call.

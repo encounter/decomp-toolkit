@@ -46,10 +46,10 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
     let mut symbols: Vec<ObjSymbol> = obj.symbols.iter().cloned().collect();
     let mut section_entries: Vec<BTreeMap<u32, Vec<SymbolEntry>>> = vec![];
     let mut section_relocations: Vec<BTreeMap<u32, ObjReloc>> = vec![];
-    for (section_idx, section) in obj.sections.iter().enumerate() {
+    for (section_idx, section) in obj.sections.iter() {
         // Build symbol start/end entries
         let mut entries = BTreeMap::<u32, Vec<SymbolEntry>>::new();
-        for (symbol_index, symbol) in obj.symbols.for_section(section) {
+        for (symbol_index, symbol) in obj.symbols.for_section(section_idx) {
             entries.nested_push(symbol.address as u32, SymbolEntry {
                 index: symbol_index,
                 kind: SymbolEntryKind::Start,
@@ -110,6 +110,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
                             address: ins.addr as u64,
                             target_symbol: symbol_idx,
                             addend: 0,
+                            module: None,
                         });
                     }
                 }
@@ -121,11 +122,11 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
     }
 
     // Generate labels for jump tables & relative data relocations
-    for section in &obj.sections {
-        if !matches!(section.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData) {
-            continue;
-        }
-
+    for (_section_index, section) in obj
+        .sections
+        .iter()
+        .filter(|(_, s)| matches!(s.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData))
+    {
         for reloc in &section.relocations {
             if reloc.addend == 0 {
                 continue;
@@ -135,7 +136,9 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
                 Some(v) => v,
                 None => continue,
             };
-            let target_section = &obj.sections[target_section_idx];
+            let target_section = obj.sections.get(target_section_idx).ok_or_else(|| {
+                anyhow!("Invalid relocation target section: {:#010X} {:?}", reloc.address, target)
+            })?;
             let address = (target.address as i64 + reloc.addend) as u64;
             let vec = match section_entries[target_section_idx].entry(address as u32) {
                 btree_map::Entry::Occupied(e) => e.into_mut(),
@@ -177,14 +180,14 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
         }
     }
 
-    for section in &obj.sections {
-        let entries = &section_entries[section.index];
-        let relocations = &section_relocations[section.index];
+    for (section_index, section) in obj.sections.iter() {
+        let entries = &section_entries[section_index];
+        let relocations = &section_relocations[section_index];
 
         let mut current_address = section.address as u32;
         let section_end = (section.address + section.size) as u32;
         let subsection =
-            obj.sections.iter().take(section.index).filter(|s| s.name == section.name).count();
+            obj.sections.iter().take(section_index).filter(|(_, s)| s.name == section.name).count();
 
         loop {
             if current_address >= section_end {

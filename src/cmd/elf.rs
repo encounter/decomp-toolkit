@@ -16,16 +16,14 @@ use object::{
 };
 
 use crate::{
-    obj::{
-        signatures::{compare_signature, generate_signature, FunctionSignature},
-        split::split_obj,
-        ObjKind,
-    },
+    obj::ObjKind,
     util::{
         asm::write_asm,
         config::{write_splits_file, write_symbols_file},
         elf::{process_elf, write_elf},
         file::{buf_writer, process_rsp},
+        signatures::{compare_signature, generate_signature, FunctionSignature},
+        split::split_obj,
     },
 };
 
@@ -148,9 +146,6 @@ fn disasm(args: DisasmArgs) -> Result<()> {
                 let out_path = asm_dir.join(file_name_from_unit(&unit.name, ".s"));
                 log::info!("Writing {}", out_path.display());
 
-                if let Some(parent) = out_path.parent() {
-                    DirBuilder::new().recursive(true).create(parent)?;
-                }
                 let mut w = buf_writer(out_path)?;
                 write_asm(&mut w, split_obj)?;
                 w.flush()?;
@@ -160,9 +155,6 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             files_out.flush()?;
         }
         ObjKind::Relocatable => {
-            if let Some(parent) = args.out.parent() {
-                DirBuilder::new().recursive(true).create(parent)?;
-            }
             let mut w = buf_writer(args.out)?;
             write_asm(&mut w, &obj)?;
             w.flush()?;

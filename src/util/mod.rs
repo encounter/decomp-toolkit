@@ -12,6 +12,8 @@ pub mod nested;
 pub mod rarc;
 pub mod rel;
 pub mod rso;
+pub mod signatures;
+pub mod split;
 pub mod yaz0;
 
 /// Creates a fixed-size array reference from a slice.
