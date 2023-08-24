@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::{
+    analysis::cfa::SectionAddress,
     obj::{ObjKind, ObjRelocKind},
     util::{config::is_auto_symbol, nested::NestedVec, split::is_linker_generated_label},
 };
@@ -34,6 +35,8 @@ flags! {
         Common,
         Hidden,
         ForceActive,
+        /// Symbol isn't referenced by any relocations
+        RelocationIgnore,
     }
 }
 
@@ -71,6 +74,9 @@ impl ObjSymbolFlagSet {
 
     #[inline]
     pub fn is_force_active(&self) -> bool { self.0.contains(ObjSymbolFlags::ForceActive) }
+
+    #[inline]
+    pub fn is_relocation_ignore(&self) -> bool { self.0.contains(ObjSymbolFlags::RelocationIgnore) }
 
     #[inline]
     pub fn set_scope(&mut self, scope: ObjSymbolScope) {
@@ -194,9 +200,11 @@ impl ObjSymbols {
                     // Replace auto symbols with real symbols
                     (symbol.kind == ObjSymbolKind::Unknown && is_auto_symbol(&symbol.name))
             })
-        } else {
+        } else if self.obj_kind == ObjKind::Executable {
             // TODO hmmm
             self.iter_abs().find(|(_, symbol)| symbol.name == in_symbol.name)
+        } else {
+            bail!("ABS symbol in relocatable object: {:?}", in_symbol);
         };
         let target_symbol_idx = if let Some((symbol_idx, existing)) = opt {
             let size =
@@ -361,7 +369,7 @@ impl ObjSymbols {
     where
         R: RangeBounds<u32>,
     {
-        debug_assert!(self.obj_kind == ObjKind::Executable);
+        // debug_assert!(self.obj_kind == ObjKind::Executable);
         self.symbols_by_address.range(range).map(|(k, v)| (*k, v.as_ref()))
     }
 
@@ -432,16 +440,19 @@ impl ObjSymbols {
     // Try to find a previous sized symbol that encompasses the target
     pub fn for_relocation(
         &self,
-        target_addr: u32,
+        target_addr: SectionAddress,
         reloc_kind: ObjRelocKind,
     ) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
-        ensure!(self.obj_kind == ObjKind::Executable);
+        // ensure!(self.obj_kind == ObjKind::Executable);
         let mut result = None;
-        for (_addr, symbol_idxs) in self.indexes_for_range(..=target_addr).rev() {
+        for (_addr, symbol_idxs) in self.indexes_for_range(..=target_addr.address).rev() {
             let mut symbols = symbol_idxs
                 .iter()
                 .map(|&idx| (idx, &self.symbols[idx]))
-                .filter(|(_, sym)| sym.referenced_by(reloc_kind))
+                .filter(|(_, sym)| {
+                    (sym.section.is_none() || sym.section == Some(target_addr.section))
+                        && sym.referenced_by(reloc_kind)
+                })
                 .collect_vec();
             let (symbol_idx, symbol) = if symbols.len() == 1 {
                 symbols.pop().unwrap()
@@ -480,12 +491,12 @@ impl ObjSymbols {
                     None => continue,
                 }
             };
-            if symbol.address == target_addr as u64 {
+            if symbol.address == target_addr.address as u64 {
                 result = Some((symbol_idx, symbol));
                 break;
             }
             if symbol.size > 0 {
-                if symbol.address + symbol.size > target_addr as u64 {
+                if symbol.address + symbol.size > target_addr.address as u64 {
                     result = Some((symbol_idx, symbol));
                 }
                 break;
@@ -509,6 +520,10 @@ impl Index<SymbolIndex> for ObjSymbols {
 impl ObjSymbol {
     /// Whether this symbol can be referenced by the given relocation kind.
     pub fn referenced_by(&self, reloc_kind: ObjRelocKind) -> bool {
+        if self.flags.is_relocation_ignore() {
+            return false;
+        }
+
         if is_linker_generated_label(&self.name) {
             // Linker generated labels will only be referenced by @ha/@h/@l relocations
             return matches!(

@@ -62,7 +62,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
             }
         }
 
-        let mut relocations = section.build_relocation_map_cloned()?;
+        let mut relocations = section.relocations.clone_map();
 
         // Generate local jump labels
         if section.kind == ObjSectionKind::Code {
@@ -107,7 +107,6 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
                                 Opcode::Bc => ObjRelocKind::PpcRel14,
                                 _ => unreachable!(),
                             },
-                            address: ins.addr as u64,
                             target_symbol: symbol_idx,
                             addend: 0,
                             module: None,
@@ -127,7 +126,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
         .iter()
         .filter(|(_, s)| matches!(s.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData))
     {
-        for reloc in &section.relocations {
+        for (reloc_address, reloc) in section.relocations.iter() {
             if reloc.addend == 0 {
                 continue;
             }
@@ -137,7 +136,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
                 None => continue,
             };
             let target_section = obj.sections.get(target_section_idx).ok_or_else(|| {
-                anyhow!("Invalid relocation target section: {:#010X} {:?}", reloc.address, target)
+                anyhow!("Invalid relocation target section: {:#010X} {:?}", reloc_address, target)
             })?;
             let address = (target.address as i64 + reloc.addend) as u64;
             let vec = match section_entries[target_section_idx].entry(address as u32) {
@@ -462,13 +461,13 @@ fn write_data<W: Write>(
         } else {
             current_symbol_kind
         };
-        if let Some((reloc_addr, r)) = reloc {
-            if current_address == *reloc_addr {
+        if let Some((&reloc_addr, r)) = reloc {
+            if current_address == reloc_addr {
                 reloc = reloc_iter.next();
                 match symbol_kind {
                     ObjSymbolKind::Object => {
                         current_address =
-                            write_data_reloc(w, symbols, entries, r, section_entries)?;
+                            write_data_reloc(w, symbols, entries, reloc_addr, r, section_entries)?;
                         continue;
                     }
                     ObjSymbolKind::Function => {
@@ -716,6 +715,7 @@ fn write_data_reloc<W: Write>(
     w: &mut W,
     symbols: &[ObjSymbol],
     _entries: &BTreeMap<u32, Vec<SymbolEntry>>,
+    reloc_address: u32,
     reloc: &ObjReloc,
     section_entries: &[BTreeMap<u32, Vec<SymbolEntry>>],
 ) -> Result<u32> {
@@ -736,18 +736,18 @@ fn write_data_reloc<W: Write>(
                     write!(w, ", ")?;
                     write_symbol_name(w, &symbol.name)?;
                     writeln!(w)?;
-                    return Ok((reloc.address + 4) as u32);
+                    return Ok(reloc_address + 4);
                 }
             }
             write!(w, "\t.4byte ")?;
             write_reloc_symbol(w, symbols, reloc)?;
             writeln!(w)?;
-            Ok((reloc.address + 4) as u32)
+            Ok(reloc_address + 4)
         }
         _ => Err(anyhow!(
             "Unsupported data relocation type {:?} @ {:#010X}",
             reloc.kind,
-            reloc.address
+            reloc_address
         )),
     }
 }

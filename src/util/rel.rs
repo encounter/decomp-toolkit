@@ -56,6 +56,7 @@ pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
 
     let mut sections = Vec::with_capacity(num_sections as usize);
     reader.set_position(section_info_offset as u64);
+    let mut found_text = false;
     let mut total_bss_size = 0;
     for idx in 0..num_sections {
         let offset = reader.read_u32::<BigEndian>()?;
@@ -79,15 +80,20 @@ pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
 
         // println!("Section {} offset {:#X} size {:#X}", idx, offset, size);
 
+        let (name, kind, section_known) = if offset == 0 {
+            ensure!(total_bss_size == 0, "Multiple BSS sections in REL");
+            total_bss_size = size;
+            (".bss".to_string(), ObjSectionKind::Bss, true)
+        } else if exec {
+            ensure!(!found_text, "Multiple text sections in REL");
+            found_text = true;
+            (".text".to_string(), ObjSectionKind::Code, true)
+        } else {
+            (format!(".section{}", idx), ObjSectionKind::Data, false)
+        };
         sections.push(ObjSection {
-            name: format!(".section{}", idx),
-            kind: if offset == 0 {
-                ObjSectionKind::Bss
-            } else if exec {
-                ObjSectionKind::Code
-            } else {
-                ObjSectionKind::Data
-            },
+            name,
+            kind,
             address: 0,
             size: size as u64,
             data,
@@ -97,15 +103,12 @@ pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
             }
             .unwrap_or_default() as u64,
             elf_index: idx as usize,
-            relocations: vec![],
+            relocations: Default::default(),
             original_address: 0,
             file_offset: offset as u64,
-            section_known: false,
+            section_known,
             splits: Default::default(),
         });
-        if offset == 0 {
-            total_bss_size += size;
-        }
     }
     ensure!(
         total_bss_size == bss_size,
@@ -212,7 +215,7 @@ pub fn process_rel(mut reader: Reader) -> Result<ObjInfo> {
             unresolved_relocations.push(RelReloc {
                 kind,
                 section,
-                address,
+                address: address & !3,
                 module_id: reloc_module_id,
                 target_section,
                 addend,

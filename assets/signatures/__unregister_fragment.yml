@@ -1,0 +1,115 @@
+- symbol: 0
+  hash: 7f011cf08af89b18fb76bcb1f7d104da62a785d6
+  signature: LAMAAP////9MggAg/////xyDAAz/////PGAAAP//AAA4AAAA/////zhjAAD//wAAfAMhbv////+QAwAE/////5ADAAj/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __unregister_fragment
+    size: 40
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 12
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 63cfddab648b8040ba0fc548d9c6058245107cf5
+  signature: KAMAH/////9NgQAg/////xyDAAz/////PGAAAP//AAA4AAAA/////zhjAAD//wAAfAMhbv////+QAwAE/////5ADAAj/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __unregister_fragment
+    size: 40
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 384
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 12
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 1c7fef6e356049ca092911ef494021318eeb8013
+  signature: LAMAAP////9NgAAg/////ywDAAH/////TIAAIP////8cgwAM/////zxgAAD//wAAOAAAAP////84YwAA//8AAHwDIW7/////kAMABP////+QAwAI/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __unregister_fragment
+    size: 48
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 12
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 0dba621b6fe389afcf2ab53bdb76db9d9dc8d54e
+  signature: LAMAAP////9NgAAg/////ywDAAH/////TIAAIP////8cgwAM/////zxgAAD//wAAOAAAAP////84YwAA//8AAHxjIhT/////kAMAAP////+QAwAE/////5ADAAj/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __unregister_fragment
+    size: 52
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 12
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 8a6d162b7c2bade6367615664b53c6fa684930bd
+  signature: LAMAAP////9BgAAs/////ywDAAH/////QIAAJP////8cgwAM/////zxgAAD//wAAOAMAAP//AAB8YCIU/////zgAAAD/////kAMAAP////+QAwAE/////5ADAAj/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __unregister_fragment
+    size: 52
+    flags: 1
+    section: .text
+  - kind: Object
+    name: fragmentinfo
+    size: 12
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

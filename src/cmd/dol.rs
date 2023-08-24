@@ -3,9 +3,9 @@ use std::{
     fs,
     fs::{DirBuilder, File},
     io::Write,
+    mem::take,
     path::{Path, PathBuf},
 };
-use std::mem::take;
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
@@ -14,9 +14,9 @@ use serde::{Deserialize, Serialize};
 
 use crate::{
     analysis::{
-        cfa::AnalyzerState,
+        cfa::{AnalyzerState, SectionAddress},
         objects::{detect_object_boundaries, detect_strings},
-        pass::{AnalysisPass, FindSaveRestSleds, FindTRKInterruptVectorTable},
+        pass::{AnalysisPass, FindRelCtorsDtors, FindSaveRestSleds, FindTRKInterruptVectorTable},
         signatures::{apply_signatures, apply_signatures_post},
         tracker::Tracker,
     },
@@ -285,7 +285,9 @@ fn info(args: InfoArgs) -> Result<()> {
     }
 
     println!("{}:", obj.name);
-    println!("Entry point: {:#010X}", obj.entry);
+    if let Some(entry) = obj.entry {
+        println!("Entry point: {:#010X}", entry);
+    }
     println!("\nSections:");
     println!("\t{: >10} | {: <10} | {: <10} | {: <10}", "Name", "Address", "Size", "File Off");
     for (_, section) in obj.sections.iter() {
@@ -330,19 +332,35 @@ fn verify_hash<P: AsRef<Path>>(path: P, hash_str: &str) -> Result<()> {
 }
 
 fn update_symbols(obj: &mut ObjInfo, modules: &BTreeMap<u32, ObjInfo>) -> Result<()> {
-    log::info!("Updating symbols for module {}", obj.module_id);
+    log::debug!("Updating symbols for module {}", obj.module_id);
 
     // Find all references to this module from other modules
-    for rel_reloc in obj
+    for (source_module_id, rel_reloc) in obj
         .unresolved_relocations
         .iter()
-        .chain(modules.iter().flat_map(|(_, obj)| obj.unresolved_relocations.iter()))
-        .filter(|r| r.module_id == obj.module_id)
+        .map(|r| (obj.module_id, r))
+        .chain(
+            modules
+                .iter()
+                .flat_map(|(_, obj)| obj.unresolved_relocations.iter().map(|r| (obj.module_id, r))),
+        )
+        .filter(|(_, r)| r.module_id == obj.module_id)
     {
+        if source_module_id == obj.module_id {
+            // Skip if already resolved
+            let (_, source_section) = obj
+                .sections
+                .get_elf_index(rel_reloc.section as usize)
+                .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
+            if source_section.relocations.contains(rel_reloc.address) {
+                continue;
+            }
+        }
+
         let (target_section_index, target_section) = obj
             .sections
             .get_elf_index(rel_reloc.target_section as usize)
-            .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
+            .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.target_section))?;
 
         let target_symbol = obj
             .symbols
@@ -357,7 +375,12 @@ fn update_symbols(obj: &mut ObjInfo, modules: &BTreeMap<u32, ObjInfo>) -> Result
                         symbol.name
                     );
                 }
-                anyhow!("Multiple symbols found for {:#010X}", rel_reloc.addend)
+                anyhow!(
+                    "Multiple symbols found for {:#010X} while checking reloc {} {:?}",
+                    rel_reloc.addend,
+                    source_module_id,
+                    rel_reloc
+                )
             })?;
 
         if let Some((symbol_index, symbol)) = target_symbol {
@@ -376,13 +399,18 @@ fn update_symbols(obj: &mut ObjInfo, modules: &BTreeMap<u32, ObjInfo>) -> Result
                 rel_reloc.target_section,
                 rel_reloc.addend
             );
-            obj.symbols.add_direct(ObjSymbol {
-                name: format!(
-                    "lbl_mod{}_{}_{:08X}",
+            let name = if obj.module_id == 0 {
+                format!("lbl_{:08X}", rel_reloc.addend)
+            } else {
+                format!(
+                    "lbl_{}_{}_{:X}",
                     obj.module_id,
                     target_section.name.trim_start_matches('.'),
                     rel_reloc.addend
-                ),
+                )
+            };
+            obj.symbols.add_direct(ObjSymbol {
+                name,
                 demangled_name: None,
                 address: rel_reloc.addend as u64,
                 section: Some(target_section_index),
@@ -404,10 +432,19 @@ fn create_relocations(
     modules: &BTreeMap<u32, ObjInfo>,
     dol_obj: &ObjInfo,
 ) -> Result<()> {
-    log::info!("Creating relocations for module {}", obj.module_id);
+    log::debug!("Creating relocations for module {}", obj.module_id);
 
     // Resolve all relocations in this module
     for rel_reloc in take(&mut obj.unresolved_relocations) {
+        // Skip if already resolved
+        let (_, source_section) = obj
+            .sections
+            .get_elf_index(rel_reloc.section as usize)
+            .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
+        if source_section.relocations.contains(rel_reloc.address) {
+            continue;
+        }
+
         let target_obj = if rel_reloc.module_id == 0 {
             dol_obj
         } else if rel_reloc.module_id == obj.module_id {
@@ -432,7 +469,7 @@ fn create_relocations(
             )?
         };
 
-        if let Some((symbol_index, symbol)) = target_obj
+        let Some((symbol_index, symbol)) = target_obj
             .symbols
             .at_section_address(target_section_index, rel_reloc.addend)
             .filter(|(_, s)| s.referenced_by(rel_reloc.kind))
@@ -447,32 +484,31 @@ fn create_relocations(
                 }
                 anyhow!("Multiple symbols found for {:#010X}", rel_reloc.addend)
             })?
-        {
-            // log::info!("Would create relocation to symbol {}", symbol.name);
-            let reloc = ObjReloc {
-                kind: rel_reloc.kind,
-                address: rel_reloc.address as u64 & !3,
-                target_symbol: symbol_index,
-                addend: rel_reloc.addend as i64 - symbol.address as i64,
-                module: if rel_reloc.module_id == obj.module_id {
-                    None
-                } else {
-                    Some(rel_reloc.module_id)
-                },
-            };
-            let (_, source_section) = obj
-                .sections
-                .get_elf_index_mut(rel_reloc.section as usize)
-                .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
-            source_section.relocations.push(reloc);
-        } else {
+        else {
             bail!(
                 "Couldn't find module {} symbol in section {} at {:#010X}",
                 rel_reloc.module_id,
                 rel_reloc.target_section,
                 rel_reloc.addend
             );
-        }
+        };
+
+        // log::info!("Would create relocation to symbol {}", symbol.name);
+        let reloc = ObjReloc {
+            kind: rel_reloc.kind,
+            target_symbol: symbol_index,
+            addend: rel_reloc.addend as i64 - symbol.address as i64,
+            module: if rel_reloc.module_id == obj.module_id {
+                None
+            } else {
+                Some(rel_reloc.module_id)
+            },
+        };
+        let (_, source_section) = obj
+            .sections
+            .get_elf_index_mut(rel_reloc.section as usize)
+            .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
+        source_section.relocations.insert(rel_reloc.address, reloc)?;
     }
 
     Ok(())
@@ -483,7 +519,7 @@ fn resolve_external_relocations(
     modules: &BTreeMap<u32, ObjInfo>,
     dol_obj: Option<&ObjInfo>,
 ) -> Result<()> {
-    log::info!("Resolving relocations for module {}", obj.module_id);
+    log::debug!("Resolving relocations for module {}", obj.module_id);
 
     #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
     struct RelocRef {
@@ -493,7 +529,7 @@ fn resolve_external_relocations(
     let mut reloc_to_symbol = HashMap::<RelocRef, usize>::new();
 
     for (_section_index, section) in obj.sections.iter_mut() {
-        for reloc in section.relocations.iter_mut() {
+        for (_reloc_address, reloc) in section.relocations.iter_mut() {
             if let Some(module_id) = reloc.module {
                 let reloc_ref = RelocRef { module_id, symbol_index: reloc.target_symbol };
                 let symbol_idx = match reloc_to_symbol.entry(reloc_ref) {
@@ -559,8 +595,11 @@ fn split(args: SplitArgs) -> Result<()> {
 
     let mut modules = BTreeMap::<u32, ObjInfo>::new();
     let mut module_ids = Vec::with_capacity(config.modules.len());
+    if !config.modules.is_empty() {
+        log::info!("Loading {} modules", config.modules.len());
+    }
     for module_config in &config.modules {
-        log::info!("Loading {}", module_config.object.display());
+        log::debug!("Loading {}", module_config.object.display());
         if let Some(hash_str) = &module_config.hash {
             verify_hash(&module_config.object, hash_str)?;
         }
@@ -593,25 +632,6 @@ fn split(args: SplitArgs) -> Result<()> {
     log::info!("Performing signature analysis");
     apply_signatures(&mut obj)?;
 
-    if !modules.is_empty() {
-        log::info!("Applying module relocations");
-
-        // Step 1: For each module, create any missing symbols (referenced from other modules) and set FORCEACTIVE
-        update_symbols(&mut obj, &modules)?;
-        for &module_id in &module_ids {
-            let mut module_obj = modules.remove(&module_id).unwrap();
-            update_symbols(&mut module_obj, &modules)?;
-            modules.insert(module_id, module_obj);
-        }
-
-        // Step 2: For each module, create relocations to symbols in other modules
-        for &module_id in &module_ids {
-            let mut module_obj = modules.remove(&module_id).unwrap();
-            create_relocations(&mut module_obj, &modules, &obj)?;
-            modules.insert(module_id, module_obj);
-        }
-    }
-
     if !config.quick_analysis {
         log::info!("Detecting function boundaries");
         state.detect_functions(&obj)?;
@@ -631,43 +651,98 @@ fn split(args: SplitArgs) -> Result<()> {
         apply_selfile(&mut obj, selfile)?;
     }
 
+    if !modules.is_empty() {
+        log::info!("Analyzing modules");
+
+        let mut function_count = 0;
+        for &module_id in &module_ids {
+            log::info!("Analyzing module {}", module_id);
+            let module_obj = modules.get_mut(&module_id).unwrap();
+            let mut state = AnalyzerState::default();
+            state.detect_functions(module_obj)?;
+            function_count += state.function_slices.len();
+            FindRelCtorsDtors::execute(&mut state, module_obj)?;
+            state.apply(module_obj)?;
+            apply_signatures(module_obj)?;
+            apply_signatures_post(module_obj)?;
+        }
+        log::info!("Discovered {} functions in modules", function_count);
+
+        // Step 1: For each module, create any missing symbols (referenced from other modules) and set FORCEACTIVE
+        update_symbols(&mut obj, &modules)?;
+        for &module_id in &module_ids {
+            let mut module_obj = modules.remove(&module_id).unwrap();
+            update_symbols(&mut module_obj, &modules)?;
+            modules.insert(module_id, module_obj);
+        }
+
+        // Step 2: For each module, create relocations to symbols in other modules
+        for &module_id in &module_ids {
+            let mut module_obj = modules.remove(&module_id).unwrap();
+            create_relocations(&mut module_obj, &modules, &obj)?;
+            modules.insert(module_id, module_obj);
+        }
+    }
+
     log::info!("Performing relocation analysis");
     let mut tracker = Tracker::new(&obj);
     tracker.process(&obj)?;
 
     log::info!("Applying relocations");
     tracker.apply(&mut obj, false)?;
+    if !modules.is_empty() {
+        resolve_external_relocations(&mut obj, &modules, None)?;
+        for &module_id in &module_ids {
+            let mut module_obj = modules.remove(&module_id).unwrap();
+            resolve_external_relocations(&mut module_obj, &modules, Some(&obj))?;
+
+            let mut tracker = Tracker::new(&module_obj);
+            tracker.process(&module_obj)?;
+            tracker.apply(&mut module_obj, false)?;
+
+            modules.insert(module_id, module_obj);
+        }
+    }
 
     if config.detect_objects {
         log::info!("Detecting object boundaries");
         detect_object_boundaries(&mut obj)?;
+        for module_obj in modules.values_mut() {
+            detect_object_boundaries(module_obj)?;
+        }
     }
 
     if config.detect_strings {
         log::info!("Detecting strings");
         detect_strings(&mut obj)?;
+        for module_obj in modules.values_mut() {
+            detect_strings(module_obj)?;
+        }
     }
 
     log::info!("Adjusting splits");
     update_splits(&mut obj)?;
+    for module_obj in modules.values_mut() {
+        update_splits(module_obj)?;
+    }
 
     if !args.no_update {
+        log::info!("Writing configuration");
         if let Some(symbols_path) = &config.symbols {
             write_symbols_file(symbols_path, &obj)?;
         }
         if let Some(splits_path) = &config.splits {
-            write_splits_file(splits_path, &obj)?;
+            write_splits_file(splits_path, &obj, false)?;
         }
-    }
 
-    if !modules.is_empty() {
-        log::info!("Resolving module relocations");
-
-        resolve_external_relocations(&mut obj, &modules, None)?;
-        for &module_id in &module_ids {
-            let mut module_obj = modules.remove(&module_id).unwrap();
-            resolve_external_relocations(&mut module_obj, &modules, Some(&obj))?;
-            modules.insert(module_id, module_obj);
+        for (config, &module_id) in config.modules.iter().zip(&module_ids) {
+            let module_obj = modules.get(&module_id).unwrap();
+            if let Some(symbols_path) = &config.symbols {
+                write_symbols_file(symbols_path, module_obj)?;
+            }
+            if let Some(splits_path) = &config.splits {
+                write_splits_file(splits_path, module_obj, true)?;
+            }
         }
     }
 
@@ -721,22 +796,15 @@ fn split(args: SplitArgs) -> Result<()> {
 
     // Split and write modules
     for (config, &module_id) in config.modules.iter().zip(&module_ids) {
-        let obj = modules.get(&module_id).unwrap();
+        let obj = modules.get_mut(&module_id).unwrap();
 
         let out_dir = args.out_dir.join(format!("module_{}", module_id));
         let asm_dir = out_dir.join("asm");
         // let obj_dir = out_dir.join("obj");
 
-        if !args.no_update {
-            if let Some(symbols_path) = &config.symbols {
-                write_symbols_file(symbols_path, obj)?;
-            }
-            if let Some(splits_path) = &config.splits {
-                write_splits_file(splits_path, obj)?;
-            }
-        }
+        log::info!("Processing module {}", module_id);
 
-        log::info!("Writing disassembly");
+        // log::info!("Writing disassembly");
         let filename = config.object.file_name().unwrap().to_str().unwrap();
         let out_path = asm_dir.join(asm_path_for_unit(filename));
         let mut w = buf_writer(&out_path)?;
@@ -783,13 +851,14 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
             );
         }
     }
-    let mut real_functions = BTreeMap::<u32, String>::new();
+    let mut real_functions = BTreeMap::<SectionAddress, String>::new();
     for (section_index, _section) in real_obj.sections.by_kind(ObjSectionKind::Code) {
         for (_symbol_idx, symbol) in real_obj.symbols.for_section(section_index) {
-            real_functions.insert(symbol.address as u32, symbol.name.clone());
-            match state.function_bounds.get(&(symbol.address as u32)) {
-                Some(&end) => {
-                    if symbol.size > 0 && end != (symbol.address + symbol.size) as u32 {
+            let symbol_addr = SectionAddress::new(section_index, symbol.address as u32);
+            real_functions.insert(symbol_addr, symbol.name.clone());
+            match state.function_bounds.get(&symbol_addr) {
+                Some(&Some(end)) => {
+                    if symbol.size > 0 && end != (symbol_addr + symbol.size as u32) {
                         log::warn!(
                             "Function {:#010X} ({}) ends at {:#010X}, expected {:#010X}",
                             symbol.address,
@@ -798,6 +867,9 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
                             symbol.address + symbol.size
                         );
                     }
+                }
+                Some(_) => {
+                    log::warn!("Function {:#010X} ({}) has no end", symbol.address, symbol.name);
                 }
                 None => {
                     log::warn!(
@@ -810,14 +882,15 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
         }
     }
     for (&start, &end) in &state.function_bounds {
-        if end == 0 {
+        let Some(end) = end else {
             continue;
-        }
+        };
         if !real_functions.contains_key(&start) {
             let (real_addr, real_name) = real_functions.range(..start).next_back().unwrap();
             log::warn!(
-                "Function {:#010X} not real (actually a part of {} @ {:#010X})",
+                "Function {:#010X}..{:#010X} not real (actually a part of {} @ {:#010X})",
                 start,
+                end,
                 real_name,
                 real_addr
             );
@@ -830,13 +903,10 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
             Some(v) => v,
             None => continue,
         };
-        let real_map = real_section.build_relocation_map()?;
-        let obj_map = obj_section.build_relocation_map()?;
-        for (&real_addr, &real_reloc_idx) in &real_map {
-            let real_reloc = &real_section.relocations[real_reloc_idx];
+        for (real_addr, real_reloc) in real_section.relocations.iter() {
             let real_symbol = &real_obj.symbols[real_reloc.target_symbol];
-            let obj_reloc = match obj_map.get(&real_addr) {
-                Some(v) => &obj_section.relocations[*v],
+            let obj_reloc = match obj_section.relocations.at(real_addr) {
+                Some(v) => v,
                 None => {
                     // Ignore GCC local jump branches
                     if real_symbol.kind == ObjSymbolKind::Section
@@ -886,10 +956,9 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
                 continue;
             }
         }
-        for (&obj_addr, &obj_reloc_idx) in &obj_map {
-            let obj_reloc = &obj_section.relocations[obj_reloc_idx];
+        for (obj_addr, obj_reloc) in obj_section.relocations.iter() {
             let obj_symbol = &obj.symbols[obj_reloc.target_symbol];
-            if !real_map.contains_key(&obj_addr) {
+            if !real_section.relocations.contains(obj_addr) {
                 log::warn!(
                     "Relocation not real @ {:#010X} {:?} to {:#010X}+{:X} ({})",
                     obj_addr,

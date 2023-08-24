@@ -1,3 +1,4 @@
+mod relocations;
 mod sections;
 mod splits;
 mod symbols;
@@ -9,8 +10,8 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
+pub use relocations::{ObjReloc, ObjRelocKind, ObjRelocations};
 pub use sections::{section_kind_for_section, ObjSection, ObjSectionKind, ObjSections};
-use serde::{Deserialize, Serialize};
 pub use splits::{ObjSplit, ObjSplits};
 pub use symbols::{
     ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
@@ -49,7 +50,7 @@ pub struct ObjInfo {
     pub name: String,
     pub symbols: ObjSymbols,
     pub sections: ObjSections,
-    pub entry: u64,
+    pub entry: Option<u64>,
     pub mw_comment: Option<MWComment>,
 
     // Linker generated
@@ -75,27 +76,6 @@ pub struct ObjInfo {
     pub unresolved_relocations: Vec<RelReloc>,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
-pub enum ObjRelocKind {
-    Absolute,
-    PpcAddr16Hi,
-    PpcAddr16Ha,
-    PpcAddr16Lo,
-    PpcRel24,
-    PpcRel14,
-    PpcEmbSda21,
-}
-
-#[derive(Debug, Clone)]
-pub struct ObjReloc {
-    pub kind: ObjRelocKind,
-    pub address: u64,
-    pub target_symbol: SymbolIndex,
-    pub addend: i64,
-    /// If present, relocation against external module
-    pub module: Option<u32>,
-}
-
 impl ObjInfo {
     pub fn new(
         kind: ObjKind,
@@ -110,7 +90,7 @@ impl ObjInfo {
             name,
             symbols: ObjSymbols::new(kind, symbols),
             sections: ObjSections::new(kind, sections),
-            entry: 0,
+            entry: None,
             mw_comment: Default::default(),
             sda2_base: None,
             sda_base: None,

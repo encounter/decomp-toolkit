@@ -270,7 +270,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             data: dol.virtual_data_at(dol_section.target, size)?.to_vec(),
             align: 0,
             elf_index: 0,
-            relocations: vec![],
+            relocations: Default::default(),
             original_address: 0,
             file_offset: dol_section.offset as u64,
             section_known: known,
@@ -299,7 +299,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             data: vec![],
             align: 0,
             elf_index: 0,
-            relocations: vec![],
+            relocations: Default::default(),
             original_address: 0,
             file_offset: 0,
             section_known: false,
@@ -333,7 +333,7 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     // Create object
     let mut obj =
         ObjInfo::new(ObjKind::Executable, ObjArchitecture::PowerPc, name, vec![], sections);
-    obj.entry = dol.header.entry_point as u64;
+    obj.entry = Some(dol.header.entry_point as u64);
 
     // Generate _rom_copy_info symbol
     if let (Some(rom_copy_info_addr), Some(rom_copy_info_end)) =

@@ -103,7 +103,7 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             data,
             align: 0,
             elf_index: idx as usize,
-            relocations: vec![],
+            relocations: Default::default(),
             original_address: 0,
             file_offset: offset as u64,
             section_known: false,

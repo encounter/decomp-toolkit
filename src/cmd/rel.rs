@@ -9,7 +9,7 @@ use argp::FromArgs;
 
 use crate::{
     analysis::{
-        cfa::AnalyzerState,
+        cfa::{AnalyzerState, SectionAddress},
         pass::{AnalysisPass, FindSaveRestSleds, FindTRKInterruptVectorTable},
         signatures::{apply_signatures, apply_signatures_post},
         tracker::Tracker,
@@ -75,7 +75,6 @@ fn info(args: InfoArgs) -> Result<()> {
     let map = map_file(args.rel_file)?;
     let rel = process_rel(map_reader(&map))?;
     println!("Read REL module ID {}", rel.module_id);
-    // println!("REL: {:#?}", rel);
     Ok(())
 }
 
@@ -117,7 +116,7 @@ fn merge(args: MergeArgs) -> Result<()> {
                 data: mod_section.data.clone(),
                 align: mod_section.align,
                 elf_index: mod_section.elf_index,
-                relocations: vec![],
+                relocations: Default::default(),
                 original_address: mod_section.original_address,
                 file_offset: mod_section.file_offset,
                 section_known: mod_section.section_known,
@@ -160,8 +159,10 @@ fn merge(args: MergeArgs) -> Result<()> {
             let (target_section_index, _) = obj.sections.at_address(target_addr)?;
 
             let (symbol_idx, addend) = if let Some((symbol_idx, symbol)) =
-                obj.symbols.for_relocation(target_addr, rel_reloc.kind)?
-            {
+                obj.symbols.for_relocation(
+                    SectionAddress::new(target_section_index, target_addr),
+                    rel_reloc.kind,
+                )? {
                 (symbol_idx, target_addr as i64 - symbol.address as i64)
             } else {
                 // Create a new label
@@ -179,13 +180,12 @@ fn merge(args: MergeArgs) -> Result<()> {
                 })?;
                 (symbol_idx, 0)
             };
-            obj.sections[source_section_index].relocations.push(ObjReloc {
+            obj.sections[source_section_index].relocations.insert(source_addr, ObjReloc {
                 kind: rel_reloc.kind,
-                address: source_addr as u64,
                 target_symbol: symbol_idx,
                 addend,
                 module: None,
-            });
+            })?;
         }
     }
 
@@ -218,12 +218,11 @@ fn merge(args: MergeArgs) -> Result<()> {
 
 fn link_relocations(obj: &mut ObjInfo) -> Result<()> {
     for (_, section) in obj.sections.iter_mut() {
-        for reloc in &section.relocations {
-            let source_address = reloc.address /*& !3*/;
+        for (source_address, reloc) in section.relocations.iter() {
             let target_address =
                 (obj.symbols[reloc.target_symbol].address as i64 + reloc.addend) as u32;
             let ins_ref =
-                array_ref_mut!(section.data, (source_address - section.address) as usize, 4);
+                array_ref_mut!(section.data, (source_address as u64 - section.address) as usize, 4);
             let mut ins = u32::from_be_bytes(*ins_ref);
             match reloc.kind {
                 ObjRelocKind::Absolute => {

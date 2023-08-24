@@ -124,7 +124,7 @@ fn config(args: ConfigArgs) -> Result<()> {
 
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
     write_symbols_file(args.out_dir.join("symbols.txt"), &obj)?;
-    write_splits_file(args.out_dir.join("splits.txt"), &obj)?;
+    write_splits_file(args.out_dir.join("splits.txt"), &obj, false)?;
     Ok(())
 }
 

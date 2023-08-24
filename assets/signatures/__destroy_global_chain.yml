@@ -67,3 +67,107 @@
     kind: PpcEmbSda21
     symbol: 1
     addend: 0
+- symbol: 0
+  hash: d2c66bcc9d139a983d3cfc0df693f53fcab27fbb
+  signature: lCH/8P////98CAKm/////5ABABT/////k+EADP////8/4AAA//8AAEgAACD/////gAMAAP////84gP///////5AfAAD//wAAgYMABP////+AYwAI/////32JA6b/////ToAEIf////+AfwAA//8AACwDAAD/////QIL/3P////+AAQAU/////4PhAAz/////fAgDpv////84IQAQ/////06AACD/////
+  symbols:
+  - kind: Function
+    name: __destroy_global_chain
+    size: 84
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 16
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 32
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 45123f2a3982045741d678a1afe8c39a684cff33
+  signature: fAgCpv////+QAQAE/////5Qh//D/////k+EADP////9IAAAk/////4AfAAD/////PGAAAP//AACQAwAA//8AAIB/AAj/////OID///////+BnwAE/////32IA6b/////ToAAIf////88YAAA//8AAIPjAAD//wAAKB8AAP////9Agv/U/////4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __destroy_global_chain
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 52
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 56
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 0fe3dc97bc3afa0c4b054038d390468b8be463e5
+  signature: lCH/8P////98CAKm/////zxgAAD//wAAkAEAFP////+T4QAM/////zvjAAD//wAASAAAIP////+AAwAA/////ziA////////kB8AAP////+BgwAE/////4BjAAj/////fYkDpv////9OgAQh/////4B/AAD/////KAMAAP////9Agv/c/////4ABABT/////g+EADP////98CAOm/////zghABD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __destroy_global_chain
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 8
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 7cd641bb9ae91f2e8e5feb8c1ae493e067b264eb
+  signature: fAgCpv////88YAAA//8AAJABAAT/////lCH/8P////+T4QAM/////zvjAAD//wAASAAAIP////+AAwAA/////ziA////////kB8AAP////+BgwAE/////4BjAAj/////fYgDpv////9OgAAh/////4B/AAD/////KAMAAP////9Agv/c/////4ABABT/////g+EADP////84IQAQ/////3wIA6b/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __destroy_global_chain
+    size: 88
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 4
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

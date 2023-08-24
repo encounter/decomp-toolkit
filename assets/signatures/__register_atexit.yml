@@ -1,0 +1,226 @@
+- symbol: 0
+  hash: 8b35a5a00539c06c208413bcce713c2b9330c60d
+  signature: gIAAAP/gAAAsBABA/////0CCAAz/////OGD///////9OgAAg/////xwEAAz/////OMQAAf////88oAAA//8AAICAAAD/4AAAkMAAAP/gAAA4pQAA//8AAHylAhT/////OAAAAP////+QhQAA/////5BlAAT/////OGAAAP////+QBQAI/////5CgAAD/4AAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_atexit
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Object
+    name: atexit_curr_func
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: atexit_funcs
+    size: 768
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 40b262a7d7f7edaec009a682c754434370b62d34
+  signature: gIAAAP/gAAAsBABA/////0CCAAz/////OGD///////9OgAAg/////xwEAAz/////OMQAAf////88oAAA//8AAICAAAD/4AAAkMAAAP/gAAA4pQAA//8AAHylAhT/////kKAAAP/gAAA4AAAA/////5CFAAD/////kGUABP////84YAAA/////5AFAAj/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_atexit
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Object
+    name: atexit_curr_func
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: atexit_funcs
+    size: 768
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 28
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 40
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 48
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 6e87198ea237fb408c23c1def50061fd36a740d3
+  signature: gIAAAP/gAAAsBABA/////0CCAAz/////OGD///////9OgAAg/////xzEAAz/////PKAAAP//AAA45AAB/////4CAAAD/4AAAOAUAAP//AACQ4AAA/+AAAHygMhT/////OAAAAP////+QhQAA/////5BlAAT/////OGAAAP////+QBQAI/////5CgAAD/4AAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_atexit
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Object
+    name: atexit_curr_func
+    size: 4
+    flags: 2
+    section: .sbss
+  - kind: Object
+    name: atexit_funcs
+    size: 768
+    flags: 2
+    section: .bss
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Ha
+    symbol: 2
+    addend: 0
+  - offset: 32
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+  - offset: 36
+    kind: PpcAddr16Lo
+    symbol: 2
+    addend: 0
+  - offset: 40
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 68
+    kind: PpcEmbSda21
+    symbol: 3
+    addend: 0
+- symbol: 0
+  hash: 7a0239ddbd48230f3a94cd0104a10dea24d873dc
+  signature: PQAAAP////85CAAA/////4CIAAT/////LAQAQP////9AggAM/////zhg////////ToAAIP////8cxAAM/////zjkAAH/////gIgAAP////84qAAI/////zgAAAD/////kOgABP////98hTFu/////5BlAAT/////OGAAAP////+QBQAI/////5CoAAD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_atexit
+    size: 76
+    flags: 1
+    section: .text
+  relocations: []
+- symbol: 0
+  hash: 6287fc6366ad226fe4e085011501cd4182ff2b28
+  signature: PQAAAP//AAA5CAAA//8AAICIAAT/////LAQAQP////9AggAM/////zhg////////ToAAIP////8cxAAM/////zjkAAH/////gIgAAP////84qAAI/////zgAAAD/////kOgABP////98hTFu/////5BlAAT/////OGAAAP////+QBQAI/////5CoAAD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_atexit
+    size: 76
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: '...bss.0'
+    size: 0
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: f6bc8b4030feb057bcc6d2b0ea92f3494364efe4
+  signature: POAAAP//AAA45wAA//8AAICHAAT/////LAQAQP////9AggAM/////zhg////////ToAAIP////8cxAAM/////zgEAAH/////OKcACP////+QBwAE/////4CHAAD/////OAAAAP////98pTIU/////5CnAAD/////kIUAAP////+QZQAE/////zhgAAD/////kAUACP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __register_atexit
+    size: 80
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: '...bss.0'
+    size: 0
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 7a67aff7221540295d797f06244017c42e7f47f8
+  signature: PIAAAP//AAA45AAA//8AAICHAAT/////LAQAQP////9AggAM/////zhg////////ToAAIP////8cpAAM/////zkHAAj/////OMQAAf////+AhwAA/////zgAAAD/////kMcABP////99CCoU/////5CIAAD/////kGgABP////84YAAA/////5AIAAj/////kQcAAP////9OgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __register_atexit
+    size: 80
+    flags: 1
+    section: .text
+  - kind: Unknown
+    name: '...bss.0'
+    size: 0
+    flags: 2
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

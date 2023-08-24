@@ -1,0 +1,114 @@
+- symbol: 0
+  hash: 9ae42f2a8ca1c619848ba7c2ec54f348044470e4
+  signature: gAAAAP/gAACQBQAA/////5CFAAT/////kGUACP////+QoAAA/+AAAE6AACD/////
+  symbols:
+  - kind: Function
+    name: __register_global_object
+    size: 24
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .sbss
+  relocations:
+  - offset: 0
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+  - offset: 16
+    kind: PpcEmbSda21
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 22cb1f474182a4b5e07e63e09b574fae0bf8e672
+  signature: PMAAAP//AACABgAA//8AAJAFAAD/////kIUABP////+QZQAI/////5CmAAD//wAAToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_global_object
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: 6f0f3d0bb4895d84ee43877da689301e8fc9f844
+  signature: PMAAAP////+ABgAA/////5AFAAD/////kIUABP////+QZQAI/////5CmAAD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_global_object
+    size: 28
+    flags: 1
+    section: .text
+  relocations: []
+- symbol: 0
+  hash: a6c9fe066ab0621a02049267cb648a2aab4f722e
+  signature: PMAAAP//AACEBgAA//8AAJAFAAD/////kIUABP////+QZQAI/////5CmAAD/////ToAAIP////8=
+  symbols:
+  - kind: Function
+    name: __register_global_object
+    size: 28
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+- symbol: 0
+  hash: c174aed044d0767ee4cf6a7270fbd9c46bb45938
+  signature: PMAAAP//AACABgAA//8AAJAFAAD/////kIUABP////+QZQAI/////zzAAAD//wAAkKYAAP//AABOgAAg/////w==
+  symbols:
+  - kind: Function
+    name: __register_global_object
+    size: 32
+    flags: 1
+    section: .text
+  - kind: Object
+    name: __global_destructor_chain
+    size: 4
+    flags: 1
+    section: .bss
+  relocations:
+  - offset: 0
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 4
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0
+  - offset: 20
+    kind: PpcAddr16Ha
+    symbol: 1
+    addend: 0
+  - offset: 24
+    kind: PpcAddr16Lo
+    symbol: 1
+    addend: 0

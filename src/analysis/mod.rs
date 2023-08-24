@@ -1,11 +1,12 @@
 use std::{collections::BTreeSet, num::NonZeroU32};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, ensure, Context, Result};
 use ppc750cl::Ins;
 
 use crate::{
+    analysis::cfa::SectionAddress,
     array_ref,
-    obj::{ObjInfo, ObjSection, ObjSectionKind},
+    obj::{ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind},
 };
 
 pub mod cfa;
@@ -18,33 +19,119 @@ pub mod tracker;
 pub mod vm;
 
 pub fn disassemble(section: &ObjSection, address: u32) -> Option<Ins> {
-    read_u32(&section.data, address, section.address as u32).map(|code| Ins::new(code, address))
+    read_u32(section, address).map(|code| Ins::new(code, address))
 }
 
-pub fn read_u32(data: &[u8], address: u32, section_address: u32) -> Option<u32> {
-    let offset = (address - section_address) as usize;
-    if data.len() < offset + 4 {
+pub fn read_u32(section: &ObjSection, address: u32) -> Option<u32> {
+    let offset = (address as u64 - section.address) as usize;
+    if section.data.len() < offset + 4 {
         return None;
     }
-    Some(u32::from_be_bytes(*array_ref!(data, offset, 4)))
+    Some(u32::from_be_bytes(*array_ref!(section.data, offset, 4)))
 }
 
-fn is_valid_jump_table_addr(obj: &ObjInfo, addr: u32) -> bool {
-    matches!(obj.sections.at_address(addr), Ok((_, section)) if section.kind != ObjSectionKind::Bss)
+fn read_unresolved_relocation_address(
+    obj: &ObjInfo,
+    section: &ObjSection,
+    address: u32,
+    reloc_kind: Option<ObjRelocKind>,
+) -> Result<Option<SectionAddress>> {
+    if let Some(reloc) = obj
+        .unresolved_relocations
+        .iter()
+        .find(|reloc| reloc.section as usize == section.elf_index && reloc.address == address)
+    {
+        ensure!(reloc.module_id == obj.module_id);
+        if let Some(reloc_kind) = reloc_kind {
+            ensure!(reloc.kind == reloc_kind);
+        }
+        let (target_section_index, target_section) =
+            obj.sections.get_elf_index(reloc.target_section as usize).ok_or_else(|| {
+                anyhow!(
+                    "Failed to find target section {} for unresolved relocation",
+                    reloc.target_section
+                )
+            })?;
+        Ok(Some(SectionAddress {
+            section: target_section_index,
+            address: target_section.address as u32 + reloc.addend,
+        }))
+    } else {
+        Ok(None)
+    }
+}
+
+fn read_relocation_address(
+    obj: &ObjInfo,
+    section: &ObjSection,
+    address: u32,
+    reloc_kind: Option<ObjRelocKind>,
+) -> Result<Option<SectionAddress>> {
+    let Some(reloc) = section.relocations.at(address) else {
+        return Ok(None);
+    };
+    if let Some(reloc_kind) = reloc_kind {
+        ensure!(reloc.kind == reloc_kind);
+    }
+    let symbol = &obj.symbols[reloc.target_symbol];
+    let section_index = symbol.section.with_context(|| {
+        format!("Symbol '{}' @ {:#010X} missing section", symbol.name, symbol.address)
+    })?;
+    Ok(Some(SectionAddress {
+        section: section_index,
+        address: (symbol.address as i64 + reloc.addend) as u32,
+    }))
+}
+
+pub fn read_address(obj: &ObjInfo, section: &ObjSection, address: u32) -> Result<SectionAddress> {
+    if obj.kind == ObjKind::Relocatable {
+        let mut opt = read_relocation_address(obj, section, address, Some(ObjRelocKind::Absolute))?;
+        if opt.is_none() {
+            opt = read_unresolved_relocation_address(
+                obj,
+                section,
+                address,
+                Some(ObjRelocKind::Absolute),
+            )?;
+        }
+        opt.with_context(|| {
+            format!("Failed to find relocation for {:#010X} in section {}", address, section.name)
+        })
+    } else {
+        let offset = (address as u64 - section.address) as usize;
+        let address = u32::from_be_bytes(*array_ref!(section.data, offset, 4));
+        let (section_index, _) = obj.sections.at_address(address)?;
+        Ok(SectionAddress::new(section_index, address))
+    }
+}
+
+fn is_valid_jump_table_addr(obj: &ObjInfo, addr: SectionAddress) -> bool {
+    !matches!(obj.sections[addr.section].kind, ObjSectionKind::Code | ObjSectionKind::Bss)
+}
+
+#[inline(never)]
+pub fn relocation_target_for(
+    obj: &ObjInfo,
+    addr: SectionAddress,
+    reloc_kind: Option<ObjRelocKind>,
+) -> Result<Option<SectionAddress>> {
+    let section = &obj.sections[addr.section];
+    let mut opt = read_relocation_address(obj, section, addr.address, reloc_kind)?;
+    if opt.is_none() {
+        opt = read_unresolved_relocation_address(obj, section, addr.address, reloc_kind)?;
+    }
+    Ok(opt)
 }
 
 fn get_jump_table_entries(
     obj: &ObjInfo,
-    addr: u32,
+    addr: SectionAddress,
     size: Option<NonZeroU32>,
-    from: u32,
-    function_start: u32,
-    function_end: u32,
-) -> Result<(Vec<u32>, u32)> {
-    let (_, section) = obj.sections.at_address(addr).with_context(|| {
-        format!("Failed to get jump table entries @ {:#010X} size {:?}", addr, size)
-    })?;
-    let offset = (addr as u64 - section.address) as usize;
+    from: SectionAddress,
+    function_start: SectionAddress,
+    function_end: Option<SectionAddress>,
+) -> Result<(Vec<SectionAddress>, u32)> {
+    let section = &obj.sections[addr.section];
     if let Some(size) = size.map(|n| n.get()) {
         log::trace!(
             "Located jump table @ {:#010X} with entry count {} (from {:#010X})",
@@ -52,21 +139,58 @@ fn get_jump_table_entries(
             size / 4,
             from
         );
-        let jt_data = &section.data[offset..offset + size as usize];
-        let entries =
-            jt_data.chunks_exact(4).map(|c| u32::from_be_bytes(c.try_into().unwrap())).collect();
+        let mut entries = Vec::with_capacity(size as usize / 4);
+        let mut data = section.data_range(addr.address, addr.address + size)?;
+        let mut cur_addr = addr;
+        loop {
+            if data.is_empty() {
+                break;
+            }
+            if let Some(target) =
+                relocation_target_for(obj, cur_addr, Some(ObjRelocKind::Absolute))?
+            {
+                entries.push(target);
+            } else {
+                let entry_addr = u32::from_be_bytes(*array_ref!(data, 0, 4));
+                let (section_index, _) =
+                    obj.sections.at_address(entry_addr).with_context(|| {
+                        format!(
+                            "Invalid jump table entry {:#010X} at {:#010X}",
+                            entry_addr, cur_addr
+                        )
+                    })?;
+                entries.push(SectionAddress::new(section_index, entry_addr));
+            }
+            data = &data[4..];
+            cur_addr += 4;
+        }
         Ok((entries, size))
     } else {
         let mut entries = Vec::new();
         let mut cur_addr = addr;
-        while let Some(value) = read_u32(&section.data, cur_addr, section.address as u32) {
-            if value < function_start || value >= function_end {
+        loop {
+            let target = if let Some(target) =
+                relocation_target_for(obj, cur_addr, Some(ObjRelocKind::Absolute))?
+            {
+                target
+            } else if obj.kind == ObjKind::Executable {
+                let Some(value) = read_u32(section, cur_addr.address) else {
+                    break;
+                };
+                let Ok((section_index, _)) = obj.sections.at_address(value) else {
+                    break;
+                };
+                SectionAddress::new(section_index, value)
+            } else {
+                break;
+            };
+            if target < function_start || matches!(function_end, Some(end) if target >= end) {
                 break;
             }
-            entries.push(value);
+            entries.push(target);
             cur_addr += 4;
         }
-        let size = cur_addr - addr;
+        let size = cur_addr.address - addr.address;
         log::debug!(
             "Guessed jump table @ {:#010X} with entry count {} (from {:#010X})",
             addr,
@@ -79,22 +203,26 @@ fn get_jump_table_entries(
 
 pub fn uniq_jump_table_entries(
     obj: &ObjInfo,
-    addr: u32,
+    addr: SectionAddress,
     size: Option<NonZeroU32>,
-    from: u32,
-    function_start: u32,
-    function_end: u32,
-) -> Result<(BTreeSet<u32>, u32)> {
+    from: SectionAddress,
+    function_start: SectionAddress,
+    function_end: Option<SectionAddress>,
+) -> Result<(BTreeSet<SectionAddress>, u32)> {
     if !is_valid_jump_table_addr(obj, addr) {
         return Ok((BTreeSet::new(), 0));
     }
     let (entries, size) =
         get_jump_table_entries(obj, addr, size, from, function_start, function_end)?;
-    Ok((BTreeSet::from_iter(entries.iter().cloned().filter(|&addr| addr != 0)), size))
+    Ok((BTreeSet::from_iter(entries.iter().cloned()), size))
 }
 
-pub fn skip_alignment(section: &ObjSection, mut addr: u32, end: u32) -> Option<u32> {
-    let mut data = match section.data_range(addr, end) {
+pub fn skip_alignment(
+    section: &ObjSection,
+    mut addr: SectionAddress,
+    end: SectionAddress,
+) -> Option<SectionAddress> {
+    let mut data = match section.data_range(addr.address, end.address) {
         Ok(data) => data,
         Err(_) => return None,
     };

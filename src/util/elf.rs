@@ -1,6 +1,7 @@
 use std::{
     collections::{hash_map, HashMap},
     io::Cursor,
+    num::NonZeroU64,
     path::Path,
 };
 
@@ -90,7 +91,7 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             data: section.uncompressed_data()?.to_vec(),
             align: section.align(),
             elf_index: section.index().0,
-            relocations: vec![],
+            relocations: Default::default(),
             original_address: 0, // TODO load from abs symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
             section_known: true,
@@ -100,21 +101,25 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
 
     let mw_comment = if let Some(comment_section) = obj_file.section_by_name(".comment") {
         let data = comment_section.uncompressed_data()?;
-        let mut reader = Cursor::new(&*data);
-        let header =
-            MWComment::parse_header(&mut reader).context("While reading .comment section")?;
-        log::debug!("Loaded .comment section header {:?}", header);
-        let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
-        for symbol in obj_file.symbols() {
-            let comment_sym = read_comment_sym(&mut reader)?;
-            log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
-            comment_syms.push(comment_sym);
+        if data.is_empty() {
+            None
+        } else {
+            let mut reader = Cursor::new(&*data);
+            let header =
+                MWComment::parse_header(&mut reader).context("While reading .comment section")?;
+            log::debug!("Loaded .comment section header {:?}", header);
+            let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
+            for symbol in obj_file.symbols() {
+                let comment_sym = read_comment_sym(&mut reader)?;
+                log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
+                comment_syms.push(comment_sym);
+            }
+            ensure!(
+                data.len() - reader.position() as usize == 0,
+                ".comment section data not fully read"
+            );
+            Some((header, comment_syms))
         }
-        ensure!(
-            data.len() - reader.position() as usize == 0,
-            ".comment section data not fully read"
-        );
-        Some((header, comment_syms))
     } else {
         None
     };
@@ -285,14 +290,14 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         // Create a map of address -> file splits
         for (file_name, section_addrs) in section_starts {
             for (address, _) in section_addrs {
-                let section =
-                    sections.iter_mut().find(|s| s.contains(address as u32)).ok_or_else(|| {
-                        anyhow!(
-                            "Failed to find section containing address {:#010X} in file {}",
-                            address,
-                            file_name
-                        )
-                    })?;
+                let Some(section) = sections.iter_mut().find(|s| s.contains(address as u32)) else {
+                    log::warn!(
+                        "Failed to find section containing address {:#010X} in file {}",
+                        address,
+                        file_name
+                    );
+                    continue;
+                };
                 section.splits.push(address as u32, ObjSplit {
                     unit: file_name.clone(),
                     end: 0, // TODO
@@ -318,12 +323,12 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             else {
                 continue;
             };
-            out_section.relocations.push(reloc);
+            out_section.relocations.insert(address as u32, reloc)?;
         }
     }
 
     let mut obj = ObjInfo::new(kind, architecture, obj_name, symbols, sections);
-    obj.entry = obj_file.entry();
+    obj.entry = NonZeroU64::new(obj_file.entry()).map(|n| n.get());
     obj.mw_comment = mw_comment.map(|(header, _)| header);
     obj.sda2_base = sda2_base;
     obj.sda_base = sda_base;
@@ -585,7 +590,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             ObjKind::Relocatable => elf::ET_REL,
         },
         e_machine: elf::EM_PPC,
-        e_entry: obj.entry,
+        e_entry: obj.entry.unwrap_or(0),
         e_flags: elf::EF_PPC_EMB,
     })?;
 
@@ -627,8 +632,8 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         }
         writer.write_align_relocation();
         ensure!(writer.len() == out_section.rela_offset);
-        for reloc in &section.relocations {
-            let mut r_offset = reloc.address;
+        for (reloc_address, reloc) in section.relocations.iter() {
+            let mut r_offset = reloc_address as u64;
             let r_type = match reloc.kind {
                 ObjRelocKind::Absolute => {
                     if r_offset & 3 == 0 {
@@ -857,7 +862,5 @@ fn to_obj_reloc(
         }
         _ => Err(anyhow!("Unhandled relocation symbol type {:?}", symbol.kind())),
     }?;
-    let address = address & !3; // TODO hack: round down for instruction
-    let reloc_data = ObjReloc { kind: reloc_kind, address, target_symbol, addend, module: None };
-    Ok(Some(reloc_data))
+    Ok(Some(ObjReloc { kind: reloc_kind, target_symbol, addend, module: None }))
 }

@@ -1,9 +1,10 @@
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use fixedbitset::FixedBitSet;
 use ppc750cl::Ins;
 
 use crate::{
     analysis::{
+        cfa::SectionAddress,
         disassemble,
         vm::{StepResult, VM},
     },
@@ -30,12 +31,12 @@ impl VisitedAddresses {
         Self { inner }
     }
 
-    pub fn contains(&self, section_index: usize, section_address: u32, address: u32) -> bool {
-        self.inner[section_index].contains(Self::bit_for(section_address, address))
+    pub fn contains(&self, section_address: u32, address: SectionAddress) -> bool {
+        self.inner[address.section].contains(Self::bit_for(section_address, address.address))
     }
 
-    pub fn insert(&mut self, section_index: usize, section_address: u32, address: u32) {
-        self.inner[section_index].insert(Self::bit_for(section_address, address));
+    pub fn insert(&mut self, section_address: u32, address: SectionAddress) {
+        self.inner[address.section].insert(Self::bit_for(section_address, address.address));
     }
 
     #[inline]
@@ -46,7 +47,7 @@ impl VisitedAddresses {
 
 pub struct VMState {
     pub vm: Box<VM>,
-    pub address: u32,
+    pub address: SectionAddress,
 }
 
 /// Helper for branched VM execution, only visiting addresses once.
@@ -59,15 +60,15 @@ pub struct ExecCbData<'a> {
     pub executor: &'a mut Executor,
     pub vm: &'a mut VM,
     pub result: StepResult,
-    pub section_index: usize,
+    pub ins_addr: SectionAddress,
     pub section: &'a ObjSection,
     pub ins: &'a Ins,
-    pub block_start: u32,
+    pub block_start: SectionAddress,
 }
 
 pub enum ExecCbResult<T = ()> {
     Continue,
-    Jump(u32),
+    Jump(SectionAddress),
     EndBlock,
     End(T),
 }
@@ -80,14 +81,15 @@ impl Executor {
     pub fn run<Cb, R>(&mut self, obj: &ObjInfo, mut cb: Cb) -> Result<Option<R>>
     where Cb: FnMut(ExecCbData) -> Result<ExecCbResult<R>> {
         while let Some(mut state) = self.vm_stack.pop() {
-            let (section_index, section) = match obj.sections.at_address(state.address) {
-                Ok(ret) => ret,
-                Err(e) => {
-                    log::error!("{}", e);
-                    // return Ok(None);
-                    continue;
-                }
-            };
+            let section = &obj.sections[state.address.section];
+            ensure!(
+                section.contains(state.address.address),
+                "Invalid address {:#010X} within section {} ({:#010X}-{:#010X})",
+                state.address.address,
+                section.name,
+                section.address,
+                section.address + section.size
+            );
             if section.kind != ObjSectionKind::Code {
                 log::warn!("Attempted to visit non-code address {:#010X}", state.address);
                 continue;
@@ -95,24 +97,24 @@ impl Executor {
 
             // Already visited block
             let section_address = section.address as u32;
-            if self.visited.contains(section_index, section_address, state.address) {
+            if self.visited.contains(section_address, state.address) {
                 continue;
             }
 
             let mut block_start = state.address;
             loop {
-                self.visited.insert(section_index, section_address, state.address);
+                self.visited.insert(section_address, state.address);
 
-                let ins = match disassemble(section, state.address) {
+                let ins = match disassemble(section, state.address.address) {
                     Some(ins) => ins,
                     None => return Ok(None),
                 };
-                let result = state.vm.step(&ins);
+                let result = state.vm.step(obj, state.address, &ins);
                 match cb(ExecCbData {
                     executor: self,
                     vm: &mut state.vm,
                     result,
-                    section_index,
+                    ins_addr: state.address,
                     section,
                     ins: &ins,
                     block_start,
@@ -121,7 +123,7 @@ impl Executor {
                         state.address += 4;
                     }
                     ExecCbResult::Jump(addr) => {
-                        if self.visited.contains(section_index, section_address, addr) {
+                        if self.visited.contains(section_address, addr) {
                             break;
                         }
                         block_start = addr;
@@ -135,7 +137,7 @@ impl Executor {
         Ok(None)
     }
 
-    pub fn push(&mut self, address: u32, vm: Box<VM>, sort: bool) {
+    pub fn push(&mut self, address: SectionAddress, vm: Box<VM>, sort: bool) {
         self.vm_stack.push(VMState { address, vm });
         if sort {
             // Sort lowest to highest, so we always go highest address first
@@ -143,7 +145,7 @@ impl Executor {
         }
     }
 
-    pub fn visited(&self, section_index: usize, section_address: u32, address: u32) -> bool {
-        self.visited.contains(section_index, section_address, address)
+    pub fn visited(&self, section_address: u32, address: SectionAddress) -> bool {
+        self.visited.contains(section_address, address)
     }
 }

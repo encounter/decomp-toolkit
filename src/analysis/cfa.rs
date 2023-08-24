@@ -1,6 +1,10 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    fmt::{Debug, Display, Formatter, UpperHex},
+    ops::{Add, AddAssign, BitAnd, Sub},
+};
 
-use anyhow::{bail, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 
 use crate::{
     analysis::{
@@ -12,34 +16,101 @@ use crate::{
     obj::{ObjInfo, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
 };
 
+#[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
+pub struct SectionAddress {
+    pub section: usize,
+    pub address: u32,
+}
+
+impl Debug for SectionAddress {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{:#010X}", self.section as isize, self.address)
+    }
+}
+
+impl Display for SectionAddress {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{:#010X}", self.section as isize, self.address)
+    }
+}
+
+impl SectionAddress {
+    pub fn new(section: usize, address: u32) -> Self { Self { section, address } }
+}
+
+impl Add<u32> for SectionAddress {
+    type Output = Self;
+
+    fn add(self, rhs: u32) -> Self::Output {
+        Self { section: self.section, address: self.address + rhs }
+    }
+}
+
+impl Sub<u32> for SectionAddress {
+    type Output = Self;
+
+    fn sub(self, rhs: u32) -> Self::Output {
+        Self { section: self.section, address: self.address - rhs }
+    }
+}
+
+impl AddAssign<u32> for SectionAddress {
+    fn add_assign(&mut self, rhs: u32) { self.address += rhs; }
+}
+
+impl UpperHex for SectionAddress {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{}:{:#010X}", self.section as isize, self.address)
+    }
+}
+
+impl BitAnd<u32> for SectionAddress {
+    type Output = u32;
+
+    fn bitand(self, rhs: u32) -> Self::Output { self.address & rhs }
+}
+
 #[derive(Debug, Default)]
 pub struct AnalyzerState {
     pub sda_bases: Option<(u32, u32)>,
-    pub function_entries: BTreeSet<u32>,
-    pub function_bounds: BTreeMap<u32, u32>,
-    pub function_slices: BTreeMap<u32, FunctionSlices>,
-    pub jump_tables: BTreeMap<u32, u32>,
-    pub known_symbols: BTreeMap<u32, ObjSymbol>,
-    pub non_finalized_functions: BTreeMap<u32, FunctionSlices>,
+    pub function_entries: BTreeSet<SectionAddress>,
+    pub function_bounds: BTreeMap<SectionAddress, Option<SectionAddress>>,
+    pub function_slices: BTreeMap<SectionAddress, FunctionSlices>,
+    pub jump_tables: BTreeMap<SectionAddress, u32>,
+    pub known_symbols: BTreeMap<SectionAddress, ObjSymbol>,
+    pub known_sections: BTreeMap<usize, String>,
+    pub non_finalized_functions: BTreeMap<SectionAddress, FunctionSlices>,
 }
 
 impl AnalyzerState {
     pub fn apply(&self, obj: &mut ObjInfo) -> Result<()> {
+        for (&section_index, section_name) in &self.known_sections {
+            obj.sections[section_index].rename(section_name.clone())?;
+        }
         for (&start, &end) in &self.function_bounds {
-            if end == 0 {
-                continue;
-            }
-            let (section_index, _) = obj
-                .sections
-                .with_range(start..end)
-                .context("Failed to locate section for function")?;
+            let Some(end) = end else { continue };
+            let section = &obj.sections[start.section];
+            ensure!(
+                section.contains_range(start.address..end.address),
+                "Function {:#010X}..{:#010X} out of bounds of section {} {:#010X}..{:#010X}",
+                start.address,
+                end,
+                section.name,
+                section.address,
+                section.address + section.size
+            );
+            let name = if obj.module_id == 0 {
+                format!("fn_{:08X}", start.address)
+            } else {
+                format!("fn_{}_{:X}", obj.module_id, start.address)
+            };
             obj.add_symbol(
                 ObjSymbol {
-                    name: format!("fn_{:08X}", start),
+                    name,
                     demangled_name: None,
-                    address: start as u64,
-                    section: Some(section_index),
-                    size: (end - start) as u64,
+                    address: start.address as u64,
+                    section: Some(start.section),
+                    size: (end.address - start.address) as u64,
                     size_known: true,
                     flags: Default::default(),
                     kind: ObjSymbolKind::Function,
@@ -50,16 +121,22 @@ impl AnalyzerState {
             )?;
         }
         for (&addr, &size) in &self.jump_tables {
-            let (section_index, _) = obj
-                .sections
-                .with_range(addr..addr + size)
-                .context("Failed to locate section for jump table")?;
+            let section = &obj.sections[addr.section];
+            ensure!(
+                section.contains_range(addr.address..addr.address + size),
+                "Jump table {:#010X}..{:#010X} out of bounds of section {} {:#010X}..{:#010X}",
+                addr.address,
+                addr.address + size,
+                section.name,
+                section.address,
+                section.address + section.size
+            );
             obj.add_symbol(
                 ObjSymbol {
-                    name: format!("jumptable_{:08X}", addr),
+                    name: format!("jumptable_{:08X}", addr.address),
                     demangled_name: None,
-                    address: addr as u64,
-                    section: Some(section_index),
+                    address: addr.address as u64,
+                    section: Some(addr.section),
                     size: size as u64,
                     size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Local.into()),
@@ -79,20 +156,27 @@ impl AnalyzerState {
     pub fn detect_functions(&mut self, obj: &ObjInfo) -> Result<()> {
         // Apply known functions from extab
         for (&addr, &size) in &obj.known_functions {
-            self.function_entries.insert(addr);
-            self.function_bounds.insert(addr, addr + size);
+            let (section_index, _) = obj
+                .sections
+                .at_address(addr)
+                .context(format!("Function {:#010X} outside of any section", addr))?;
+            let addr_ref = SectionAddress::new(section_index, addr);
+            self.function_entries.insert(addr_ref);
+            self.function_bounds.insert(addr_ref, Some(addr_ref + size));
         }
         // Apply known functions from symbols
         for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {
-            self.function_entries.insert(symbol.address as u32);
+            let Some(section_index) = symbol.section else { continue };
+            let addr_ref = SectionAddress::new(section_index, symbol.address as u32);
+            self.function_entries.insert(addr_ref);
             if symbol.size_known {
-                self.function_bounds
-                    .insert(symbol.address as u32, (symbol.address + symbol.size) as u32);
+                self.function_bounds.insert(addr_ref, Some(addr_ref + symbol.size as u32));
             }
         }
         // Also check the beginning of every code section
-        for (_, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            self.function_entries.insert(section.address as u32);
+        for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
+            self.function_entries
+                .insert(SectionAddress::new(section_index, section.address as u32));
         }
 
         // Process known functions first
@@ -100,8 +184,14 @@ impl AnalyzerState {
         for addr in known_functions {
             self.process_function_at(obj, addr)?;
         }
-        // Locate entry function bounds
-        self.process_function_at(obj, obj.entry as u32)?;
+        if let Some(entry) = obj.entry.map(|n| n as u32) {
+            // Locate entry function bounds
+            let (section_index, _) = obj
+                .sections
+                .at_address(entry)
+                .context(format!("Entry point {:#010X} outside of any section", entry))?;
+            self.process_function_at(obj, SectionAddress::new(section_index, entry))?;
+        }
         // Locate bounds for referenced functions until none are left
         self.process_functions(obj)?;
         // Final pass(es)
@@ -115,9 +205,11 @@ impl AnalyzerState {
         let mut finalized = Vec::new();
         for (&addr, slices) in &mut self.non_finalized_functions {
             // log::info!("Trying to finalize {:#010X}", addr);
-            let function_start = slices.start();
+            let Some(function_start) = slices.start() else {
+                bail!("Function slice without start @ {:#010X}", addr);
+            };
             let function_end = slices.end();
-            let mut current = 0;
+            let mut current = SectionAddress::new(addr.section, 0);
             while let Some(&block) = slices.possible_blocks.range(current + 4..).next() {
                 current = block;
                 match slices.check_tail_call(
@@ -134,7 +226,7 @@ impl AnalyzerState {
                             obj,
                             block,
                             function_start,
-                            Some(function_end),
+                            function_end,
                             &self.function_entries,
                         )?;
                     }
@@ -154,7 +246,7 @@ impl AnalyzerState {
                                 obj,
                                 block,
                                 function_start,
-                                Some(function_end),
+                                function_end,
                                 &self.function_entries,
                             )?;
                         }
@@ -180,7 +272,7 @@ impl AnalyzerState {
         Ok(finalized_new)
     }
 
-    fn first_unbounded_function(&self) -> Option<u32> {
+    fn first_unbounded_function(&self) -> Option<SectionAddress> {
         let mut entries_iter = self.function_entries.iter().cloned();
         let mut bounds_iter = self.function_bounds.keys().cloned();
         let mut entry = entries_iter.next();
@@ -232,12 +324,12 @@ impl AnalyzerState {
         Ok(())
     }
 
-    pub fn process_function_at(&mut self, obj: &ObjInfo, addr: u32) -> Result<bool> {
-        if addr == 0 || addr == 0xFFFFFFFF {
-            log::warn!("Tried to detect @ {:#010X}", addr);
-            self.function_bounds.insert(addr, 0);
-            return Ok(false);
-        }
+    pub fn process_function_at(&mut self, obj: &ObjInfo, addr: SectionAddress) -> Result<bool> {
+        // if addr == 0 || addr == 0xFFFFFFFF {
+        //     log::warn!("Tried to detect @ {:#010X}", addr);
+        //     self.function_bounds.insert(addr, 0);
+        //     return Ok(false);
+        // }
         Ok(if let Some(mut slices) = self.process_function(obj, addr)? {
             self.function_entries.insert(addr);
             self.function_entries.append(&mut slices.function_references.clone());
@@ -252,14 +344,18 @@ impl AnalyzerState {
             true
         } else {
             log::debug!("Not a function @ {:#010X}", addr);
-            self.function_bounds.insert(addr, 0);
+            self.function_bounds.insert(addr, None);
             false
         })
     }
 
-    fn process_function(&mut self, obj: &ObjInfo, start: u32) -> Result<Option<FunctionSlices>> {
+    fn process_function(
+        &mut self,
+        obj: &ObjInfo,
+        start: SectionAddress,
+    ) -> Result<Option<FunctionSlices>> {
         let mut slices = FunctionSlices::default();
-        let function_end = self.function_bounds.get(&start).cloned();
+        let function_end = self.function_bounds.get(&start).cloned().flatten();
         Ok(match slices.analyze(obj, start, start, function_end, &self.function_entries)? {
             true => Some(slices),
             false => None,
@@ -268,14 +364,15 @@ impl AnalyzerState {
 
     fn detect_new_functions(&mut self, obj: &ObjInfo) -> Result<bool> {
         let mut found_new = false;
-        for (_, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            let section_start = section.address as u32;
-            let section_end = (section.address + section.size) as u32;
+        for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
+            let section_start = SectionAddress::new(section_index, section.address as u32);
+            let section_end = section_start + section.size as u32;
             let mut iter = self.function_bounds.range(section_start..section_end).peekable();
             loop {
                 match (iter.next(), iter.peek()) {
                     (Some((&first_begin, &first_end)), Some(&(&second_begin, &second_end))) => {
-                        if first_end == 0 || first_end > second_begin {
+                        let Some(first_end) = first_end else { continue };
+                        if first_end > second_begin {
                             continue;
                         }
                         let addr = match skip_alignment(section, first_end, second_begin) {
@@ -284,7 +381,7 @@ impl AnalyzerState {
                         };
                         if second_begin > addr && self.function_entries.insert(addr) {
                             log::trace!(
-                                "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X})",
+                                "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X?})",
                                 addr,
                                 first_begin,
                                 first_end,
@@ -295,7 +392,8 @@ impl AnalyzerState {
                         }
                     }
                     (Some((&last_begin, &last_end)), None) => {
-                        if last_end > 0 && last_end < section_end {
+                        let Some(last_end) = last_end else { continue };
+                        if last_end < section_end {
                             let addr = match skip_alignment(section, last_end, section_end) {
                                 Some(addr) => addr,
                                 None => continue,
@@ -323,11 +421,20 @@ impl AnalyzerState {
 /// Execute VM from entry point following branches and function calls
 /// until SDA bases are initialized (__init_registers)
 pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
+    let Some(entry) = obj.entry else {
+        return Ok(false);
+    };
+    let (section_index, _) = obj
+        .sections
+        .at_address(entry as u32)
+        .context(format!("Entry point {:#010X} outside of any section", entry))?;
+    let entry_addr = SectionAddress::new(section_index, entry as u32);
+
     let mut executor = Executor::new(obj);
-    executor.push(obj.entry as u32, VM::new(), false);
+    executor.push(entry_addr, VM::new(), false);
     let result = executor.run(
         obj,
-        |ExecCbData { executor, vm, result, section_index: _, section: _, ins, block_start: _ }| {
+        |ExecCbData { executor, vm, result, ins_addr: _, section: _, ins, block_start: _ }| {
             match result {
                 StepResult::Continue | StepResult::LoadStore { .. } => {
                     return Ok(ExecCbResult::Continue);

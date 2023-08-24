@@ -41,7 +41,7 @@ impl MWComment {
             10 => [2, 4, 2, 1],
             // Version 2.4.7 build 108
             // (CodeWarrior for GameCube 2.7)
-            11 => [2, 4, 7, 1],
+            11 | 13 => [2, 4, 7, 1],
             // Version 4.1 build 60126
             // (CodeWarrior for GameCube 3.0 Alpha 3)
             14 | 15 => [4, 0, 0, 1],
@@ -84,7 +84,7 @@ impl MWComment {
         // 0xB
         header.version = reader.read_u8()?;
         ensure!(
-            matches!(header.version, 8 | 10 | 11 | 14 | 15),
+            matches!(header.version, 8 | 10 | 11 | 13 | 14 | 15),
             "Unknown .comment section version: {}",
             header.version
         );
@@ -219,7 +219,7 @@ pub fn read_comment_sym<R: Read>(r: &mut R) -> Result<CommentSym> {
     ensure!(matches!(out.vis_flags, 0 | 0xD | 0xE), "Unknown vis_flags {}", out.vis_flags);
     out.active_flags = r.read_u8()?;
     ensure!(
-        matches!(out.active_flags, 0 | 0x8 | 0x10),
+        matches!(out.active_flags, 0 | 0x8 | 0x10 | 0x20),
         "Unknown active_flags {}",
         out.active_flags
     );

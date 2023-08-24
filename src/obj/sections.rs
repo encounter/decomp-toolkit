@@ -1,13 +1,13 @@
 use std::{
     cmp::min,
-    collections::{btree_map, BTreeMap, Bound},
+    collections::Bound,
     ops::{Index, IndexMut, Range, RangeBounds},
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
 use itertools::Itertools;
 
-use crate::obj::{ObjKind, ObjReloc, ObjSplit, ObjSplits, ObjSymbol};
+use crate::obj::{ObjKind, ObjRelocations, ObjSplit, ObjSplits, ObjSymbol};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjSectionKind {
@@ -27,7 +27,7 @@ pub struct ObjSection {
     pub align: u64,
     /// REL files reference the original ELF section indices
     pub elf_index: usize,
-    pub relocations: Vec<ObjReloc>,
+    pub relocations: ObjRelocations,
     pub original_address: u64,
     pub file_offset: u64,
     pub section_known: bool,
@@ -173,34 +173,6 @@ impl ObjSection {
     #[inline]
     pub fn symbol_data(&self, symbol: &ObjSymbol) -> Result<&[u8]> {
         self.data_range(symbol.address as u32, symbol.address as u32 + symbol.size as u32)
-    }
-
-    pub fn build_relocation_map(&self) -> Result<BTreeMap<u32, usize>> {
-        let mut relocations = BTreeMap::new();
-        for (idx, reloc) in self.relocations.iter().enumerate() {
-            let address = reloc.address as u32;
-            match relocations.entry(address) {
-                btree_map::Entry::Vacant(e) => {
-                    e.insert(idx);
-                }
-                btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
-            }
-        }
-        Ok(relocations)
-    }
-
-    pub fn build_relocation_map_cloned(&self) -> Result<BTreeMap<u32, ObjReloc>> {
-        let mut relocations = BTreeMap::new();
-        for reloc in self.relocations.iter().cloned() {
-            let address = reloc.address as u32;
-            match relocations.entry(address) {
-                btree_map::Entry::Vacant(e) => {
-                    e.insert(reloc);
-                }
-                btree_map::Entry::Occupied(_) => bail!("Duplicate relocation @ {address:#010X}"),
-            }
-        }
-        Ok(relocations)
     }
 
     #[inline]

@@ -10,10 +10,14 @@ use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 
 use crate::{
-    analysis::tracker::{Relocation, Tracker},
+    analysis::{
+        cfa::SectionAddress,
+        tracker::{Relocation, Tracker},
+    },
     array_ref,
     obj::{
-        ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind,
+        ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSymbol, ObjSymbolFlagSet,
+        ObjSymbolKind,
     },
     util::elf::process_elf,
 };
@@ -105,8 +109,13 @@ pub fn check_signatures(
     Ok(None)
 }
 
-pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> Result<usize> {
-    let mut target_section_index = obj.sections.at_address(target).ok().map(|(idx, _)| idx);
+pub fn apply_symbol(
+    obj: &mut ObjInfo,
+    target: SectionAddress,
+    sig_symbol: &OutSymbol,
+) -> Result<usize> {
+    let mut target_section_index =
+        if target.section == usize::MAX { None } else { Some(target.section) };
     if let Some(target_section_index) = target_section_index {
         let target_section = &mut obj.sections[target_section_index];
         if !target_section.section_known {
@@ -126,7 +135,7 @@ pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> R
         ObjSymbol {
             name: sig_symbol.name.clone(),
             demangled_name,
-            address: target as u64,
+            address: target.address as u64,
             section: target_section_index,
             size: sig_symbol.size as u64,
             size_known: sig_symbol.size > 0 || sig_symbol.kind == ObjSymbolKind::Unknown,
@@ -142,8 +151,7 @@ pub fn apply_symbol(obj: &mut ObjInfo, target: u32, sig_symbol: &OutSymbol) -> R
 
 pub fn apply_signature(
     obj: &mut ObjInfo,
-    section_index: usize,
-    addr: u32,
+    addr: SectionAddress,
     signature: &FunctionSignature,
 ) -> Result<()> {
     let in_symbol = &signature.symbols[signature.symbol];
@@ -157,7 +165,7 @@ pub fn apply_signature(
         if reloc_addr < addr || reloc_addr >= addr + in_symbol.size {
             continue;
         }
-        let offset = reloc_addr - addr;
+        let offset = reloc_addr.address - addr.address;
         let sig_reloc = match signature.relocations.iter().find(|r| r.offset == offset) {
             Some(reloc) => reloc,
             None => continue,
@@ -169,22 +177,23 @@ pub fn apply_signature(
             | (&Relocation::Lo(addr), ObjRelocKind::PpcAddr16Lo)
             | (&Relocation::Rel24(addr), ObjRelocKind::PpcRel24)
             | (&Relocation::Rel14(addr), ObjRelocKind::PpcRel14)
-            | (&Relocation::Sda21(addr), ObjRelocKind::PpcEmbSda21) => {
-                (addr as i64 - sig_reloc.addend as i64) as u32
-            }
+            | (&Relocation::Sda21(addr), ObjRelocKind::PpcEmbSda21) => SectionAddress::new(
+                addr.section,
+                (addr.address as i64 - sig_reloc.addend as i64) as u32,
+            ),
             _ => bail!("Relocation mismatch: {:?} != {:?}", reloc, sig_reloc.kind),
         };
         let sig_symbol = &signature.symbols[sig_reloc.symbol];
+        // log::info!("Processing relocation {:#010X} {:?} -> {:#010X} {:?}", reloc_addr, reloc, target, sig_symbol);
         let target_symbol_idx = apply_symbol(obj, target, sig_symbol)?;
         let obj_reloc = ObjReloc {
             kind: sig_reloc.kind,
-            address: reloc_addr as u64,
             target_symbol: target_symbol_idx,
             addend: sig_reloc.addend as i64,
             module: None,
         };
         // log::info!("Applying relocation {:#010X?}", obj_reloc);
-        obj.sections[section_index].relocations.push(obj_reloc);
+        obj.sections[addr.section].relocations.insert(reloc_addr.address, obj_reloc)?;
     }
     for reloc in &signature.relocations {
         let addr = addr + reloc.offset;
@@ -244,11 +253,12 @@ pub fn generate_signature<P: AsRef<Path>>(
     let mut symbol_map: BTreeMap<usize, usize> = BTreeMap::new();
 
     let mut obj = process_elf(path)?;
-    if obj.sda2_base.is_none()
-        || obj.sda_base.is_none()
-        || obj.stack_address.is_none()
-        || obj.stack_end.is_none()
-        || obj.db_stack_addr.is_none()
+    if obj.kind == ObjKind::Executable
+        && (obj.sda2_base.is_none()
+            || obj.sda_base.is_none()
+            || obj.stack_address.is_none()
+            || obj.stack_end.is_none()
+            || obj.db_stack_addr.is_none())
     {
         log::warn!(
             "Failed to locate all abs symbols {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?} {:#010X?}",
@@ -291,7 +301,6 @@ pub fn generate_signature<P: AsRef<Path>>(
         //     symbol.address,
         //     symbol.address + symbol.size
         // );
-        let relocations = section.build_relocation_map()?;
         let mut instructions = section.data[(symbol.address - section.address) as usize
             ..(symbol.address - section.address + symbol.size) as usize]
             .chunks_exact(4)
@@ -299,8 +308,7 @@ pub fn generate_signature<P: AsRef<Path>>(
             .collect::<Vec<(u32, u32)>>();
         for (idx, (ins, pat)) in instructions.iter_mut().enumerate() {
             let addr = (symbol.address as usize + idx * 4) as u32;
-            if let Some(&reloc_idx) = relocations.get(&addr) {
-                let reloc = &section.relocations[reloc_idx];
+            if let Some(reloc) = section.relocations.at(addr) {
                 let symbol_idx = match symbol_map.entry(reloc.target_symbol) {
                     btree_map::Entry::Vacant(e) => {
                         let target = &obj.symbols[reloc.target_symbol];
