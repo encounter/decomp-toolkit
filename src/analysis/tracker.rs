@@ -5,6 +5,8 @@ use std::{
 
 use anyhow::{bail, Result};
 use ppc750cl::Opcode;
+use tracing::{debug_span, info_span};
+use tracing_attributes::instrument;
 
 use crate::{
     analysis::{
@@ -88,8 +90,8 @@ impl Tracker {
         }
     }
 
+    #[instrument(name = "tracker", skip(self, obj))]
     pub fn process(&mut self, obj: &ObjInfo) -> Result<()> {
-        log::debug!("Processing code sections");
         self.process_code(obj)?;
         for (section_index, section) in obj
             .sections
@@ -151,6 +153,7 @@ impl Tracker {
     ) -> Result<ExecCbResult<()>> {
         let ExecCbData { executor, vm, result, ins_addr, section: _, ins, block_start: _ } = data;
         let is_function_addr = |addr: SectionAddress| addr >= function_start && addr < function_end;
+        let _span = debug_span!("ins", addr = %ins_addr, op = ?ins.op).entered();
 
         match result {
             StepResult::Continue => {
@@ -310,8 +313,20 @@ impl Tracker {
                                 executor.push(addr, branch.vm, true);
                             }
                         }
-                        BranchTarget::JumpTable { .. } => {
-                            bail!("Conditional jump table unsupported @ {:#010X}", ins_addr)
+                        BranchTarget::JumpTable { address, size } => {
+                            let (entries, _) = uniq_jump_table_entries(
+                                obj,
+                                address,
+                                size,
+                                ins_addr,
+                                function_start,
+                                Some(function_end),
+                            )?;
+                            for target in entries {
+                                if is_function_addr(target) {
+                                    executor.push(target, branch.vm.clone_all(), true);
+                                }
+                            }
                         }
                     }
                 }
@@ -326,6 +341,9 @@ impl Tracker {
         };
         let function_start = SectionAddress::new(section_index, symbol.address as u32);
         let function_end = function_start + symbol.size as u32;
+        let _span =
+            info_span!("fn", name = %symbol.name, start = %function_start, end = %function_end)
+                .entered();
 
         // The compiler can sometimes create impossible-to-reach branches,
         // but we still want to track them.
@@ -461,6 +479,7 @@ impl Tracker {
             .or_else(|| check_symbol(self.sda_base, "_SDA_BASE_"))
     }
 
+    #[instrument(name = "apply", skip(self, obj))]
     pub fn apply(&self, obj: &mut ObjInfo, replace: bool) -> Result<()> {
         fn apply_section_name(section: &mut ObjSection, name: &str) {
             let module_id = if let Some((_, b)) = section.name.split_once(':') {

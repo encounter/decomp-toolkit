@@ -151,8 +151,9 @@ impl AnalysisPass for FindRelCtorsDtors {
         let possible_sections = obj
             .sections
             .iter()
-            .filter(|&(_, section)| {
+            .filter(|&(index, section)| {
                 if section.section_known
+                    || state.known_sections.contains_key(&index)
                     || !matches!(section.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData)
                     || section.size < 4
                 {
@@ -279,6 +280,43 @@ impl AnalysisPass for FindRelCtorsDtors {
         //         data_kind: Default::default(),
         //     });
         // }
+
+        Ok(())
+    }
+}
+
+pub struct FindRelRodataData {}
+
+impl AnalysisPass for FindRelRodataData {
+    fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
+        ensure!(obj.kind == ObjKind::Relocatable);
+
+        match (obj.sections.by_name(".rodata")?, obj.sections.by_name(".data")?) {
+            (None, None) => {}
+            _ => return Ok(()),
+        }
+
+        let possible_sections = obj
+            .sections
+            .iter()
+            .filter(|&(index, section)| {
+                !section.section_known
+                    && !state.known_sections.contains_key(&index)
+                    && matches!(section.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData)
+            })
+            .collect_vec();
+
+        if possible_sections.len() != 2 {
+            log::warn!("Failed to find .rodata and .data");
+            return Ok(());
+        }
+
+        log::debug!("Found .rodata and .data: {:?}", possible_sections);
+        let rodata_section_index = possible_sections[0].0;
+        state.known_sections.insert(rodata_section_index, ".rodata".to_string());
+
+        let data_section_index = possible_sections[1].0;
+        state.known_sections.insert(data_section_index, ".data".to_string());
 
         Ok(())
     }

@@ -126,8 +126,11 @@ pub fn section_address_for(
         let (section_index, _) = obj.sections.at_address(target_addr).ok()?;
         return Some(SectionAddress::new(section_index, target_addr));
     }
-    // TODO: relative jumps within relocatable objects?
-    None
+    if obj.sections[ins_addr.section].contains(target_addr) {
+        Some(SectionAddress::new(ins_addr.section, target_addr))
+    } else {
+        None
+    }
 }
 
 impl VM {
@@ -180,11 +183,11 @@ impl VM {
     pub fn clone_all(&self) -> Box<Self> { Box::new(self.clone()) }
 
     pub fn step(&mut self, obj: &ObjInfo, ins_addr: SectionAddress, ins: &Ins) -> StepResult {
-        let relocation_target = relocation_target_for(obj, ins_addr, None).ok().flatten();
-        if let Some(_target) = relocation_target {
-            let _defs = ins.defs();
-            // TODO
-        }
+        // let relocation_target = relocation_target_for(obj, ins_addr, None).ok().flatten();
+        // if let Some(_target) = relocation_target {
+        //     let _defs = ins.defs();
+        //     // TODO
+        // }
 
         match ins.op {
             Opcode::Illegal => {

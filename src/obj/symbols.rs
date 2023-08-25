@@ -170,9 +170,7 @@ impl ObjSymbols {
         let mut symbols_by_section: Vec<BTreeMap<u32, Vec<SymbolIndex>>> = vec![];
         let mut symbols_by_name = HashMap::<String, Vec<SymbolIndex>>::new();
         for (idx, symbol) in symbols.iter().enumerate() {
-            if obj_kind == ObjKind::Executable {
-                symbols_by_address.nested_push(symbol.address as u32, idx);
-            }
+            symbols_by_address.nested_push(symbol.address as u32, idx);
             if let Some(section_idx) = symbol.section {
                 if section_idx >= symbols_by_section.len() {
                     symbols_by_section.resize_with(section_idx + 1, BTreeMap::new);
@@ -209,7 +207,8 @@ impl ObjSymbols {
         let target_symbol_idx = if let Some((symbol_idx, existing)) = opt {
             let size =
                 if existing.size_known && in_symbol.size_known && existing.size != in_symbol.size {
-                    log::warn!(
+                    // TODO fix and promote back to warning
+                    log::debug!(
                         "Conflicting size for {}: was {:#X}, now {:#X}",
                         existing.name,
                         existing.size,
@@ -277,9 +276,7 @@ impl ObjSymbols {
 
     pub fn add_direct(&mut self, in_symbol: ObjSymbol) -> Result<SymbolIndex> {
         let symbol_idx = self.symbols.len();
-        if self.obj_kind == ObjKind::Executable {
-            self.symbols_by_address.nested_push(in_symbol.address as u32, symbol_idx);
-        }
+        self.symbols_by_address.nested_push(in_symbol.address as u32, symbol_idx);
         if let Some(section_idx) = in_symbol.section {
             if section_idx >= self.symbols_by_section.len() {
                 self.symbols_by_section.resize_with(section_idx + 1, BTreeMap::new);
@@ -446,7 +443,7 @@ impl ObjSymbols {
         // ensure!(self.obj_kind == ObjKind::Executable);
         let mut result = None;
         for (_addr, symbol_idxs) in self.indexes_for_range(..=target_addr.address).rev() {
-            let mut symbols = symbol_idxs
+            let symbols = symbol_idxs
                 .iter()
                 .map(|&idx| (idx, &self.symbols[idx]))
                 .filter(|(_, sym)| {
@@ -454,42 +451,8 @@ impl ObjSymbols {
                         && sym.referenced_by(reloc_kind)
                 })
                 .collect_vec();
-            let (symbol_idx, symbol) = if symbols.len() == 1 {
-                symbols.pop().unwrap()
-            } else {
-                symbols.sort_by_key(|&(_, symbol)| {
-                    let mut rank = match symbol.kind {
-                        ObjSymbolKind::Function | ObjSymbolKind::Object => match reloc_kind {
-                            ObjRelocKind::PpcAddr16Hi
-                            | ObjRelocKind::PpcAddr16Ha
-                            | ObjRelocKind::PpcAddr16Lo => 1,
-                            ObjRelocKind::Absolute
-                            | ObjRelocKind::PpcRel24
-                            | ObjRelocKind::PpcRel14
-                            | ObjRelocKind::PpcEmbSda21 => 2,
-                        },
-                        // Label
-                        ObjSymbolKind::Unknown => match reloc_kind {
-                            ObjRelocKind::PpcAddr16Hi
-                            | ObjRelocKind::PpcAddr16Ha
-                            | ObjRelocKind::PpcAddr16Lo
-                                if !symbol.name.starts_with("..") =>
-                            {
-                                3
-                            }
-                            _ => 1,
-                        },
-                        ObjSymbolKind::Section => -1,
-                    };
-                    if symbol.size > 0 {
-                        rank += 1;
-                    }
-                    -rank
-                });
-                match symbols.first() {
-                    Some(&v) => v,
-                    None => continue,
-                }
+            let Some((symbol_idx, symbol)) = best_match_for_reloc(symbols, reloc_kind) else {
+                continue;
             };
             if symbol.address == target_addr.address as u64 {
                 result = Some((symbol_idx, symbol));
@@ -548,4 +511,43 @@ impl ObjSymbol {
             }
         }
     }
+}
+
+pub fn best_match_for_reloc(
+    mut symbols: Vec<(SymbolIndex, &ObjSymbol)>,
+    reloc_kind: ObjRelocKind,
+) -> Option<(SymbolIndex, &ObjSymbol)> {
+    if symbols.len() == 1 {
+        return symbols.into_iter().next();
+    }
+    symbols.sort_by_key(|&(_, symbol)| {
+        let mut rank = match symbol.kind {
+            ObjSymbolKind::Function | ObjSymbolKind::Object => match reloc_kind {
+                ObjRelocKind::PpcAddr16Hi
+                | ObjRelocKind::PpcAddr16Ha
+                | ObjRelocKind::PpcAddr16Lo => 1,
+                ObjRelocKind::Absolute
+                | ObjRelocKind::PpcRel24
+                | ObjRelocKind::PpcRel14
+                | ObjRelocKind::PpcEmbSda21 => 2,
+            },
+            // Label
+            ObjSymbolKind::Unknown => match reloc_kind {
+                ObjRelocKind::PpcAddr16Hi
+                | ObjRelocKind::PpcAddr16Ha
+                | ObjRelocKind::PpcAddr16Lo
+                    if !symbol.name.starts_with("..") =>
+                {
+                    3
+                }
+                _ => 1,
+            },
+            ObjSymbolKind::Section => -1,
+        };
+        if symbol.size > 0 {
+            rank += 1;
+        }
+        -rank
+    });
+    symbols.into_iter().next()
 }

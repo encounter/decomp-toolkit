@@ -6,6 +6,7 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use itertools::Itertools;
 use petgraph::{graph::NodeIndex, Graph};
+use tracing_attributes::instrument;
 
 use crate::{
     analysis::{cfa::SectionAddress, read_address, read_u32},
@@ -400,13 +401,13 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
 }
 
 /// Ensures that all .bss splits following a common split are also marked as common.
-fn update_common_splits(obj: &mut ObjInfo) -> Result<()> {
+fn update_common_splits(obj: &mut ObjInfo, common_start: Option<u32>) -> Result<()> {
     let Some((bss_section_index, bss_section)) = obj.sections.by_name(".bss")? else {
         return Ok(());
     };
-    let Some(common_bss_start) =
+    let Some(common_bss_start) = common_start.or_else(|| {
         bss_section.splits.iter().find(|(_, split)| split.common).map(|(addr, _)| addr)
-    else {
+    }) else {
         return Ok(());
     };
     log::debug!("Found common BSS start at {:#010X}", common_bss_start);
@@ -434,7 +435,7 @@ fn validate_splits(obj: &ObjInfo) -> Result<()> {
             split.end
         );
         ensure!(
-            split.end > 0 && split.end > addr,
+            split.end > 0 && split.end >= addr,
             "Invalid split end {} {} {:#010X}..{:#010X}",
             split.unit,
             section.name,
@@ -490,7 +491,8 @@ fn validate_splits(obj: &ObjInfo) -> Result<()> {
 /// - Ensuring extab & extabindex entries are split with their associated function
 /// - Creating splits for gaps between existing splits
 /// - Resolving a new object link order
-pub fn update_splits(obj: &mut ObjInfo) -> Result<()> {
+#[instrument(level = "debug", skip(obj))]
+pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>) -> Result<()> {
     // Create splits for extab and extabindex entries
     if let Some((section_index, section)) = obj.sections.by_name("extabindex")? {
         let start = SectionAddress::new(section_index, section.address as u32);
@@ -519,7 +521,7 @@ pub fn update_splits(obj: &mut ObjInfo) -> Result<()> {
     create_gap_splits(obj)?;
 
     // Update common BSS splits
-    update_common_splits(obj)?;
+    update_common_splits(obj, common_start)?;
 
     // Ensure splits don't overlap symbols or each other
     validate_splits(obj)?;
@@ -534,6 +536,7 @@ pub fn update_splits(obj: &mut ObjInfo) -> Result<()> {
 /// We can use a topological sort to determine a valid global TU order.
 /// There can be ambiguities, but any solution that satisfies the link order
 /// constraints is considered valid.
+#[instrument(level = "debug", skip(obj))]
 fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
     #[allow(dead_code)]
     #[derive(Debug, Copy, Clone)]
@@ -619,10 +622,9 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
     }
 }
 
-/// Split an executable object into relocatable objects.
+/// Split an object into multiple relocatable objects.
+#[instrument(level = "debug", skip(obj))]
 pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
-    ensure!(obj.kind == ObjKind::Executable, "Expected executable object");
-
     let mut objects: Vec<ObjInfo> = vec![];
     let mut object_symbols: Vec<Vec<Option<usize>>> = vec![];
     let mut name_to_obj: HashMap<String, usize> = HashMap::new();
@@ -834,7 +836,19 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                         // If the symbol is local, we'll upgrade the scope to global
                         // and rename it to avoid conflicts
                         if target_sym.flags.is_local() {
-                            let address_str = format!("{:08X}", target_sym.address);
+                            let address_str = if obj.module_id == 0 {
+                                format!("{:08X}", target_sym.address)
+                            } else if let Some(section_index) = target_sym.section {
+                                let target_section = &obj.sections[section_index];
+                                format!(
+                                    "{}_{}_{:X}",
+                                    obj.module_id,
+                                    target_section.name.trim_start_matches('.'),
+                                    target_sym.address
+                                )
+                            } else {
+                                bail!("Local symbol {} has no section", target_sym.name);
+                            };
                             let new_name = if target_sym.name.ends_with(&address_str) {
                                 target_sym.name.clone()
                             } else {

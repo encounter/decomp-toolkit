@@ -11,11 +11,11 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Result};
 pub use relocations::{ObjReloc, ObjRelocKind, ObjRelocations};
-pub use sections::{section_kind_for_section, ObjSection, ObjSectionKind, ObjSections};
+pub use sections::{ObjSection, ObjSectionKind, ObjSections};
 pub use splits::{ObjSplit, ObjSplits};
 pub use symbols::{
-    ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
-    ObjSymbols, SymbolIndex,
+    best_match_for_reloc, ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+    ObjSymbolScope, ObjSymbols, SymbolIndex,
 };
 
 use crate::util::{comment::MWComment, rel::RelReloc};

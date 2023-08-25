@@ -144,7 +144,7 @@ pub fn apply_symbol(
             align: None,
             data_kind: Default::default(),
         },
-        true,
+        false,
     )?;
     Ok(target_symbol_idx)
 }

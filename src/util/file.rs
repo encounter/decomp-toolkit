@@ -8,6 +8,7 @@ use anyhow::{anyhow, Context, Result};
 use byteorder::ReadBytesExt;
 use filetime::{set_file_mtime, FileTime};
 use memmap2::{Mmap, MmapOptions};
+use path_slash::PathBufExt;
 
 use crate::util::{rarc, rarc::Node, yaz0};
 
@@ -80,7 +81,7 @@ pub fn process_rsp(files: &[PathBuf]) -> Result<Vec<PathBuf>> {
             for result in reader.lines() {
                 let line = result?;
                 if !line.is_empty() {
-                    out.push(PathBuf::from(line));
+                    out.push(PathBuf::from_slash(line));
                 }
             }
         } else if path_str.contains('*') {

@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_mut)]
 use std::{
-    collections::{btree_map, BTreeMap, HashMap, HashSet},
+    collections::{btree_map, BTreeMap, HashMap},
     hash::Hash,
     io::BufRead,
     mem::replace,
@@ -15,10 +15,7 @@ use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 use crate::{
-    obj::{
-        section_kind_for_section, ObjInfo, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags,
-        ObjSymbolKind,
-    },
+    obj::{ObjInfo, ObjKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
     util::file::{map_file, map_reader},
 };
 
@@ -65,86 +62,6 @@ struct SectionOrder {
 #[inline]
 fn is_code_section(section: &str) -> bool { matches!(section, ".text" | ".init") }
 
-/// Iterate over the BTreeMap and generate an ordered list of symbols and TUs by address.
-fn resolve_section_order(
-    _address_to_symbol: &BTreeMap<u32, SymbolRef>,
-    symbol_entries: &mut HashMap<SymbolRef, SymbolEntry>,
-) -> Result<SectionOrder> {
-    let ordering = SectionOrder::default();
-
-    // let mut last_unit = String::new();
-    // let mut last_section = String::new();
-    // let mut section_unit_idx = 0usize;
-    // for symbol_ref in address_to_symbol.values() {
-    //     if let Some(symbol) = symbol_entries.get_mut(symbol_ref) {
-    //         if last_unit != symbol.unit {
-    //             if last_section != symbol.section {
-    //                 ordering.unit_order.push((symbol.section.clone(), vec![]));
-    //                 section_unit_idx = ordering.unit_order.len() - 1;
-    //                 last_section = symbol.section.clone();
-    //             }
-    //             let unit_order = &mut ordering.unit_order[section_unit_idx];
-    //             if unit_order.1.contains(&symbol.unit) {
-    //                 // With -common on, .bss is split into two parts. The TU order repeats
-    //                 // at the end with all globally-deduplicated BSS symbols. Once we detect
-    //                 // a duplicate inside of .bss, we create a new section and start again.
-    //                 // TODO the first entry in .comm *could* be a TU without regular .bss
-    //                 if symbol.section == ".bss" {
-    //                     log::debug!(".comm section detected, duplicate {}", symbol.unit);
-    //                     ordering.unit_order.push((".comm".to_string(), vec![symbol.unit.clone()]));
-    //                     section_unit_idx = ordering.unit_order.len() - 1;
-    //                 } else {
-    //                     bail!(
-    //                         "TU order conflict: {} exists multiple times in {}.",
-    //                         symbol.unit, symbol.section,
-    //                     );
-    //                 }
-    //             } else {
-    //                 unit_order.1.push(symbol.unit.clone());
-    //             }
-    //             last_unit = symbol.unit.clone();
-    //         }
-    //         // For ASM-generated objects, notype,local symbols in .text
-    //         // are usually local jump labels, and should be ignored.
-    //         if is_code_section(&symbol.section)
-    //             && symbol.size == 0
-    //             && symbol.kind == SymbolKind::NoType
-    //             && symbol.visibility == SymbolVisibility::Local
-    //         {
-    //             // Being named something other than lbl_* could indicate
-    //             // that it's actually a local function, but let's just
-    //             // make the user resolve that if necessary.
-    //             if !symbol.name.starts_with("lbl_") {
-    //                 log::warn!("Skipping local text symbol {}", symbol.name);
-    //             }
-    //             continue;
-    //         }
-    //         // Guess the symbol type if necessary.
-    //         if symbol.kind == SymbolKind::NoType {
-    //             if is_code_section(&symbol.section) {
-    //                 symbol.kind = SymbolKind::Function;
-    //             } else {
-    //                 symbol.kind = SymbolKind::Object;
-    //             }
-    //         }
-    //         ordering.symbol_order.push(symbol_ref.clone());
-    //     } else {
-    //         bail!("Symbol has address but no entry: {symbol_ref:?}");
-    //     }
-    // }
-
-    for iter in ordering.symbol_order.windows(2) {
-        let next_address = symbol_entries.get(&iter[1]).unwrap().address;
-        let symbol = symbol_entries.get_mut(&iter[0]).unwrap();
-        // For ASM-generated objects, we need to guess the symbol size.
-        if symbol.size == 0 {
-            symbol.size = next_address - symbol.address;
-        }
-    }
-
-    Ok(ordering)
-}
-
 macro_rules! static_regex {
     ($name:ident, $str:expr) => {
         static $name: Lazy<Regex> = Lazy::new(|| Regex::new($str).unwrap());
@@ -171,7 +88,7 @@ static_regex!(LINK_MAP_EXTERN_SYMBOL, "^\\s*>>> SYMBOL NOT FOUND: (.*)$");
 static_regex!(SECTION_LAYOUT_START, "^(?P<section>.*) section layout$");
 static_regex!(
     SECTION_LAYOUT_SYMBOL,
-    "^\\s*(?P<rom_addr>[0-9A-Fa-f]+|UNUSED)\\s+(?P<size>[0-9A-Fa-f]+)\\s+(?P<addr>[0-9A-Fa-f]{8}|\\.{8})\\s+(?P<offset>[0-9A-Fa-f]{8}|\\.{8})\\s+(?P<align>\\d+)?\\s*(?P<sym>.*?)(?:\\s+\\(entry of (?P<entry_of>.*?)\\))?\\s+(?P<tu>.*)$"
+    "^\\s*(?P<rom_addr>[0-9A-Fa-f]+|UNUSED)\\s+(?P<size>[0-9A-Fa-f]+)\\s+(?P<addr>[0-9A-Fa-f]{8}|\\.{8})(?:\\s+(?P<offset>[0-9A-Fa-f]{8}|\\.{8}))?\\s+(?P<align>\\d+)?\\s*(?P<sym>.*?)(?:\\s+\\(entry of (?P<entry_of>.*?)\\))?\\s+(?P<tu>.*)$"
 );
 static_regex!(
     SECTION_LAYOUT_HEADER,
@@ -187,11 +104,12 @@ static_regex!(MEMORY_MAP_ENTRY, "^\\s*(?P<section>\\S+)\\s+(?P<addr>[0-9A-Fa-f]+
 static_regex!(LINKER_SYMBOLS_START, "^\\s*Linker generated symbols:\\s*$");
 static_regex!(LINKER_SYMBOL_ENTRY, "^\\s*(?P<name>\\S+)\\s+(?P<addr>[0-9A-Fa-f]+|\\.{0,8})\\s*$");
 
+#[derive(Debug)]
 pub struct SectionInfo {
-    name: String,
-    address: u32,
-    size: u32,
-    file_offset: u32,
+    pub name: String,
+    pub address: u32,
+    pub size: u32,
+    pub file_offset: u32,
 }
 
 #[derive(Default)]
@@ -200,11 +118,7 @@ pub struct MapInfo {
     pub unit_entries: MultiMap<String, SymbolRef>,
     pub entry_references: MultiMap<SymbolRef, SymbolRef>,
     pub entry_referenced_from: MultiMap<SymbolRef, SymbolRef>,
-    // pub address_to_symbol: BTreeMap<u32, SymbolRef>,
-    // pub unit_section_ranges: HashMap<String, HashMap<String, Range<u32>>>,
-    // pub symbol_order: Vec<SymbolRef>,
-    // pub unit_order: Vec<(String, Vec<String>)>,
-    pub sections: BTreeMap<u32, SectionInfo>,
+    pub sections: Vec<SectionInfo>,
     pub link_map_symbols: HashMap<SymbolRef, SymbolEntry>,
     pub section_symbols: HashMap<String, BTreeMap<u32, Vec<SymbolEntry>>>,
     pub section_units: HashMap<String, Vec<(u32, String)>>,
@@ -442,34 +356,34 @@ impl StateMachine {
 
     fn end_section_layout(mut state: SectionLayoutState, entries: &mut MapInfo) -> Result<()> {
         // Resolve duplicate TUs
-        let mut existing = HashSet::new();
-        for idx in 0..state.units.len() {
-            let (addr, unit) = &state.units[idx];
-            // FIXME
-            if
-            /*state.current_section == ".bss" ||*/
-            existing.contains(unit) {
-                if
-                /*state.current_section == ".bss" ||*/
-                &state.units[idx - 1].1 != unit {
-                    let new_name = format!("{unit}_{}_{:010X}", state.current_section, addr);
-                    log::info!("Renaming {unit} to {new_name}");
-                    for idx2 in 0..idx {
-                        let (addr, n_unit) = &state.units[idx2];
-                        if unit == n_unit {
-                            let new_name =
-                                format!("{n_unit}_{}_{:010X}", state.current_section, addr);
-                            log::info!("Renaming 2 {n_unit} to {new_name}");
-                            state.units[idx2].1 = new_name;
-                            break;
-                        }
-                    }
-                    state.units[idx].1 = new_name;
-                }
-            } else {
-                existing.insert(unit.clone());
-            }
-        }
+        // let mut existing = HashSet::new();
+        // for idx in 0..state.units.len() {
+        //     let (addr, unit) = &state.units[idx];
+        //     // FIXME
+        //     if
+        //     /*state.current_section == ".bss" ||*/
+        //     existing.contains(unit) {
+        //         if
+        //         /*state.current_section == ".bss" ||*/
+        //         &state.units[idx - 1].1 != unit {
+        //             let new_name = format!("{unit}_{}_{:010X}", state.current_section, addr);
+        //             log::info!("Renaming {unit} to {new_name}");
+        //             for idx2 in 0..idx {
+        //                 let (addr, n_unit) = &state.units[idx2];
+        //                 if unit == n_unit {
+        //                     let new_name =
+        //                         format!("{n_unit}_{}_{:010X}", state.current_section, addr);
+        //                     log::info!("Renaming 2 {n_unit} to {new_name}");
+        //                     state.units[idx2].1 = new_name;
+        //                     break;
+        //                 }
+        //             }
+        //             state.units[idx].1 = new_name;
+        //         }
+        //     } else {
+        //         existing.insert(unit.clone());
+        //     }
+        // }
         if !state.symbols.is_empty() {
             entries.section_symbols.insert(state.current_section.clone(), state.symbols);
         }
@@ -590,7 +504,7 @@ impl StateMachine {
         let size = u32::from_str_radix(&captures["size"], 16)?;
         let file_offset = u32::from_str_radix(&captures["offset"], 16)?;
         // log::info!("Memory map entry: {section} {address:#010X} {size:#010X} {file_offset:#010X}");
-        entries.sections.insert(address, SectionInfo {
+        entries.sections.push(SectionInfo {
             name: section.to_string(),
             address,
             size,
@@ -640,12 +554,7 @@ pub fn process_map<R: BufRead>(reader: R) -> Result<MapInfo> {
     }
     let state = replace(&mut sm.state, ProcessMapState::None);
     sm.end_state(state)?;
-
-    let entries = sm.result;
-    // let section_order = resolve_section_order(&entries.address_to_symbol, &mut entries.symbols)?;
-    // entries.symbol_order = section_order.symbol_order;
-    // entries.unit_order = section_order.unit_order;
-    Ok(entries)
+    Ok(sm.result)
 }
 
 pub fn apply_map_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<()> {
@@ -655,44 +564,32 @@ pub fn apply_map_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<()> 
 }
 
 pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
-    for (_section_index, section) in obj.sections.iter_mut() {
-        if let Some(info) = result.sections.get(&(section.address as u32)) {
-            let kind = section_kind_for_section(&info.name)?;
-            if section.section_known {
-                if section.name != info.name {
-                    log::warn!("Section mismatch: was {}, map says {}", section.name, info.name);
-                }
-                if section.kind != kind {
-                    log::warn!(
-                        "Section type mismatch: {} was {:?}, map says {:?}",
-                        info.name,
-                        section.kind,
-                        kind
-                    );
-                }
+    for (section_index, section) in obj.sections.iter_mut() {
+        log::info!("Section {}: {} ({:?})", section_index, section.name, result.sections);
+        let opt = if obj.kind == ObjKind::Executable {
+            result.sections.iter().find(|s| s.address == section.address as u32)
+        } else {
+            result.sections.iter().filter(|s| s.size > 0).nth(section_index)
+        };
+        if let Some(info) = opt {
+            if section.section_known && section.name != info.name {
+                log::warn!("Section mismatch: was {}, map says {}", section.name, info.name);
             }
-            // if section.size != info.size as u64 {
-            //     log::warn!(
-            //         "Section size mismatch: {} was {:#X}, map says {:#X}",
-            //         info.name,
-            //         section.size,
-            //         info.size
-            //     );
-            // }
-            // if section.file_offset != info.file_offset as u64 {
-            //     log::warn!(
-            //         "Section file offset mismatch: {} was {:#X}, map says {:#X}",
-            //         info.name,
-            //         section.file_offset,
-            //         info.file_offset
-            //     );
-            // }
-            section.name = info.name.clone();
-            section.kind = kind;
-            // section.size = info.size as u64;
-            // section.file_offset = info.file_offset as u64;
-            // section.original_address = info.address as u64;
-            section.section_known = true;
+            if section.address != info.address as u64 {
+                log::warn!(
+                    "Section address mismatch: was {:#010X}, map says {:#010X}",
+                    section.address,
+                    info.address
+                );
+            }
+            if section.size != info.size as u64 {
+                log::warn!(
+                    "Section size mismatch: was {:#X}, map says {:#X}",
+                    section.size,
+                    info.size
+                );
+            }
+            section.rename(info.name.clone())?;
         } else {
             log::warn!("Section {} @ {:#010X} not found in map", section.name, section.address);
         }
@@ -708,33 +605,32 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
         }
     }
     // Add absolute symbols
-    for symbol_entry in result.link_map_symbols.values().filter(|s| s.unit.is_none()) {
-        add_symbol(obj, symbol_entry, None)?;
-    }
-    // Add splits
-    let mut section_order: Vec<(String, Vec<String>)> = Vec::new();
-    for (section, unit_order) in &result.section_units {
-        let mut units = Vec::new();
-        let mut existing = HashSet::new();
-        for (_addr, unit) in unit_order {
-            let unit = unit.clone();
-            if !existing.contains(&unit) {
-                units.push(unit.clone());
-                existing.insert(unit.clone());
-            }
-            // obj.splits.nested_push(*addr, ObjSplit {
-            //     unit,
-            //     end: 0, // TODO?
-            //     align: None,
-            //     common: false, // TODO?
-            //     autogenerated: false,
-            // });
-        }
-        section_order.push((section.clone(), units));
-    }
     // TODO
-    // log::info!("Section order: {:#?}", section_order);
-    // obj.link_order = resolve_link_order(&section_order)?;
+    // for symbol_entry in result.link_map_symbols.values().filter(|s| s.unit.is_none()) {
+    //     add_symbol(obj, symbol_entry, None)?;
+    // }
+    // Add splits
+    for (section_name, unit_order) in &result.section_units {
+        let (_, section) = obj
+            .sections
+            .iter_mut()
+            .find(|(_, s)| s.name == *section_name)
+            .ok_or_else(|| anyhow!("Failed to locate section '{}'", section_name))?;
+        let mut iter = unit_order.iter().peekable();
+        while let Some((addr, unit)) = iter.next() {
+            let next = iter
+                .peek()
+                .map(|(addr, _)| *addr)
+                .unwrap_or_else(|| (section.address + section.size) as u32);
+            section.splits.push(*addr, ObjSplit {
+                unit: unit.clone(),
+                end: next,
+                align: None,
+                common: false,
+                autogenerated: false,
+            });
+        }
+    }
     Ok(())
 }
 
@@ -760,7 +656,7 @@ fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usi
                 SymbolKind::Section => ObjSymbolKind::Section,
                 SymbolKind::NoType => ObjSymbolKind::Unknown,
             },
-            align: None,
+            align: symbol_entry.align,
             data_kind: Default::default(),
         },
         true,

@@ -2,13 +2,18 @@ use std::path::PathBuf;
 
 use anyhow::{bail, Result};
 use itertools::Itertools;
+use path_slash::PathBufExt;
 
-use crate::obj::ObjInfo;
+use crate::obj::{ObjInfo, ObjKind};
 
 #[inline]
 const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
 
 pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String> {
+    if obj.kind == ObjKind::Relocatable {
+        return generate_ldscript_partial(obj, auto_force_files);
+    }
+
     let origin = obj.sections.iter().map(|(_, s)| s.address).min().unwrap();
     let stack_size = match (obj.stack_address, obj.stack_end) {
         (Some(stack_address), Some(stack_end)) => stack_address - stack_end,
@@ -76,10 +81,38 @@ pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String
     Ok(out)
 }
 
+pub fn generate_ldscript_partial(obj: &ObjInfo, auto_force_files: bool) -> Result<String> {
+    let section_defs =
+        obj.sections.iter().map(|(_, s)| format!("{} :{{}}", s.name)).join("\n        ");
+
+    let mut force_files = Vec::with_capacity(obj.link_order.len());
+    for unit in &obj.link_order {
+        let obj_path = obj_path_for_unit(&unit.name);
+        force_files.push(obj_path.file_name().unwrap().to_str().unwrap().to_string());
+    }
+
+    let mut force_active = vec![];
+    for symbol in obj.symbols.iter() {
+        if symbol.flags.is_force_active() && symbol.flags.is_global() {
+            force_active.push(symbol.name.clone());
+        }
+    }
+
+    let mut out = include_str!("../../assets/ldscript_partial.lcf")
+        .replace("$SECTIONS", &section_defs)
+        .replace("$FORCEACTIVE", &force_active.join("\n    "));
+    out = if auto_force_files {
+        out.replace("$FORCEFILES", &force_files.join("\n    "))
+    } else {
+        out.replace("$FORCEFILES", "")
+    };
+    Ok(out)
+}
+
 pub fn obj_path_for_unit(unit: &str) -> PathBuf {
-    PathBuf::from(unit).with_extension("").with_extension("o")
+    PathBuf::from_slash(unit).with_extension("").with_extension("o")
 }
 
 pub fn asm_path_for_unit(unit: &str) -> PathBuf {
-    PathBuf::from(unit).with_extension("").with_extension("s")
+    PathBuf::from_slash(unit).with_extension("").with_extension("s")
 }

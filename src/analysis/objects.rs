@@ -5,7 +5,7 @@ use crate::{
     util::split::is_linker_generated_label,
 };
 
-pub fn detect_object_boundaries(obj: &mut ObjInfo) -> Result<()> {
+pub fn detect_objects(obj: &mut ObjInfo) -> Result<()> {
     for (section_index, section) in
         obj.sections.iter_mut().filter(|(_, s)| s.kind != ObjSectionKind::Code)
     {

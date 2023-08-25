@@ -29,7 +29,6 @@ base64 = "0.21.2"
 byteorder = "1.4.3"
 cwdemangle = "0.1.5"
 dol = { git = "https://github.com/encounter/ppc750cl", rev = "5f6e991bf495388c4104f188d2e90c79da9f78de" }
-env_logger = "0.10.0"
 filetime = "0.2.21"
 fixedbitset = "0.4.2"
 flagset = { version = "0.4.3", features = ["serde"] }
@@ -45,8 +44,10 @@ multimap = "0.9.0"
 num_enum = "0.6.1"
 object = { version = "0.31.1", features = ["read_core", "std", "elf", "write_std"], default-features = false }
 once_cell = "1.18.0"
+path-slash = "0.2.1"
 petgraph = "0.6.3"
 ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "5f6e991bf495388c4104f188d2e90c79da9f78de" }
+rayon = "1.7.0"
 regex = "1.9.0"
 serde = "1.0.166"
 serde_json = "1.0.104"
@@ -54,6 +55,9 @@ serde_repr = "0.1.14"
 serde_yaml = "0.9.22"
 sha-1 = "0.10.1"
 smallvec = "1.11.0"
+tracing = "0.1.37"
+tracing-attributes = "0.1.26"
+tracing-subscriber = "0.3.17"
 
 [build-dependencies]
 anyhow = { version = "1.0.71", features = ["backtrace"] }

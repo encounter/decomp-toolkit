@@ -24,13 +24,13 @@ pub struct SectionAddress {
 
 impl Debug for SectionAddress {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{:#010X}", self.section as isize, self.address)
+        write!(f, "{}:{:#X}", self.section as isize, self.address)
     }
 }
 
 impl Display for SectionAddress {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}:{:#010X}", self.section as isize, self.address)
+        write!(f, "{}:{:#X}", self.section as isize, self.address)
     }
 }
 
@@ -131,9 +131,19 @@ impl AnalyzerState {
                 section.address,
                 section.address + section.size
             );
+            let address_str = if obj.module_id == 0 {
+                format!("{:08X}", addr.address)
+            } else {
+                format!(
+                    "{}_{}_{:X}",
+                    obj.module_id,
+                    section.name.trim_start_matches('.'),
+                    addr.address
+                )
+            };
             obj.add_symbol(
                 ObjSymbol {
-                    name: format!("jumptable_{:08X}", addr.address),
+                    name: format!("jumptable_{}", address_str),
                     demangled_name: None,
                     address: addr.address as u64,
                     section: Some(addr.section),

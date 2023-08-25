@@ -1,4 +1,4 @@
-use std::{ffi::OsStr, io::Write, path::PathBuf, str::FromStr};
+use std::{ffi::OsStr, path::PathBuf, str::FromStr};
 
 use argp::{FromArgValue, FromArgs};
 
@@ -86,13 +86,11 @@ enum SubCommand {
 }
 
 fn main() {
-    let args: TopLevel = argp_version::from_env();
-    env_logger::Builder::from_env(
-        env_logger::Env::default().default_filter_or(args.log_level.to_string()),
-    )
-    .format(|f, r| writeln!(f, "[{}] {}", r.level(), r.args()))
-    .init();
+    let format = tracing_subscriber::fmt::format().with_target(false).without_time();
+    tracing_subscriber::fmt().event_format(format).init();
+    // TODO reimplement log level selection
 
+    let args: TopLevel = argp_version::from_env();
     let mut result = Ok(());
     if let Some(dir) = &args.chdir {
         result = std::env::set_current_dir(dir).map_err(|e| {
