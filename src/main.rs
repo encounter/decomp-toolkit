@@ -1,6 +1,8 @@
 use std::{ffi::OsStr, path::PathBuf, str::FromStr};
 
 use argp::{FromArgValue, FromArgs};
+use tracing::level_filters::LevelFilter;
+use tracing_subscriber::EnvFilter;
 
 pub mod analysis;
 pub mod argp_version;
@@ -60,10 +62,10 @@ struct TopLevel {
     #[argp(option, short = 'C')]
     /// Change working directory.
     chdir: Option<PathBuf>,
-    #[argp(option, short = 'L', default = "LogLevel::Info")]
+    #[argp(option, short = 'L')]
     /// Minimum logging level. (Default: info)
     /// Possible values: error, warn, info, debug, trace
-    log_level: LogLevel,
+    log_level: Option<LogLevel>,
     /// Print version information and exit.
     #[argp(switch, short = 'V')]
     version: bool,
@@ -86,11 +88,29 @@ enum SubCommand {
 }
 
 fn main() {
-    let format = tracing_subscriber::fmt::format().with_target(false).without_time();
-    tracing_subscriber::fmt().event_format(format).init();
-    // TODO reimplement log level selection
-
     let args: TopLevel = argp_version::from_env();
+    let format = tracing_subscriber::fmt::format().with_target(false).without_time();
+    let builder = tracing_subscriber::fmt().event_format(format);
+    if let Some(level) = args.log_level {
+        builder
+            .with_max_level(match level {
+                LogLevel::Error => LevelFilter::ERROR,
+                LogLevel::Warn => LevelFilter::WARN,
+                LogLevel::Info => LevelFilter::INFO,
+                LogLevel::Debug => LevelFilter::DEBUG,
+                LogLevel::Trace => LevelFilter::TRACE,
+            })
+            .init();
+    } else {
+        builder
+            .with_env_filter(
+                EnvFilter::builder()
+                    .with_default_directive(LevelFilter::INFO.into())
+                    .from_env_lossy(),
+            )
+            .init();
+    }
+
     let mut result = Ok(());
     if let Some(dir) = &args.chdir {
         result = std::env::set_current_dir(dir).map_err(|e| {

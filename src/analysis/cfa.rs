@@ -166,13 +166,8 @@ impl AnalyzerState {
     pub fn detect_functions(&mut self, obj: &ObjInfo) -> Result<()> {
         // Apply known functions from extab
         for (&addr, &size) in &obj.known_functions {
-            let (section_index, _) = obj
-                .sections
-                .at_address(addr)
-                .context(format!("Function {:#010X} outside of any section", addr))?;
-            let addr_ref = SectionAddress::new(section_index, addr);
-            self.function_entries.insert(addr_ref);
-            self.function_bounds.insert(addr_ref, Some(addr_ref + size));
+            self.function_entries.insert(addr);
+            self.function_bounds.insert(addr, Some(addr + size));
         }
         // Apply known functions from symbols
         for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {

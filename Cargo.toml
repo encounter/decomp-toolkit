@@ -3,7 +3,7 @@ name = "decomp-toolkit"
 description = "Yet another GameCube/Wii decompilation toolkit."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.3.7"
+version = "0.4.0"
 edition = "2021"
 publish = false
 build = "build.rs"
@@ -26,6 +26,7 @@ ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_tab
 argp = "0.3.0"
 base16ct = "0.2.0"
 base64 = "0.21.2"
+binrw = "0.11.2"
 byteorder = "1.4.3"
 cwdemangle = "0.1.5"
 dol = { git = "https://github.com/encounter/ppc750cl", rev = "5f6e991bf495388c4104f188d2e90c79da9f78de" }
@@ -44,11 +45,13 @@ multimap = "0.9.0"
 num_enum = "0.6.1"
 object = { version = "0.31.1", features = ["read_core", "std", "elf", "write_std"], default-features = false }
 once_cell = "1.18.0"
+owo-colors = { version = "3.5.0", features = ["supports-colors"] }
 path-slash = "0.2.1"
 petgraph = "0.6.3"
 ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "5f6e991bf495388c4104f188d2e90c79da9f78de" }
 rayon = "1.7.0"
 regex = "1.9.0"
+rustc-hash = "1.1.0"
 serde = "1.0.166"
 serde_json = "1.0.104"
 serde_repr = "0.1.14"
@@ -57,7 +60,7 @@ sha-1 = "0.10.1"
 smallvec = "1.11.0"
 tracing = "0.1.37"
 tracing-attributes = "0.1.26"
-tracing-subscriber = "0.3.17"
+tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
 
 [build-dependencies]
 anyhow = { version = "1.0.71", features = ["backtrace"] }

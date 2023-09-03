@@ -1,27 +1,45 @@
 use std::{
     collections::{btree_map, BTreeMap},
+    ffi::OsStr,
     fs,
+    io::Write,
     path::PathBuf,
+    time::Instant,
 };
 
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use argp::FromArgs;
+use object::{
+    Architecture, Endianness, Object, ObjectSection, ObjectSymbol, RelocationTarget, SymbolIndex,
+};
+use rayon::prelude::*;
+use rustc_hash::FxHashMap;
+use tracing::{info, info_span};
 
 use crate::{
     analysis::{
         cfa::{AnalyzerState, SectionAddress},
-        pass::{AnalysisPass, FindSaveRestSleds, FindTRKInterruptVectorTable},
+        pass::{
+            AnalysisPass, FindRelCtorsDtors, FindRelRodataData, FindSaveRestSleds,
+            FindTRKInterruptVectorTable,
+        },
         signatures::{apply_signatures, apply_signatures_post},
         tracker::Tracker,
     },
     array_ref_mut,
-    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSymbol},
+    cmd::dol::ProjectConfig,
+    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol},
     util::{
+        config::is_auto_symbol,
         dol::process_dol,
-        elf::write_elf,
-        file::{map_file, map_reader, FileIterator},
+        elf::{to_obj_reloc_kind, write_elf},
+        file::{
+            buf_reader, buf_writer, decompress_if_needed, map_file, process_rsp, verify_hash,
+            FileIterator, Reader,
+        },
         nested::NestedMap,
-        rel::process_rel,
+        rel::{process_rel, process_rel_header, write_rel, RelHeader, RelReloc, RelWriteInfo},
+        IntoCow, ToCow,
     },
 };
 
@@ -37,6 +55,7 @@ pub struct Args {
 #[argp(subcommand)]
 enum SubCommand {
     Info(InfoArgs),
+    Make(MakeArgs),
     Merge(MergeArgs),
 }
 
@@ -64,17 +83,227 @@ pub struct MergeArgs {
     out_file: PathBuf,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Creates RELs from an ELF + PLF(s).
+#[argp(subcommand, name = "make")]
+pub struct MakeArgs {
+    #[argp(positional)]
+    /// input file(s)
+    files: Vec<PathBuf>,
+    #[argp(option, short = 'c')]
+    /// (optional) project configuration file
+    config: Option<PathBuf>,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Info(c_args) => info(c_args),
         SubCommand::Merge(c_args) => merge(c_args),
+        SubCommand::Make(c_args) => make(c_args),
     }
+}
+
+fn load_obj(buf: &[u8]) -> Result<object::File> {
+    let obj = object::read::File::parse(buf)?;
+    match obj.architecture() {
+        Architecture::PowerPc => {}
+        arch => bail!("Unexpected architecture: {arch:?}"),
+    };
+    ensure!(obj.endianness() == Endianness::Big, "Expected big endian");
+    Ok(obj)
+}
+
+fn make(args: MakeArgs) -> Result<()> {
+    let total = Instant::now();
+
+    // Load existing REL headers (if specified)
+    let mut existing_headers = BTreeMap::<u32, RelHeader>::new();
+    if let Some(config_path) = &args.config {
+        let config: ProjectConfig = serde_yaml::from_reader(&mut buf_reader(config_path)?)?;
+        for module_config in &config.modules {
+            if let Some(hash_str) = &module_config.hash {
+                verify_hash(&module_config.object, hash_str)?;
+            }
+            let map = map_file(&module_config.object)?;
+            let buf = decompress_if_needed(&map)?;
+            let header = process_rel_header(&mut Reader::new(buf.as_ref()))?;
+            existing_headers.insert(header.module_id, header);
+        }
+    }
+
+    let files = process_rsp(&args.files)?;
+    info!("Loading {} modules", files.len());
+
+    // Load all modules
+    let handles = files.iter().map(map_file).collect::<Result<Vec<_>>>()?;
+    let modules = handles
+        .par_iter()
+        .zip(&files)
+        .map(|(map, path)| {
+            load_obj(map).with_context(|| format!("Failed to load '{}'", path.display()))
+        })
+        .collect::<Result<Vec<_>>>()?;
+
+    // Create symbol map
+    let start = Instant::now();
+    let mut symbol_map = FxHashMap::<&[u8], (usize, SymbolIndex)>::default();
+    for (module_id, module) in modules.iter().enumerate() {
+        for symbol in module.symbols() {
+            if symbol.is_definition() && symbol.scope() == object::SymbolScope::Dynamic {
+                symbol_map.entry(symbol.name_bytes()?).or_insert((module_id, symbol.index()));
+            }
+        }
+    }
+
+    // Resolve relocations
+    let mut resolved = 0usize;
+    let mut relocations = Vec::<Vec<RelReloc>>::with_capacity(modules.len() - 1);
+    relocations.resize_with(modules.len() - 1, Vec::new);
+    for ((module_id, module), relocations) in
+        modules.iter().enumerate().skip(1).zip(&mut relocations)
+    {
+        for section in module.sections() {
+            for (address, reloc) in section.relocations() {
+                let reloc_target = match reloc.target() {
+                    RelocationTarget::Symbol(idx) => {
+                        module.symbol_by_index(idx).with_context(|| {
+                            format!("Relocation against invalid symbol index {}", idx.0)
+                        })?
+                    }
+                    reloc_target => bail!("Unsupported relocation target: {reloc_target:?}"),
+                };
+                let (target_module_id, target_symbol) = if reloc_target.is_undefined() {
+                    resolved += 1;
+                    symbol_map
+                        .get(reloc_target.name_bytes()?)
+                        .map(|&(module_id, symbol_idx)| {
+                            (module_id, modules[module_id].symbol_by_index(symbol_idx).unwrap())
+                        })
+                        .ok_or_else(|| {
+                            anyhow!(
+                                "Failed to find symbol {} in any module",
+                                reloc_target.name().unwrap_or("[invalid]")
+                            )
+                        })?
+                } else {
+                    (module_id, reloc_target)
+                };
+                relocations.push(RelReloc {
+                    kind: to_obj_reloc_kind(reloc.kind())?,
+                    section: section.index().0 as u8,
+                    address: address as u32,
+                    module_id: target_module_id as u32,
+                    target_section: target_symbol.section_index().unwrap().0 as u8,
+                    addend: target_symbol.address() as u32,
+                });
+            }
+        }
+    }
+
+    let duration = start.elapsed();
+    info!(
+        "Symbol resolution completed in {}.{:03}s (resolved {} symbols)",
+        duration.as_secs(),
+        duration.subsec_millis(),
+        resolved
+    );
+
+    // Write RELs
+    let start = Instant::now();
+    for (((module_id, module), path), relocations) in
+        modules.iter().enumerate().zip(&files).skip(1).zip(relocations)
+    {
+        let name =
+            path.file_stem().unwrap_or(OsStr::new("[unknown]")).to_str().unwrap_or("[invalid]");
+        let _span = info_span!("module", name = %name).entered();
+        let mut info = RelWriteInfo {
+            module_id: module_id as u32,
+            version: 3,
+            name_offset: None,
+            name_size: None,
+            align: None,
+            bss_align: None,
+            section_count: None,
+        };
+        if let Some(existing_module) = existing_headers.get(&(module_id as u32)) {
+            info.version = existing_module.version;
+            info.name_offset = Some(existing_module.name_offset);
+            info.name_size = Some(existing_module.name_size);
+            info.align = existing_module.align;
+            info.bss_align = existing_module.bss_align;
+            info.section_count = Some(existing_module.num_sections as usize);
+        }
+        let rel_path = path.with_extension("rel");
+        let mut w = buf_writer(&rel_path)?;
+        write_rel(&mut w, &info, module, relocations)
+            .with_context(|| format!("Failed to write '{}'", rel_path.display()))?;
+        w.flush()?;
+    }
+    let duration = start.elapsed();
+    info!("RELs written in {}.{:03}s", duration.as_secs(), duration.subsec_millis());
+
+    let duration = total.elapsed();
+    info!("Total time: {}.{:03}s", duration.as_secs(), duration.subsec_millis());
+    Ok(())
 }
 
 fn info(args: InfoArgs) -> Result<()> {
     let map = map_file(args.rel_file)?;
-    let rel = process_rel(map_reader(&map))?;
-    println!("Read REL module ID {}", rel.module_id);
+    let buf = decompress_if_needed(&map)?;
+    let (header, mut module_obj) = process_rel(&mut Reader::new(buf.as_ref()))?;
+
+    let mut state = AnalyzerState::default();
+    state.detect_functions(&module_obj)?;
+    FindRelCtorsDtors::execute(&mut state, &module_obj)?;
+    FindRelRodataData::execute(&mut state, &module_obj)?;
+    state.apply(&mut module_obj)?;
+
+    apply_signatures(&mut module_obj)?;
+    apply_signatures_post(&mut module_obj)?;
+
+    println!("REL module ID: {}", header.module_id);
+    println!("REL version: {}", header.version);
+    println!("Original section count: {}", header.num_sections);
+    println!("\nSections:");
+    println!(
+        "{: >10} | {: <10} | {: <10} | {: <10} | {: <10}",
+        "Name", "Type", "Size", "File Off", "Index"
+    );
+    for (_, section) in module_obj.sections.iter() {
+        let kind_str = match section.kind {
+            ObjSectionKind::Code => "code",
+            ObjSectionKind::Data => "data",
+            ObjSectionKind::ReadOnlyData => "rodata",
+            ObjSectionKind::Bss => "bss",
+        };
+        println!(
+            "{: >10} | {: <10} | {: <#10X} | {: <#10X} | {: <10}",
+            section.name, kind_str, section.size, section.file_offset, section.elf_index
+        );
+    }
+    println!("\nDiscovered symbols:");
+    println!("{: >10} | {: <10} | {: <10} | {: <10}", "Section", "Address", "Size", "Name");
+    for (_, symbol) in module_obj.symbols.iter_ordered() {
+        if symbol.name.starts_with('@') || is_auto_symbol(symbol) {
+            continue;
+        }
+        let section_str = if let Some(section) = symbol.section {
+            module_obj.sections[section].name.as_str()
+        } else {
+            "ABS"
+        };
+        let size_str = if symbol.size_known {
+            format!("{:#X}", symbol.size).into_cow()
+        } else if symbol.section.is_none() {
+            "ABS".to_cow()
+        } else {
+            "?".to_cow()
+        };
+        println!(
+            "{: >10} | {: <#10X} | {: <10} | {: <10}",
+            section_str, symbol.address, size_str, symbol.name
+        );
+    }
     Ok(())
 }
 
@@ -94,7 +323,7 @@ fn merge(args: MergeArgs) -> Result<()> {
     for result in FileIterator::new(&args.rel_files)? {
         let (path, entry) = result?;
         log::info!("Loading {}", path.display());
-        let obj = process_rel(entry.as_reader())?;
+        let (_, obj) = process_rel(&mut entry.as_reader())?;
         match module_map.entry(obj.module_id) {
             btree_map::Entry::Vacant(e) => e.insert(obj),
             btree_map::Entry::Occupied(_) => bail!("Duplicate module ID {}", obj.module_id),

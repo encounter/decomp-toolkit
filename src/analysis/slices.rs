@@ -74,7 +74,7 @@ fn check_sequence(
 
 impl FunctionSlices {
     pub fn end(&self) -> Option<SectionAddress> {
-        self.blocks.last_key_value().map(|(_, &end)| end).flatten()
+        self.blocks.last_key_value().and_then(|(_, &end)| end)
     }
 
     pub fn start(&self) -> Option<SectionAddress> {
@@ -404,7 +404,7 @@ impl FunctionSlices {
                 // Likely __noreturn
             }
             (None, Some(e)) => {
-                log::info!("{:#010X?}", self);
+                log::warn!("{:#010X?}", self);
                 bail!("Unpaired epilogue {:#010X}", e);
             }
         }

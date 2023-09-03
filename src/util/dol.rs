@@ -4,7 +4,7 @@ use anyhow::{anyhow, bail, ensure, Result};
 use dol::{Dol, DolSection, DolSectionType};
 
 use crate::{
-    analysis::cfa::locate_sda_bases,
+    analysis::cfa::{locate_sda_bases, SectionAddress},
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
@@ -406,8 +406,15 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
 
         for entry in &eti_entries {
             // Add functions from extabindex entries as known function bounds
-            if let Some(old_value) = obj.known_functions.insert(entry.function, entry.function_size)
-            {
+            let (section_index, _) = obj.sections.at_address(entry.function).map_err(|_| {
+                anyhow!(
+                    "Failed to locate section for function {:#010X} (referenced from extabindex entry {:#010X})",
+                    entry.function,
+                    entry.address,
+                )
+            })?;
+            let addr = SectionAddress::new(section_index, entry.function);
+            if let Some(old_value) = obj.known_functions.insert(addr, entry.function_size) {
                 if old_value != entry.function_size {
                     log::warn!(
                         "Conflicting sizes for {:#010X}: {:#X} != {:#X}",

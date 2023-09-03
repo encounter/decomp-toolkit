@@ -37,6 +37,8 @@ flags! {
         ForceActive,
         /// Symbol isn't referenced by any relocations
         RelocationIgnore,
+        /// Symbol won't be written to symbols file
+        NoWrite,
     }
 }
 
@@ -77,6 +79,9 @@ impl ObjSymbolFlagSet {
 
     #[inline]
     pub fn is_relocation_ignore(&self) -> bool { self.0.contains(ObjSymbolFlags::RelocationIgnore) }
+
+    #[inline]
+    pub fn is_no_write(&self) -> bool { self.0.contains(ObjSymbolFlags::NoWrite) }
 
     #[inline]
     pub fn set_scope(&mut self, scope: ObjSymbolScope) {
@@ -196,7 +201,7 @@ impl ObjSymbols {
             self.at_section_address(section_index, in_symbol.address as u32).find(|(_, symbol)| {
                 symbol.kind == in_symbol.kind ||
                     // Replace auto symbols with real symbols
-                    (symbol.kind == ObjSymbolKind::Unknown && is_auto_symbol(&symbol.name))
+                    (symbol.kind == ObjSymbolKind::Unknown && is_auto_symbol(symbol))
             })
         } else if self.obj_kind == ObjKind::Executable {
             // TODO hmmm
@@ -205,6 +210,7 @@ impl ObjSymbols {
             bail!("ABS symbol in relocatable object: {:?}", in_symbol);
         };
         let target_symbol_idx = if let Some((symbol_idx, existing)) = opt {
+            let replace = replace || (is_auto_symbol(existing) && !is_auto_symbol(&in_symbol));
             let size =
                 if existing.size_known && in_symbol.size_known && existing.size != in_symbol.size {
                     // TODO fix and promote back to warning

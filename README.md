@@ -105,8 +105,8 @@ it operates as a one-shot assembly generator, it still suffers from many of the 
 ### ppcdis
 
 [ppcdis](https://github.com/SeekyCt/ppcdis) is one of the tools that inspired decomp-toolkit. It has more accurate
-analysis than doldisasm.py, and has similar goals to decomp-toolkit. It also has some features that decomp-toolkit does
-not yet, like support for REL files.
+analysis than doldisasm.py, and has similar goals to decomp-toolkit. It's been used successfully in several
+decompilation projects.
 
 However, decomp-toolkit has a few advantages:
 
@@ -226,7 +226,7 @@ Generates `ldscript.lcf` for `mwldeppc.exe`.
 
 **Future work**
 
-- Support REL and RSO files
+- Support RSO files
 - Add more signatures
 - Rework CodeWarrior map parsing
 
@@ -335,7 +335,7 @@ $ dtk map symbol Game.MAP 'Function__5ClassFv'
 
 ### rel info
 
-Prints basic information about a REL file.
+Prints information about a REL file.
 
 ```shell
 $ dtk rel info input.rel
@@ -355,7 +355,7 @@ $ dtk rel info main.dol rels/*.rel -o merged.elf
 > [!WARNING]  
 > This command is not yet functional.
 
-Prints basic information about an RSO file.
+Prints information about an RSO file.
 
 ```shell
 $ dtk rso info input.rso

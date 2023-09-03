@@ -11,6 +11,7 @@ use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 use crate::{
+    analysis::cfa::SectionAddress,
     obj::{
         ObjDataKind, ObjInfo, ObjKind, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind, ObjUnit,
@@ -118,7 +119,13 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                             "Symbol {} requires size != 0 with noreloc",
                             symbol.name
                         );
-                        obj.blocked_ranges.insert(addr, addr + symbol.size as u32);
+                        ensure!(
+                            section.is_some(),
+                            "Symbol {} requires section with noreloc",
+                            symbol.name
+                        );
+                        let addr = SectionAddress::new(section.unwrap(), symbol.address as u32);
+                        obj.blocked_ranges.insert(addr, addr.address + symbol.size as u32);
                     }
                     _ => bail!("Unknown symbol attribute '{attr}'"),
                 }
@@ -133,7 +140,9 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
 }
 
 pub fn is_skip_symbol(symbol: &ObjSymbol) -> bool {
-    let _ = symbol;
+    if symbol.flags.is_no_write() {
+        return true;
+    }
     // symbol.name.starts_with("lbl_")
     //     || symbol.name.starts_with("func_")
     //     || symbol.name.starts_with("switch_")
@@ -142,7 +151,9 @@ pub fn is_skip_symbol(symbol: &ObjSymbol) -> bool {
     false
 }
 
-pub fn is_auto_symbol(name: &str) -> bool { name.starts_with("lbl_") || name.starts_with("fn_") }
+pub fn is_auto_symbol(symbol: &ObjSymbol) -> bool {
+    symbol.name.starts_with("lbl_") || symbol.name.starts_with("fn_")
+}
 
 #[inline]
 pub fn write_symbols_file<P: AsRef<Path>>(path: P, obj: &ObjInfo) -> Result<()> {
@@ -188,8 +199,10 @@ fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Resul
     // if symbol.flags.is_force_active() {
     //     write!(w, " force_active")?;
     // }
-    if obj.blocked_ranges.contains_key(&(symbol.address as u32)) {
-        write!(w, " noreloc")?;
+    if let Some(section) = symbol.section {
+        if obj.blocked_ranges.contains_key(&SectionAddress::new(section, symbol.address as u32)) {
+            write!(w, " noreloc")?;
+        }
     }
     writeln!(w)?;
     Ok(())
@@ -335,10 +348,11 @@ pub fn write_splits<W: Write>(w: &mut W, obj: &ObjInfo, all: bool) -> Result<()>
             if split.common {
                 write!(w, " common")?;
             }
-            if let Some(name) = obj.named_sections.get(&addr) {
-                if name != &section.name {
-                    write!(w, " rename:{}", name)?;
-                }
+            if let Some(name) = &split.rename {
+                write!(w, " rename:{}", name)?;
+            }
+            if split.skip {
+                write!(w, " skip")?;
             }
             writeln!(w)?;
         }
@@ -354,6 +368,7 @@ struct SplitSection {
     /// Whether this is a part of common BSS.
     common: bool,
     rename: Option<String>,
+    skip: bool,
 }
 
 struct SplitUnit {
@@ -443,6 +458,8 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
         return Ok(SplitLine::Section(section));
     }
 
+    let mut start = None;
+    let mut end = None;
     let mut section = SplitSection {
         name: captures["name"].to_string(),
         start: 0,
@@ -450,13 +467,14 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
         align: None,
         common: false,
         rename: None,
+        skip: false,
     };
 
     for attr in captures["attrs"].split(' ').filter(|&s| !s.is_empty()) {
         if let Some((attr, value)) = attr.split_once(':') {
             match attr {
-                "start" => section.start = parse_hex(value)?,
-                "end" => section.end = parse_hex(value)?,
+                "start" => start = Some(parse_hex(value)?),
+                "end" => end = Some(parse_hex(value)?),
                 "align" => section.align = Some(u32::from_str(value)?),
                 "rename" => section.rename = Some(value.to_string()),
                 _ => bail!("Unknown split attribute '{attr}'"),
@@ -469,11 +487,14 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
                         section.align = Some(4);
                     }
                 }
+                "skip" => section.skip = true,
                 _ => bail!("Unknown split attribute '{attr}'"),
             }
         }
     }
-    if section.start > 0 && section.end > 0 {
+    if let (Some(start), Some(end)) = (start, end) {
+        section.start = start;
+        section.end = end;
         Ok(SplitLine::UnitSection(section))
     } else {
         Err(anyhow!("Section '{}' missing start or end address", section.name))
@@ -531,7 +552,7 @@ pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
                         obj.sections.count()
                     );
                 };
-                if let Err(_) = obj_section.rename(name.clone()) {
+                if obj_section.rename(name.clone()).is_err() {
                     // Manual section
                     obj_section.kind =
                         kind.ok_or_else(|| anyhow!("Section '{}' missing type", name))?;
@@ -545,7 +566,15 @@ pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
             }
             (
                 SplitState::Unit(unit),
-                SplitLine::UnitSection(SplitSection { name, start, end, align, common, rename }),
+                SplitLine::UnitSection(SplitSection {
+                    name,
+                    start,
+                    end,
+                    align,
+                    common,
+                    rename,
+                    skip,
+                }),
             ) => {
                 let (section_index, _) = match obj.sections.by_name(&name)? {
                     Some(v) => Ok(v),
@@ -573,10 +602,9 @@ pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
                     align,
                     common,
                     autogenerated: false,
+                    skip,
+                    rename,
                 });
-                if let Some(name) = rename {
-                    obj.named_sections.insert(start, name);
-                }
             }
             _ => {}
         }

@@ -12,7 +12,6 @@ use std::{
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
 use itertools::Itertools;
-use memmap2::Mmap;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info, info_span};
@@ -28,7 +27,6 @@ use crate::{
         signatures::{apply_signatures, apply_signatures_post},
         tracker::Tracker,
     },
-    cmd::shasum::file_sha1,
     obj::{
         best_match_for_reloc, ObjDataKind, ObjInfo, ObjReloc, ObjRelocKind, ObjSectionKind,
         ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SymbolIndex,
@@ -43,13 +41,13 @@ use crate::{
         dep::DepFile,
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{buf_writer, map_file, map_reader, touch, Reader},
+        file::{buf_writer, decompress_if_needed, map_file, touch, verify_hash, Reader},
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         rel::process_rel,
         rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_NAMES},
         split::{is_linker_generated_object, split_obj, update_splits},
-        yaz0,
+        IntoCow, ToCow,
     },
 };
 
@@ -225,7 +223,7 @@ impl ModuleConfig {
     pub fn file_prefix(&self) -> Cow<'_, str> {
         match self.file_name() {
             Cow::Borrowed(s) => {
-                Cow::Borrowed(s.split_once('.').map(|(prefix, _)| prefix).unwrap_or(&s))
+                Cow::Borrowed(s.split_once('.').map(|(prefix, _)| prefix).unwrap_or(s))
             }
             Cow::Owned(s) => {
                 Cow::Owned(s.split_once('.').map(|(prefix, _)| prefix).unwrap_or(&s).to_string())
@@ -379,38 +377,30 @@ fn info(args: InfoArgs) -> Result<()> {
         );
     }
     println!("\nDiscovered symbols:");
-    println!("\t{: >23} | {: <10} | {: <10}", "Name", "Address", "Size");
+    println!("\t{: >10} | {: <10} | {: <10} | {: <10}", "Section", "Address", "Size", "Name");
     for (_, symbol) in obj.symbols.iter_ordered().chain(obj.symbols.iter_abs()) {
-        if symbol.name.starts_with('@') || is_auto_symbol(&symbol.name) {
+        if symbol.name.starts_with('@') || is_auto_symbol(symbol) {
             continue;
         }
-        if symbol.size_known {
-            println!("\t{: >23} | {:#010X} | {: <#10X}", symbol.name, symbol.address, symbol.size);
+        let section_str = if let Some(section) = symbol.section {
+            obj.sections[section].name.as_str()
         } else {
-            let size_str = if symbol.section.is_none() { "ABS" } else { "?" };
-            println!("\t{: >23} | {:#010X} | {: <10}", symbol.name, symbol.address, size_str);
-        }
+            "ABS"
+        };
+        let size_str = if symbol.size_known {
+            format!("{:#X}", symbol.size).into_cow()
+        } else if symbol.section.is_none() {
+            "ABS".to_cow()
+        } else {
+            "?".to_cow()
+        };
+        println!(
+            "\t{: >10} | {: <#10X} | {: <10} | {: <10}",
+            section_str, symbol.address, size_str, symbol.name
+        );
     }
     println!("\n{} discovered functions from exception table", obj.known_functions.len());
     Ok(())
-}
-
-fn verify_hash<P: AsRef<Path>>(path: P, hash_str: &str) -> Result<()> {
-    let mut hash_bytes = [0u8; 20];
-    hex::decode_to_slice(hash_str, &mut hash_bytes)
-        .with_context(|| format!("Invalid SHA-1 '{hash_str}'"))?;
-    let file = File::open(path.as_ref())
-        .with_context(|| format!("Failed to open file '{}'", path.as_ref().display()))?;
-    let found_hash = file_sha1(file)?;
-    if found_hash.as_ref() == hash_bytes {
-        Ok(())
-    } else {
-        Err(anyhow!(
-            "Hash mismatch: expected {}, but was {}",
-            hex::encode(hash_bytes),
-            hex::encode(found_hash)
-        ))
-    }
 }
 
 type ModuleMap<'a> = BTreeMap<u32, (&'a ModuleConfig, ObjInfo)>;
@@ -632,15 +622,9 @@ fn resolve_external_relocations(
     Ok(())
 }
 
-fn decompress_if_needed(map: &Mmap) -> Result<Cow<[u8]>> {
-    Ok(if map.len() > 4 && map[0..4] == *b"Yaz0" {
-        Cow::Owned(yaz0::decompress_file(&mut map_reader(map))?)
-    } else {
-        Cow::Borrowed(map)
-    })
-}
+type AnalyzeResult = (ObjInfo, Vec<PathBuf>);
 
-fn load_analyze_dol(config: &ProjectConfig) -> Result<(ObjInfo, Vec<PathBuf>)> {
+fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
     // log::info!("Loading {}", config.object.display());
     if let Some(hash_str) = &config.base.hash {
         verify_hash(&config.base.object, hash_str)?;
@@ -697,7 +681,7 @@ fn split_write_obj(
     obj: &mut ObjInfo,
     config: &ProjectConfig,
     module_config: &ModuleConfig,
-    out_dir: &PathBuf,
+    out_dir: &Path,
     no_update: bool,
 ) -> Result<OutputModule> {
     debug!("Performing relocation analysis");
@@ -723,15 +707,15 @@ fn split_write_obj(
     if !no_update {
         debug!("Writing configuration");
         if let Some(symbols_path) = &module_config.symbols {
-            write_symbols_file(symbols_path, &obj)?;
+            write_symbols_file(symbols_path, obj)?;
         }
         if let Some(splits_path) = &module_config.splits {
-            write_splits_file(splits_path, &obj, false)?;
+            write_splits_file(splits_path, obj, false)?;
         }
     }
 
     debug!("Splitting {} objects", obj.link_order.len());
-    let split_objs = split_obj(&obj)?;
+    let split_objs = split_obj(obj)?;
 
     debug!("Writing object files");
     let obj_dir = out_dir.join("obj");
@@ -757,7 +741,7 @@ fn split_write_obj(
     }
 
     // Generate ldscript.lcf
-    fs::write(&out_config.ldscript, generate_ldscript(&obj, config.auto_force_files)?)?;
+    fs::write(&out_config.ldscript, generate_ldscript(obj, config.auto_force_files)?)?;
 
     debug!("Writing disassembly");
     let asm_dir = out_dir.join("asm");
@@ -772,17 +756,18 @@ fn split_write_obj(
     Ok(out_config)
 }
 
-fn load_analyze_rel(
-    config: &ProjectConfig,
-    module_config: &ModuleConfig,
-) -> Result<(ObjInfo, Vec<PathBuf>)> {
+fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Result<AnalyzeResult> {
     debug!("Loading {}", module_config.object.display());
     if let Some(hash_str) = &module_config.hash {
         verify_hash(&module_config.object, hash_str)?;
     }
     let map = map_file(&module_config.object)?;
     let buf = decompress_if_needed(&map)?;
-    let mut module_obj = process_rel(Reader::new(&buf))?;
+    let (_, mut module_obj) = process_rel(&mut Reader::new(buf.as_ref()))?;
+
+    if let Some(comment_version) = config.mw_comment_version {
+        module_obj.mw_comment = Some(MWComment::new(comment_version)?);
+    }
 
     let mut dep = vec![module_config.object.clone()];
     if let Some(map_path) = &module_config.map {
@@ -833,8 +818,8 @@ fn split(args: SplitArgs) -> Result<()> {
         module_count,
         rayon::current_num_threads()
     );
-    let mut dol_result: Option<Result<(ObjInfo, Vec<PathBuf>)>> = None;
-    let mut modules_result: Option<Result<Vec<(ObjInfo, Vec<PathBuf>)>>> = None;
+    let mut dol_result: Option<Result<AnalyzeResult>> = None;
+    let mut modules_result: Option<Result<Vec<AnalyzeResult>>> = None;
     let start = Instant::now();
     rayon::scope(|s| {
         // DOL
@@ -999,7 +984,7 @@ fn split(args: SplitArgs) -> Result<()> {
     // }
 
     let duration = command_start.elapsed();
-    info!("Total duration: {}.{:03}s", duration.as_secs(), duration.subsec_millis());
+    info!("Total time: {}.{:03}s", duration.as_secs(), duration.subsec_millis());
     Ok(())
 }
 
@@ -1167,7 +1152,11 @@ fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.map_file.display());
     apply_map_file(&args.map_file, &mut linked_obj)?;
 
-    for orig_sym in obj.symbols.iter().filter(|s| s.kind != ObjSymbolKind::Section) {
+    for orig_sym in obj
+        .symbols
+        .iter()
+        .filter(|s| !matches!(s.kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section))
+    {
         let Some(orig_section_index) = orig_sym.section else { continue };
         let orig_section = &obj.sections[orig_section_index];
         let (linked_section_index, linked_section) =
@@ -1244,7 +1233,9 @@ fn diff(args: DiffArgs) -> Result<()> {
     }
 
     // Data diff
-    for orig_sym in obj.symbols.iter().filter(|s| s.kind != ObjSymbolKind::Section) {
+    for orig_sym in obj.symbols.iter().filter(|s| {
+        s.size > 0 && !matches!(s.kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section)
+    }) {
         let Some(orig_section_index) = orig_sym.section else { continue };
         let orig_section = &obj.sections[orig_section_index];
         let (linked_section_index, linked_section) =

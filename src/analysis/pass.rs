@@ -201,7 +201,11 @@ impl AnalysisPass for FindRelCtorsDtors {
             return Ok(());
         }
 
-        log::debug!("Found .ctors and .dtors: {:?}", possible_sections);
+        log::debug!(
+            "Found .ctors and .dtors: {}, {}",
+            possible_sections[0].0,
+            possible_sections[1].0
+        );
         let ctors_section_index = possible_sections[0].0;
         state.known_sections.insert(ctors_section_index, ".ctors".to_string());
         state.known_symbols.insert(SectionAddress::new(ctors_section_index, 0), ObjSymbol {
@@ -311,7 +315,11 @@ impl AnalysisPass for FindRelRodataData {
             return Ok(());
         }
 
-        log::debug!("Found .rodata and .data: {:?}", possible_sections);
+        log::debug!(
+            "Found .rodata and .data: {}, {}",
+            possible_sections[0].0,
+            possible_sections[1].0
+        );
         let rodata_section_index = possible_sections[0].0;
         state.known_sections.insert(rodata_section_index, ".rodata".to_string());
 

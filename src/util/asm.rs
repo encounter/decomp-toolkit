@@ -4,7 +4,7 @@ use std::{
     io::Write,
 };
 
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use itertools::Itertools;
 use ppc750cl::{disasm_iter, Argument, Ins, Opcode};
 
@@ -438,7 +438,8 @@ fn write_data<W: Write>(
                     write_symbol_entry(w, symbols, entry)?;
                 }
                 current_symbol_kind = find_symbol_kind(current_symbol_kind, symbols, vec)?;
-                current_data_kind = find_data_kind(current_data_kind, symbols, vec)?;
+                current_data_kind = find_data_kind(current_data_kind, symbols, vec)
+                    .with_context(|| format!("At address {:#010X}", sym_addr))?;
                 entry = entry_iter.next();
             } else if current_address > sym_addr {
                 let dbg_symbols = vec.iter().map(|e| &symbols[e.index]).collect_vec();
@@ -550,10 +551,16 @@ fn find_data_kind(
             SymbolEntryKind::Start => {
                 let new_kind = symbols[entry.index].data_kind;
                 if !matches!(new_kind, ObjDataKind::Unknown) {
-                    ensure!(
-                        !found || new_kind == kind,
-                        "Conflicting data kinds found: {kind:?} and {new_kind:?}"
-                    );
+                    if found && new_kind != kind {
+                        for entry in entries {
+                            log::error!("Symbol {:?}", symbols[entry.index]);
+                        }
+                        bail!(
+                            "Conflicting data kinds found: {kind:?} and {new_kind:?}",
+                            kind = kind,
+                            new_kind = new_kind
+                        );
+                    }
                     found = true;
                     kind = new_kind;
                 }

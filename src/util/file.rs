@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     fs::{DirBuilder, File, OpenOptions},
     io::{BufRead, BufReader, BufWriter, Cursor, Read},
     path::{Path, PathBuf},
@@ -10,7 +11,10 @@ use filetime::{set_file_mtime, FileTime};
 use memmap2::{Mmap, MmapOptions};
 use path_slash::PathBufExt;
 
-use crate::util::{rarc, rarc::Node, yaz0};
+use crate::{
+    cmd::shasum::file_sha1,
+    util::{rarc, rarc::Node, yaz0, IntoCow, ToCow},
+};
 
 /// Opens a memory mapped file.
 pub fn map_file<P: AsRef<Path>>(path: P) -> Result<Mmap> {
@@ -25,7 +29,7 @@ pub type Reader<'a> = Cursor<&'a [u8]>;
 
 /// Creates a reader for the memory mapped file.
 #[inline]
-pub fn map_reader(mmap: &Mmap) -> Reader { Cursor::new(&**mmap) }
+pub fn map_reader(mmap: &Mmap) -> Reader { Reader::new(&**mmap) }
 
 /// Creates a buffered reader around a file (not memory mapped).
 pub fn buf_reader<P: AsRef<Path>>(path: P) -> Result<BufReader<File>> {
@@ -130,14 +134,6 @@ impl RarcIterator {
         }
         paths
     }
-
-    fn decompress_if_needed(buf: &[u8]) -> Result<Vec<u8>> {
-        if buf.len() > 4 && buf[0..4] == *b"Yaz0" {
-            yaz0::decompress_file(&mut Cursor::new(buf))
-        } else {
-            Ok(buf.to_vec())
-        }
-    }
 }
 
 impl Iterator for RarcIterator {
@@ -152,8 +148,8 @@ impl Iterator for RarcIterator {
         self.index += 1;
 
         let slice = &self.file[off as usize..off as usize + size as usize];
-        match Self::decompress_if_needed(slice) {
-            Ok(buf) => Some(Ok((path, buf))),
+        match decompress_if_needed(slice) {
+            Ok(buf) => Some(Ok((path, buf.into_owned()))),
             Err(e) => Some(Err(e)),
         }
     }
@@ -170,7 +166,7 @@ impl FileEntry {
     pub fn as_reader(&self) -> Reader {
         match self {
             Self::Map(map) => map_reader(map),
-            Self::Buffer(slice) => Cursor::new(slice),
+            Self::Buffer(slice) => Reader::new(slice),
         }
     }
 }
@@ -255,5 +251,31 @@ pub fn touch<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
         }
+    }
+}
+
+pub fn decompress_if_needed(buf: &[u8]) -> Result<Cow<[u8]>> {
+    Ok(if buf.len() > 4 && buf[0..4] == *b"Yaz0" {
+        yaz0::decompress_file(&mut Reader::new(buf))?.into_cow()
+    } else {
+        buf.to_cow()
+    })
+}
+
+pub fn verify_hash<P: AsRef<Path>>(path: P, hash_str: &str) -> Result<()> {
+    let mut hash_bytes = [0u8; 20];
+    hex::decode_to_slice(hash_str, &mut hash_bytes)
+        .with_context(|| format!("Invalid SHA-1 '{hash_str}'"))?;
+    let file = File::open(path.as_ref())
+        .with_context(|| format!("Failed to open file '{}'", path.as_ref().display()))?;
+    let found_hash = file_sha1(file)?;
+    if found_hash.as_ref() == hash_bytes {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "Hash mismatch: expected {}, but was {}",
+            hex::encode(hash_bytes),
+            hex::encode(found_hash)
+        ))
     }
 }

@@ -6,6 +6,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
+use owo_colors::OwoColorize;
 use sha1::{Digest, Sha1};
 
 use crate::util::file::{process_rsp, touch};
@@ -66,14 +67,17 @@ fn check(file: File) -> Result<()> {
             File::open(file_name).with_context(|| format!("Failed to open file '{file_name}'"))?;
         let found_hash = file_sha1(file)?;
         if hash_bytes == found_hash.as_ref() {
-            println!("{file_name}: OK");
+            println!("{}: {}", file_name, "OK".green());
         } else {
-            println!("{file_name}: FAILED");
+            println!("{}: {}", file_name, "FAILED".red());
             mismatches += 1;
         }
     }
     if mismatches != 0 {
-        eprintln!("WARNING: {mismatches} computed checksum did NOT match");
+        eprintln!(
+            "{}",
+            format!("WARNING: {mismatches} computed checksum(s) did NOT match").yellow()
+        );
         std::process::exit(1);
     }
     Ok(())

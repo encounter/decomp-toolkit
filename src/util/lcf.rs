@@ -56,7 +56,8 @@ pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String
 
     let mut force_active = vec![];
     for symbol in obj.symbols.iter() {
-        if symbol.flags.is_force_active() && symbol.flags.is_global() {
+        if symbol.flags.is_force_active() && symbol.flags.is_global() && !symbol.flags.is_no_write()
+        {
             force_active.push(symbol.name.clone());
         }
     }
@@ -93,7 +94,8 @@ pub fn generate_ldscript_partial(obj: &ObjInfo, auto_force_files: bool) -> Resul
 
     let mut force_active = vec![];
     for symbol in obj.symbols.iter() {
-        if symbol.flags.is_force_active() && symbol.flags.is_global() {
+        if symbol.flags.is_force_active() && symbol.flags.is_global() && !symbol.flags.is_no_write()
+        {
             force_active.push(symbol.name.clone());
         }
     }

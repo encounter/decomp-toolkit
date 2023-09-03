@@ -1,3 +1,5 @@
+use std::{borrow::Cow, ops::Deref};
+
 pub mod asm;
 pub mod comment;
 pub mod config;
@@ -38,4 +40,30 @@ macro_rules! array_ref_mut {
         }
         to_array_mut(&mut $slice[$offset..$offset + $size])
     }};
+}
+
+pub trait IntoCow<'a, B>
+where B: ToOwned + ?Sized
+{
+    fn into_cow(self) -> Cow<'a, B>;
+}
+
+pub trait ToCow<'a, B>
+where B: ToOwned + ?Sized
+{
+    fn to_cow(&'a self) -> Cow<'a, B>;
+}
+
+impl<'a, O> IntoCow<'a, <O as Deref>::Target> for O
+where
+    O: Deref + Clone + 'a,
+    <O as Deref>::Target: ToOwned<Owned = O>,
+{
+    fn into_cow(self) -> Cow<'a, <O as Deref>::Target> { Cow::Owned(self) }
+}
+
+impl<'a, B> ToCow<'a, B> for B
+where B: ToOwned + ?Sized
+{
+    fn to_cow(&'a self) -> Cow<'a, B> { Cow::Borrowed(self) }
 }

@@ -19,11 +19,13 @@ use crate::{
     obj::ObjKind,
     util::{
         asm::write_asm,
+        comment::{read_comment_sym, MWComment},
         config::{write_splits_file, write_symbols_file},
         elf::{process_elf, write_elf},
-        file::{buf_writer, process_rsp},
+        file::{buf_writer, process_rsp, Reader},
         signatures::{compare_signature, generate_signature, FunctionSignature},
         split::split_obj,
+        IntoCow, ToCow,
     },
 };
 
@@ -43,6 +45,7 @@ enum SubCommand {
     Fixup(FixupArgs),
     Signatures(SignaturesArgs),
     Split(SplitArgs),
+    Info(InfoArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -108,6 +111,15 @@ pub struct SignaturesArgs {
     out_file: PathBuf,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Prints information about an ELF file.
+#[argp(subcommand, name = "info")]
+pub struct InfoArgs {
+    #[argp(positional)]
+    /// input file
+    input: PathBuf,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Config(c_args) => config(c_args),
@@ -115,6 +127,7 @@ pub fn run(args: Args) -> Result<()> {
         SubCommand::Fixup(c_args) => fixup(c_args),
         SubCommand::Split(c_args) => split(c_args),
         SubCommand::Signatures(c_args) => signatures(c_args),
+        SubCommand::Info(c_args) => info(c_args),
     }
 }
 
@@ -465,5 +478,122 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
     let mut out = buf_writer(&args.out_file)?;
     serde_yaml::to_writer(&mut out, &signatures)?;
     out.flush()?;
+    Ok(())
+}
+
+fn info(args: InfoArgs) -> Result<()> {
+    let in_buf = fs::read(&args.input)
+        .with_context(|| format!("Failed to open input file: '{}'", args.input.display()))?;
+    let in_file = object::read::File::parse(&*in_buf).context("Failed to parse input ELF")?;
+
+    println!("ELF type: {:?}", in_file.kind());
+    println!("Section count: {}", in_file.sections().count());
+    println!("Symbol count: {}", in_file.symbols().count());
+    println!(
+        "Relocation count: {}",
+        in_file.sections().map(|s| s.relocations().count()).sum::<usize>()
+    );
+
+    println!("\nSections:");
+    println!(
+        "{: >15} | {: <10} | {: <10} | {: <10} | {: <10}",
+        "Name", "Type", "Size", "File Off", "Index"
+    );
+    for section in in_file.sections().skip(1) {
+        let kind_str = match section.kind() {
+            SectionKind::Text => "code".to_cow(),
+            SectionKind::Data => "data".to_cow(),
+            SectionKind::ReadOnlyData => "rodata".to_cow(),
+            SectionKind::UninitializedData => "bss".to_cow(),
+            SectionKind::Metadata => continue, // "metadata".to_cow()
+            SectionKind::Other => "other".to_cow(),
+            _ => format!("unknown: {:?}", section.kind()).into_cow(),
+        };
+        println!(
+            "{: >15} | {: <10} | {: <#10X} | {: <#10X} | {: <10}",
+            section.name()?,
+            kind_str,
+            section.size(),
+            section.file_range().unwrap_or_default().0,
+            section.index().0
+        );
+    }
+
+    println!("\nSymbols:");
+    println!("{: >15} | {: <10} | {: <10} | {: <10}", "Section", "Address", "Size", "Name");
+    for symbol in in_file.symbols().filter(|s| s.is_definition()) {
+        let section_str = if let Some(section) = symbol.section_index() {
+            in_file.section_by_index(section)?.name()?.to_string().into_cow()
+        } else {
+            "ABS".to_cow()
+        };
+        let size_str = if symbol.section_index().is_none() {
+            "ABS".to_cow()
+        } else {
+            format!("{:#X}", symbol.size()).into_cow()
+        };
+        println!(
+            "{: >15} | {: <#10X} | {: <10} | {: <10}",
+            section_str,
+            symbol.address(),
+            size_str,
+            symbol.name()?
+        );
+    }
+
+    if let Some(comment_section) = in_file.section_by_name(".comment") {
+        let data = comment_section.uncompressed_data()?;
+        if !data.is_empty() {
+            let mut reader = Reader::new(&*data);
+            let header =
+                MWComment::parse_header(&mut reader).context("While reading .comment section")?;
+            println!("\nMetrowerks metadata (.comment):");
+            println!("\tVersion: {}", header.version);
+            println!(
+                "\tCompiler version: {}.{}.{}.{}",
+                header.compiler_version[0],
+                header.compiler_version[1],
+                header.compiler_version[2],
+                header.compiler_version[3]
+            );
+            println!("\tPool data: {}", header.pool_data);
+            println!("\tFloat: {:?}", header.float);
+            println!(
+                "\tProcessor: {}",
+                if header.processor == 0x16 {
+                    "Gekko".to_cow()
+                } else {
+                    format!("{:#X}", header.processor).into_cow()
+                }
+            );
+            println!(
+                "\tIncompatible return small structs: {}",
+                header.incompatible_return_small_structs
+            );
+            println!(
+                "\tIncompatible sfpe double params: {}",
+                header.incompatible_sfpe_double_params
+            );
+            println!("\tUnsafe global reg vars: {}", header.unsafe_global_reg_vars);
+            println!("\n{: >10} | {: <6} | {: <6} | {: <10}", "Align", "Vis", "Active", "Symbol");
+            for symbol in in_file.symbols() {
+                let comment_sym = read_comment_sym(&mut reader)?;
+                if symbol.is_definition() {
+                    println!(
+                        "{: >10} | {: <#6X} | {: <#6X} | {: <10}",
+                        comment_sym.align,
+                        comment_sym.vis_flags,
+                        comment_sym.active_flags,
+                        symbol.name()?
+                    );
+                }
+            }
+            ensure!(
+                data.len() - reader.position() as usize == 0,
+                ".comment section data not fully read"
+            );
+        }
+    }
+
     Ok(())
 }

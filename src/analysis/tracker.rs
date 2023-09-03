@@ -403,8 +403,9 @@ impl Tracker {
         from: SectionAddress,
         addr: u32,
     ) -> Option<SectionAddress> {
-        if let Some((&start, &end)) = obj.blocked_ranges.range(..=from.address).next_back() {
-            if from.address >= start && from.address < end {
+        if let Some((&start, &end)) = obj.blocked_ranges.range(..=from).next_back() {
+            if from.section == start.section && from.address >= start.address && from.address < end
+            {
                 return None;
             }
         }

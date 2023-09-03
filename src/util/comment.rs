@@ -169,7 +169,7 @@ pub struct CommentSym {
 }
 
 impl CommentSym {
-    pub fn from(symbol: &ObjSymbol) -> Self {
+    pub fn from(symbol: &ObjSymbol, force_active: bool) -> Self {
         let align = match symbol.align {
             Some(align) => align,
             None => {
@@ -196,8 +196,12 @@ impl CommentSym {
             vis_flags |= 0xD;
         }
         let mut active_flags = 0;
-        if symbol.flags.is_force_active() {
-            active_flags |= 0x8; // TODO what is 0x10?
+        if symbol.flags.is_force_active()
+            || (force_active
+                && matches!(symbol.kind, ObjSymbolKind::Function | ObjSymbolKind::Object)
+                && symbol.flags.is_global())
+        {
+            active_flags |= 0x8;
         }
         Self { align, vis_flags, active_flags }
     }
