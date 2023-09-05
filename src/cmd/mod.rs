@@ -6,6 +6,8 @@ pub mod elf;
 pub mod elf2dol;
 pub mod map;
 pub mod metroidbuildinfo;
+pub mod rarc;
 pub mod rel;
 pub mod rso;
 pub mod shasum;
+pub mod yaz0;

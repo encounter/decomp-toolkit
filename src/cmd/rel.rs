@@ -93,6 +93,9 @@ pub struct MakeArgs {
     #[argp(option, short = 'c')]
     /// (optional) project configuration file
     config: Option<PathBuf>,
+    #[argp(switch, short = 'w')]
+    /// disable warnings
+    no_warn: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -121,26 +124,27 @@ fn make(args: MakeArgs) -> Result<()> {
     if let Some(config_path) = &args.config {
         let config: ProjectConfig = serde_yaml::from_reader(&mut buf_reader(config_path)?)?;
         for module_config in &config.modules {
-            if let Some(hash_str) = &module_config.hash {
-                verify_hash(&module_config.object, hash_str)?;
-            }
             let map = map_file(&module_config.object)?;
-            let buf = decompress_if_needed(&map)?;
+            let buf = decompress_if_needed(map.as_slice())?;
+            if let Some(hash_str) = &module_config.hash {
+                verify_hash(buf.as_ref(), hash_str)?;
+            }
             let header = process_rel_header(&mut Reader::new(buf.as_ref()))?;
             existing_headers.insert(header.module_id, header);
         }
     }
 
-    let files = process_rsp(&args.files)?;
-    info!("Loading {} modules", files.len());
+    let paths = process_rsp(&args.files)?;
+    info!("Loading {} modules", paths.len());
 
     // Load all modules
-    let handles = files.iter().map(map_file).collect::<Result<Vec<_>>>()?;
-    let modules = handles
+    let files = paths.iter().map(map_file).collect::<Result<Vec<_>>>()?;
+    let modules = files
         .par_iter()
-        .zip(&files)
-        .map(|(map, path)| {
-            load_obj(map).with_context(|| format!("Failed to load '{}'", path.display()))
+        .zip(&paths)
+        .map(|(file, path)| {
+            load_obj(file.as_slice())
+                .with_context(|| format!("Failed to load '{}'", path.display()))
         })
         .collect::<Result<Vec<_>>>()?;
 
@@ -194,7 +198,7 @@ fn make(args: MakeArgs) -> Result<()> {
                     address: address as u32,
                     module_id: target_module_id as u32,
                     target_section: target_symbol.section_index().unwrap().0 as u8,
-                    addend: target_symbol.address() as u32,
+                    addend: (target_symbol.address() as i64 + reloc.addend()) as u32,
                 });
             }
         }
@@ -211,7 +215,7 @@ fn make(args: MakeArgs) -> Result<()> {
     // Write RELs
     let start = Instant::now();
     for (((module_id, module), path), relocations) in
-        modules.iter().enumerate().zip(&files).skip(1).zip(relocations)
+        modules.iter().enumerate().zip(&paths).skip(1).zip(relocations)
     {
         let name =
             path.file_stem().unwrap_or(OsStr::new("[unknown]")).to_str().unwrap_or("[invalid]");
@@ -224,6 +228,7 @@ fn make(args: MakeArgs) -> Result<()> {
             align: None,
             bss_align: None,
             section_count: None,
+            quiet: args.no_warn,
         };
         if let Some(existing_module) = existing_headers.get(&(module_id as u32)) {
             info.version = existing_module.version;
@@ -248,9 +253,9 @@ fn make(args: MakeArgs) -> Result<()> {
 }
 
 fn info(args: InfoArgs) -> Result<()> {
-    let map = map_file(args.rel_file)?;
-    let buf = decompress_if_needed(&map)?;
-    let (header, mut module_obj) = process_rel(&mut Reader::new(buf.as_ref()))?;
+    let file = map_file(args.rel_file)?;
+    let buf = decompress_if_needed(file.as_slice())?;
+    let (header, mut module_obj) = process_rel(&mut Reader::new(buf.as_ref()), "")?;
 
     let mut state = AnalyzerState::default();
     state.detect_functions(&module_obj)?;
@@ -312,7 +317,12 @@ const fn align32(x: u32) -> u32 { (x + 31) & !31 }
 
 fn merge(args: MergeArgs) -> Result<()> {
     log::info!("Loading {}", args.dol_file.display());
-    let mut obj = process_dol(&args.dol_file)?;
+    let mut obj = {
+        let file = map_file(&args.dol_file)?;
+        let buf = decompress_if_needed(file.as_slice())?;
+        let name = args.dol_file.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
+        process_dol(buf.as_ref(), name.as_ref())?
+    };
 
     log::info!("Performing signature analysis");
     apply_signatures(&mut obj)?;
@@ -323,7 +333,8 @@ fn merge(args: MergeArgs) -> Result<()> {
     for result in FileIterator::new(&args.rel_files)? {
         let (path, entry) = result?;
         log::info!("Loading {}", path.display());
-        let (_, obj) = process_rel(&mut entry.as_reader())?;
+        let name = path.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
+        let (_, obj) = process_rel(&mut entry.as_reader(), name.as_ref())?;
         match module_map.entry(obj.module_id) {
             btree_map::Entry::Vacant(e) => e.insert(obj),
             btree_map::Entry::Occupied(_) => bail!("Duplicate module ID {}", obj.module_id),

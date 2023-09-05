@@ -1,6 +1,6 @@
 use std::{
     cmp::Ordering,
-    io::{Read, Seek, Write},
+    io::{Read, Seek, SeekFrom, Write},
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
@@ -15,7 +15,7 @@ use crate::{
         ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
         ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
     },
-    util::{file::Reader, IntoCow},
+    util::IntoCow,
 };
 
 /// Do not relocate anything, but accumulate the offset field for the next relocation offset calculation.
@@ -136,14 +136,14 @@ struct RelRelocRaw {
     addend: u32,
 }
 
-pub fn process_rel_header(reader: &mut Reader) -> Result<RelHeader> {
+pub fn process_rel_header<R: Read + Seek>(reader: &mut R) -> Result<RelHeader> {
     RelHeader::read_be(reader).context("Failed to read REL header")
 }
 
-pub fn process_rel(reader: &mut Reader) -> Result<(RelHeader, ObjInfo)> {
+pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHeader, ObjInfo)> {
     let header = process_rel_header(reader)?;
     let mut sections = Vec::with_capacity(header.num_sections as usize);
-    reader.set_position(header.section_info_offset as u64);
+    reader.seek(SeekFrom::Start(header.section_info_offset as u64))?;
     let mut found_text = false;
     let mut total_bss_size = 0;
     for idx in 0..header.num_sections {
@@ -158,13 +158,13 @@ pub fn process_rel(reader: &mut Reader) -> Result<(RelHeader, ObjInfo)> {
         let data = if offset == 0 {
             vec![]
         } else {
-            let position = reader.position();
-            reader.set_position(offset as u64);
+            let position = reader.stream_position()?;
+            reader.seek(SeekFrom::Start(offset as u64))?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data).with_context(|| {
                 format!("Failed to read REL section {} data with size {:#X}", idx, size)
             })?;
-            reader.set_position(position);
+            reader.seek(SeekFrom::Start(position))?;
             data
         };
 
@@ -236,8 +236,8 @@ pub fn process_rel(reader: &mut Reader) -> Result<(RelHeader, ObjInfo)> {
     let mut unresolved_relocations = Vec::new();
     let mut imp_idx = 0;
     let imp_end = (header.imp_offset + header.imp_size) as u64;
-    reader.set_position(header.imp_offset as u64);
-    while reader.position() < imp_end {
+    reader.seek(SeekFrom::Start(header.imp_offset as u64))?;
+    while reader.stream_position()? < imp_end {
         let import = RelImport::read_be(reader)?;
 
         if imp_idx == 0 {
@@ -261,8 +261,8 @@ pub fn process_rel(reader: &mut Reader) -> Result<(RelHeader, ObjInfo)> {
             }
         }
 
-        let position = reader.position();
-        reader.set_position(import.offset as u64);
+        let position = reader.stream_position()?;
+        reader.seek(SeekFrom::Start(import.offset as u64))?;
         let mut address = 0u32;
         let mut section = u8::MAX;
         loop {
@@ -306,14 +306,14 @@ pub fn process_rel(reader: &mut Reader) -> Result<(RelHeader, ObjInfo)> {
             };
             unresolved_relocations.push(reloc);
         }
-        reader.set_position(position);
+        reader.seek(SeekFrom::Start(position))?;
     }
 
     log::debug!("Read REL ID {}", header.module_id);
     let mut obj = ObjInfo::new(
         ObjKind::Relocatable,
         ObjArchitecture::PowerPc,
-        String::new(),
+        name.to_string(),
         symbols,
         sections,
     );
@@ -400,6 +400,8 @@ pub struct RelWriteInfo {
     /// Override the number of sections in the file.
     /// Useful for matching RELs that included debug sections.
     pub section_count: Option<usize>,
+    /// If true, don't print warnings about overriding values.
+    pub quiet: bool,
 }
 
 const PERMITTED_SECTIONS: [&str; 7] =
@@ -463,20 +465,20 @@ pub fn write_rel<W: Write>(
 
     // Apply overrides
     if let Some(section_count) = info.section_count {
-        if section_count != num_sections as usize {
+        if section_count != num_sections as usize && !info.quiet {
             warn!(from = num_sections, to = section_count, "Overriding section count");
         }
         num_sections = section_count as u32;
     }
     if info.version >= 2 {
         if let Some(align_override) = info.align {
-            if align_override != align {
+            if align_override != align && !info.quiet {
                 warn!(from = align, to = align_override, "Overriding alignment");
             }
             align = align_override;
         }
         if let Some(bss_align_override) = info.bss_align {
-            if bss_align_override != bss_align {
+            if bss_align_override != bss_align && !info.quiet {
                 warn!(from = bss_align, to = bss_align_override, "Overriding BSS alignment");
             }
             bss_align = bss_align_override;

@@ -33,7 +33,7 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
             if data.starts_with(TRK_TABLE_HEADER.as_bytes())
                 && data[TRK_TABLE_HEADER.as_bytes().len()] == 0
             {
-                log::info!("Found gTRKInterruptVectorTable @ {:#010X}", start);
+                log::debug!("Found gTRKInterruptVectorTable @ {:#010X}", start);
                 state.known_symbols.insert(start, ObjSymbol {
                     name: "gTRKInterruptVectorTable".to_string(),
                     demangled_name: None,

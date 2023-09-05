@@ -1,9 +1,12 @@
 use std::path::PathBuf;
 
-use anyhow::Result;
+use anyhow::{Context, Result};
 use argp::FromArgs;
 
-use crate::util::rso::process_rso;
+use crate::util::{
+    file::{decompress_if_needed, map_file, Reader},
+    rso::process_rso,
+};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing RSO files.
@@ -35,7 +38,12 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn info(args: InfoArgs) -> Result<()> {
-    let rso = process_rso(args.rso_file)?;
+    let rso = {
+        let file = map_file(&args.rso_file)?;
+        let data = decompress_if_needed(file.as_slice())
+            .with_context(|| format!("Failed to decompress '{}'", args.rso_file.display()))?;
+        process_rso(&mut Reader::new(data.as_ref()))?
+    };
     println!("Read RSO module {}", rso.name);
     Ok(())
 }

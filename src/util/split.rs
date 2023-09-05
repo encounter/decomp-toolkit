@@ -1,5 +1,5 @@
 use std::{
-    cmp::{min, Ordering},
+    cmp::{max, min, Ordering},
     collections::{BTreeMap, HashMap, HashSet},
 };
 
@@ -629,7 +629,7 @@ const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(ali
 /// - Creating splits for gaps between existing splits
 /// - Resolving a new object link order
 #[instrument(level = "debug", skip(obj))]
-pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>) -> Result<()> {
+pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bool) -> Result<()> {
     // Create splits for extab and extabindex entries
     if let Some((section_index, section)) = obj.sections.by_name("extabindex")? {
         let start = SectionAddress::new(section_index, section.address as u32);
@@ -663,8 +663,10 @@ pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>) -> Result<()>
     // Ensure splits don't overlap symbols or each other
     validate_splits(obj)?;
 
-    // Add symbols to beginning of any split that doesn't start with a symbol
-    add_padding_symbols(obj)?;
+    if fill_gaps {
+        // Add symbols to beginning of any split that doesn't start with a symbol
+        add_padding_symbols(obj)?;
+    }
 
     // Resolve link order
     obj.link_order = resolve_link_order(obj)?;
@@ -779,7 +781,9 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
             vec![],
         );
         if let Some(comment_version) = unit.comment_version {
-            split_obj.mw_comment = Some(MWComment::new(comment_version)?);
+            if comment_version > 0 {
+                split_obj.mw_comment = Some(MWComment::new(comment_version)?);
+            }
         } else {
             split_obj.mw_comment = obj.mw_comment.clone();
         }
@@ -833,8 +837,20 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 .ok_or_else(|| anyhow!("Unit '{}' not in link order", split.unit))?;
 
             // Calculate & verify section alignment
-            let mut align =
-                split.align.map(u64::from).unwrap_or_else(|| default_section_align(section));
+            let mut align = split.align.unwrap_or_else(|| {
+                let default_align = default_section_align(section) as u32;
+                max(
+                    // Maximum alignment of any symbol in this split
+                    obj.symbols
+                        .for_section_range(section_index, current_address.address..file_end.address)
+                        .filter(|&(_, s)| s.size_known && s.size > 0)
+                        .filter_map(|(_, s)| s.align)
+                        .max()
+                        .unwrap_or(default_align),
+                    default_align,
+                )
+            }) as u64;
+
             if current_address & (align as u32 - 1) != 0 {
                 log::warn!(
                     "Alignment for {} {} expected {}, but starts at {:#010X}",
@@ -877,13 +893,22 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
             let mut comm_addr = current_address;
             for (symbol_idx, symbol) in obj
                 .symbols
-                .for_section_range(section_index, current_address.address..file_end.address)
+                .for_section_range(section_index, current_address.address..=file_end.address)
                 .filter(|&(_, s)| {
                     s.section == Some(section_index) && !is_linker_generated_label(&s.name)
                 })
             {
                 if symbol_idxs[symbol_idx].is_some() {
                     continue; // should never happen?
+                }
+
+                // TODO hack for gTRKInterruptVectorTableEnd
+                if (symbol.address == file_end.address as u64
+                    && symbol.name != "gTRKInterruptVectorTableEnd")
+                    || (symbol.address == current_address.address as u64
+                        && symbol.name == "gTRKInterruptVectorTableEnd")
+                {
+                    continue;
                 }
 
                 if split.common && symbol.address as u32 > comm_addr.address {
@@ -907,7 +932,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     name: symbol.name.clone(),
                     demangled_name: symbol.demangled_name.clone(),
                     address: if split.common {
-                        4
+                        symbol.align.unwrap_or(4) as u64
                     } else {
                         symbol.address - current_address.address as u64
                     },
@@ -920,7 +945,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                         symbol.flags
                     },
                     kind: symbol.kind,
-                    align: if split.common { Some(4) } else { symbol.align },
+                    align: symbol.align,
                     data_kind: symbol.data_kind,
                 })?);
             }
@@ -1081,7 +1106,7 @@ pub fn default_section_align(section: &ObjSection) -> u64 {
         ObjSectionKind::Code => 4,
         _ => match section.name.as_str() {
             ".ctors" | ".dtors" | "extab" | "extabindex" => 4,
-            ".sbss" => 4, // ?
+            ".sbss" => 8, // ?
             _ => 8,
         },
     }

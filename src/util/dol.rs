@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, path::Path};
+use std::collections::BTreeMap;
 
 use anyhow::{anyhow, bail, ensure, Result};
 use dol::{Dol, DolSection, DolSectionType};
@@ -9,7 +9,7 @@ use crate::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
     },
-    util::file::{map_file, map_reader},
+    util::file::Reader,
 };
 
 const MAX_TEXT_SECTIONS: usize = 7;
@@ -22,17 +22,8 @@ fn read_u32(dol: &Dol, addr: u32) -> Result<u32> {
     Ok(u32::from_be_bytes(dol.virtual_data_at(addr, 4)?.try_into()?))
 }
 
-pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
-    let name = path
-        .as_ref()
-        .file_name()
-        .and_then(|filename| filename.to_str())
-        .unwrap_or_default()
-        .to_string();
-    let dol = {
-        let mmap = map_file(path)?;
-        Dol::read_from(map_reader(&mmap))?
-    };
+pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
+    let dol = Dol::read_from(Reader::new(buf))?;
 
     // Locate _rom_copy_info
     let first_rom_section = dol
@@ -331,8 +322,13 @@ pub fn process_dol<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     }
 
     // Create object
-    let mut obj =
-        ObjInfo::new(ObjKind::Executable, ObjArchitecture::PowerPc, name, vec![], sections);
+    let mut obj = ObjInfo::new(
+        ObjKind::Executable,
+        ObjArchitecture::PowerPc,
+        name.to_string(),
+        vec![],
+        sections,
+    );
     obj.entry = Some(dol.header.entry_point as u64);
 
     // Generate _rom_copy_info symbol

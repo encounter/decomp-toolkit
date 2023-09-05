@@ -433,7 +433,9 @@ impl Tracker {
             || self.sda2_base == Some(addr)
             || self.sda_base == Some(addr)
         {
-            return Some(SectionAddress::new(usize::MAX, addr));
+            let section_index =
+                obj.sections.at_address(addr).ok().map(|(idx, _)| idx).unwrap_or(usize::MAX);
+            return Some(SectionAddress::new(section_index, addr));
         }
         // if addr > 0x80000000 && addr < 0x80003100 {
         //     return true;

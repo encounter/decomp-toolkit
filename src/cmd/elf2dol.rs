@@ -43,8 +43,8 @@ const MAX_TEXT_SECTIONS: usize = 7;
 const MAX_DATA_SECTIONS: usize = 11;
 
 pub fn run(args: Args) -> Result<()> {
-    let map = map_file(&args.elf_file)?;
-    let obj_file = object::read::File::parse(&*map)?;
+    let file = map_file(&args.elf_file)?;
+    let obj_file = object::read::File::parse(file.as_slice())?;
     match obj_file.architecture() {
         Architecture::PowerPc => {}
         arch => bail!("Unexpected architecture: {arch:?}"),

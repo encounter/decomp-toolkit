@@ -9,9 +9,9 @@ use crate::obj::{ObjInfo, ObjKind};
 #[inline]
 const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
 
-pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String> {
+pub fn generate_ldscript(obj: &ObjInfo, force_active: &[String]) -> Result<String> {
     if obj.kind == ObjKind::Relocatable {
-        return generate_ldscript_partial(obj, auto_force_files);
+        return generate_ldscript_partial(obj, force_active);
     }
 
     let origin = obj.sections.iter().map(|(_, s)| s.address).min().unwrap();
@@ -54,7 +54,7 @@ pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String
         force_files.push(obj_path.file_name().unwrap().to_str().unwrap().to_string());
     }
 
-    let mut force_active = vec![];
+    let mut force_active = force_active.to_vec();
     for symbol in obj.symbols.iter() {
         if symbol.flags.is_force_active() && symbol.flags.is_global() && !symbol.flags.is_no_write()
         {
@@ -66,7 +66,7 @@ pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String
     let last_section_name = obj.sections.iter().next_back().unwrap().1.name.clone();
     let last_section_symbol = format!("_f_{}", last_section_name.trim_start_matches('.'));
 
-    let mut out = include_str!("../../assets/ldscript.lcf")
+    let out = include_str!("../../assets/ldscript.lcf")
         .replace("$ORIGIN", &format!("{:#X}", origin))
         .replace("$SECTIONS", &section_defs)
         .replace("$LAST_SECTION_SYMBOL", &last_section_symbol)
@@ -74,15 +74,10 @@ pub fn generate_ldscript(obj: &ObjInfo, auto_force_files: bool) -> Result<String
         .replace("$STACKSIZE", &format!("{:#X}", stack_size))
         .replace("$FORCEACTIVE", &force_active.join("\n    "))
         .replace("$ARENAHI", &format!("{:#X}", obj.arena_hi.unwrap_or(0x81700000)));
-    out = if auto_force_files {
-        out.replace("$FORCEFILES", &force_files.join("\n    "))
-    } else {
-        out.replace("$FORCEFILES", "")
-    };
     Ok(out)
 }
 
-pub fn generate_ldscript_partial(obj: &ObjInfo, auto_force_files: bool) -> Result<String> {
+pub fn generate_ldscript_partial(obj: &ObjInfo, force_active: &[String]) -> Result<String> {
     let section_defs =
         obj.sections.iter().map(|(_, s)| format!("{} :{{}}", s.name)).join("\n        ");
 
@@ -92,7 +87,7 @@ pub fn generate_ldscript_partial(obj: &ObjInfo, auto_force_files: bool) -> Resul
         force_files.push(obj_path.file_name().unwrap().to_str().unwrap().to_string());
     }
 
-    let mut force_active = vec![];
+    let mut force_active = force_active.to_vec();
     for symbol in obj.symbols.iter() {
         if symbol.flags.is_force_active() && symbol.flags.is_global() && !symbol.flags.is_no_write()
         {
@@ -100,14 +95,9 @@ pub fn generate_ldscript_partial(obj: &ObjInfo, auto_force_files: bool) -> Resul
         }
     }
 
-    let mut out = include_str!("../../assets/ldscript_partial.lcf")
+    let out = include_str!("../../assets/ldscript_partial.lcf")
         .replace("$SECTIONS", &section_defs)
         .replace("$FORCEACTIVE", &force_active.join("\n    "));
-    out = if auto_force_files {
-        out.replace("$FORCEFILES", &force_files.join("\n    "))
-    } else {
-        out.replace("$FORCEFILES", "")
-    };
     Ok(out)
 }
 

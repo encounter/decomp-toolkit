@@ -1,4 +1,4 @@
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, Result};
 
 use crate::{
     analysis::{
@@ -272,21 +272,21 @@ fn apply_ctors_signatures(obj: &mut ObjInfo) -> Result<()> {
 }
 
 fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
-    let Some((_, symbol)) = obj.symbols.by_name("_dtors")? else {
-        for symbol in obj.symbols.iter() {
-            println!("{:?} {:#010X} {}", symbol.section, symbol.address, symbol.name);
-        }
-        bail!("Missing _dtors symbol");
-        // return Ok(());
-    };
-    let dtors_section_index =
-        symbol.section.ok_or_else(|| anyhow!("Missing _dtors symbol section"))?;
-    let dtors_section = &obj.sections[dtors_section_index];
+    let (dtors_section_index, dtors_section) =
+        if let Some((_, symbol)) = obj.symbols.by_name("_dtors")? {
+            let section_index =
+                symbol.section.ok_or_else(|| anyhow!("Missing _dtors symbol section"))?;
+            (section_index, &obj.sections[section_index])
+        } else if let Some((section_index, section)) = obj.sections.by_name(".dtors")? {
+            (section_index, section)
+        } else {
+            return Ok(());
+        };
     // __destroy_global_chain_reference + null pointer
     if dtors_section.size < 8 {
         return Ok(());
     }
-    let address = symbol.address;
+    let address = dtors_section.address;
     let dgc_target = read_address(obj, dtors_section, address as u32).ok();
     let fce_target = read_address(obj, dtors_section, address as u32 + 4).ok();
     let mut found_dgc = false;
@@ -319,7 +319,7 @@ fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
             )?;
             found_dgc = true;
         } else {
-            log::warn!("Failed to match __destroy_global_chain signature ({:#010X})", dgc_target);
+            log::debug!("Failed to match __destroy_global_chain signature ({:#010X})", dgc_target);
         }
     }
 
@@ -441,6 +441,43 @@ pub fn apply_signatures_post(obj: &mut ObjInfo) -> Result<()> {
             let symbol = &obj.symbols[symbol_index];
             let symbol_addr = SectionAddress::new(symbol.section.unwrap(), symbol.address as u32);
             apply_signature(obj, symbol_addr, &signature)?;
+        }
+    }
+    Ok(())
+}
+
+/// Create _ctors and _dtors symbols if missing
+pub fn update_ctors_dtors(obj: &mut ObjInfo) -> Result<()> {
+    if obj.symbols.by_name("_ctors")?.is_none() {
+        if let Some((section_index, section)) = obj.sections.by_name(".ctors")? {
+            obj.symbols.add_direct(ObjSymbol {
+                name: "_ctors".to_string(),
+                demangled_name: None,
+                address: section.address,
+                section: Some(section_index),
+                size: 0,
+                size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                kind: ObjSymbolKind::Unknown,
+                align: None,
+                data_kind: Default::default(),
+            })?;
+        }
+    }
+    if obj.symbols.by_name("_dtors")?.is_none() {
+        if let Some((section_index, section)) = obj.sections.by_name(".dtors")? {
+            obj.symbols.add_direct(ObjSymbol {
+                name: "_dtors".to_string(),
+                demangled_name: None,
+                address: section.address,
+                section: Some(section_index),
+                size: 0,
+                size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                kind: ObjSymbolKind::Unknown,
+                align: None,
+                data_kind: Default::default(),
+            })?;
         }
     }
     Ok(())

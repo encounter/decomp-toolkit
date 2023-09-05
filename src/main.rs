@@ -82,9 +82,11 @@ enum SubCommand {
     Elf2Dol(cmd::elf2dol::Args),
     // Map(cmd::map::Args),
     MetroidBuildInfo(cmd::metroidbuildinfo::Args),
+    Rarc(cmd::rarc::Args),
     Rel(cmd::rel::Args),
     Rso(cmd::rso::Args),
     Shasum(cmd::shasum::Args),
+    Yaz0(cmd::yaz0::Args),
 }
 
 fn main() {
@@ -127,9 +129,11 @@ fn main() {
         SubCommand::Elf2Dol(c_args) => cmd::elf2dol::run(c_args),
         // SubCommand::Map(c_args) => cmd::map::run(c_args),
         SubCommand::MetroidBuildInfo(c_args) => cmd::metroidbuildinfo::run(c_args),
+        SubCommand::Rarc(c_args) => cmd::rarc::run(c_args),
         SubCommand::Rel(c_args) => cmd::rel::run(c_args),
         SubCommand::Rso(c_args) => cmd::rso::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
+        SubCommand::Yaz0(c_args) => cmd::yaz0::run(c_args),
     });
     if let Err(e) = result {
         eprintln!("Failed: {e:?}");

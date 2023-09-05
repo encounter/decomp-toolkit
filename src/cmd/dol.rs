@@ -1,8 +1,10 @@
 use std::{
     borrow::Cow,
+    cmp::min,
     collections::{btree_map::Entry, hash_map, BTreeMap, HashMap},
+    ffi::OsStr,
     fs,
-    fs::{DirBuilder, File},
+    fs::DirBuilder,
     io::Write,
     mem::take,
     path::{Path, PathBuf},
@@ -24,12 +26,13 @@ use crate::{
             AnalysisPass, FindRelCtorsDtors, FindRelRodataData, FindSaveRestSleds,
             FindTRKInterruptVectorTable,
         },
-        signatures::{apply_signatures, apply_signatures_post},
+        signatures::{apply_signatures, apply_signatures_post, update_ctors_dtors},
         tracker::Tracker,
     },
+    cmd::shasum::file_sha1_string,
     obj::{
-        best_match_for_reloc, ObjDataKind, ObjInfo, ObjReloc, ObjRelocKind, ObjSectionKind,
-        ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SymbolIndex,
+        ObjDataKind, ObjInfo, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
+        ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SymbolIndex,
     },
     util::{
         asm::write_asm,
@@ -41,10 +44,13 @@ use crate::{
         dep::DepFile,
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{buf_writer, decompress_if_needed, map_file, touch, verify_hash, Reader},
+        file::{
+            buf_reader, buf_writer, decompress_if_needed, map_file, touch, verify_hash,
+            FileIterator, Reader,
+        },
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
-        rel::process_rel,
+        rel::{process_rel, process_rel_header},
         rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_NAMES},
         split::{is_linker_generated_object, split_obj, update_splits},
         IntoCow, ToCow,
@@ -66,6 +72,7 @@ enum SubCommand {
     Split(SplitArgs),
     Diff(DiffArgs),
     Apply(ApplyArgs),
+    Config(ConfigArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -126,6 +133,18 @@ pub struct ApplyArgs {
     #[argp(positional)]
     /// map file
     map_file: PathBuf,
+}
+
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Generates a project configuration file from a DOL (& RELs).
+#[argp(subcommand, name = "config")]
+pub struct ConfigArgs {
+    #[argp(positional)]
+    /// object files
+    objects: Vec<PathBuf>,
+    #[argp(option, short = 'o')]
+    /// output config YAML file
+    out_file: PathBuf,
 }
 
 #[inline]
@@ -195,15 +214,21 @@ pub struct ProjectConfig {
     pub detect_strings: bool,
     #[serde(default = "bool_true")]
     pub write_asm: bool,
-    /// Adds all objects to FORCEFILES in the linker script.
-    #[serde(default)]
-    pub auto_force_files: bool,
     /// Specifies the start of the common BSS section.
     pub common_start: Option<u32>,
+    /// Disables all analysis passes that yield new symbols,
+    /// and instead assumes that all symbols are known.
+    #[serde(default)]
+    pub symbols_known: bool,
+    /// Fills gaps between symbols with
+    #[serde(default = "bool_true")]
+    pub fill_gaps: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct ModuleConfig {
+    /// Object name. If not specified, the file name without extension will be used.
+    pub name: Option<String>,
     #[serde(with = "path_slash_serde")]
     pub object: PathBuf,
     pub hash: Option<String>,
@@ -213,6 +238,9 @@ pub struct ModuleConfig {
     pub symbols: Option<PathBuf>,
     #[serde(with = "path_slash_serde_option", default)]
     pub map: Option<PathBuf>,
+    /// Forces the given symbols to be active in the linker script.
+    #[serde(default)]
+    pub force_active: Vec<String>,
 }
 
 impl ModuleConfig {
@@ -231,7 +259,9 @@ impl ModuleConfig {
         }
     }
 
-    pub fn name(&self) -> Cow<'_, str> { self.file_prefix() }
+    pub fn name(&self) -> Cow<'_, str> {
+        self.name.as_ref().map(|n| n.as_str().to_cow()).unwrap_or_else(|| self.file_prefix())
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -264,12 +294,12 @@ pub fn run(args: Args) -> Result<()> {
         SubCommand::Split(c_args) => split(c_args),
         SubCommand::Diff(c_args) => diff(c_args),
         SubCommand::Apply(c_args) => apply(c_args),
+        SubCommand::Config(c_args) => config(c_args),
     }
 }
 
-fn apply_selfile(obj: &mut ObjInfo, selfile: &Path) -> Result<()> {
-    log::info!("Loading {}", selfile.display());
-    let rso = process_rso(selfile)?;
+fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
+    let rso = process_rso(&mut Reader::new(buf))?;
     for symbol in rso.symbols.iter() {
         let dol_section_index = match symbol.section {
             Some(section) => section,
@@ -347,12 +377,16 @@ fn apply_selfile(obj: &mut ObjInfo, selfile: &Path) -> Result<()> {
 }
 
 fn info(args: InfoArgs) -> Result<()> {
-    let mut obj = process_dol(&args.dol_file)?;
+    let mut obj = {
+        let file = map_file(&args.dol_file)?;
+        let data = decompress_if_needed(file.as_slice())?;
+        process_dol(data.as_ref(), "")?
+    };
     apply_signatures(&mut obj)?;
 
     let mut state = AnalyzerState::default();
     state.detect_functions(&obj)?;
-    log::info!("Discovered {} functions", state.function_slices.len());
+    log::debug!("Discovered {} functions", state.function_slices.len());
 
     FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
     FindSaveRestSleds::execute(&mut state, &obj)?;
@@ -361,7 +395,9 @@ fn info(args: InfoArgs) -> Result<()> {
     apply_signatures_post(&mut obj)?;
 
     if let Some(selfile) = &args.selfile {
-        apply_selfile(&mut obj, selfile)?;
+        let file = map_file(selfile)?;
+        let data = decompress_if_needed(file.as_slice())?;
+        apply_selfile(&mut obj, data.as_ref())?;
     }
 
     println!("{}:", obj.name);
@@ -434,14 +470,10 @@ fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>) -> Result<()> {
             .get_elf_index(rel_reloc.target_section as usize)
             .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.target_section))?;
 
-        let target_symbols = obj
-            .symbols
-            .at_section_address(target_section_index, rel_reloc.addend)
-            .filter(|(_, s)| s.referenced_by(rel_reloc.kind))
-            .collect_vec();
-        let target_symbol = best_match_for_reloc(target_symbols, rel_reloc.kind);
-
-        if let Some((symbol_index, symbol)) = target_symbol {
+        if let Some((symbol_index, symbol)) = obj.symbols.for_relocation(
+            SectionAddress::new(target_section_index, rel_reloc.addend),
+            rel_reloc.kind,
+        )? {
             // Update symbol
             log::trace!(
                 "Found symbol in section {} at {:#010X}: {}",
@@ -524,16 +556,15 @@ fn create_relocations(obj: &mut ObjInfo, modules: &ModuleMap<'_>, dol_obj: &ObjI
             )?
         };
 
-        let target_symbols = target_obj
-            .symbols
-            .at_section_address(target_section_index, rel_reloc.addend)
-            .filter(|(_, s)| s.referenced_by(rel_reloc.kind))
-            .collect_vec();
-        let Some((symbol_index, symbol)) = best_match_for_reloc(target_symbols, rel_reloc.kind)
+        let Some((symbol_index, symbol)) = target_obj.symbols.for_relocation(
+            SectionAddress::new(target_section_index, rel_reloc.addend),
+            rel_reloc.kind,
+        )?
         else {
             bail!(
-                "Couldn't find module {} symbol in section {} at {:#010X}",
+                "Couldn't find module {} ({}) symbol in section {} at {:#010X}",
                 rel_reloc.module_id,
+                target_obj.name,
                 rel_reloc.target_section,
                 rel_reloc.addend
             );
@@ -625,11 +656,15 @@ fn resolve_external_relocations(
 type AnalyzeResult = (ObjInfo, Vec<PathBuf>);
 
 fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
-    // log::info!("Loading {}", config.object.display());
-    if let Some(hash_str) = &config.base.hash {
-        verify_hash(&config.base.object, hash_str)?;
-    }
-    let mut obj = process_dol(&config.base.object)?;
+    log::debug!("Loading {}", config.base.object.display());
+    let mut obj = {
+        let file = map_file(&config.base.object)?;
+        let data = decompress_if_needed(file.as_slice())?;
+        if let Some(hash_str) = &config.base.hash {
+            verify_hash(data.as_ref(), hash_str)?;
+        }
+        process_dol(data.as_ref(), config.base.name().as_ref())?
+    };
     let mut dep = vec![config.base.object.clone()];
 
     if let Some(comment_version) = config.mw_comment_version {
@@ -651,29 +686,38 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
         dep.push(symbols_path.clone());
     }
 
-    // TODO move before symbols?
-    debug!("Performing signature analysis");
-    apply_signatures(&mut obj)?;
+    if !config.symbols_known {
+        // TODO move before symbols?
+        debug!("Performing signature analysis");
+        apply_signatures(&mut obj)?;
 
-    if !config.quick_analysis {
-        let mut state = AnalyzerState::default();
-        debug!("Detecting function boundaries");
-        state.detect_functions(&obj)?;
+        if !config.quick_analysis {
+            let mut state = AnalyzerState::default();
+            debug!("Detecting function boundaries");
+            state.detect_functions(&obj)?;
 
-        FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
-        FindSaveRestSleds::execute(&mut state, &obj)?;
-        state.apply(&mut obj)?;
+            FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
+            FindSaveRestSleds::execute(&mut state, &obj)?;
+            state.apply(&mut obj)?;
+        }
+
+        apply_signatures_post(&mut obj)?;
     }
-
-    apply_signatures_post(&mut obj)?;
 
     if let Some(selfile) = &config.selfile {
+        log::info!("Loading {}", selfile.display());
+        let file = map_file(selfile)?;
+        let data = decompress_if_needed(file.as_slice())?;
         if let Some(hash) = &config.selfile_hash {
-            verify_hash(selfile, hash)?;
+            verify_hash(data.as_ref(), hash)?;
         }
-        apply_selfile(&mut obj, selfile)?;
+        apply_selfile(&mut obj, data.as_ref())?;
         dep.push(selfile.clone());
     }
+
+    // Create _ctors and _dtors symbols if missing
+    update_ctors_dtors(&mut obj)?;
+
     Ok((obj, dep))
 }
 
@@ -691,7 +735,7 @@ fn split_write_obj(
     debug!("Applying relocations");
     tracker.apply(obj, false)?;
 
-    if config.detect_objects {
+    if !config.symbols_known && config.detect_objects {
         debug!("Detecting object boundaries");
         detect_objects(obj)?;
     }
@@ -702,7 +746,11 @@ fn split_write_obj(
     }
 
     debug!("Adjusting splits");
-    update_splits(obj, if obj.module_id == 0 { config.common_start } else { None })?;
+    update_splits(
+        obj,
+        if obj.module_id == 0 { config.common_start } else { None },
+        config.fill_gaps,
+    )?;
 
     if !no_update {
         debug!("Writing configuration");
@@ -741,29 +789,32 @@ fn split_write_obj(
     }
 
     // Generate ldscript.lcf
-    fs::write(&out_config.ldscript, generate_ldscript(obj, config.auto_force_files)?)?;
+    fs::write(&out_config.ldscript, generate_ldscript(obj, &module_config.force_active)?)?;
 
-    debug!("Writing disassembly");
-    let asm_dir = out_dir.join("asm");
-    for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
-        let out_path = asm_dir.join(asm_path_for_unit(&unit.name));
+    if config.write_asm {
+        debug!("Writing disassembly");
+        let asm_dir = out_dir.join("asm");
+        for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
+            let out_path = asm_dir.join(asm_path_for_unit(&unit.name));
 
-        let mut w = buf_writer(&out_path)?;
-        write_asm(&mut w, split_obj)
-            .with_context(|| format!("Failed to write {}", out_path.display()))?;
-        w.flush()?;
+            let mut w = buf_writer(&out_path)?;
+            write_asm(&mut w, split_obj)
+                .with_context(|| format!("Failed to write {}", out_path.display()))?;
+            w.flush()?;
+        }
     }
     Ok(out_config)
 }
 
 fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Result<AnalyzeResult> {
     debug!("Loading {}", module_config.object.display());
-    if let Some(hash_str) = &module_config.hash {
-        verify_hash(&module_config.object, hash_str)?;
-    }
     let map = map_file(&module_config.object)?;
-    let buf = decompress_if_needed(&map)?;
-    let (_, mut module_obj) = process_rel(&mut Reader::new(buf.as_ref()))?;
+    let buf = decompress_if_needed(map.as_slice())?;
+    if let Some(hash_str) = &module_config.hash {
+        verify_hash(buf.as_ref(), hash_str)?;
+    }
+    let (_, mut module_obj) =
+        process_rel(&mut Reader::new(buf.as_ref()), module_config.name().as_ref())?;
 
     if let Some(comment_version) = config.mw_comment_version {
         module_obj.mw_comment = Some(MWComment::new(comment_version)?);
@@ -785,16 +836,22 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
         dep.push(symbols_path.clone());
     }
 
-    debug!("Analyzing module {}", module_obj.module_id);
-    if !config.quick_analysis {
-        let mut state = AnalyzerState::default();
-        state.detect_functions(&module_obj)?;
-        FindRelCtorsDtors::execute(&mut state, &module_obj)?;
-        FindRelRodataData::execute(&mut state, &module_obj)?;
-        state.apply(&mut module_obj)?;
+    if !config.symbols_known {
+        debug!("Analyzing module {}", module_obj.module_id);
+        if !config.quick_analysis {
+            let mut state = AnalyzerState::default();
+            state.detect_functions(&module_obj)?;
+            FindRelCtorsDtors::execute(&mut state, &module_obj)?;
+            FindRelRodataData::execute(&mut state, &module_obj)?;
+            state.apply(&mut module_obj)?;
+        }
+        apply_signatures(&mut module_obj)?;
+        apply_signatures_post(&mut module_obj)?;
     }
-    apply_signatures(&mut module_obj)?;
-    apply_signatures_post(&mut module_obj)?;
+
+    // Create _ctors and _dtors symbols if missing
+    update_ctors_dtors(&mut module_obj)?;
+
     Ok((module_obj, dep))
 }
 
@@ -805,18 +862,32 @@ fn split(args: SplitArgs) -> Result<()> {
 
     let command_start = Instant::now();
     info!("Loading {}", args.config.display());
-    let mut config_file = File::open(&args.config)
-        .with_context(|| format!("Failed to open config file '{}'", args.config.display()))?;
-    let config: ProjectConfig = serde_yaml::from_reader(&mut config_file)?;
+    let mut config: ProjectConfig = {
+        let mut config_file = buf_reader(&args.config)?;
+        serde_yaml::from_reader(&mut config_file)?
+    };
+
+    for module_config in config.modules.iter_mut() {
+        let file = map_file(&module_config.object)?;
+        let buf = decompress_if_needed(file.as_slice())?;
+        if let Some(hash_str) = &module_config.hash {
+            verify_hash(buf.as_ref(), hash_str)?;
+        } else {
+            module_config.hash = Some(file_sha1_string(&mut Reader::new(buf.as_ref()))?);
+        }
+    }
 
     let out_config_path = args.out_dir.join("config.json");
     let mut dep = DepFile::new(out_config_path.clone());
 
     let module_count = config.modules.len() + 1;
+    let num_threads = min(rayon::current_num_threads(), module_count);
     info!(
-        "Loading and analyzing {} modules (using {} threads)",
+        "Loading and analyzing {} module{} (using {} thread{})",
         module_count,
-        rayon::current_num_threads()
+        if module_count == 1 { "" } else { "s" },
+        num_threads,
+        if num_threads == 1 { "" } else { "s" }
     );
     let mut dol_result: Option<Result<AnalyzeResult>> = None;
     let mut modules_result: Option<Result<Vec<AnalyzeResult>>> = None;
@@ -871,11 +942,13 @@ fn split(args: SplitArgs) -> Result<()> {
         let module_ids = modules.keys().cloned().collect_vec();
 
         // Create any missing symbols (referenced from other modules) and set FORCEACTIVE
-        update_symbols(&mut obj, &modules)?;
-        for &module_id in &module_ids {
-            let (module_config, mut module_obj) = modules.remove(&module_id).unwrap();
-            update_symbols(&mut module_obj, &modules)?;
-            modules.insert(module_id, (module_config, module_obj));
+        if !config.symbols_known {
+            update_symbols(&mut obj, &modules)?;
+            for &module_id in &module_ids {
+                let (module_config, mut module_obj) = modules.remove(&module_id).unwrap();
+                update_symbols(&mut module_obj, &modules)?;
+                modules.insert(module_id, (module_config, module_obj));
+            }
         }
 
         // Create relocations to symbols in other modules
@@ -1135,12 +1208,18 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
 
 fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
-    let mut config_file = File::open(&args.config)
-        .with_context(|| format!("Failed to open config file '{}'", args.config.display()))?;
+    let mut config_file = buf_reader(&args.config)?;
     let config: ProjectConfig = serde_yaml::from_reader(&mut config_file)?;
 
     log::info!("Loading {}", config.base.object.display());
-    let mut obj = process_dol(&config.base.object)?;
+    let mut obj = {
+        let file = map_file(&config.base.object)?;
+        let data = decompress_if_needed(file.as_slice())?;
+        if let Some(hash_str) = &config.base.hash {
+            verify_hash(data.as_ref(), hash_str)?;
+        }
+        process_dol(data.as_ref(), config.base.name().as_ref())?
+    };
 
     if let Some(symbols_path) = &config.base.symbols {
         apply_symbols_file(symbols_path, &mut obj)?;
@@ -1267,6 +1346,8 @@ fn diff(args: DiffArgs) -> Result<()> {
                 orig_sym.size,
                 orig_sym.address
             );
+            log::error!("Original: {}", hex::encode_upper(orig_data));
+            log::error!("Linked:   {}", hex::encode_upper(linked_data));
             return Ok(());
         }
     }
@@ -1277,12 +1358,18 @@ fn diff(args: DiffArgs) -> Result<()> {
 
 fn apply(args: ApplyArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
-    let mut config_file = File::open(&args.config)
-        .with_context(|| format!("Failed to open config file '{}'", args.config.display()))?;
+    let mut config_file = buf_reader(&args.config)?;
     let config: ProjectConfig = serde_yaml::from_reader(&mut config_file)?;
 
     log::info!("Loading {}", config.base.object.display());
-    let mut obj = process_dol(&config.base.object)?;
+    let mut obj = {
+        let file = map_file(&config.base.object)?;
+        let data = decompress_if_needed(file.as_slice())?;
+        if let Some(hash_str) = &config.base.hash {
+            verify_hash(data.as_ref(), hash_str)?;
+        }
+        process_dol(data.as_ref(), config.base.name().as_ref())?
+    };
 
     if let Some(symbols_path) = &config.base.symbols {
         if !apply_symbols_file(symbols_path, &mut obj)? {
@@ -1427,5 +1514,77 @@ fn apply(args: ApplyArgs) -> Result<()> {
 
     write_symbols_file(config.base.symbols.as_ref().unwrap(), &obj)?;
 
+    Ok(())
+}
+
+fn config(args: ConfigArgs) -> Result<()> {
+    let mut config = ProjectConfig {
+        base: ModuleConfig {
+            name: None,
+            object: Default::default(),
+            hash: None,
+            splits: None,
+            symbols: None,
+            map: None,
+            force_active: vec![],
+        },
+        selfile: None,
+        selfile_hash: None,
+        mw_comment_version: None,
+        quick_analysis: false,
+        modules: vec![],
+        detect_objects: true,
+        detect_strings: true,
+        write_asm: true,
+        common_start: None,
+        symbols_known: false,
+        fill_gaps: true,
+    };
+
+    let mut modules = BTreeMap::<u32, ModuleConfig>::new();
+    for result in FileIterator::new(&args.objects)? {
+        let (path, entry) = result?;
+        log::info!("Loading {}", path.display());
+
+        match path.extension() {
+            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("dol")) => {
+                config.base.object = path;
+                config.base.hash = Some(file_sha1_string(&mut entry.as_reader())?);
+            }
+            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rel")) => {
+                let header = process_rel_header(&mut entry.as_reader())?;
+                modules.insert(header.module_id, ModuleConfig {
+                    name: None,
+                    object: path,
+                    hash: Some(file_sha1_string(&mut entry.as_reader())?),
+                    splits: None,
+                    symbols: None,
+                    map: None,
+                    force_active: vec![],
+                });
+            }
+            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("sel")) => {
+                config.selfile = Some(path);
+                config.selfile_hash = Some(file_sha1_string(&mut entry.as_reader())?);
+            }
+            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rso")) => {
+                config.modules.push(ModuleConfig {
+                    name: None,
+                    object: path,
+                    hash: Some(file_sha1_string(&mut entry.as_reader())?),
+                    splits: None,
+                    symbols: None,
+                    map: None,
+                    force_active: vec![],
+                });
+            }
+            _ => bail!("Unknown file extension: '{}'", path.display()),
+        }
+    }
+    config.modules.extend(modules.into_values());
+
+    let mut out = buf_writer(&args.out_file)?;
+    serde_yaml::to_writer(&mut out, &config)?;
+    out.flush()?;
     Ok(())
 }

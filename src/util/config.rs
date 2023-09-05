@@ -16,17 +16,24 @@ use crate::{
         ObjDataKind, ObjInfo, ObjKind, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind, ObjUnit,
     },
-    util::file::{buf_writer, map_file, map_reader},
+    util::{
+        file::{buf_writer, map_file},
+        split::default_section_align,
+    },
 };
 
 fn parse_hex(s: &str) -> Result<u32, ParseIntError> {
-    u32::from_str_radix(s.trim_start_matches("0x"), 16)
+    if s.starts_with("0x") {
+        u32::from_str_radix(s.trim_start_matches("0x"), 16)
+    } else {
+        s.parse::<u32>()
+    }
 }
 
 pub fn apply_symbols_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<bool> {
     Ok(if path.as_ref().is_file() {
-        let map = map_file(path)?;
-        for result in map_reader(&map).lines() {
+        let file = map_file(path)?;
+        for result in file.as_reader().lines() {
             let line = match result {
                 Ok(line) => line,
                 Err(e) => bail!("Failed to process symbols file: {e:?}"),
@@ -80,6 +87,10 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
             align: None,
             data_kind: Default::default(),
         };
+        // TODO move somewhere common
+        if symbol.name.starts_with("..") {
+            symbol.flags.0 |= ObjSymbolFlags::ForceActive;
+        }
         let attrs = captures["attrs"].split(' ');
         for attr in attrs {
             if let Some((name, value)) = attr.split_once(':') {
@@ -188,7 +199,7 @@ fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Resul
         write!(w, " scope:{scope}")?;
     }
     if let Some(align) = symbol.align {
-        write!(w, " align:{align:#X}")?;
+        write!(w, " align:{align}")?;
     }
     if let Some(kind) = symbol_data_kind_to_str(symbol.data_kind) {
         write!(w, " data:{kind}")?;
@@ -342,9 +353,11 @@ pub fn write_splits<W: Write>(w: &mut W, obj: &ObjInfo, all: bool) -> Result<()>
                 split_iter.peek().map(|&(_, _, addr, _)| addr).unwrap_or(0)
             };
             write!(w, "\t{:<11} start:{:#010X} end:{:#010X}", section.name, addr, end)?;
-            // if let Some(align) = split.align {
-            //     write!(w, " align:{}", align)?;
-            // }
+            if let Some(align) = split.align {
+                if align != default_section_align(section) as u32 {
+                    write!(w, " align:{}", align)?;
+                }
+            }
             if split.common {
                 write!(w, " common")?;
             }
@@ -446,7 +459,7 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
                         );
                     }
                     "align" => {
-                        section.align = Some(u32::from_str(value)?);
+                        section.align = Some(parse_hex(value)?);
                     }
                     _ => bail!("Unknown section attribute '{attr}'"),
                 }
@@ -475,7 +488,7 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
             match attr {
                 "start" => start = Some(parse_hex(value)?),
                 "end" => end = Some(parse_hex(value)?),
-                "align" => section.align = Some(u32::from_str(value)?),
+                "align" => section.align = Some(parse_hex(value)?),
                 "rename" => section.rename = Some(value.to_string()),
                 _ => bail!("Unknown split attribute '{attr}'"),
             }
@@ -509,8 +522,8 @@ enum SplitState {
 
 pub fn apply_splits_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<bool> {
     Ok(if path.as_ref().is_file() {
-        let map = map_file(path)?;
-        apply_splits(map_reader(&map), obj)?;
+        let file = map_file(path)?;
+        apply_splits(file.as_reader(), obj)?;
         true
     } else {
         false
@@ -587,8 +600,10 @@ pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
                     }
                 }?;
                 let section = obj.sections.get_mut(section_index).unwrap();
+                let section_end = (section.address + section.size) as u32;
                 ensure!(
-                    section.contains_range(start..end),
+                    section.contains_range(start..end)
+                        || (start == section_end && end == section_end),
                     "Section {} ({:#010X}..{:#010X}) does not contain range {:#010X}..{:#010X}",
                     name,
                     section.address,

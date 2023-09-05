@@ -41,8 +41,8 @@ enum BoundaryState {
 }
 
 pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
-    let mmap = map_file(path)?;
-    let obj_file = object::read::File::parse(&*mmap)?;
+    let file = map_file(path)?;
+    let obj_file = object::read::File::parse(file.as_slice())?;
     let architecture = match obj_file.architecture() {
         Architecture::PowerPc => ObjArchitecture::PowerPc,
         arch => bail!("Unexpected architecture: {arch:?}"),

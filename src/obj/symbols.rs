@@ -329,7 +329,13 @@ impl ObjSymbols {
         self.at_section_address(section_idx, addr)
             .filter(|(_, sym)| sym.kind == kind)
             .at_most_one()
-            .map_err(|_| anyhow!("Multiple symbols of kind {:?} at address {:#010X}", kind, addr))
+            .map_err(|e| {
+                let symbols = e.map(|(_, s)| s).collect_vec();
+                for symbol in symbols {
+                    log::error!("{:?}", symbol);
+                }
+                anyhow!("Multiple symbols of kind {:?} at address {:#010X}", kind, addr)
+            })
     }
 
     // Iterate over all in address ascending order, excluding ABS symbols

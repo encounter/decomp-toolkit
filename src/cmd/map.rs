@@ -6,7 +6,7 @@ use argp::FromArgs;
 use cwdemangle::{demangle, DemangleOptions};
 
 use crate::util::{
-    file::{map_file, map_reader},
+    file::map_file,
     map::{process_map, SymbolEntry, SymbolRef},
 };
 
@@ -90,8 +90,8 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn entries(args: EntriesArgs) -> Result<()> {
-    let map = map_file(&args.map_file)?;
-    let entries = process_map(map_reader(&map))?;
+    let file = map_file(&args.map_file)?;
+    let entries = process_map(&mut file.as_reader())?;
     match entries.unit_entries.get_vec(&args.unit) {
         Some(vec) => {
             for symbol_ref in vec {
@@ -108,8 +108,8 @@ fn entries(args: EntriesArgs) -> Result<()> {
 }
 
 fn symbol(args: SymbolArgs) -> Result<()> {
-    let map = map_file(&args.map_file)?;
-    let entries = process_map(map_reader(&map))?;
+    let file = map_file(&args.map_file)?;
+    let entries = process_map(&mut file.as_reader())?;
     let opt_ref: Option<(SymbolRef, SymbolEntry)> = None;
 
     _ = entries;
@@ -165,8 +165,8 @@ fn symbol(args: SymbolArgs) -> Result<()> {
 }
 
 fn order(args: OrderArgs) -> Result<()> {
-    let map = map_file(&args.map_file)?;
-    let entries = process_map(map_reader(&map))?;
+    let file = map_file(&args.map_file)?;
+    let entries = process_map(&mut file.as_reader())?;
 
     _ = entries;
     // TODO
@@ -179,8 +179,8 @@ fn order(args: OrderArgs) -> Result<()> {
 }
 
 fn slices(args: SlicesArgs) -> Result<()> {
-    let map = map_file(&args.map_file)?;
-    let entries = process_map(map_reader(&map))?;
+    let file = map_file(&args.map_file)?;
+    let entries = process_map(&mut file.as_reader())?;
 
     _ = entries;
     // TODO
@@ -213,8 +213,8 @@ fn slices(args: SlicesArgs) -> Result<()> {
 }
 
 fn symbols(args: SymbolsArgs) -> Result<()> {
-    let map = map_file(&args.map_file)?;
-    let entries = process_map(map_reader(&map))?;
+    let file = map_file(&args.map_file)?;
+    let entries = process_map(&mut file.as_reader())?;
 
     _ = entries;
     // TODO

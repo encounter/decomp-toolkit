@@ -14,7 +14,7 @@ pub fn detect_objects(obj: &mut ObjInfo) -> Result<()> {
         let mut replace_symbols = vec![];
         for (idx, symbol) in obj.symbols.for_section(section_index) {
             let mut symbol = symbol.clone();
-            if is_linker_generated_label(&symbol.name) {
+            if is_linker_generated_label(&symbol.name) || symbol.name.starts_with("..") {
                 continue;
             }
             let expected_size = match symbol.data_kind {
@@ -124,6 +124,11 @@ pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
             .for_section(section_index)
             .filter(|(_, sym)| sym.data_kind == ObjDataKind::Unknown)
         {
+            if symbol.name.starts_with("@stringBase") {
+                symbols_set.push((symbol_idx, ObjDataKind::StringTable, symbol.size as usize));
+                continue;
+            }
+
             let data = section.symbol_data(symbol)?;
             match is_string(data) {
                 StringResult::None => {}

@@ -1,12 +1,17 @@
 // Source: https://github.com/Julgodis/picori/blob/650da9f4fe6050b39b80d5360416591c748058d5/src/rarc.rs
 // License: MIT
 // Modified to use `std::io::Cursor<&[u8]>` and `byteorder`
-use std::{collections::HashMap, fmt::Display};
+use std::{
+    collections::HashMap,
+    fmt::Display,
+    io::{Read, Seek, SeekFrom},
+    path::{Component, Path, PathBuf},
+};
 
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{anyhow, bail, ensure, Result};
 use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
-use crate::util::file::{read_c_string, Reader};
+use crate::util::file::read_c_string;
 
 #[derive(Debug, Clone)]
 pub struct NamedHash {
@@ -62,17 +67,16 @@ struct RarcNode {
     pub count: u32,
 }
 
-pub struct RarcReader<'a> {
-    reader: Reader<'a>,
+pub struct RarcReader {
     directories: Vec<RarcDirectory>,
     nodes: HashMap<NamedHash, RarcNode>,
     root_node: NamedHash,
 }
 
-impl<'a> RarcReader<'a> {
+impl RarcReader {
     /// Creates a new RARC reader.
-    pub fn new(mut reader: Reader<'a>) -> Result<Self> {
-        let base = reader.position();
+    pub fn new<R: Read + Seek>(reader: &mut R) -> Result<Self> {
+        let base = reader.stream_position()?;
 
         let magic = reader.read_u32::<LittleEndian>()?;
         let _file_length = reader.read_u32::<BigEndian>()?;
@@ -101,7 +105,7 @@ impl<'a> RarcReader<'a> {
         let data_base = base + file_offset as u64;
         let mut directories = Vec::with_capacity(directory_count as usize);
         for i in 0..directory_count {
-            reader.set_position(directory_base + 20 * i as u64);
+            reader.seek(SeekFrom::Start(directory_base + 20 * i as u64))?;
             let index = reader.read_u16::<BigEndian>()?;
             let name_hash = reader.read_u16::<BigEndian>()?;
             let _ = reader.read_u16::<BigEndian>()?; // 0x200 for folders, 0x1100 for files
@@ -114,7 +118,7 @@ impl<'a> RarcReader<'a> {
                 let offset = string_table_offset as u64;
                 let offset = offset + name_offset as u64;
                 ensure!((name_offset as u32) < string_table_length, "invalid string table offset");
-                read_c_string(&mut reader, base + offset)
+                read_c_string(reader, base + offset)
             }?;
 
             if index == 0xFFFF {
@@ -139,7 +143,7 @@ impl<'a> RarcReader<'a> {
         let mut root_node: Option<NamedHash> = None;
         let mut nodes = HashMap::with_capacity(node_count as usize);
         for i in 0..node_count {
-            reader.set_position(node_base + 16 * i as u64);
+            reader.seek(SeekFrom::Start(node_base + 16 * i as u64))?;
             let _identifier = reader.read_u32::<BigEndian>()?;
             let name_offset = reader.read_u32::<BigEndian>()?;
             let name_hash = reader.read_u16::<BigEndian>()?;
@@ -158,7 +162,7 @@ impl<'a> RarcReader<'a> {
                 let offset = string_table_offset as u64;
                 let offset = offset + name_offset as u64;
                 ensure!(name_offset < string_table_length, "invalid string table offset");
-                read_c_string(&mut reader, base + offset)
+                read_c_string(reader, base + offset)
             }?;
 
             // FIXME: this assumes that the root node is the first node in the list
@@ -171,22 +175,48 @@ impl<'a> RarcReader<'a> {
         }
 
         if let Some(root_node) = root_node {
-            Ok(Self { reader, directories, nodes, root_node })
+            Ok(Self { directories, nodes, root_node })
         } else {
             Err(anyhow!("no root node"))
         }
     }
 
-    /// Get the data for a file.
-    pub fn file_data(&mut self, offset: u64, size: u32) -> Result<&'a [u8]> {
-        ensure!(offset + size as u64 <= self.reader.get_ref().len() as u64, "out of bounds");
-        Ok(&self.reader.get_ref()[offset as usize..offset as usize + size as usize])
-    }
-
     /// Get a iterator over the nodes in the RARC file.
-    pub fn nodes(&self) -> Nodes<'_, '_> {
+    pub fn nodes(&self) -> Nodes<'_> {
         let root_node = self.root_node.clone();
         Nodes { parent: self, stack: vec![NodeState::Begin(root_node)] }
+    }
+
+    /// Find a file in the RARC file.
+    pub fn find_file<P: AsRef<Path>>(&self, path: P) -> Result<Option<(u64, u32)>> {
+        let mut cmp_path = PathBuf::new();
+        for component in path.as_ref().components() {
+            match component {
+                Component::Normal(name) => cmp_path.push(name.to_ascii_lowercase()),
+                Component::RootDir => {}
+                component => bail!("Invalid path component: {:?}", component),
+            }
+        }
+
+        let mut current_path = PathBuf::new();
+        for node in self.nodes() {
+            match node {
+                Node::DirectoryBegin { name } => {
+                    current_path.push(name.name.to_ascii_lowercase());
+                }
+                Node::DirectoryEnd { name: _ } => {
+                    current_path.pop();
+                }
+                Node::File { name, offset, size } => {
+                    if current_path.join(name.name.to_ascii_lowercase()) == cmp_path {
+                        return Ok(Some((offset, size)));
+                    }
+                }
+                Node::CurrentDirectory => {}
+                Node::ParentDirectory => {}
+            }
+        }
+        Ok(None)
     }
 }
 
@@ -211,12 +241,12 @@ enum NodeState {
 }
 
 /// An iterator over the nodes in an RARC file.
-pub struct Nodes<'parent, 'a> {
-    parent: &'parent RarcReader<'a>,
+pub struct Nodes<'parent> {
+    parent: &'parent RarcReader,
     stack: Vec<NodeState>,
 }
 
-impl<'parent, 'a> Iterator for Nodes<'parent, 'a> {
+impl<'parent> Iterator for Nodes<'parent> {
     type Item = Node;
 
     fn next(&mut self) -> Option<Self::Item> {

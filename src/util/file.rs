@@ -1,35 +1,104 @@
 use std::{
     borrow::Cow,
+    ffi::OsStr,
     fs::{DirBuilder, File, OpenOptions},
-    io::{BufRead, BufReader, BufWriter, Cursor, Read},
-    path::{Path, PathBuf},
+    io::{BufRead, BufReader, BufWriter, Cursor, Read, Seek, SeekFrom},
+    path::{Component, Path, PathBuf},
 };
 
 use anyhow::{anyhow, Context, Result};
+use binrw::io::{TakeSeek, TakeSeekExt};
 use byteorder::ReadBytesExt;
 use filetime::{set_file_mtime, FileTime};
 use memmap2::{Mmap, MmapOptions};
 use path_slash::PathBufExt;
+use sha1::{Digest, Sha1};
 
-use crate::{
-    cmd::shasum::file_sha1,
-    util::{rarc, rarc::Node, yaz0, IntoCow, ToCow},
-};
+use crate::util::{rarc, rarc::Node, yaz0, IntoCow, ToCow};
+
+pub struct MappedFile {
+    mmap: Mmap,
+    offset: u64,
+    len: u64,
+}
+
+impl MappedFile {
+    pub fn new(mmap: Mmap, offset: u64, len: u64) -> Self { Self { mmap, offset, len } }
+
+    pub fn as_reader(&self) -> Reader { Reader::new(self.as_slice()) }
+
+    pub fn as_slice(&self) -> &[u8] {
+        &self.mmap[self.offset as usize..self.offset as usize + self.len as usize]
+    }
+
+    pub fn len(&self) -> u64 { self.len }
+
+    pub fn is_empty(&self) -> bool { self.len == 0 }
+
+    pub fn into_inner(self) -> Mmap { self.mmap }
+}
+
+pub fn split_path<P: AsRef<Path>>(path: P) -> Result<(PathBuf, Option<PathBuf>)> {
+    let mut base_path = PathBuf::new();
+    let mut sub_path: Option<PathBuf> = None;
+    for component in path.as_ref().components() {
+        if let Component::Normal(str) = component {
+            let str = str.to_str().ok_or(anyhow!("Path is not valid UTF-8"))?;
+            if let Some((a, b)) = str.split_once(':') {
+                base_path.push(a);
+                sub_path = Some(PathBuf::from(b));
+                continue;
+            }
+        }
+        if let Some(sub_path) = &mut sub_path {
+            sub_path.push(component);
+        } else {
+            base_path.push(component);
+        }
+    }
+    Ok((base_path, sub_path))
+}
 
 /// Opens a memory mapped file.
-pub fn map_file<P: AsRef<Path>>(path: P) -> Result<Mmap> {
-    let file = File::open(&path)
-        .with_context(|| format!("Failed to open file '{}'", path.as_ref().display()))?;
-    let map = unsafe { MmapOptions::new().map(&file) }
-        .with_context(|| format!("Failed to mmap file: '{}'", path.as_ref().display()))?;
-    Ok(map)
+pub fn map_file<P: AsRef<Path>>(path: P) -> Result<MappedFile> {
+    let (base_path, sub_path) = split_path(path)?;
+    let file = File::open(&base_path)
+        .with_context(|| format!("Failed to open file '{}'", base_path.display()))?;
+    let mmap = unsafe { MmapOptions::new().map(&file) }
+        .with_context(|| format!("Failed to mmap file: '{}'", base_path.display()))?;
+    let (offset, len) = if let Some(sub_path) = sub_path {
+        let rarc = rarc::RarcReader::new(&mut Reader::new(&*mmap))
+            .with_context(|| format!("Failed to read RARC '{}'", base_path.display()))?;
+        rarc.find_file(&sub_path)?.map(|(o, s)| (o, s as u64)).ok_or_else(|| {
+            anyhow!("File '{}' not found in '{}'", sub_path.display(), base_path.display())
+        })?
+    } else {
+        (0, mmap.len() as u64)
+    };
+    Ok(MappedFile { mmap, offset, len })
+}
+
+pub type OpenedFile = TakeSeek<File>;
+
+/// Opens a file (not memory mapped).
+pub fn open_file<P: AsRef<Path>>(path: P) -> Result<OpenedFile> {
+    let (base_path, sub_path) = split_path(path)?;
+    let mut file = File::open(&base_path)
+        .with_context(|| format!("Failed to open file '{}'", base_path.display()))?;
+    let (offset, size) = if let Some(sub_path) = sub_path {
+        let rarc = rarc::RarcReader::new(&mut BufReader::new(&file))
+            .with_context(|| format!("Failed to read RARC '{}'", base_path.display()))?;
+        rarc.find_file(&sub_path)?.map(|(o, s)| (o, s as u64)).ok_or_else(|| {
+            anyhow!("File '{}' not found in '{}'", sub_path.display(), base_path.display())
+        })?
+    } else {
+        (0, file.seek(SeekFrom::End(0))?)
+    };
+    file.seek(SeekFrom::Start(offset))?;
+    Ok(file.take_seek(size))
 }
 
 pub type Reader<'a> = Cursor<&'a [u8]>;
-
-/// Creates a reader for the memory mapped file.
-#[inline]
-pub fn map_reader(mmap: &Mmap) -> Reader { Reader::new(&**mmap) }
 
 /// Creates a buffered reader around a file (not memory mapped).
 pub fn buf_reader<P: AsRef<Path>>(path: P) -> Result<BufReader<File>> {
@@ -49,19 +118,19 @@ pub fn buf_writer<P: AsRef<Path>>(path: P) -> Result<BufWriter<File>> {
 }
 
 /// Reads a string with known size at the specified offset.
-pub fn read_string(reader: &mut Reader, off: u64, size: usize) -> Result<String> {
+pub fn read_string<R: Read + Seek>(reader: &mut R, off: u64, size: usize) -> Result<String> {
     let mut data = vec![0u8; size];
-    let pos = reader.position();
-    reader.set_position(off);
+    let pos = reader.stream_position()?;
+    reader.seek(SeekFrom::Start(off))?;
     reader.read_exact(&mut data)?;
-    reader.set_position(pos);
+    reader.seek(SeekFrom::Start(pos))?;
     Ok(String::from_utf8(data)?)
 }
 
 /// Reads a zero-terminated string at the specified offset.
-pub fn read_c_string(reader: &mut Reader, off: u64) -> Result<String> {
-    let pos = reader.position();
-    reader.set_position(off);
+pub fn read_c_string<R: Read + Seek>(reader: &mut R, off: u64) -> Result<String> {
+    let pos = reader.stream_position()?;
+    reader.seek(SeekFrom::Start(off))?;
     let mut s = String::new();
     loop {
         let b = reader.read_u8()?;
@@ -70,7 +139,7 @@ pub fn read_c_string(reader: &mut Reader, off: u64) -> Result<String> {
         }
         s.push(b as char);
     }
-    reader.set_position(pos);
+    reader.seek(SeekFrom::Start(pos))?;
     Ok(s)
 }
 
@@ -102,15 +171,16 @@ pub fn process_rsp(files: &[PathBuf]) -> Result<Vec<PathBuf>> {
 /// Iterator over files in a RARC archive.
 struct RarcIterator {
     file: Mmap,
+    base_path: PathBuf,
     paths: Vec<(PathBuf, u64, u32)>,
     index: usize,
 }
 
 impl RarcIterator {
     pub fn new(file: Mmap, base_path: &Path) -> Result<Self> {
-        let reader = rarc::RarcReader::new(map_reader(&file))?;
+        let reader = rarc::RarcReader::new(&mut Reader::new(&*file))?;
         let paths = Self::collect_paths(&reader, base_path);
-        Ok(Self { file, paths, index: 0 })
+        Ok(Self { file, base_path: base_path.to_owned(), paths, index: 0 })
     }
 
     fn collect_paths(reader: &rarc::RarcReader, base_path: &Path) -> Vec<(PathBuf, u64, u32)> {
@@ -157,7 +227,7 @@ impl Iterator for RarcIterator {
 
 /// A file entry, either a memory mapped file or an owned buffer.
 pub enum FileEntry {
-    Map(Mmap),
+    MappedFile(MappedFile),
     Buffer(Vec<u8>),
 }
 
@@ -165,7 +235,7 @@ impl FileEntry {
     /// Creates a reader for the file.
     pub fn as_reader(&self) -> Reader {
         match self {
-            Self::Map(map) => map_reader(map),
+            Self::MappedFile(file) => file.as_reader(),
             Self::Buffer(slice) => Reader::new(slice),
         }
     }
@@ -188,7 +258,12 @@ impl FileIterator {
     fn next_rarc(&mut self) -> Option<Result<(PathBuf, FileEntry)>> {
         if let Some(rarc) = &mut self.rarc {
             match rarc.next() {
-                Some(Ok((path, buf))) => return Some(Ok((path, FileEntry::Buffer(buf)))),
+                Some(Ok((path, buf))) => {
+                    let mut path_str = rarc.base_path.as_os_str().to_os_string();
+                    path_str.push(OsStr::new(":"));
+                    path_str.push(path.as_os_str());
+                    return Some(Ok((path, FileEntry::Buffer(buf))));
+                }
                 Some(Err(err)) => return Some(Err(err)),
                 None => self.rarc = None,
             }
@@ -209,20 +284,29 @@ impl FileIterator {
         }
     }
 
-    fn handle_file(&mut self, map: Mmap, path: PathBuf) -> Option<Result<(PathBuf, FileEntry)>> {
-        if map.len() <= 4 {
-            return Some(Ok((path, FileEntry::Map(map))));
+    fn handle_file(
+        &mut self,
+        file: MappedFile,
+        path: PathBuf,
+    ) -> Option<Result<(PathBuf, FileEntry)>> {
+        let buf = file.as_slice();
+        if buf.len() <= 4 {
+            return Some(Ok((path, FileEntry::MappedFile(file))));
         }
 
-        match &map[0..4] {
-            b"Yaz0" => self.handle_yaz0(map, path),
-            b"RARC" => self.handle_rarc(map, path),
-            _ => Some(Ok((path, FileEntry::Map(map)))),
+        match &buf[0..4] {
+            b"Yaz0" => self.handle_yaz0(file.as_reader(), path),
+            b"RARC" => self.handle_rarc(file.into_inner(), path),
+            _ => Some(Ok((path, FileEntry::MappedFile(file)))),
         }
     }
 
-    fn handle_yaz0(&mut self, map: Mmap, path: PathBuf) -> Option<Result<(PathBuf, FileEntry)>> {
-        Some(match yaz0::decompress_file(&mut map_reader(&map)) {
+    fn handle_yaz0(
+        &mut self,
+        mut reader: Reader,
+        path: PathBuf,
+    ) -> Option<Result<(PathBuf, FileEntry)>> {
+        Some(match yaz0::decompress_file(&mut reader) {
             Ok(buf) => Ok((path, FileEntry::Buffer(buf))),
             Err(e) => Err(e),
         })
@@ -262,20 +346,38 @@ pub fn decompress_if_needed(buf: &[u8]) -> Result<Cow<[u8]>> {
     })
 }
 
-pub fn verify_hash<P: AsRef<Path>>(path: P, hash_str: &str) -> Result<()> {
-    let mut hash_bytes = [0u8; 20];
-    hex::decode_to_slice(hash_str, &mut hash_bytes)
-        .with_context(|| format!("Invalid SHA-1 '{hash_str}'"))?;
-    let file = File::open(path.as_ref())
-        .with_context(|| format!("Failed to open file '{}'", path.as_ref().display()))?;
-    let found_hash = file_sha1(file)?;
-    if found_hash.as_ref() == hash_bytes {
+pub fn decompress_reader<R: Read + Seek>(reader: &mut R) -> Result<Vec<u8>> {
+    let mut magic = [0u8; 4];
+    if reader.read_exact(&mut magic).is_err() {
+        reader.seek(SeekFrom::Start(0))?;
+        let mut buf = vec![];
+        reader.read_to_end(&mut buf)?;
+        return Ok(buf);
+    }
+    Ok(if magic == *b"Yaz0" {
+        reader.seek(SeekFrom::Start(0))?;
+        yaz0::decompress_file(reader)?
+    } else {
+        let mut buf = magic.to_vec();
+        reader.read_to_end(&mut buf)?;
+        buf
+    })
+}
+
+pub fn verify_hash(buf: &[u8], expected_str: &str) -> Result<()> {
+    let mut expected_bytes = [0u8; 20];
+    hex::decode_to_slice(expected_str, &mut expected_bytes)
+        .with_context(|| format!("Invalid SHA-1 '{expected_str}'"))?;
+    let mut hasher = Sha1::new();
+    hasher.update(buf);
+    let hash_bytes = hasher.finalize();
+    if hash_bytes.as_ref() == expected_bytes {
         Ok(())
     } else {
         Err(anyhow!(
             "Hash mismatch: expected {}, but was {}",
-            hex::encode(hash_bytes),
-            hex::encode(found_hash)
+            hex::encode(expected_bytes),
+            hex::encode(hash_bytes)
         ))
     }
 }

@@ -1,7 +1,7 @@
 #![allow(dead_code)]
 #![allow(unused_mut)]
 use std::{
-    collections::{btree_map, BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap},
     hash::Hash,
     io::BufRead,
     mem::replace,
@@ -10,13 +10,14 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Error, Result};
 use cwdemangle::{demangle, DemangleOptions};
+use flagset::FlagSet;
 use multimap::MultiMap;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 use crate::{
     obj::{ObjInfo, ObjKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
-    util::file::{map_file, map_reader},
+    util::{file::map_file, nested::NestedVec},
 };
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -35,7 +36,7 @@ pub enum SymbolVisibility {
     Weak,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct SymbolEntry {
     pub name: String,
     pub demangled: Option<String>,
@@ -254,6 +255,35 @@ impl StateMachine {
         Ok(())
     }
 
+    fn finalize(&mut self) -> Result<()> {
+        // If we didn't find a link map, guess symbol visibility
+        if !self.has_link_map {
+            let mut symbol_occurrences = HashMap::<String, usize>::new();
+            for symbol in self.result.section_symbols.values().flat_map(|v| v.values().flatten()) {
+                if symbol.visibility != SymbolVisibility::Local {
+                    *symbol_occurrences.entry(symbol.name.clone()).or_default() += 1;
+                }
+            }
+
+            for symbol in
+                self.result.section_symbols.values_mut().flat_map(|v| v.values_mut().flatten())
+            {
+                if symbol.visibility == SymbolVisibility::Unknown {
+                    if symbol.name.starts_with('.') // ...rodata.0
+                        || symbol.name.starts_with('@') // @123
+                        || symbol.name.starts_with("__sinit")
+                        || symbol_occurrences.get(&symbol.name).cloned().unwrap_or(0) > 1
+                    {
+                        symbol.visibility = SymbolVisibility::Local;
+                    } else {
+                        symbol.visibility = SymbolVisibility::Global;
+                    }
+                }
+            }
+        }
+        Ok(())
+    }
+
     fn process_link_map_entry(
         captures: Captures,
         state: &mut LinkMapState,
@@ -427,8 +457,7 @@ impl StateMachine {
 
         let address = u32::from_str_radix(captures["addr"].trim(), 16)?;
         let size = u32::from_str_radix(captures["size"].trim(), 16)?;
-        let align =
-            captures.name("align").and_then(|m| u32::from_str_radix(m.as_str().trim(), 16).ok());
+        let align = captures.name("align").and_then(|m| m.as_str().trim().parse::<u32>().ok());
 
         if state.current_unit.as_ref() != Some(&tu) || sym_name == state.current_section {
             state.current_unit = Some(tu.clone());
@@ -461,8 +490,7 @@ impl StateMachine {
             } else {
                 SymbolVisibility::Unknown
             };
-            let kind = if sym_name.starts_with('.') {
-                visibility = SymbolVisibility::Local;
+            let kind = if sym_name == state.current_section {
                 SymbolKind::Section
             } else if size > 0 {
                 if is_code_section(&state.current_section) {
@@ -484,12 +512,7 @@ impl StateMachine {
                 align,
             }
         };
-        match state.symbols.entry(address) {
-            btree_map::Entry::Occupied(e) => e.into_mut().push(entry),
-            btree_map::Entry::Vacant(e) => {
-                e.insert(vec![entry]);
-            }
-        }
+        state.symbols.nested_push(address, entry);
         Ok(())
     }
 
@@ -540,7 +563,7 @@ impl StateMachine {
     }
 }
 
-pub fn process_map<R: BufRead>(reader: R) -> Result<MapInfo> {
+pub fn process_map<R: BufRead>(reader: &mut R) -> Result<MapInfo> {
     let mut sm = StateMachine {
         state: ProcessMapState::None,
         result: Default::default(),
@@ -554,12 +577,13 @@ pub fn process_map<R: BufRead>(reader: R) -> Result<MapInfo> {
     }
     let state = replace(&mut sm.state, ProcessMapState::None);
     sm.end_state(state)?;
+    sm.finalize()?;
     Ok(sm.result)
 }
 
 pub fn apply_map_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<()> {
     let file = map_file(&path)?;
-    let info = process_map(map_reader(&file))?;
+    let info = process_map(&mut file.as_reader())?;
     apply_map(&info, obj)
 }
 
@@ -622,7 +646,7 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
                 .map(|(addr, _)| *addr)
                 .unwrap_or_else(|| (section.address + section.size) as u32);
             section.splits.push(*addr, ObjSplit {
-                unit: unit.clone(),
+                unit: unit.replace(' ', "/"),
                 end: next,
                 align: None,
                 common: false,
@@ -637,6 +661,16 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
 
 fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usize>) -> Result<()> {
     let demangled_name = demangle(&symbol_entry.name, &DemangleOptions::default());
+    let mut flags: FlagSet<ObjSymbolFlags> = match symbol_entry.visibility {
+        SymbolVisibility::Unknown => Default::default(),
+        SymbolVisibility::Global => ObjSymbolFlags::Global.into(),
+        SymbolVisibility::Local => ObjSymbolFlags::Local.into(),
+        SymbolVisibility::Weak => ObjSymbolFlags::Weak.into(),
+    };
+    // TODO move somewhere common
+    if symbol_entry.name.starts_with("..") {
+        flags |= ObjSymbolFlags::ForceActive;
+    }
     obj.add_symbol(
         ObjSymbol {
             name: symbol_entry.name.clone(),
@@ -645,12 +679,7 @@ fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usi
             section,
             size: symbol_entry.size as u64,
             size_known: symbol_entry.size != 0,
-            flags: ObjSymbolFlagSet(match symbol_entry.visibility {
-                SymbolVisibility::Unknown => Default::default(),
-                SymbolVisibility::Global => ObjSymbolFlags::Global.into(),
-                SymbolVisibility::Local => ObjSymbolFlags::Local.into(),
-                SymbolVisibility::Weak => ObjSymbolFlags::Weak.into(),
-            }),
+            flags: ObjSymbolFlagSet(flags),
             kind: match symbol_entry.kind {
                 SymbolKind::Function => ObjSymbolKind::Function,
                 SymbolKind::Object => ObjSymbolKind::Object,

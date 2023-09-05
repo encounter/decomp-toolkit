@@ -49,9 +49,10 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn dump(args: DumpArgs) -> Result<()> {
-    let mmap = map_file(&args.in_file)?;
-    if mmap.starts_with(b"!<arch>\n") {
-        let mut archive = ar::Archive::new(&*mmap);
+    let file = map_file(&args.in_file)?;
+    let buf = file.as_slice();
+    if buf.starts_with(b"!<arch>\n") {
+        let mut archive = ar::Archive::new(buf);
         while let Some(result) = archive.next_entry() {
             let mut e = match result {
                 Ok(e) => e,
@@ -85,7 +86,7 @@ fn dump(args: DumpArgs) -> Result<()> {
             }
         }
     } else {
-        let obj_file = object::read::File::parse(&*mmap)?;
+        let obj_file = object::read::File::parse(buf)?;
         let debug_section = obj_file
             .section_by_name(".debug")
             .ok_or_else(|| anyhow!("Failed to locate .debug section"))?;

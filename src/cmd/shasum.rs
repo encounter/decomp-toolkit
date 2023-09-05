@@ -9,7 +9,7 @@ use argp::FromArgs;
 use owo_colors::OwoColorize;
 use sha1::{Digest, Sha1};
 
-use crate::util::file::{process_rsp, touch};
+use crate::util::file::{open_file, process_rsp, touch};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Print or check SHA1 (160-bit) checksums.
@@ -24,18 +24,20 @@ pub struct Args {
     #[argp(option, short = 'o')]
     /// touch output file on successful check
     output: Option<PathBuf>,
+    #[argp(switch, short = 'q')]
+    /// only print failures and a summary
+    quiet: bool,
 }
 
 const DEFAULT_BUF_SIZE: usize = 8192;
 
 pub fn run(args: Args) -> Result<()> {
     for path in process_rsp(&args.files)? {
-        let file = File::open(&path)
-            .with_context(|| format!("Failed to open file '{}'", path.display()))?;
+        let mut file = open_file(&path)?;
         if args.check {
-            check(file)?
+            check(&args, &mut BufReader::new(file))?
         } else {
-            hash(file, &path)?
+            hash(&mut file, &path)?
         }
     }
     if let Some(out_path) = args.output {
@@ -45,8 +47,8 @@ pub fn run(args: Args) -> Result<()> {
     Ok(())
 }
 
-fn check(file: File) -> Result<()> {
-    let reader = BufReader::new(file);
+fn check<R: BufRead>(args: &Args, reader: &mut R) -> Result<()> {
+    let mut matches = 0usize;
     let mut mismatches = 0usize;
     for line in reader.lines() {
         let line = match line {
@@ -63,15 +65,22 @@ fn check(file: File) -> Result<()> {
         hex::decode_to_slice(hash, &mut hash_bytes)
             .with_context(|| format!("Invalid line: {line}"))?;
 
-        let file =
-            File::open(file_name).with_context(|| format!("Failed to open file '{file_name}'"))?;
-        let found_hash = file_sha1(file)?;
+        let found_hash = file_sha1(
+            &mut File::open(file_name)
+                .with_context(|| format!("Failed to open file '{file_name}'"))?,
+        )?;
         if hash_bytes == found_hash.as_ref() {
-            println!("{}: {}", file_name, "OK".green());
+            if !args.quiet {
+                println!("{}: {}", file_name, "OK".green());
+            }
+            matches += 1;
         } else {
             println!("{}: {}", file_name, "FAILED".red());
             mismatches += 1;
         }
+    }
+    if args.quiet && matches > 0 {
+        println!("{} files {}", matches, "OK".green());
     }
     if mismatches != 0 {
         eprintln!(
@@ -83,8 +92,8 @@ fn check(file: File) -> Result<()> {
     Ok(())
 }
 
-fn hash(file: File, path: &Path) -> Result<()> {
-    let hash = file_sha1(file)?;
+fn hash<R: Read>(reader: &mut R, path: &Path) -> Result<()> {
+    let hash = file_sha1(reader)?;
     let mut hash_buf = [0u8; 40];
     let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
         .map_err(|e| anyhow!("Failed to encode hash: {e}"))?;
@@ -92,14 +101,22 @@ fn hash(file: File, path: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn file_sha1(mut file: File) -> Result<sha1::digest::Output<Sha1>> {
+pub fn file_sha1<R: Read>(reader: &mut R) -> Result<sha1::digest::Output<Sha1>> {
     let mut buf = [0u8; DEFAULT_BUF_SIZE];
     let mut hasher = Sha1::new();
     Ok(loop {
-        let read = file.read(&mut buf).context("File read failed")?;
+        let read = reader.read(&mut buf).context("File read failed")?;
         if read == 0 {
             break hasher.finalize();
         }
         hasher.update(&buf[0..read]);
     })
+}
+
+pub fn file_sha1_string<R: Read>(reader: &mut R) -> Result<String> {
+    let hash = file_sha1(reader)?;
+    let mut hash_buf = [0u8; 40];
+    let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
+        .map_err(|e| anyhow!("Failed to encode hash: {e}"))?;
+    Ok(hash_str.to_string())
 }

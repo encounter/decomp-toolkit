@@ -1,4 +1,4 @@
-use std::{io::Read, path::Path};
+use std::io::{Read, Seek, SeekFrom};
 
 use anyhow::{anyhow, ensure, Result};
 use byteorder::{BigEndian, ReadBytesExt};
@@ -9,7 +9,7 @@ use crate::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
     },
-    util::file::{map_file, map_reader, read_c_string, read_string},
+    util::file::{read_c_string, read_string},
 };
 
 /// For RSO references to the DOL, the sections are hardcoded.
@@ -32,10 +32,7 @@ pub const DOL_SECTION_NAMES: [Option<&str>; 14] = [
 /// ABS symbol section index.
 pub const DOL_SECTION_ABS: u32 = 65521;
 
-pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
-    let mmap = map_file(path)?;
-    let mut reader = map_reader(&mmap);
-
+pub fn process_rso<R: Read + Seek>(reader: &mut R) -> Result<ObjInfo> {
     ensure!(reader.read_u32::<BigEndian>()? == 0, "Expected 'next' to be 0");
     ensure!(reader.read_u32::<BigEndian>()? == 0, "Expected 'prev' to be 0");
     let num_sections = reader.read_u32::<BigEndian>()?;
@@ -64,7 +61,7 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     let import_table_name_offset = reader.read_u32::<BigEndian>()?;
 
     let mut sections = Vec::with_capacity(num_sections as usize);
-    reader.set_position(section_info_offset as u64);
+    reader.seek(SeekFrom::Start(section_info_offset as u64))?;
     let mut total_bss_size = 0;
     for idx in 0..num_sections {
         let offset = reader.read_u32::<BigEndian>()?;
@@ -79,11 +76,11 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         let data = if offset == 0 {
             vec![]
         } else {
-            let position = reader.position();
-            reader.set_position(offset as u64);
+            let position = reader.stream_position()?;
+            reader.seek(SeekFrom::Start(offset as u64))?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
-            reader.set_position(position);
+            reader.seek(SeekFrom::Start(position))?;
             data
         };
 
@@ -148,8 +145,8 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
     add_symbol(epilog_section, epilog_offset, "_epilog")?;
     add_symbol(unresolved_section, unresolved_offset, "_unresolved")?;
 
-    reader.set_position(external_rel_offset as u64);
-    while reader.position() < (external_rel_offset + external_rel_size) as u64 {
+    reader.seek(SeekFrom::Start(external_rel_offset as u64))?;
+    while reader.stream_position()? < (external_rel_offset + external_rel_size) as u64 {
         let offset = reader.read_u32::<BigEndian>()?;
         let id_and_type = reader.read_u32::<BigEndian>()?;
         let id = (id_and_type & 0xFFFFFF00) >> 8;
@@ -164,10 +161,10 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
         );
     }
 
-    reader.set_position(export_table_offset as u64);
-    while reader.position() < (export_table_offset + export_table_size) as u64 {
+    reader.seek(SeekFrom::Start(export_table_offset as u64))?;
+    while reader.stream_position()? < (export_table_offset + export_table_size) as u64 {
         let name_off = reader.read_u32::<BigEndian>()?;
-        let name = read_c_string(&mut reader, (export_table_name_offset + name_off) as u64)?;
+        let name = read_c_string(reader, (export_table_name_offset + name_off) as u64)?;
         let sym_off = reader.read_u32::<BigEndian>()?;
         let section_idx = reader.read_u32::<BigEndian>()?;
         let hash_n = reader.read_u32::<BigEndian>()?;
@@ -207,10 +204,10 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             data_kind: Default::default(),
         });
     }
-    reader.set_position(import_table_offset as u64);
-    while reader.position() < (import_table_offset + import_table_size) as u64 {
+    reader.seek(SeekFrom::Start(import_table_offset as u64))?;
+    while reader.stream_position()? < (import_table_offset + import_table_size) as u64 {
         let name_off = reader.read_u32::<BigEndian>()?;
-        let name = read_c_string(&mut reader, (import_table_name_offset + name_off) as u64)?;
+        let name = read_c_string(reader, (import_table_name_offset + name_off) as u64)?;
         let sym_off = reader.read_u32::<BigEndian>()?;
         let section_idx = reader.read_u32::<BigEndian>()?;
         log::debug!("Import: {}, sym off: {}, section: {}", name, sym_off, section_idx);
@@ -218,7 +215,7 @@ pub fn process_rso<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
 
     let name = match name_offset {
         0 => String::new(),
-        _ => read_string(&mut reader, name_offset as u64, name_size as usize)?,
+        _ => read_string(reader, name_offset as u64, name_size as usize)?,
     };
 
     let obj = ObjInfo::new(ObjKind::Relocatable, ObjArchitecture::PowerPc, name, symbols, sections);

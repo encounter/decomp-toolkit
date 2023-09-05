@@ -60,8 +60,8 @@ fn create(args: CreateArgs) -> Result<()> {
             Entry::Vacant(e) => e.insert(Vec::new()),
             Entry::Occupied(_) => bail!("Duplicate file name '{path_str}'"),
         };
-        let mmap = map_file(path)?;
-        let obj = object::File::parse(&*mmap)?;
+        let file = map_file(path)?;
+        let obj = object::File::parse(file.as_slice())?;
         for symbol in obj.symbols() {
             if symbol.scope() == SymbolScope::Dynamic {
                 entries.push(symbol.name_bytes()?.to_vec());

@@ -172,6 +172,9 @@ impl ObjSection {
 
     #[inline]
     pub fn symbol_data(&self, symbol: &ObjSymbol) -> Result<&[u8]> {
+        if symbol.size == 0 {
+            return Ok(&[]);
+        }
         self.data_range(symbol.address as u32, symbol.address as u32 + symbol.size as u32)
     }
 
