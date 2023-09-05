@@ -187,7 +187,7 @@ mod path_slash_serde_option {
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<PathBuf>, D::Error>
     where D: Deserializer<'de> {
-        Ok(Option::deserialize(deserializer)?.map(|s: String| PathBuf::from_slash(s)))
+        Ok(Option::deserialize(deserializer)?.map(PathBuf::from_slash::<String>))
     }
 }
 
