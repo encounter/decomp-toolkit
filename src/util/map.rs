@@ -272,6 +272,7 @@ impl StateMachine {
                     if symbol.name.starts_with('.') // ...rodata.0
                         || symbol.name.starts_with('@') // @123
                         || symbol.name.starts_with("__sinit")
+                        || symbol.name.contains('$') // local$1234
                         || symbol_occurrences.get(&symbol.name).cloned().unwrap_or(0) > 1
                     {
                         symbol.visibility = SymbolVisibility::Local;

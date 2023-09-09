@@ -441,7 +441,7 @@ fn info(args: InfoArgs) -> Result<()> {
 
 type ModuleMap<'a> = BTreeMap<u32, (&'a ModuleConfig, ObjInfo)>;
 
-fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>) -> Result<()> {
+fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>, create_symbols: bool) -> Result<()> {
     log::debug!("Updating symbols for module {}", obj.module_id);
 
     // Find all references to this module from other modules
@@ -482,7 +482,7 @@ fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>) -> Result<()> {
                 symbol.name
             );
             obj.symbols.flags(symbol_index).set_force_active(true);
-        } else {
+        } else if create_symbols {
             // Add label
             log::trace!(
                 "Creating label in section {} at {:#010X}",
@@ -942,13 +942,11 @@ fn split(args: SplitArgs) -> Result<()> {
         let module_ids = modules.keys().cloned().collect_vec();
 
         // Create any missing symbols (referenced from other modules) and set FORCEACTIVE
-        if !config.symbols_known {
-            update_symbols(&mut obj, &modules)?;
-            for &module_id in &module_ids {
-                let (module_config, mut module_obj) = modules.remove(&module_id).unwrap();
-                update_symbols(&mut module_obj, &modules)?;
-                modules.insert(module_id, (module_config, module_obj));
-            }
+        update_symbols(&mut obj, &modules, !config.symbols_known)?;
+        for &module_id in &module_ids {
+            let (module_config, mut module_obj) = modules.remove(&module_id).unwrap();
+            update_symbols(&mut module_obj, &modules, !config.symbols_known)?;
+            modules.insert(module_id, (module_config, module_obj));
         }
 
         // Create relocations to symbols in other modules
