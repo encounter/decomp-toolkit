@@ -890,7 +890,6 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
 
             // Add section symbols
             let out_section_idx = file.sections.next_section_index();
-            let mut comm_addr = current_address;
             for (symbol_idx, symbol) in obj
                 .symbols
                 .for_section_range(section_index, current_address.address..=file_end.address)
@@ -910,23 +909,6 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 {
                     continue;
                 }
-
-                if split.common && symbol.address as u32 > comm_addr.address {
-                    // HACK: Add padding for common bug
-                    file.symbols.add_direct(ObjSymbol {
-                        name: format!("pad_{:010X}", comm_addr),
-                        demangled_name: None,
-                        address: 0,
-                        section: None,
-                        size: symbol.address - comm_addr.address as u64,
-                        size_known: true,
-                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Common.into()),
-                        kind: ObjSymbolKind::Object,
-                        align: Some(4),
-                        data_kind: Default::default(),
-                    })?;
-                }
-                comm_addr.address = (symbol.address + symbol.size) as u32;
 
                 symbol_idxs[symbol_idx] = Some(file.symbols.add_direct(ObjSymbol {
                     name: symbol.name.clone(),

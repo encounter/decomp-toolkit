@@ -115,9 +115,6 @@ pub struct DiffArgs {
     #[argp(positional)]
     /// linked ELF
     elf_file: PathBuf,
-    #[argp(positional)]
-    /// map file
-    map_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -130,9 +127,6 @@ pub struct ApplyArgs {
     #[argp(positional)]
     /// linked ELF
     elf_file: PathBuf,
-    #[argp(positional)]
-    /// map file
-    map_file: PathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -1226,9 +1220,6 @@ fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.elf_file.display());
     let mut linked_obj = process_elf(&args.elf_file)?;
 
-    log::info!("Loading {}", args.map_file.display());
-    apply_map_file(&args.map_file, &mut linked_obj)?;
-
     for orig_sym in obj
         .symbols
         .iter()
@@ -1379,9 +1370,6 @@ fn apply(args: ApplyArgs) -> Result<()> {
 
     log::info!("Loading {}", args.elf_file.display());
     let mut linked_obj = process_elf(&args.elf_file)?;
-
-    log::info!("Loading {}", args.map_file.display());
-    apply_map_file(&args.map_file, &mut linked_obj)?;
 
     let mut replacements: Vec<(SymbolIndex, Option<ObjSymbol>)> = vec![];
     for (orig_idx, orig_sym) in obj.symbols.iter().enumerate() {
