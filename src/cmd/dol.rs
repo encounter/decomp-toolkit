@@ -1218,7 +1218,7 @@ fn diff(args: DiffArgs) -> Result<()> {
     }
 
     log::info!("Loading {}", args.elf_file.display());
-    let mut linked_obj = process_elf(&args.elf_file)?;
+    let linked_obj = process_elf(&args.elf_file)?;
 
     for orig_sym in obj
         .symbols
@@ -1369,7 +1369,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
     }
 
     log::info!("Loading {}", args.elf_file.display());
-    let mut linked_obj = process_elf(&args.elf_file)?;
+    let linked_obj = process_elf(&args.elf_file)?;
 
     let mut replacements: Vec<(SymbolIndex, Option<ObjSymbol>)> = vec![];
     for (orig_idx, orig_sym) in obj.symbols.iter().enumerate() {
