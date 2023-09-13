@@ -69,8 +69,8 @@ pub struct ObjInfo {
     pub link_order: Vec<ObjUnit>,
     pub blocked_ranges: BTreeMap<SectionAddress, u32>, // start -> end
 
-    // From extab
-    pub known_functions: BTreeMap<SectionAddress, u32>,
+    // From .ctors, .dtors and extab
+    pub known_functions: BTreeMap<SectionAddress, Option<u32>>,
 
     // REL
     /// Module ID (0 for main)

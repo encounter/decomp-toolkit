@@ -1,11 +1,10 @@
-use std::ops::Range;
-
 use anyhow::{bail, ensure, Result};
 use flagset::FlagSet;
 use itertools::Itertools;
+use memchr::memmem;
 
 use crate::{
-    analysis::cfa::{AnalyzerState, SectionAddress},
+    analysis::cfa::{AnalyzerState, FunctionInfo, SectionAddress},
     obj::{
         ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
@@ -24,7 +23,9 @@ pub const TRK_TABLE_SIZE: u32 = 0x1F34; // always?
 // TRK_MINNOW_DOLPHIN.a __exception.s
 impl AnalysisPass for FindTRKInterruptVectorTable {
     fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
-        for (&start, _) in state.function_bounds.iter().filter(|&(_, &end)| end.is_none()) {
+        for (&start, _) in
+            state.functions.iter().filter(|(_, info)| info.analyzed && info.end.is_none())
+        {
             let section = &obj.sections[start.section];
             let data = match section.data_range(start.address, 0) {
                 Ok(ret) => ret,
@@ -70,65 +71,56 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
 
 pub struct FindSaveRestSleds {}
 
-const SLEDS: [([u8; 4], &str, &str); 4] = [
-    ([0xd9, 0xcb, 0xff, 0x70], "__save_fpr", "_savefpr_"),
-    ([0xc9, 0xcb, 0xff, 0x70], "__restore_fpr", "_restfpr_"),
-    ([0x91, 0xcb, 0xff, 0xb8], "__save_gpr", "_savegpr_"),
-    ([0x81, 0xcb, 0xff, 0xb8], "__restore_gpr", "_restgpr_"),
+const SLEDS: [([u8; 8], &str, &str); 4] = [
+    ([0xd9, 0xcb, 0xff, 0x70, 0xd9, 0xeb, 0xff, 0x78], "__save_fpr", "_savefpr_"),
+    ([0xc9, 0xcb, 0xff, 0x70, 0xc9, 0xeb, 0xff, 0x78], "__restore_fpr", "_restfpr_"),
+    ([0x91, 0xcb, 0xff, 0xb8, 0x91, 0xeb, 0xff, 0xbc], "__save_gpr", "_savegpr_"),
+    ([0x81, 0xcb, 0xff, 0xb8, 0x81, 0xeb, 0xff, 0xbc], "__restore_gpr", "_restgpr_"),
 ];
 
 // Runtime.PPCEABI.H.a runtime.c
 impl AnalysisPass for FindSaveRestSleds {
     fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
         const SLED_SIZE: usize = 19 * 4; // registers 14-31 + blr
-        let mut clear_ranges: Vec<Range<SectionAddress>> = vec![];
-        for (&start, _) in state.function_bounds.iter().filter(|&(_, &end)| end.is_some()) {
-            let section = &obj.sections[start.section];
-            let data = match section.data_range(start.address, 0) {
-                Ok(ret) => ret,
-                Err(_) => continue,
-            };
+        for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
             for (needle, func, label) in &SLEDS {
-                if data.starts_with(needle) {
-                    log::debug!("Found {} @ {:#010X}", func, start);
-                    clear_ranges.push(start + 4..start + SLED_SIZE as u32);
-                    state.known_symbols.insert(start, ObjSymbol {
-                        name: func.to_string(),
+                let Some(pos) = memmem::find(&section.data, needle) else {
+                    continue;
+                };
+                let start = SectionAddress::new(section_index, section.address as u32 + pos as u32);
+                log::debug!("Found {} @ {:#010X}", func, start);
+                state.functions.insert(start, FunctionInfo {
+                    analyzed: false,
+                    end: Some(start + SLED_SIZE as u32),
+                    slices: None,
+                });
+                state.known_symbols.insert(start, ObjSymbol {
+                    name: func.to_string(),
+                    demangled_name: None,
+                    address: start.address as u64,
+                    section: Some(start.section),
+                    size: SLED_SIZE as u64,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    kind: ObjSymbolKind::Function,
+                    align: None,
+                    data_kind: Default::default(),
+                });
+                for i in 14..=31 {
+                    let addr = start + (i - 14) * 4;
+                    state.known_symbols.insert(addr, ObjSymbol {
+                        name: format!("{}{}", label, i),
                         demangled_name: None,
-                        address: start.address as u64,
+                        address: addr.address as u64,
                         section: Some(start.section),
-                        size: SLED_SIZE as u64,
+                        size: 0,
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                        kind: ObjSymbolKind::Function,
+                        kind: ObjSymbolKind::Unknown,
                         align: None,
                         data_kind: Default::default(),
                     });
-                    for i in 14..=31 {
-                        let addr = start + (i - 14) * 4;
-                        state.known_symbols.insert(addr, ObjSymbol {
-                            name: format!("{}{}", label, i),
-                            demangled_name: None,
-                            address: addr.address as u64,
-                            section: Some(start.section),
-                            size: 0,
-                            size_known: true,
-                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                            kind: ObjSymbolKind::Unknown,
-                            align: None,
-                            data_kind: Default::default(),
-                        });
-                    }
                 }
-            }
-        }
-        for range in clear_ranges {
-            let mut addr = range.start;
-            while addr < range.end {
-                state.function_entries.remove(&addr);
-                state.function_bounds.remove(&addr);
-                state.function_slices.remove(&addr);
-                addr += 4;
             }
         }
         Ok(())
@@ -179,7 +171,7 @@ impl AnalysisPass for FindRelCtorsDtors {
                     };
                     if target_section.kind != ObjSectionKind::Code
                         || !state
-                            .function_bounds
+                            .functions
                             .contains_key(&SectionAddress::new(target_section_index, reloc.addend))
                     {
                         return false;
@@ -197,7 +189,7 @@ impl AnalysisPass for FindRelCtorsDtors {
             .collect_vec();
 
         if possible_sections.len() != 2 {
-            log::warn!("Failed to find .ctors and .dtors");
+            log::debug!("Failed to find .ctors and .dtors");
             return Ok(());
         }
 
@@ -311,7 +303,7 @@ impl AnalysisPass for FindRelRodataData {
             .collect_vec();
 
         if possible_sections.len() != 2 {
-            log::warn!("Failed to find .rodata and .data");
+            log::debug!("Failed to find .rodata and .data");
             return Ok(());
         }
 

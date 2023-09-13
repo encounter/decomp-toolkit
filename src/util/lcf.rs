@@ -78,9 +78,6 @@ pub fn generate_ldscript(obj: &ObjInfo, force_active: &[String]) -> Result<Strin
 }
 
 pub fn generate_ldscript_partial(obj: &ObjInfo, force_active: &[String]) -> Result<String> {
-    let section_defs =
-        obj.sections.iter().map(|(_, s)| format!("{} :{{}}", s.name)).join("\n        ");
-
     let mut force_files = Vec::with_capacity(obj.link_order.len());
     for unit in &obj.link_order {
         let obj_path = obj_path_for_unit(&unit.name);
@@ -96,7 +93,6 @@ pub fn generate_ldscript_partial(obj: &ObjInfo, force_active: &[String]) -> Resu
     }
 
     let out = include_str!("../../assets/ldscript_partial.lcf")
-        .replace("$SECTIONS", &section_defs)
         .replace("$FORCEACTIVE", &force_active.join("\n    "));
     Ok(out)
 }

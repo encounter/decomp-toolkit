@@ -32,7 +32,7 @@ impl DepFile {
     pub fn write<W: Write>(&self, w: &mut W) -> std::io::Result<()> {
         write!(w, "{}:", self.name.to_slash_lossy())?;
         for dep in self.dependencies.iter().unique() {
-            write!(w, " \\\n  {}", dep.to_slash_lossy())?;
+            write!(w, " \\\n  {}", dep.to_slash_lossy().replace(' ', "\\ "))?;
         }
         Ok(())
     }

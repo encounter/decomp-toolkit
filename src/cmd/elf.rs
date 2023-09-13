@@ -2,7 +2,7 @@ use std::{
     collections::{btree_map, hash_map, BTreeMap, HashMap},
     fs,
     fs::DirBuilder,
-    io::Write,
+    io::{Cursor, Write},
     path::PathBuf,
 };
 
@@ -22,7 +22,7 @@ use crate::{
         comment::{read_comment_sym, MWComment},
         config::{write_splits_file, write_symbols_file},
         elf::{process_elf, write_elf},
-        file::{buf_writer, process_rsp, Reader},
+        file::{buf_writer, process_rsp},
         signatures::{compare_signature, generate_signature, FunctionSignature},
         split::split_obj,
         IntoCow, ToCow,
@@ -544,7 +544,7 @@ fn info(args: InfoArgs) -> Result<()> {
     if let Some(comment_section) = in_file.section_by_name(".comment") {
         let data = comment_section.uncompressed_data()?;
         if !data.is_empty() {
-            let mut reader = Reader::new(&*data);
+            let mut reader = Cursor::new(&*data);
             let header =
                 MWComment::parse_header(&mut reader).context("While reading .comment section")?;
             println!("\nMetrowerks metadata (.comment):");

@@ -3,7 +3,7 @@ use std::num::NonZeroU32;
 use ppc750cl::{Argument, Ins, Opcode, GPR};
 
 use crate::{
-    analysis::{cfa::SectionAddress, relocation_target_for},
+    analysis::{cfa::SectionAddress, relocation_target_for, RelocationTarget},
     obj::{ObjInfo, ObjKind},
 };
 
@@ -15,13 +15,13 @@ pub enum GprValue {
     /// GPR value is a constant
     Constant(u32),
     /// GPR value is a known relocated address
-    Address(SectionAddress),
+    Address(RelocationTarget),
     /// Comparison result (CR field)
     ComparisonResult(u8),
     /// GPR value is within a range
     Range { min: u32, max: u32, step: u32 },
     /// GPR value is loaded from an address with a max offset (jump table)
-    LoadIndexed { address: u32, max_offset: Option<NonZeroU32> },
+    LoadIndexed { address: RelocationTarget, max_offset: Option<NonZeroU32> },
 }
 
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
@@ -51,6 +51,14 @@ impl Gpr {
         self.value = value;
         self.hi_addr = hi_gpr.hi_addr;
         self.lo_addr = Some(hi_gpr.lo_addr.unwrap_or(addr));
+    }
+
+    fn address(&self, obj: &ObjInfo, ins_addr: SectionAddress) -> Option<RelocationTarget> {
+        match self.value {
+            GprValue::Constant(value) => section_address_for(obj, ins_addr, value),
+            GprValue::Address(target) => Some(target),
+            _ => None,
+        }
     }
 }
 
@@ -85,9 +93,9 @@ pub enum BranchTarget {
     /// Branch to LR
     Return,
     /// Branch to address
-    Address(SectionAddress),
+    Address(RelocationTarget),
     /// Branch to jump table
-    JumpTable { address: SectionAddress, size: Option<NonZeroU32> },
+    JumpTable { address: RelocationTarget, size: Option<NonZeroU32> },
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -105,7 +113,7 @@ pub enum StepResult {
     /// Continue normally
     Continue,
     /// Load from / store to
-    LoadStore { address: SectionAddress, source: Gpr, source_reg: u8 },
+    LoadStore { address: RelocationTarget, source: Gpr, source_reg: u8 },
     /// Hit illegal instruction
     Illegal,
     /// Jump without affecting VM state
@@ -118,16 +126,16 @@ pub fn section_address_for(
     obj: &ObjInfo,
     ins_addr: SectionAddress,
     target_addr: u32,
-) -> Option<SectionAddress> {
+) -> Option<RelocationTarget> {
     if let Some(target) = relocation_target_for(obj, ins_addr, None).ok().flatten() {
         return Some(target);
     }
     if obj.kind == ObjKind::Executable {
         let (section_index, _) = obj.sections.at_address(target_addr).ok()?;
-        return Some(SectionAddress::new(section_index, target_addr));
+        return Some(RelocationTarget::Address(SectionAddress::new(section_index, target_addr)));
     }
     if obj.sections[ins_addr.section].contains(target_addr) {
-        Some(SectionAddress::new(ins_addr.section, target_addr))
+        Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, target_addr)))
     } else {
         None
     }
@@ -183,12 +191,6 @@ impl VM {
     pub fn clone_all(&self) -> Box<Self> { Box::new(self.clone()) }
 
     pub fn step(&mut self, obj: &ObjInfo, ins_addr: SectionAddress, ins: &Ins) -> StepResult {
-        // let relocation_target = relocation_target_for(obj, ins_addr, None).ok().flatten();
-        // if let Some(_target) = relocation_target {
-        //     let _defs = ins.defs();
-        //     // TODO
-        // }
-
         match ins.op {
             Opcode::Illegal => {
                 return StepResult::Illegal;
@@ -201,61 +203,99 @@ impl VM {
                     (GprValue::Constant(left), GprValue::Constant(right)) => {
                         GprValue::Constant(left.wrapping_add(right))
                     }
+                    (
+                        GprValue::Address(RelocationTarget::Address(left)),
+                        GprValue::Constant(right),
+                    ) => GprValue::Address(RelocationTarget::Address(left + right)),
+                    (
+                        GprValue::Constant(left),
+                        GprValue::Address(RelocationTarget::Address(right)),
+                    ) => GprValue::Address(RelocationTarget::Address(right + left)),
                     _ => GprValue::Unknown,
                 };
                 self.gpr[ins.field_rD()].set_direct(value);
             }
             // addis rD, rA, SIMM
             Opcode::Addis => {
-                let left = if ins.field_rA() == 0 {
-                    GprValue::Constant(0)
+                if let Some(target) =
+                    relocation_target_for(obj, ins_addr, None /* TODO */).ok().flatten()
+                {
+                    debug_assert_eq!(ins.field_rA(), 0);
+                    self.gpr[ins.field_rD()].set_hi(GprValue::Address(target), ins_addr);
                 } else {
-                    self.gpr[ins.field_rA()].value
-                };
-                let value = match left {
-                    GprValue::Constant(value) => {
-                        GprValue::Constant(value.wrapping_add((ins.field_simm() as u32) << 16))
+                    let left = if ins.field_rA() == 0 {
+                        GprValue::Constant(0)
+                    } else {
+                        self.gpr[ins.field_rA()].value
+                    };
+                    let value = match left {
+                        GprValue::Constant(value) => {
+                            GprValue::Constant(value.wrapping_add((ins.field_simm() as u32) << 16))
+                        }
+                        _ => GprValue::Unknown,
+                    };
+                    if ins.field_rA() == 0 {
+                        // lis rD, SIMM
+                        self.gpr[ins.field_rD()].set_hi(value, ins_addr);
+                    } else {
+                        self.gpr[ins.field_rD()].set_direct(value);
                     }
-                    _ => GprValue::Unknown,
-                };
-                if ins.field_rA() == 0 {
-                    // lis rD, SIMM
-                    self.gpr[ins.field_rD()].set_hi(value, ins_addr);
-                } else {
-                    self.gpr[ins.field_rD()].set_direct(value);
                 }
             }
             // addi rD, rA, SIMM
             // addic rD, rA, SIMM
             // addic. rD, rA, SIMM
             Opcode::Addi | Opcode::Addic | Opcode::Addic_ => {
-                let left = if ins.field_rA() == 0 && ins.op == Opcode::Addi {
-                    GprValue::Constant(0)
+                if let Some(target) =
+                    relocation_target_for(obj, ins_addr, None /* TODO */).ok().flatten()
+                {
+                    self.gpr[ins.field_rD()].set_lo(
+                        GprValue::Address(target),
+                        ins_addr,
+                        self.gpr[ins.field_rA()],
+                    );
                 } else {
-                    self.gpr[ins.field_rA()].value
-                };
-                let value = match left {
-                    GprValue::Constant(value) => {
-                        GprValue::Constant(value.wrapping_add(ins.field_simm() as u32))
+                    let left = if ins.field_rA() == 0 && ins.op == Opcode::Addi {
+                        GprValue::Constant(0)
+                    } else {
+                        self.gpr[ins.field_rA()].value
+                    };
+                    let value = match left {
+                        GprValue::Constant(value) => {
+                            GprValue::Constant(value.wrapping_add(ins.field_simm() as u32))
+                        }
+                        GprValue::Address(RelocationTarget::Address(address)) => GprValue::Address(
+                            RelocationTarget::Address(address.offset(ins.field_simm() as i32)),
+                        ),
+                        _ => GprValue::Unknown,
+                    };
+                    if ins.field_rA() == 0 {
+                        // li rD, SIMM
+                        self.gpr[ins.field_rD()].set_direct(value);
+                    } else {
+                        self.gpr[ins.field_rD()].set_lo(value, ins_addr, self.gpr[ins.field_rA()]);
                     }
-                    _ => GprValue::Unknown,
-                };
-                if ins.field_rA() == 0 {
-                    // li rD, SIMM
-                    self.gpr[ins.field_rD()].set_direct(value);
-                } else {
-                    self.gpr[ins.field_rD()].set_lo(value, ins_addr, self.gpr[ins.field_rA()]);
                 }
             }
             // ori rA, rS, UIMM
             Opcode::Ori => {
-                let value = match self.gpr[ins.field_rS()].value {
-                    GprValue::Constant(value) => {
-                        GprValue::Constant(value | ins.field_uimm() as u32)
-                    }
-                    _ => GprValue::Unknown,
-                };
-                self.gpr[ins.field_rA()].set_lo(value, ins_addr, self.gpr[ins.field_rS()]);
+                if let Some(target) =
+                    relocation_target_for(obj, ins_addr, None /* TODO */).ok().flatten()
+                {
+                    self.gpr[ins.field_rA()].set_lo(
+                        GprValue::Address(target),
+                        ins_addr,
+                        self.gpr[ins.field_rS()],
+                    );
+                } else {
+                    let value = match self.gpr[ins.field_rS()].value {
+                        GprValue::Constant(value) => {
+                            GprValue::Constant(value | ins.field_uimm() as u32)
+                        }
+                        _ => GprValue::Unknown,
+                    };
+                    self.gpr[ins.field_rA()].set_lo(value, ins_addr, self.gpr[ins.field_rS()]);
+                }
             }
             // or rA, rS, rB
             Opcode::Or => {
@@ -336,20 +376,18 @@ impl VM {
                     Opcode::Bcctr => {
                         match self.ctr {
                             GprValue::Constant(value) => {
+                                // TODO only check valid target?
                                 if let Some(target) = section_address_for(obj, ins_addr, value) {
                                     BranchTarget::Address(target)
                                 } else {
                                     BranchTarget::Unknown
                                 }
                             },
+                            GprValue::Address(target) => BranchTarget::Address(target),
                             GprValue::LoadIndexed { address, max_offset }
                             // FIXME: avoids treating bctrl indirect calls as jump tables
                             if !ins.field_LK() => {
-                                if let Some(target) = section_address_for(obj, ins_addr, address) {
-                                    BranchTarget::JumpTable { address: target, size: max_offset.and_then(|n| n.checked_add(4)) }
-                                } else {
-                                    BranchTarget::Unknown
-                                }
+                                BranchTarget::JumpTable { address, size: max_offset.and_then(|n| n.checked_add(4)) }
                             }
                             _ => BranchTarget::Unknown,
                         }
@@ -369,7 +407,7 @@ impl VM {
                 if ins.field_LK() {
                     return StepResult::Branch(vec![
                         Branch {
-                            target: BranchTarget::Address(ins_addr + 4),
+                            target: BranchTarget::Address(RelocationTarget::Address(ins_addr + 4)),
                             link: false,
                             vm: self.clone_for_return(),
                         },
@@ -386,7 +424,7 @@ impl VM {
                 let mut branches = vec![
                     // Branch not taken
                     Branch {
-                        target: BranchTarget::Address(ins_addr + 4),
+                        target: BranchTarget::Address(RelocationTarget::Address(ins_addr + 4)),
                         link: false,
                         vm: self.clone_all(),
                     },
@@ -413,15 +451,20 @@ impl VM {
             }
             // lwzx rD, rA, rB
             Opcode::Lwzx => {
-                let left = self.gpr[ins.field_rA()].value;
+                let left = self.gpr[ins.field_rA()].address(obj, ins_addr);
                 let right = self.gpr[ins.field_rB()].value;
                 let value = match (left, right) {
-                    (GprValue::Constant(address), GprValue::Range { min: _, max, .. })
+                    (Some(address), GprValue::Range { min: _, max, .. })
                         if /*min == 0 &&*/ max < u32::MAX - 4 && max & 3 == 0 =>
                     {
                         GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max) }
                     }
-                    (GprValue::Constant(address), _) => {
+                    (Some(address), GprValue::Range { min: _, max, .. })
+                        if /*min == 0 &&*/ max < u32::MAX - 4 && max & 3 == 0 =>
+                    {
+                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max) }
+                    }
+                    (Some(address), _) => {
                         GprValue::LoadIndexed { address, max_offset: None }
                     }
                     _ => GprValue::Unknown,
@@ -452,16 +495,29 @@ impl VM {
             op if is_load_store_op(op) => {
                 let source = ins.field_rA();
                 let mut result = StepResult::Continue;
-                if let GprValue::Constant(base) = self.gpr[source].value {
-                    let address = base.wrapping_add(ins.field_simm() as u32);
+                if let GprValue::Address(target) = self.gpr[source].value {
                     if is_update_op(op) {
                         self.gpr[source].set_lo(
-                            GprValue::Constant(address),
+                            GprValue::Address(target),
                             ins_addr,
                             self.gpr[source],
                         );
                     }
+                    result = StepResult::LoadStore {
+                        address: target,
+                        source: self.gpr[source],
+                        source_reg: source as u8,
+                    };
+                } else if let GprValue::Constant(base) = self.gpr[source].value {
+                    let address = base.wrapping_add(ins.field_simm() as u32);
                     if let Some(target) = section_address_for(obj, ins_addr, address) {
+                        if is_update_op(op) {
+                            self.gpr[source].set_lo(
+                                GprValue::Address(target),
+                                ins_addr,
+                                self.gpr[source],
+                            );
+                        }
                         result = StepResult::LoadStore {
                             address: target,
                             source: self.gpr[source],
@@ -573,11 +629,21 @@ fn split_values_by_crb(crb: u8, left: GprValue, right: GprValue) -> (GprValue, G
 
 #[inline]
 fn mask_value(begin: u32, end: u32) -> u32 {
-    let mut mask = 0u32;
-    for bit in begin..=end {
-        mask |= 1 << (31 - bit);
+    if begin <= end {
+        let mut mask = 0u32;
+        for bit in begin..=end {
+            mask |= 1 << (31 - bit);
+        }
+        mask
+    } else if begin == end + 1 {
+        u32::MAX
+    } else {
+        let mut mask = u32::MAX;
+        for bit in end + 1..begin {
+            mask &= !(1 << (31 - bit));
+        }
+        mask
     }
-    mask
 }
 
 #[inline]

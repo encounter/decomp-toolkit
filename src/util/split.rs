@@ -69,7 +69,7 @@ fn split_ctors_dtors(obj: &mut ObjInfo, start: SectionAddress, end: SectionAddre
                     .section
                     .and_then(|idx| obj.sections.get(idx).map(|s| s.name.clone()))
                     .unwrap_or_else(|| "unknown".to_string());
-                format!("{}_{}", function_symbol.name, section_name.trim_start_matches('.'))
+                format!("auto_{}_{}", function_symbol.name, section_name.trim_start_matches('.'))
             });
             log::debug!("Adding splits to unit {}", unit);
 
@@ -250,7 +250,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
                     .section
                     .and_then(|idx| obj.sections.get(idx).map(|s| s.name.clone()))
                     .unwrap_or_else(|| "unknown".to_string());
-                format!("{}_{}", function_symbol.name, section_name.trim_start_matches('.'))
+                format!("auto_{}_{}", function_symbol.name, section_name.trim_start_matches('.'))
             });
             log::debug!("Adding splits to unit {}", unit);
 
@@ -333,12 +333,20 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                 break;
             }
 
-            let (split_start, split_end) = match file_iter.peek() {
+            let (split_start, split_end, split_align) = match file_iter.peek() {
                 Some(&(addr, split)) => {
                     log::debug!("Found split {} ({:#010X}..{:#010X})", split.unit, addr, split.end);
-                    (addr, SectionAddress::new(section_index, split.end))
+                    (
+                        addr,
+                        SectionAddress::new(section_index, split.end),
+                        split.alignment(obj, section_index, section, addr.address),
+                    )
                 }
-                None => (section_end, SectionAddress::new(section_index, 0)),
+                None => (
+                    section_end,
+                    SectionAddress::new(section_index, 0),
+                    default_section_align(section) as u32,
+                ),
             };
             ensure!(
                 split_start >= current_address,
@@ -347,7 +355,15 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                 split_end
             );
 
-            if split_start > current_address {
+            let aligned_addr = current_address.align_up(split_align);
+            if split_start > aligned_addr {
+                log::debug!(
+                    "Creating auto split: {} > {} (orig: {}, align {})",
+                    split_start,
+                    aligned_addr,
+                    current_address,
+                    split_align
+                );
                 // Find any duplicate symbols in this range
                 let mut new_split_end = split_start;
                 let symbols = obj
@@ -355,7 +371,7 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                     .for_section_range(section_index, current_address.address..split_start.address)
                     .collect_vec();
                 let mut existing_symbols = HashSet::new();
-                for (_, symbol) in symbols {
+                for &(_, symbol) in &symbols {
                     if !existing_symbols.insert(symbol.name.clone()) {
                         log::debug!(
                             "Found duplicate symbol {} at {:#010X}",
@@ -367,13 +383,22 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                     }
                 }
 
+                ensure!(
+                    new_split_end > current_address,
+                    "Duplicate symbols at {:#010X}: {:?}",
+                    current_address,
+                    symbols
+                        .iter()
+                        .filter(|(_, s)| s.address == current_address.address as u64)
+                        .collect_vec(),
+                );
                 log::debug!(
                     "Creating split from {:#010X}..{:#010X}",
                     current_address,
                     new_split_end
                 );
                 let unit = format!(
-                    "{:02}_{:08X}_{}",
+                    "auto_{:02}_{:08X}_{}",
                     current_address.section,
                     current_address.address,
                     section.name.trim_start_matches('.')
@@ -622,6 +647,85 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
 #[inline]
 const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
 
+#[allow(dead_code)]
+fn trim_split_alignment(obj: &mut ObjInfo) -> Result<()> {
+    // For each split, set the end of split to the end of the last symbol in the split.
+    let mut split_updates = vec![];
+    let mut iter = obj.sections.all_splits().peekable();
+    while let Some((section_index, section, addr, split)) = iter.next() {
+        let next_split = iter
+            .peek()
+            .filter(|&&(idx, _, _, _)| section_index == idx)
+            .map(|&(_, _, addr, split)| (addr, split));
+        let mut split_end = split.end;
+        if let Some((_, symbol)) = obj
+            .symbols
+            .for_section_range(section_index, addr..split.end)
+            .filter(|&(_, s)| s.size_known && s.size > 0)
+            .next_back()
+        {
+            split_end = symbol.address as u32 + symbol.size as u32;
+        }
+        split_end = align_up(split_end, split.alignment(obj, section_index, section, addr));
+        if split_end < split.end {
+            if let Some((next_addr, next_split)) = next_split {
+                let next_split_align = next_split.alignment(obj, section_index, section, addr);
+                if align_up(split_end, next_split_align) < next_addr {
+                    log::warn!(
+                        "Tried to trim {} split {} {:#010X}..{:#010X} to {:#010X}, but next split {} starts at {:#010X} with alignment {}",
+                        section.name,
+                        split.unit,
+                        addr,
+                        split.end,
+                        split_end,
+                        next_split.unit,
+                        next_addr,
+                        next_split_align
+                    );
+                }
+            }
+            log::info!(
+                "Trimming {} split {} {:#010X}..{:#010X} to {:#010X}",
+                section.name,
+                split.unit,
+                addr,
+                split.end,
+                split_end
+            );
+            split_updates.push((section_index, addr, split_end));
+        }
+    }
+    drop(iter);
+    for (section_index, addr, split_end) in split_updates {
+        obj.sections[section_index].splits.at_mut(addr).unwrap().end = split_end;
+    }
+    Ok(())
+}
+
+/// Trim splits if they contain linker generated symbols.
+fn trim_linker_generated_symbols(obj: &mut ObjInfo) -> Result<()> {
+    for section_index in 0..obj.sections.count() {
+        let section_end = end_for_section(obj, section_index)?;
+        let section = &mut obj.sections[section_index];
+        if section.address as u32 + section.size as u32 == section_end.address {
+            continue;
+        }
+        if let Some((addr, split)) = section.splits.iter_mut().next_back() {
+            if split.end > section_end.address {
+                log::debug!(
+                    "Trimming split {} {:#010X}..{:#010X} to {:#010X}",
+                    split.unit,
+                    addr,
+                    split.end,
+                    section_end.address
+                );
+                split.end = section_end.address;
+            }
+        }
+    }
+    Ok(())
+}
+
 /// Perform any necessary adjustments to allow relinking.
 /// This includes:
 /// - Ensuring .ctors & .dtors entries are split with their associated function
@@ -654,6 +758,9 @@ pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bo
         split_ctors_dtors(obj, start, end)?;
     }
 
+    // Remove linker generated symbols from splits
+    trim_linker_generated_symbols(obj)?;
+
     // Create gap splits
     create_gap_splits(obj)?;
 
@@ -662,6 +769,10 @@ pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bo
 
     // Ensure splits don't overlap symbols or each other
     validate_splits(obj)?;
+
+    // Trim alignment from splits
+    // TODO figure out mwld pooled data alignment
+    // trim_split_alignment(obj)?;
 
     if fill_gaps {
         // Add symbols to beginning of any split that doesn't start with a symbol
@@ -793,7 +904,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
     for (section_index, section) in obj.sections.iter() {
         let mut current_address = SectionAddress::new(section_index, section.address as u32);
         let section_end = end_for_section(obj, section_index)?;
-        let mut file_iter = section
+        let mut split_iter = section
             .splits
             .for_range(current_address.address..section_end.address)
             .map(|(addr, split)| (SectionAddress::new(section_index, addr), split))
@@ -804,30 +915,38 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 break;
             }
 
-            let (file_addr, split) = match file_iter.next() {
+            let (split_addr, split) = match split_iter.next() {
                 Some((addr, split)) => (addr, split),
-                None => bail!("No file found"),
+                None => bail!("No split found"),
             };
             ensure!(
-                file_addr <= current_address,
-                "Gap in files: {} @ {:#010X}, {} @ {:#010X}",
+                split_addr == current_address,
+                "Split @ {} {} not found",
                 section.name,
-                section.address,
-                split.unit,
-                file_addr
+                current_address
             );
-            let mut file_end = section_end;
-            if let Some(&(next_addr, _next_split)) = file_iter.peek() {
-                file_end = min(next_addr, section_end);
+
+            let split_end = SectionAddress::new(section_index, split.end);
+            let next_addr = split_iter.peek().map(|&(addr, _)| addr).unwrap_or(section_end);
+            if next_addr > split_end
+                && section.data_range(split_end.address, next_addr.address)?.iter().any(|&b| b != 0)
+            {
+                bail!(
+                    "Unsplit data in {} from {} {} to next split {}",
+                    section.name,
+                    split.unit,
+                    split_end,
+                    next_addr
+                );
             }
 
             // Skip over this data
             if split.skip {
-                current_address = file_end;
+                current_address = next_addr;
                 continue;
             }
 
-            let file = name_to_obj
+            let split_obj = name_to_obj
                 .get(&split.unit)
                 .and_then(|&idx| objects.get_mut(idx))
                 .ok_or_else(|| anyhow!("Unit '{}' not in link order", split.unit))?;
@@ -842,7 +961,10 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 max(
                     // Maximum alignment of any symbol in this split
                     obj.symbols
-                        .for_section_range(section_index, current_address.address..file_end.address)
+                        .for_section_range(
+                            section_index,
+                            current_address.address..split_end.address,
+                        )
                         .filter(|&(_, s)| s.size_known && s.size > 0)
                         .filter_map(|(_, s)| s.align)
                         .max()
@@ -877,7 +999,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
             // Collect relocations; target_symbol will be updated later
             let out_relocations = section
                 .relocations
-                .range(current_address.address..file_end.address)
+                .range(current_address.address..split_end.address)
                 .map(|(addr, o)| {
                     (addr - current_address.address, ObjReloc {
                         kind: o.kind,
@@ -889,10 +1011,10 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 .collect_vec();
 
             // Add section symbols
-            let out_section_idx = file.sections.next_section_index();
+            let out_section_idx = split_obj.sections.next_section_index();
             for (symbol_idx, symbol) in obj
                 .symbols
-                .for_section_range(section_index, current_address.address..=file_end.address)
+                .for_section_range(section_index, current_address.address..=split_end.address)
                 .filter(|&(_, s)| {
                     s.section == Some(section_index) && !is_linker_generated_label(&s.name)
                 })
@@ -902,7 +1024,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 }
 
                 // TODO hack for gTRKInterruptVectorTableEnd
-                if (symbol.address == file_end.address as u64
+                if (symbol.address == split_end.address as u64
                     && symbol.name != "gTRKInterruptVectorTableEnd")
                     || (symbol.address == current_address.address as u64
                         && symbol.name == "gTRKInterruptVectorTableEnd")
@@ -910,7 +1032,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     continue;
                 }
 
-                symbol_idxs[symbol_idx] = Some(file.symbols.add_direct(ObjSymbol {
+                symbol_idxs[symbol_idx] = Some(split_obj.symbols.add_direct(ObjSymbol {
                     name: symbol.name.clone(),
                     demangled_name: symbol.demangled_name.clone(),
                     address: if split.common {
@@ -934,22 +1056,22 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
 
             // For mwldeppc 2.7 and above, a .comment section is required to link without error
             // when common symbols are present. Automatically add one if needed.
-            if split.common && file.mw_comment.is_none() {
-                file.mw_comment = Some(MWComment::new(8)?);
+            if split.common && split_obj.mw_comment.is_none() {
+                split_obj.mw_comment = Some(MWComment::new(8)?);
             }
 
             if !split.common {
                 let data = match section.kind {
                     ObjSectionKind::Bss => vec![],
                     _ => section.data[(current_address.address as u64 - section.address) as usize
-                        ..(file_end.address as u64 - section.address) as usize]
+                        ..(split_end.address as u64 - section.address) as usize]
                         .to_vec(),
                 };
-                file.sections.push(ObjSection {
+                split_obj.sections.push(ObjSection {
                     name: split.rename.as_ref().unwrap_or(&section.name).clone(),
                     kind: section.kind,
                     address: 0,
-                    size: file_end.address as u64 - current_address.address as u64,
+                    size: split_end.address as u64 - current_address.address as u64,
                     data,
                     align,
                     elf_index: out_section_idx + 1,
@@ -962,7 +1084,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                 });
             }
 
-            current_address = file_end;
+            current_address = next_addr;
         }
     }
 

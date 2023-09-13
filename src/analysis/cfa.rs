@@ -1,10 +1,12 @@
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    cmp::min,
+    collections::BTreeMap,
     fmt::{Debug, Display, Formatter, UpperHex},
     ops::{Add, AddAssign, BitAnd, Sub},
 };
 
 use anyhow::{bail, ensure, Context, Result};
+use itertools::Itertools;
 
 use crate::{
     analysis::{
@@ -12,6 +14,7 @@ use crate::{
         skip_alignment,
         slices::{FunctionSlices, TailCallResult},
         vm::{BranchTarget, GprValue, StepResult, VM},
+        RelocationTarget,
     },
     obj::{ObjInfo, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
 };
@@ -36,6 +39,20 @@ impl Display for SectionAddress {
 
 impl SectionAddress {
     pub fn new(section: usize, address: u32) -> Self { Self { section, address } }
+
+    pub fn offset(self, offset: i32) -> Self {
+        Self { section: self.section, address: self.address.wrapping_add_signed(offset) }
+    }
+
+    pub fn align_up(self, align: u32) -> Self {
+        Self { section: self.section, address: (self.address + align - 1) & !(align - 1) }
+    }
+
+    pub fn align_down(self, align: u32) -> Self {
+        Self { section: self.section, address: self.address & !(align - 1) }
+    }
+
+    pub fn is_aligned(self, align: u32) -> bool { self.address & (align - 1) == 0 }
 }
 
 impl Add<u32> for SectionAddress {
@@ -70,16 +87,36 @@ impl BitAnd<u32> for SectionAddress {
     fn bitand(self, rhs: u32) -> Self::Output { self.address & rhs }
 }
 
+#[derive(Default, Debug, Clone)]
+pub struct FunctionInfo {
+    pub analyzed: bool,
+    pub end: Option<SectionAddress>,
+    pub slices: Option<FunctionSlices>,
+}
+
+impl FunctionInfo {
+    pub fn is_analyzed(&self) -> bool { self.analyzed }
+
+    pub fn is_function(&self) -> bool {
+        self.analyzed && self.end.is_some() && self.slices.is_some()
+    }
+
+    pub fn is_non_function(&self) -> bool {
+        self.analyzed && self.end.is_none() && self.slices.is_none()
+    }
+
+    pub fn is_unfinalized(&self) -> bool {
+        self.analyzed && self.end.is_none() && self.slices.is_some()
+    }
+}
+
 #[derive(Debug, Default)]
 pub struct AnalyzerState {
     pub sda_bases: Option<(u32, u32)>,
-    pub function_entries: BTreeSet<SectionAddress>,
-    pub function_bounds: BTreeMap<SectionAddress, Option<SectionAddress>>,
-    pub function_slices: BTreeMap<SectionAddress, FunctionSlices>,
+    pub functions: BTreeMap<SectionAddress, FunctionInfo>,
     pub jump_tables: BTreeMap<SectionAddress, u32>,
     pub known_symbols: BTreeMap<SectionAddress, ObjSymbol>,
     pub known_sections: BTreeMap<usize, String>,
-    pub non_finalized_functions: BTreeMap<SectionAddress, FunctionSlices>,
 }
 
 impl AnalyzerState {
@@ -87,7 +124,7 @@ impl AnalyzerState {
         for (&section_index, section_name) in &self.known_sections {
             obj.sections[section_index].rename(section_name.clone())?;
         }
-        for (&start, &end) in &self.function_bounds {
+        for (&start, FunctionInfo { end, .. }) in self.functions.iter() {
             let Some(end) = end else { continue };
             let section = &obj.sections[start.section];
             ensure!(
@@ -120,7 +157,14 @@ impl AnalyzerState {
                 false,
             )?;
         }
-        for (&addr, &size) in &self.jump_tables {
+        let mut iter = self.jump_tables.iter().peekable();
+        while let Some((&addr, &(mut size))) = iter.next() {
+            // Truncate overlapping jump tables
+            if let Some((&next_addr, _)) = iter.peek() {
+                if next_addr.section == addr.section {
+                    size = min(size, next_addr.address - addr.address);
+                }
+            }
             let section = &obj.sections[addr.section];
             ensure!(
                 section.contains_range(addr.address..addr.address + size),
@@ -166,27 +210,31 @@ impl AnalyzerState {
     pub fn detect_functions(&mut self, obj: &ObjInfo) -> Result<()> {
         // Apply known functions from extab
         for (&addr, &size) in &obj.known_functions {
-            self.function_entries.insert(addr);
-            self.function_bounds.insert(addr, Some(addr + size));
+            self.functions.insert(addr, FunctionInfo {
+                analyzed: false,
+                end: size.map(|size| addr + size),
+                slices: None,
+            });
         }
         // Apply known functions from symbols
         for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {
             let Some(section_index) = symbol.section else { continue };
             let addr_ref = SectionAddress::new(section_index, symbol.address as u32);
-            self.function_entries.insert(addr_ref);
-            if symbol.size_known {
-                self.function_bounds.insert(addr_ref, Some(addr_ref + symbol.size as u32));
-            }
+            self.functions.insert(addr_ref, FunctionInfo {
+                analyzed: false,
+                end: if symbol.size_known { Some(addr_ref + symbol.size as u32) } else { None },
+                slices: None,
+            });
         }
         // Also check the beginning of every code section
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            self.function_entries
-                .insert(SectionAddress::new(section_index, section.address as u32));
+            self.functions
+                .entry(SectionAddress::new(section_index, section.address as u32))
+                .or_default();
         }
 
         // Process known functions first
-        let known_functions = self.function_entries.clone();
-        for addr in known_functions {
+        for addr in self.functions.keys().cloned().collect_vec() {
             self.process_function_at(obj, addr)?;
         }
         if let Some(entry) = obj.entry.map(|n| n as u32) {
@@ -203,26 +251,46 @@ impl AnalyzerState {
         while self.finalize_functions(obj, true)? {
             self.process_functions(obj)?;
         }
+        if self.functions.iter().any(|(_, i)| i.is_unfinalized()) {
+            log::error!("Failed to finalize functions:");
+            for (addr, _) in self.functions.iter().filter(|(_, i)| i.is_unfinalized()) {
+                log::error!("  {:#010X}", addr);
+            }
+            bail!("Failed to finalize functions");
+        }
         Ok(())
     }
 
     fn finalize_functions(&mut self, obj: &ObjInfo, finalize: bool) -> Result<bool> {
-        let mut finalized = Vec::new();
-        for (&addr, slices) in &mut self.non_finalized_functions {
+        let mut finalized_any = false;
+        let unfinalized = self
+            .functions
+            .iter()
+            .filter_map(|(&addr, info)| {
+                if info.is_unfinalized() {
+                    info.slices.clone().map(|s| (addr, s))
+                } else {
+                    None
+                }
+            })
+            .collect_vec();
+        for (addr, mut slices) in unfinalized {
             // log::info!("Trying to finalize {:#010X}", addr);
             let Some(function_start) = slices.start() else {
                 bail!("Function slice without start @ {:#010X}", addr);
             };
             let function_end = slices.end();
             let mut current = SectionAddress::new(addr.section, 0);
-            while let Some(&block) = slices.possible_blocks.range(current + 4..).next() {
-                current = block;
+            while let Some((&block, vm)) = slices.possible_blocks.range(current..).next() {
+                current = block + 4;
+                let vm = vm.clone();
                 match slices.check_tail_call(
                     obj,
                     block,
                     function_start,
                     function_end,
-                    &self.function_entries,
+                    &self.functions,
+                    Some(vm.clone()),
                 ) {
                     TailCallResult::Not => {
                         log::trace!("Finalized block @ {:#010X}", block);
@@ -232,7 +300,8 @@ impl AnalyzerState {
                             block,
                             function_start,
                             function_end,
-                            &self.function_entries,
+                            &self.functions,
+                            Some(vm),
                         )?;
                     }
                     TailCallResult::Is => {
@@ -252,7 +321,8 @@ impl AnalyzerState {
                                 block,
                                 function_start,
                                 function_end,
-                                &self.function_entries,
+                                &self.functions,
+                                Some(vm),
                             )?;
                         }
                     }
@@ -261,55 +331,24 @@ impl AnalyzerState {
             }
             if slices.can_finalize() {
                 log::trace!("Finalizing {:#010X}", addr);
-                slices.finalize(obj, &self.function_entries)?;
-                self.function_entries.append(&mut slices.function_references.clone());
+                slices.finalize(obj, &self.functions)?;
+                for address in slices.function_references.iter().cloned() {
+                    self.functions.entry(address).or_default();
+                }
                 self.jump_tables.append(&mut slices.jump_table_references.clone());
                 let end = slices.end();
-                self.function_bounds.insert(addr, end);
-                self.function_slices.insert(addr, slices.clone());
-                finalized.push(addr);
+                let info = self.functions.get_mut(&addr).unwrap();
+                info.analyzed = true;
+                info.end = end;
+                info.slices = Some(slices.clone());
+                finalized_any = true;
             }
         }
-        let finalized_new = !finalized.is_empty();
-        for addr in finalized {
-            self.non_finalized_functions.remove(&addr);
-        }
-        Ok(finalized_new)
+        Ok(finalized_any)
     }
 
     fn first_unbounded_function(&self) -> Option<SectionAddress> {
-        let mut entries_iter = self.function_entries.iter().cloned();
-        let mut bounds_iter = self.function_bounds.keys().cloned();
-        let mut entry = entries_iter.next();
-        let mut bound = bounds_iter.next();
-        loop {
-            match (entry, bound) {
-                (Some(a), Some(b)) => {
-                    if b < a {
-                        bound = bounds_iter.next();
-                        continue;
-                    } else if a != b {
-                        if self.non_finalized_functions.contains_key(&a) {
-                            entry = entries_iter.next();
-                            continue;
-                        } else {
-                            break Some(a);
-                        }
-                    }
-                }
-                (Some(a), None) => {
-                    if self.non_finalized_functions.contains_key(&a) {
-                        entry = entries_iter.next();
-                        continue;
-                    } else {
-                        break Some(a);
-                    }
-                }
-                _ => break None,
-            }
-            entry = entries_iter.next();
-            bound = bounds_iter.next();
-        }
+        self.functions.iter().find(|(_, info)| !info.is_analyzed()).map(|(&addr, _)| addr)
     }
 
     fn process_functions(&mut self, obj: &ObjInfo) -> Result<()> {
@@ -330,26 +369,29 @@ impl AnalyzerState {
     }
 
     pub fn process_function_at(&mut self, obj: &ObjInfo, addr: SectionAddress) -> Result<bool> {
-        // if addr == 0 || addr == 0xFFFFFFFF {
-        //     log::warn!("Tried to detect @ {:#010X}", addr);
-        //     self.function_bounds.insert(addr, 0);
-        //     return Ok(false);
-        // }
         Ok(if let Some(mut slices) = self.process_function(obj, addr)? {
-            self.function_entries.insert(addr);
-            self.function_entries.append(&mut slices.function_references.clone());
+            for address in slices.function_references.iter().cloned() {
+                self.functions.entry(address).or_default();
+            }
             self.jump_tables.append(&mut slices.jump_table_references.clone());
             if slices.can_finalize() {
-                slices.finalize(obj, &self.function_entries)?;
-                self.function_bounds.insert(addr, slices.end());
-                self.function_slices.insert(addr, slices);
+                slices.finalize(obj, &self.functions)?;
+                let info = self.functions.entry(addr).or_default();
+                info.analyzed = true;
+                info.end = slices.end();
+                info.slices = Some(slices);
             } else {
-                self.non_finalized_functions.insert(addr, slices);
+                let info = self.functions.entry(addr).or_default();
+                info.analyzed = true;
+                info.end = None;
+                info.slices = Some(slices);
             }
             true
         } else {
             log::debug!("Not a function @ {:#010X}", addr);
-            self.function_bounds.insert(addr, None);
+            let info = self.functions.entry(addr).or_default();
+            info.analyzed = true;
+            info.end = None;
             false
         })
     }
@@ -360,64 +402,69 @@ impl AnalyzerState {
         start: SectionAddress,
     ) -> Result<Option<FunctionSlices>> {
         let mut slices = FunctionSlices::default();
-        let function_end = self.function_bounds.get(&start).cloned().flatten();
-        Ok(match slices.analyze(obj, start, start, function_end, &self.function_entries)? {
+        let function_end = self.functions.get(&start).and_then(|info| info.end);
+        Ok(match slices.analyze(obj, start, start, function_end, &self.functions, None)? {
             true => Some(slices),
             false => None,
         })
     }
 
     fn detect_new_functions(&mut self, obj: &ObjInfo) -> Result<bool> {
-        let mut found_new = false;
+        let mut new_functions = vec![];
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
             let section_start = SectionAddress::new(section_index, section.address as u32);
             let section_end = section_start + section.size as u32;
-            let mut iter = self.function_bounds.range(section_start..section_end).peekable();
+            let mut iter = self.functions.range(section_start..section_end).peekable();
             loop {
                 match (iter.next(), iter.peek()) {
-                    (Some((&first_begin, &first_end)), Some(&(&second_begin, &second_end))) => {
-                        let Some(first_end) = first_end else { continue };
-                        if first_end > second_begin {
-                            continue;
+                    (Some((&first, first_info)), Some(&(&second, second_info))) => {
+                        let Some(first_end) = first_info.end else { continue };
+                        if first_end > second {
+                            bail!("Overlapping functions {}-{} -> {}", first, first_end, second);
                         }
-                        let addr = match skip_alignment(section, first_end, second_begin) {
+                        let addr = match skip_alignment(section, first_end, second) {
                             Some(addr) => addr,
                             None => continue,
                         };
-                        if second_begin > addr && self.function_entries.insert(addr) {
+                        if second > addr {
                             log::trace!(
                                 "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X?})",
                                 addr,
-                                first_begin,
+                                first.address,
                                 first_end,
-                                second_begin,
-                                second_end,
+                                second.address,
+                                second_info.end,
                             );
-                            found_new = true;
+                            new_functions.push(addr);
                         }
                     }
-                    (Some((&last_begin, &last_end)), None) => {
-                        let Some(last_end) = last_end else { continue };
+                    (Some((last, last_info)), None) => {
+                        let Some(last_end) = last_info.end else { continue };
                         if last_end < section_end {
                             let addr = match skip_alignment(section, last_end, section_end) {
                                 Some(addr) => addr,
                                 None => continue,
                             };
-                            if addr < section_end && self.function_entries.insert(addr) {
-                                log::debug!(
+                            if addr < section_end {
+                                log::trace!(
                                     "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X})",
                                     addr,
-                                    last_begin,
+                                    last.address,
                                     last_end,
                                     section_end,
                                 );
-                                found_new = true;
+                                new_functions.push(addr);
                             }
                         }
                     }
                     _ => break,
                 }
             }
+        }
+        let found_new = !new_functions.is_empty();
+        for addr in new_functions {
+            let opt = self.functions.insert(addr, FunctionInfo::default());
+            ensure!(opt.is_none(), "Attempted to detect duplicate function @ {:#010X}", addr);
         }
         Ok(found_new)
     }
@@ -446,13 +493,15 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
                 }
                 StepResult::Illegal => bail!("Illegal instruction @ {:#010X}", ins.addr),
                 StepResult::Jump(target) => {
-                    if let BranchTarget::Address(addr) = target {
+                    if let BranchTarget::Address(RelocationTarget::Address(addr)) = target {
                         return Ok(ExecCbResult::Jump(addr));
                     }
                 }
                 StepResult::Branch(branches) => {
                     for branch in branches {
-                        if let BranchTarget::Address(addr) = branch.target {
+                        if let BranchTarget::Address(RelocationTarget::Address(addr)) =
+                            branch.target
+                        {
                             executor.push(addr, branch.vm, false);
                         }
                     }

@@ -112,6 +112,15 @@ impl ObjSymbolFlagSet {
             self.0 &= !ObjSymbolFlags::ForceActive;
         }
     }
+
+    /// Special flags to keep when merging symbols.
+    #[inline]
+    pub fn keep_flags(&self) -> FlagSet<ObjSymbolFlags> {
+        self.0
+            & (ObjSymbolFlags::ForceActive
+                | ObjSymbolFlags::NoWrite
+                | ObjSymbolFlags::RelocationIgnore)
+    }
 }
 
 #[allow(clippy::derived_hash_with_manual_eq)]
@@ -213,8 +222,7 @@ impl ObjSymbols {
             let replace = replace || (is_auto_symbol(existing) && !is_auto_symbol(&in_symbol));
             let size =
                 if existing.size_known && in_symbol.size_known && existing.size != in_symbol.size {
-                    // TODO fix and promote back to warning
-                    log::debug!(
+                    log::warn!(
                         "Conflicting size for {}: was {:#X}, now {:#X}",
                         existing.name,
                         existing.size,
@@ -248,7 +256,7 @@ impl ObjSymbols {
                 section: in_symbol.section,
                 size,
                 size_known: existing.size_known || in_symbol.size != 0,
-                flags: in_symbol.flags,
+                flags: ObjSymbolFlagSet(in_symbol.flags.0 | existing.flags.keep_flags()),
                 kind: in_symbol.kind,
                 align: in_symbol.align.or(existing.align),
                 data_kind: match in_symbol.data_kind {
@@ -511,7 +519,8 @@ impl ObjSymbol {
             ObjSymbolKind::Unknown => true,
             ObjSymbolKind::Function => !matches!(reloc_kind, ObjRelocKind::PpcEmbSda21),
             ObjSymbolKind::Object => {
-                !matches!(reloc_kind, ObjRelocKind::PpcRel14 | ObjRelocKind::PpcRel24)
+                // !matches!(reloc_kind, ObjRelocKind::PpcRel14 | ObjRelocKind::PpcRel24)
+                true // SADX has bugged relocations that jump from .text to .bss, how awful
             }
             ObjSymbolKind::Section => {
                 matches!(

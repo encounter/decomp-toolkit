@@ -1,6 +1,6 @@
 use std::{collections::BTreeSet, num::NonZeroU32};
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use ppc750cl::Ins;
 
 use crate::{
@@ -35,13 +35,15 @@ fn read_unresolved_relocation_address(
     section: &ObjSection,
     address: u32,
     reloc_kind: Option<ObjRelocKind>,
-) -> Result<Option<SectionAddress>> {
+) -> Result<Option<RelocationTarget>> {
     if let Some(reloc) = obj
         .unresolved_relocations
         .iter()
         .find(|reloc| reloc.section as usize == section.elf_index && reloc.address == address)
     {
-        ensure!(reloc.module_id == obj.module_id);
+        if reloc.module_id != obj.module_id {
+            return Ok(Some(RelocationTarget::External));
+        }
         if let Some(reloc_kind) = reloc_kind {
             ensure!(reloc.kind == reloc_kind);
         }
@@ -52,10 +54,10 @@ fn read_unresolved_relocation_address(
                     reloc.target_section
                 )
             })?;
-        Ok(Some(SectionAddress {
+        Ok(Some(RelocationTarget::Address(SectionAddress {
             section: target_section_index,
             address: target_section.address as u32 + reloc.addend,
-        }))
+        })))
     } else {
         Ok(None)
     }
@@ -66,7 +68,7 @@ fn read_relocation_address(
     section: &ObjSection,
     address: u32,
     reloc_kind: Option<ObjRelocKind>,
-) -> Result<Option<SectionAddress>> {
+) -> Result<Option<RelocationTarget>> {
     let Some(reloc) = section.relocations.at(address) else {
         return Ok(None);
     };
@@ -74,13 +76,13 @@ fn read_relocation_address(
         ensure!(reloc.kind == reloc_kind);
     }
     let symbol = &obj.symbols[reloc.target_symbol];
-    let section_index = symbol.section.with_context(|| {
-        format!("Symbol '{}' @ {:#010X} missing section", symbol.name, symbol.address)
-    })?;
-    Ok(Some(SectionAddress {
+    let Some(section_index) = symbol.section else {
+        return Ok(Some(RelocationTarget::External));
+    };
+    Ok(Some(RelocationTarget::Address(SectionAddress {
         section: section_index,
         address: (symbol.address as i64 + reloc.addend) as u32,
-    }))
+    })))
 }
 
 pub fn read_address(obj: &ObjInfo, section: &ObjSection, address: u32) -> Result<SectionAddress> {
@@ -94,7 +96,11 @@ pub fn read_address(obj: &ObjInfo, section: &ObjSection, address: u32) -> Result
                 Some(ObjRelocKind::Absolute),
             )?;
         }
-        opt.with_context(|| {
+        opt.and_then(|t| match t {
+            RelocationTarget::Address(addr) => Some(addr),
+            RelocationTarget::External => None,
+        })
+        .with_context(|| {
             format!("Failed to find relocation for {:#010X} in section {}", address, section.name)
         })
     } else {
@@ -109,12 +115,18 @@ fn is_valid_jump_table_addr(obj: &ObjInfo, addr: SectionAddress) -> bool {
     !matches!(obj.sections[addr.section].kind, ObjSectionKind::Code | ObjSectionKind::Bss)
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RelocationTarget {
+    Address(SectionAddress),
+    External,
+}
+
 #[inline(never)]
 pub fn relocation_target_for(
     obj: &ObjInfo,
     addr: SectionAddress,
     reloc_kind: Option<ObjRelocKind>,
-) -> Result<Option<SectionAddress>> {
+) -> Result<Option<RelocationTarget>> {
     let section = &obj.sections[addr.section];
     let mut opt = read_relocation_address(obj, section, addr.address, reloc_kind)?;
     if opt.is_none() {
@@ -149,17 +161,24 @@ fn get_jump_table_entries(
             if let Some(target) =
                 relocation_target_for(obj, cur_addr, Some(ObjRelocKind::Absolute))?
             {
-                entries.push(target);
+                match target {
+                    RelocationTarget::Address(addr) => entries.push(addr),
+                    RelocationTarget::External => {
+                        bail!("Jump table entry at {:#010X} points to external symbol", cur_addr)
+                    }
+                }
             } else {
                 let entry_addr = u32::from_be_bytes(*array_ref!(data, 0, 4));
-                let (section_index, _) =
-                    obj.sections.at_address(entry_addr).with_context(|| {
-                        format!(
-                            "Invalid jump table entry {:#010X} at {:#010X}",
-                            entry_addr, cur_addr
-                        )
-                    })?;
-                entries.push(SectionAddress::new(section_index, entry_addr));
+                if entry_addr > 0 {
+                    let (section_index, _) =
+                        obj.sections.at_address(entry_addr).with_context(|| {
+                            format!(
+                                "Invalid jump table entry {:#010X} at {:#010X}",
+                                entry_addr, cur_addr
+                            )
+                        })?;
+                    entries.push(SectionAddress::new(section_index, entry_addr));
+                }
             }
             data = &data[4..];
             cur_addr += 4;
@@ -172,7 +191,10 @@ fn get_jump_table_entries(
             let target = if let Some(target) =
                 relocation_target_for(obj, cur_addr, Some(ObjRelocKind::Absolute))?
             {
-                target
+                match target {
+                    RelocationTarget::Address(addr) => addr,
+                    RelocationTarget::External => break,
+                }
             } else if obj.kind == ObjKind::Executable {
                 let Some(value) = read_u32(section, cur_addr.address) else {
                     break;

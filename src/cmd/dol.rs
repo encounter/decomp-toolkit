@@ -5,7 +5,7 @@ use std::{
     ffi::OsStr,
     fs,
     fs::DirBuilder,
-    io::Write,
+    io::{Cursor, Write},
     mem::take,
     path::{Path, PathBuf},
     time::Instant,
@@ -31,8 +31,9 @@ use crate::{
     },
     cmd::shasum::file_sha1_string,
     obj::{
-        ObjDataKind, ObjInfo, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SymbolIndex,
+        best_match_for_reloc, ObjDataKind, ObjInfo, ObjKind, ObjReloc, ObjRelocKind,
+        ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
+        SymbolIndex,
     },
     util::{
         asm::write_asm,
@@ -44,10 +45,7 @@ use crate::{
         dep::DepFile,
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{
-            buf_reader, buf_writer, decompress_if_needed, map_file, touch, verify_hash,
-            FileIterator, Reader,
-        },
+        file::{buf_reader, buf_writer, map_file, touch, verify_hash, FileIterator},
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         rel::{process_rel, process_rel_header},
@@ -272,6 +270,7 @@ pub struct OutputModule {
     pub module_id: u32,
     #[serde(with = "path_slash_serde")]
     pub ldscript: PathBuf,
+    pub entry: Option<String>,
     pub units: Vec<OutputUnit>,
 }
 
@@ -293,7 +292,7 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
-    let rso = process_rso(&mut Reader::new(buf))?;
+    let rso = process_rso(&mut Cursor::new(buf))?;
     for symbol in rso.symbols.iter() {
         let dol_section_index = match symbol.section {
             Some(section) => section,
@@ -373,25 +372,26 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
 fn info(args: InfoArgs) -> Result<()> {
     let mut obj = {
         let file = map_file(&args.dol_file)?;
-        let data = decompress_if_needed(file.as_slice())?;
-        process_dol(data.as_ref(), "")?
+        process_dol(file.as_slice(), "")?
     };
     apply_signatures(&mut obj)?;
 
     let mut state = AnalyzerState::default();
+    FindSaveRestSleds::execute(&mut state, &obj)?;
     state.detect_functions(&obj)?;
-    log::debug!("Discovered {} functions", state.function_slices.len());
+    log::debug!(
+        "Discovered {} functions",
+        state.functions.iter().filter(|(_, i)| i.end.is_some()).count()
+    );
 
     FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
-    FindSaveRestSleds::execute(&mut state, &obj)?;
     state.apply(&mut obj)?;
 
     apply_signatures_post(&mut obj)?;
 
     if let Some(selfile) = &args.selfile {
         let file = map_file(selfile)?;
-        let data = decompress_if_needed(file.as_slice())?;
-        apply_selfile(&mut obj, data.as_ref())?;
+        apply_selfile(&mut obj, file.as_slice())?;
     }
 
     println!("{}:", obj.name);
@@ -450,19 +450,31 @@ fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>, create_symbols: bo
     {
         if source_module_id == obj.module_id {
             // Skip if already resolved
-            let (_, source_section) = obj
-                .sections
-                .get_elf_index(rel_reloc.section as usize)
-                .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
+            let (_, source_section) =
+                obj.sections.get_elf_index(rel_reloc.section as usize).ok_or_else(|| {
+                    anyhow!(
+                        "Failed to locate REL section {} in module ID {}: source module {}, {:?}",
+                        rel_reloc.section,
+                        obj.module_id,
+                        source_module_id,
+                        rel_reloc
+                    )
+                })?;
             if source_section.relocations.contains(rel_reloc.address) {
                 continue;
             }
         }
 
-        let (target_section_index, target_section) = obj
-            .sections
-            .get_elf_index(rel_reloc.target_section as usize)
-            .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.target_section))?;
+        let (target_section_index, target_section) =
+            obj.sections.get_elf_index(rel_reloc.target_section as usize).ok_or_else(|| {
+                anyhow!(
+                    "Failed to locate REL section {} in module ID {}: source module {}, {:?}",
+                    rel_reloc.target_section,
+                    obj.module_id,
+                    source_module_id,
+                    rel_reloc
+                )
+            })?;
 
         if let Some((symbol_index, symbol)) = obj.symbols.for_relocation(
             SectionAddress::new(target_section_index, rel_reloc.addend),
@@ -517,10 +529,15 @@ fn create_relocations(obj: &mut ObjInfo, modules: &ModuleMap<'_>, dol_obj: &ObjI
     // Resolve all relocations in this module
     for rel_reloc in take(&mut obj.unresolved_relocations) {
         // Skip if already resolved
-        let (_, source_section) = obj
-            .sections
-            .get_elf_index(rel_reloc.section as usize)
-            .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
+        let (_, source_section) =
+            obj.sections.get_elf_index(rel_reloc.section as usize).ok_or_else(|| {
+                anyhow!(
+                    "Failed to locate REL section {} in module ID {}: {:?}",
+                    rel_reloc.section,
+                    obj.module_id,
+                    rel_reloc
+                )
+            })?;
         if source_section.relocations.contains(rel_reloc.address) {
             continue;
         }
@@ -575,10 +592,8 @@ fn create_relocations(obj: &mut ObjInfo, modules: &ModuleMap<'_>, dol_obj: &ObjI
                 Some(rel_reloc.module_id)
             },
         };
-        let (_, source_section) = obj
-            .sections
-            .get_elf_index_mut(rel_reloc.section as usize)
-            .ok_or_else(|| anyhow!("Failed to locate REL section {}", rel_reloc.section))?;
+        let (_, source_section) =
+            obj.sections.get_elf_index_mut(rel_reloc.section as usize).unwrap();
         source_section.relocations.insert(rel_reloc.address, reloc)?;
     }
 
@@ -653,11 +668,10 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
     log::debug!("Loading {}", config.base.object.display());
     let mut obj = {
         let file = map_file(&config.base.object)?;
-        let data = decompress_if_needed(file.as_slice())?;
         if let Some(hash_str) = &config.base.hash {
-            verify_hash(data.as_ref(), hash_str)?;
+            verify_hash(file.as_slice(), hash_str)?;
         }
-        process_dol(data.as_ref(), config.base.name().as_ref())?
+        process_dol(file.as_slice(), config.base.name().as_ref())?
     };
     let mut dep = vec![config.base.object.clone()];
 
@@ -688,10 +702,9 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
         if !config.quick_analysis {
             let mut state = AnalyzerState::default();
             debug!("Detecting function boundaries");
-            state.detect_functions(&obj)?;
-
-            FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
             FindSaveRestSleds::execute(&mut state, &obj)?;
+            state.detect_functions(&obj)?;
+            FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
             state.apply(&mut obj)?;
         }
 
@@ -701,11 +714,10 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
     if let Some(selfile) = &config.selfile {
         log::info!("Loading {}", selfile.display());
         let file = map_file(selfile)?;
-        let data = decompress_if_needed(file.as_slice())?;
         if let Some(hash) = &config.selfile_hash {
-            verify_hash(data.as_ref(), hash)?;
+            verify_hash(file.as_slice(), hash)?;
         }
-        apply_selfile(&mut obj, data.as_ref())?;
+        apply_selfile(&mut obj, file.as_slice())?;
         dep.push(selfile.clone());
     }
 
@@ -761,11 +773,21 @@ fn split_write_obj(
 
     debug!("Writing object files");
     let obj_dir = out_dir.join("obj");
+    let entry = if obj.kind == ObjKind::Executable {
+        obj.entry.and_then(|e| {
+            let (section_index, _) = obj.sections.at_address(e as u32).ok()?;
+            let symbols = obj.symbols.at_section_address(section_index, e as u32).collect_vec();
+            best_match_for_reloc(symbols, ObjRelocKind::PpcRel24).map(|(_, s)| s.name.clone())
+        })
+    } else {
+        obj.symbols.by_name("_prolog")?.map(|(_, s)| s.name.clone())
+    };
     let mut out_config = OutputModule {
         name: module_config.name().to_string(),
         module_id: obj.module_id,
         ldscript: out_dir.join("ldscript.lcf"),
         units: Vec::with_capacity(split_objs.len()),
+        entry,
     };
     for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
         let out_obj = write_elf(split_obj)?;
@@ -802,13 +824,12 @@ fn split_write_obj(
 
 fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Result<AnalyzeResult> {
     debug!("Loading {}", module_config.object.display());
-    let map = map_file(&module_config.object)?;
-    let buf = decompress_if_needed(map.as_slice())?;
+    let file = map_file(&module_config.object)?;
     if let Some(hash_str) = &module_config.hash {
-        verify_hash(buf.as_ref(), hash_str)?;
+        verify_hash(file.as_slice(), hash_str)?;
     }
     let (_, mut module_obj) =
-        process_rel(&mut Reader::new(buf.as_ref()), module_config.name().as_ref())?;
+        process_rel(&mut Cursor::new(file.as_slice()), module_config.name().as_ref())?;
 
     if let Some(comment_version) = config.mw_comment_version {
         module_obj.mw_comment = Some(MWComment::new(comment_version)?);
@@ -863,11 +884,10 @@ fn split(args: SplitArgs) -> Result<()> {
 
     for module_config in config.modules.iter_mut() {
         let file = map_file(&module_config.object)?;
-        let buf = decompress_if_needed(file.as_slice())?;
         if let Some(hash_str) = &module_config.hash {
-            verify_hash(buf.as_ref(), hash_str)?;
+            verify_hash(file.as_slice(), hash_str)?;
         } else {
-            module_config.hash = Some(file_sha1_string(&mut Reader::new(buf.as_ref()))?);
+            module_config.hash = Some(file_sha1_string(&mut file.as_reader())?);
         }
     }
 
@@ -1080,20 +1100,25 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
         for (_symbol_idx, symbol) in real_obj.symbols.for_section(section_index) {
             let symbol_addr = SectionAddress::new(section_index, symbol.address as u32);
             real_functions.insert(symbol_addr, symbol.name.clone());
-            match state.function_bounds.get(&symbol_addr) {
-                Some(&Some(end)) => {
-                    if symbol.size > 0 && end != (symbol_addr + symbol.size as u32) {
+            match state.functions.get(&symbol_addr) {
+                Some(info) => {
+                    if let Some(end) = info.end {
+                        if symbol.size > 0 && end != (symbol_addr + symbol.size as u32) {
+                            log::warn!(
+                                "Function {:#010X} ({}) ends at {:#010X}, expected {:#010X}",
+                                symbol.address,
+                                symbol.name,
+                                end,
+                                symbol.address + symbol.size
+                            );
+                        }
+                    } else {
                         log::warn!(
-                            "Function {:#010X} ({}) ends at {:#010X}, expected {:#010X}",
+                            "Function {:#010X} ({}) has no end",
                             symbol.address,
-                            symbol.name,
-                            end,
-                            symbol.address + symbol.size
+                            symbol.name
                         );
                     }
-                }
-                Some(_) => {
-                    log::warn!("Function {:#010X} ({}) has no end", symbol.address, symbol.name);
                 }
                 None => {
                     log::warn!(
@@ -1105,8 +1130,8 @@ fn validate<P: AsRef<Path>>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -
             }
         }
     }
-    for (&start, &end) in &state.function_bounds {
-        let Some(end) = end else {
+    for (&start, info) in &state.functions {
+        let Some(end) = info.end else {
             continue;
         };
         if !real_functions.contains_key(&start) {
@@ -1206,11 +1231,10 @@ fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", config.base.object.display());
     let mut obj = {
         let file = map_file(&config.base.object)?;
-        let data = decompress_if_needed(file.as_slice())?;
         if let Some(hash_str) = &config.base.hash {
-            verify_hash(data.as_ref(), hash_str)?;
+            verify_hash(file.as_slice(), hash_str)?;
         }
-        process_dol(data.as_ref(), config.base.name().as_ref())?
+        process_dol(file.as_slice(), config.base.name().as_ref())?
     };
 
     if let Some(symbols_path) = &config.base.symbols {
@@ -1353,11 +1377,10 @@ fn apply(args: ApplyArgs) -> Result<()> {
     log::info!("Loading {}", config.base.object.display());
     let mut obj = {
         let file = map_file(&config.base.object)?;
-        let data = decompress_if_needed(file.as_slice())?;
         if let Some(hash_str) = &config.base.hash {
-            verify_hash(data.as_ref(), hash_str)?;
+            verify_hash(file.as_slice(), hash_str)?;
         }
-        process_dol(data.as_ref(), config.base.name().as_ref())?
+        process_dol(file.as_slice(), config.base.name().as_ref())?
     };
 
     if let Some(symbols_path) = &config.base.symbols {

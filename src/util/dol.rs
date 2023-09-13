@@ -1,4 +1,4 @@
-use std::collections::BTreeMap;
+use std::{collections::BTreeMap, io::Cursor};
 
 use anyhow::{anyhow, bail, ensure, Result};
 use dol::{Dol, DolSection, DolSectionType};
@@ -9,7 +9,6 @@ use crate::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
     },
-    util::file::Reader,
 };
 
 const MAX_TEXT_SECTIONS: usize = 7;
@@ -23,7 +22,7 @@ fn read_u32(dol: &Dol, addr: u32) -> Result<u32> {
 }
 
 pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
-    let dol = Dol::read_from(Reader::new(buf))?;
+    let dol = Dol::read_from(Cursor::new(buf))?;
 
     // Locate _rom_copy_info
     let first_rom_section = dol
@@ -410,7 +409,9 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
                 )
             })?;
             let addr = SectionAddress::new(section_index, entry.function);
-            if let Some(old_value) = obj.known_functions.insert(addr, entry.function_size) {
+            if let Some(Some(old_value)) =
+                obj.known_functions.insert(addr, Some(entry.function_size))
+            {
                 if old_value != entry.function_size {
                     log::warn!(
                         "Conflicting sizes for {:#010X}: {:#X} != {:#X}",
@@ -463,6 +464,36 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
                 false,
             )?;
         }
+    }
+
+    // Add .ctors and .dtors functions to known functions if they exist
+    for (_, section) in obj.sections.iter() {
+        if section.size & 3 != 0 {
+            continue;
+        }
+        let mut entries = vec![];
+        let mut current_addr = section.address as u32;
+        for chunk in section.data.chunks_exact(4) {
+            let addr = u32::from_be_bytes(chunk.try_into()?);
+            if addr == 0 || addr & 3 != 0 {
+                break;
+            }
+            let Ok((section_index, section)) = obj.sections.at_address(addr) else {
+                break;
+            };
+            if section.kind != ObjSectionKind::Code {
+                break;
+            }
+            entries.push(SectionAddress::new(section_index, addr));
+            current_addr += 4;
+        }
+        // .ctors and .dtors end with a null pointer
+        if current_addr != (section.address + section.size) as u32 - 4
+            || section.data_range(current_addr, 0)?.iter().any(|&b| b != 0)
+        {
+            continue;
+        }
+        obj.known_functions.extend(entries.into_iter().map(|addr| (addr, None)));
     }
 
     // Locate _SDA2_BASE_ & _SDA_BASE_

@@ -564,7 +564,7 @@ impl StateMachine {
     }
 }
 
-pub fn process_map<R: BufRead>(reader: &mut R) -> Result<MapInfo> {
+pub fn process_map<R: BufRead + ?Sized>(reader: &mut R) -> Result<MapInfo> {
     let mut sm = StateMachine {
         state: ProcessMapState::None,
         result: Default::default(),

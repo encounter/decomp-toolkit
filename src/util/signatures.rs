@@ -13,6 +13,7 @@ use crate::{
     analysis::{
         cfa::SectionAddress,
         tracker::{Relocation, Tracker},
+        RelocationTarget,
     },
     array_ref,
     obj::{
@@ -171,16 +172,18 @@ pub fn apply_signature(
             None => continue,
         };
         let target = match (reloc, sig_reloc.kind) {
-            (&Relocation::Absolute(addr), ObjRelocKind::Absolute)
-            | (&Relocation::Hi(addr), ObjRelocKind::PpcAddr16Hi)
-            | (&Relocation::Ha(addr), ObjRelocKind::PpcAddr16Ha)
-            | (&Relocation::Lo(addr), ObjRelocKind::PpcAddr16Lo)
-            | (&Relocation::Rel24(addr), ObjRelocKind::PpcRel24)
-            | (&Relocation::Rel14(addr), ObjRelocKind::PpcRel14)
-            | (&Relocation::Sda21(addr), ObjRelocKind::PpcEmbSda21) => SectionAddress::new(
-                addr.section,
-                (addr.address as i64 - sig_reloc.addend as i64) as u32,
-            ),
+            (&Relocation::Absolute(RelocationTarget::Address(addr)), ObjRelocKind::Absolute)
+            | (&Relocation::Hi(RelocationTarget::Address(addr)), ObjRelocKind::PpcAddr16Hi)
+            | (&Relocation::Ha(RelocationTarget::Address(addr)), ObjRelocKind::PpcAddr16Ha)
+            | (&Relocation::Lo(RelocationTarget::Address(addr)), ObjRelocKind::PpcAddr16Lo)
+            | (&Relocation::Rel24(RelocationTarget::Address(addr)), ObjRelocKind::PpcRel24)
+            | (&Relocation::Rel14(RelocationTarget::Address(addr)), ObjRelocKind::PpcRel14)
+            | (&Relocation::Sda21(RelocationTarget::Address(addr)), ObjRelocKind::PpcEmbSda21) => {
+                SectionAddress::new(
+                    addr.section,
+                    (addr.address as i64 - sig_reloc.addend as i64) as u32,
+                )
+            }
             _ => bail!("Relocation mismatch: {:?} != {:?}", reloc, sig_reloc.kind),
         };
         let sig_symbol = &signature.symbols[sig_reloc.symbol];

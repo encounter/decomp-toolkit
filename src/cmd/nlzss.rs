@@ -1,16 +1,16 @@
 use std::{fs, path::PathBuf};
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Context, Result};
 use argp::FromArgs;
 
 use crate::util::{
-    file::{decompress_reader, open_file, process_rsp},
+    file::{open_file, process_rsp},
     IntoCow, ToCow,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
-/// Commands for processing YAZ0-compressed files.
-#[argp(subcommand, name = "yaz0")]
+/// Commands for processing NLZSS-compressed files.
+#[argp(subcommand, name = "nlzss")]
 pub struct Args {
     #[argp(subcommand)]
     command: SubCommand,
@@ -23,11 +23,11 @@ enum SubCommand {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Decompresses YAZ0-compressed files.
+/// Decompresses NLZSS-compressed files.
 #[argp(subcommand, name = "decompress")]
 pub struct DecompressArgs {
     #[argp(positional)]
-    /// YAZ0-compressed files
+    /// NLZSS-compressed file(s)
     files: Vec<PathBuf>,
     #[argp(option, short = 'o')]
     /// Output file (or directory, if multiple files are specified).
@@ -45,7 +45,8 @@ fn decompress(args: DecompressArgs) -> Result<()> {
     let files = process_rsp(&args.files)?;
     let single_file = files.len() == 1;
     for path in files {
-        let data = decompress_reader(&mut open_file(&path)?)?;
+        let data = nintendo_lz::decompress(&mut open_file(&path)?)
+            .map_err(|e| anyhow!("Failed to decompress '{}' with NLZSS: {}", path.display(), e))?;
         let out_path = if let Some(output) = &args.output {
             if single_file {
                 output.as_path().to_cow()

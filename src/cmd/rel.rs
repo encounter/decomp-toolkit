@@ -1,8 +1,7 @@
 use std::{
     collections::{btree_map, BTreeMap},
-    ffi::OsStr,
     fs,
-    io::Write,
+    io::{ Write},
     path::PathBuf,
     time::Instant,
 };
@@ -10,7 +9,8 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use argp::FromArgs;
 use object::{
-    Architecture, Endianness, Object, ObjectSection, ObjectSymbol, RelocationTarget, SymbolIndex,
+    Architecture, Endianness, File, Object, ObjectSection, ObjectSymbol, RelocationTarget,
+    SectionIndex, SymbolIndex,
 };
 use rayon::prelude::*;
 use rustc_hash::FxHashMap;
@@ -27,18 +27,18 @@ use crate::{
         tracker::Tracker,
     },
     array_ref_mut,
-    cmd::dol::ProjectConfig,
+    cmd::dol::{ModuleConfig, ProjectConfig},
     obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol},
     util::{
         config::is_auto_symbol,
         dol::process_dol,
         elf::{to_obj_reloc_kind, write_elf},
-        file::{
-            buf_reader, buf_writer, decompress_if_needed, map_file, process_rsp, verify_hash,
-            FileIterator, Reader,
-        },
+        file::{buf_reader, buf_writer, map_file, process_rsp, verify_hash, FileIterator},
         nested::NestedMap,
-        rel::{process_rel, process_rel_header, write_rel, RelHeader, RelReloc, RelWriteInfo},
+        rel::{
+            process_rel, process_rel_header, process_rel_sections, write_rel, RelHeader, RelReloc,
+            RelSectionHeader, RelWriteInfo, PERMITTED_SECTIONS,
+        },
         IntoCow, ToCow,
     },
 };
@@ -106,8 +106,8 @@ pub fn run(args: Args) -> Result<()> {
     }
 }
 
-fn load_obj(buf: &[u8]) -> Result<object::File> {
-    let obj = object::read::File::parse(buf)?;
+fn load_obj(buf: &[u8]) -> Result<File> {
+    let obj = File::parse(buf)?;
     match obj.architecture() {
         Architecture::PowerPc => {}
         arch => bail!("Unexpected architecture: {arch:?}"),
@@ -116,21 +116,134 @@ fn load_obj(buf: &[u8]) -> Result<object::File> {
     Ok(obj)
 }
 
+/// Attempt to match the section index from the ELF to the original REL.
+/// Our built ELFs may be missing sections that were present in the original RELs.
+fn match_section_index(
+    obj: &File,
+    section_index: SectionIndex,
+    rel_sections: &[RelSectionHeader],
+) -> Result<usize> {
+    let (_, _) = (obj, rel_sections);
+    Ok(section_index.0)
+    // TODO
+    // rel_sections
+    //     .iter()
+    //     .enumerate()
+    //     .filter(|(_, s)| s.size() > 0)
+    //     .zip(obj.sections().filter(|s| s.size() > 0))
+    //     .find_map(
+    //         |((rel_section_index, _), obj_section)| {
+    //             if obj_section.index() == section_index {
+    //                 Some(rel_section_index)
+    //             } else {
+    //                 None
+    //             }
+    //         },
+    //     )
+    //     .ok_or_else(|| {
+    //         anyhow!(
+    //             "Failed to find matching section index for {} ({}), REL section count: {}",
+    //             obj.section_by_index(section_index)
+    //                 .ok()
+    //                 .and_then(|s| s.name().ok().map(|s| s.to_string()))
+    //                 .unwrap_or("[invalid]".to_string()),
+    //             section_index.0,
+    //             rel_sections.len()
+    //         )
+    //     })
+}
+
+fn load_rel(module_config: &ModuleConfig) -> Result<(RelHeader, Vec<RelSectionHeader>)> {
+    let file = map_file(&module_config.object)?;
+    if let Some(hash_str) = &module_config.hash {
+        verify_hash(file.as_slice(), hash_str)?;
+    }
+    let mut reader = file.as_reader();
+    let header = process_rel_header(&mut reader)?;
+    let sections = process_rel_sections(&mut reader, &header)?;
+    Ok((header, sections))
+}
+
+fn resolve_relocations(
+    module: &File,
+    existing_headers: &BTreeMap<u32, (RelHeader, Vec<RelSectionHeader>)>,
+    module_id: usize,
+    symbol_map: &FxHashMap<&[u8], (usize, SymbolIndex)>,
+    modules: &[(File, PathBuf)],
+    relocations: &mut Vec<RelReloc>,
+) -> Result<usize> {
+    let mut resolved = 0usize;
+    for section in module.sections() {
+        if !matches!(section.name(), Ok(name) if PERMITTED_SECTIONS.contains(&name)) {
+            continue;
+        }
+        let section_index = if let Some((_, sections)) = existing_headers.get(&(module_id as u32)) {
+            match_section_index(module, section.index(), sections)?
+        } else {
+            section.index().0
+        } as u8;
+        for (address, reloc) in section.relocations() {
+            let reloc_target = match reloc.target() {
+                RelocationTarget::Symbol(idx) => {
+                    module.symbol_by_index(idx).with_context(|| {
+                        format!("Relocation against invalid symbol index {}", idx.0)
+                    })?
+                }
+                reloc_target => bail!("Unsupported relocation target: {reloc_target:?}"),
+            };
+            let (target_module_id, target_symbol) = if reloc_target.is_undefined() {
+                resolved += 1;
+                symbol_map
+                    .get(reloc_target.name_bytes()?)
+                    .map(|&(module_id, symbol_idx)| {
+                        (module_id, modules[module_id].0.symbol_by_index(symbol_idx).unwrap())
+                    })
+                    .ok_or_else(|| {
+                        anyhow!(
+                            "Failed to find symbol {} in any module",
+                            reloc_target.name().unwrap_or("[invalid]")
+                        )
+                    })?
+            } else {
+                (module_id, reloc_target)
+            };
+            let target_section_index = target_symbol.section_index().unwrap();
+            let target_section = if let Some((_, sections)) =
+                existing_headers.get(&(target_module_id as u32))
+            {
+                match_section_index(&modules[target_module_id].0, target_section_index, sections)?
+            } else {
+                target_section_index.0
+            } as u8;
+            relocations.push(RelReloc {
+                kind: to_obj_reloc_kind(reloc.kind())?,
+                section: section_index,
+                address: address as u32,
+                module_id: target_module_id as u32,
+                target_section,
+                addend: (target_symbol.address() as i64 + reloc.addend()) as u32,
+                // Extra
+                original_section: section.index().0 as u8,
+                original_target_section: target_section_index.0 as u8,
+            });
+        }
+    }
+    Ok(resolved)
+}
+
 fn make(args: MakeArgs) -> Result<()> {
     let total = Instant::now();
 
     // Load existing REL headers (if specified)
-    let mut existing_headers = BTreeMap::<u32, RelHeader>::new();
+    let mut existing_headers = BTreeMap::<u32, (RelHeader, Vec<RelSectionHeader>)>::new();
     if let Some(config_path) = &args.config {
         let config: ProjectConfig = serde_yaml::from_reader(&mut buf_reader(config_path)?)?;
         for module_config in &config.modules {
-            let map = map_file(&module_config.object)?;
-            let buf = decompress_if_needed(map.as_slice())?;
-            if let Some(hash_str) = &module_config.hash {
-                verify_hash(buf.as_ref(), hash_str)?;
-            }
-            let header = process_rel_header(&mut Reader::new(buf.as_ref()))?;
-            existing_headers.insert(header.module_id, header);
+            let _span = info_span!("module", name = %module_config.name()).entered();
+            let (header, sections) = load_rel(module_config).with_context(|| {
+                format!("While loading REL '{}'", module_config.object.display())
+            })?;
+            existing_headers.insert(header.module_id, (header, sections));
         }
     }
 
@@ -144,6 +257,7 @@ fn make(args: MakeArgs) -> Result<()> {
         .zip(&paths)
         .map(|(file, path)| {
             load_obj(file.as_slice())
+                .map(|o| (o, path.clone()))
                 .with_context(|| format!("Failed to load '{}'", path.display()))
         })
         .collect::<Result<Vec<_>>>()?;
@@ -151,7 +265,8 @@ fn make(args: MakeArgs) -> Result<()> {
     // Create symbol map
     let start = Instant::now();
     let mut symbol_map = FxHashMap::<&[u8], (usize, SymbolIndex)>::default();
-    for (module_id, module) in modules.iter().enumerate() {
+    for (module_id, (module, path)) in modules.iter().enumerate() {
+        let _span = info_span!("file", path = %path.display()).entered();
         for symbol in module.symbols() {
             if symbol.is_definition() && symbol.scope() == object::SymbolScope::Dynamic {
                 symbol_map.entry(symbol.name_bytes()?).or_insert((module_id, symbol.index()));
@@ -163,45 +278,19 @@ fn make(args: MakeArgs) -> Result<()> {
     let mut resolved = 0usize;
     let mut relocations = Vec::<Vec<RelReloc>>::with_capacity(modules.len() - 1);
     relocations.resize_with(modules.len() - 1, Vec::new);
-    for ((module_id, module), relocations) in
+    for ((module_id, (module, path)), relocations) in
         modules.iter().enumerate().skip(1).zip(&mut relocations)
     {
-        for section in module.sections() {
-            for (address, reloc) in section.relocations() {
-                let reloc_target = match reloc.target() {
-                    RelocationTarget::Symbol(idx) => {
-                        module.symbol_by_index(idx).with_context(|| {
-                            format!("Relocation against invalid symbol index {}", idx.0)
-                        })?
-                    }
-                    reloc_target => bail!("Unsupported relocation target: {reloc_target:?}"),
-                };
-                let (target_module_id, target_symbol) = if reloc_target.is_undefined() {
-                    resolved += 1;
-                    symbol_map
-                        .get(reloc_target.name_bytes()?)
-                        .map(|&(module_id, symbol_idx)| {
-                            (module_id, modules[module_id].symbol_by_index(symbol_idx).unwrap())
-                        })
-                        .ok_or_else(|| {
-                            anyhow!(
-                                "Failed to find symbol {} in any module",
-                                reloc_target.name().unwrap_or("[invalid]")
-                            )
-                        })?
-                } else {
-                    (module_id, reloc_target)
-                };
-                relocations.push(RelReloc {
-                    kind: to_obj_reloc_kind(reloc.kind())?,
-                    section: section.index().0 as u8,
-                    address: address as u32,
-                    module_id: target_module_id as u32,
-                    target_section: target_symbol.section_index().unwrap().0 as u8,
-                    addend: (target_symbol.address() as i64 + reloc.addend()) as u32,
-                });
-            }
-        }
+        let _span = info_span!("file", path = %path.display()).entered();
+        resolved += resolve_relocations(
+            module,
+            &existing_headers,
+            module_id,
+            &symbol_map,
+            &modules,
+            relocations,
+        )
+        .with_context(|| format!("While resolving relocations in '{}'", path.display()))?;
     }
 
     let duration = start.elapsed();
@@ -214,12 +303,10 @@ fn make(args: MakeArgs) -> Result<()> {
 
     // Write RELs
     let start = Instant::now();
-    for (((module_id, module), path), relocations) in
-        modules.iter().enumerate().zip(&paths).skip(1).zip(relocations)
+    for ((module_id, (module, path)), relocations) in
+        modules.iter().enumerate().skip(1).zip(relocations)
     {
-        let name =
-            path.file_stem().unwrap_or(OsStr::new("[unknown]")).to_str().unwrap_or("[invalid]");
-        let _span = info_span!("module", name = %name).entered();
+        let _span = info_span!("file", path = %path.display()).entered();
         let mut info = RelWriteInfo {
             module_id: module_id as u32,
             version: 3,
@@ -230,13 +317,13 @@ fn make(args: MakeArgs) -> Result<()> {
             section_count: None,
             quiet: args.no_warn,
         };
-        if let Some(existing_module) = existing_headers.get(&(module_id as u32)) {
-            info.version = existing_module.version;
-            info.name_offset = Some(existing_module.name_offset);
-            info.name_size = Some(existing_module.name_size);
-            info.align = existing_module.align;
-            info.bss_align = existing_module.bss_align;
-            info.section_count = Some(existing_module.num_sections as usize);
+        if let Some((header, _)) = existing_headers.get(&(module_id as u32)) {
+            info.version = header.version;
+            info.name_offset = Some(header.name_offset);
+            info.name_size = Some(header.name_size);
+            info.align = header.align;
+            info.bss_align = header.bss_align;
+            info.section_count = Some(header.num_sections as usize);
         }
         let rel_path = path.with_extension("rel");
         let mut w = buf_writer(&rel_path)?;
@@ -254,8 +341,7 @@ fn make(args: MakeArgs) -> Result<()> {
 
 fn info(args: InfoArgs) -> Result<()> {
     let file = map_file(args.rel_file)?;
-    let buf = decompress_if_needed(file.as_slice())?;
-    let (header, mut module_obj) = process_rel(&mut Reader::new(buf.as_ref()), "")?;
+    let (header, mut module_obj) = process_rel(&mut file.as_reader(), "")?;
 
     let mut state = AnalyzerState::default();
     state.detect_functions(&module_obj)?;
@@ -319,9 +405,8 @@ fn merge(args: MergeArgs) -> Result<()> {
     log::info!("Loading {}", args.dol_file.display());
     let mut obj = {
         let file = map_file(&args.dol_file)?;
-        let buf = decompress_if_needed(file.as_slice())?;
         let name = args.dol_file.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
-        process_dol(buf.as_ref(), name.as_ref())?
+        process_dol(file.as_slice(), name.as_ref())?
     };
 
     log::info!("Performing signature analysis");
@@ -434,11 +519,14 @@ fn merge(args: MergeArgs) -> Result<()> {
 
     log::info!("Detecting function boundaries");
     let mut state = AnalyzerState::default();
+    FindSaveRestSleds::execute(&mut state, &obj)?;
     state.detect_functions(&obj)?;
-    log::info!("Discovered {} functions", state.function_slices.len());
+    log::info!(
+        "Discovered {} functions",
+        state.functions.iter().filter(|(_, i)| i.is_function()).count()
+    );
 
     FindTRKInterruptVectorTable::execute(&mut state, &obj)?;
-    FindSaveRestSleds::execute(&mut state, &obj)?;
     state.apply(&mut obj)?;
 
     apply_signatures_post(&mut obj)?;

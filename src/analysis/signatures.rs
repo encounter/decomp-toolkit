@@ -382,7 +382,7 @@ fn apply_init_user_signatures(obj: &mut ObjInfo) -> Result<()> {
     // __init_user can be overridden, but we can still look for __init_cpp from it
     let mut analyzer = AnalyzerState::default();
     analyzer.process_function_at(obj, SectionAddress::new(section_index, symbol.address as u32))?;
-    for addr in analyzer.function_entries {
+    for (addr, _) in analyzer.functions {
         let section = &obj.sections[addr.section];
         if let Some(signature) = check_signatures_str(
             section,

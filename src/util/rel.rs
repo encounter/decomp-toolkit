@@ -110,7 +110,7 @@ struct RelImport {
 
 #[binrw]
 #[derive(Copy, Clone, Debug)]
-struct RelSectionHeader {
+pub struct RelSectionHeader {
     offset_and_flags: u32,
     size: u32,
 }
@@ -120,11 +120,11 @@ impl RelSectionHeader {
         Self { offset_and_flags: offset | (exec as u32), size }
     }
 
-    fn offset(&self) -> u32 { self.offset_and_flags & !1 }
+    pub fn offset(&self) -> u32 { self.offset_and_flags & !1 }
 
-    fn size(&self) -> u32 { self.size }
+    pub fn size(&self) -> u32 { self.size }
 
-    fn exec(&self) -> bool { self.offset_and_flags & 1 != 0 }
+    pub fn exec(&self) -> bool { self.offset_and_flags & 1 != 0 }
 }
 
 #[binrw]
@@ -140,15 +140,26 @@ pub fn process_rel_header<R: Read + Seek>(reader: &mut R) -> Result<RelHeader> {
     RelHeader::read_be(reader).context("Failed to read REL header")
 }
 
-pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHeader, ObjInfo)> {
-    let header = process_rel_header(reader)?;
+pub fn process_rel_sections<R: Read + Seek>(
+    reader: &mut R,
+    header: &RelHeader,
+) -> Result<Vec<RelSectionHeader>> {
     let mut sections = Vec::with_capacity(header.num_sections as usize);
     reader.seek(SeekFrom::Start(header.section_info_offset as u64))?;
-    let mut found_text = false;
-    let mut total_bss_size = 0;
     for idx in 0..header.num_sections {
         let section = RelSectionHeader::read_be(reader)
             .with_context(|| format!("Failed to read REL section header {}", idx))?;
+        sections.push(section);
+    }
+    Ok(sections)
+}
+
+pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHeader, ObjInfo)> {
+    let header = process_rel_header(reader)?;
+    let mut sections = Vec::with_capacity(header.num_sections as usize);
+    let mut text_section = None;
+    let mut total_bss_size = 0;
+    for (idx, section) in process_rel_sections(reader, &header)?.iter().enumerate() {
         let offset = section.offset();
         let size = section.size();
         if size == 0 {
@@ -173,8 +184,8 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
             total_bss_size = size;
             (".bss".to_string(), ObjSectionKind::Bss, true)
         } else if section.exec() {
-            ensure!(!found_text, "Multiple text sections in REL");
-            found_text = true;
+            ensure!(text_section.is_none(), "Multiple text sections in REL");
+            text_section = Some(idx as u8);
             (".text".to_string(), ObjSectionKind::Code, true)
         } else {
             (format!(".section{}", idx), ObjSectionKind::Data, false)
@@ -190,7 +201,7 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
                 _ => header.align,
             }
             .unwrap_or_default() as u64,
-            elf_index: idx as usize,
+            elf_index: idx,
             relocations: Default::default(),
             original_address: 0,
             file_offset: offset as u64,
@@ -206,32 +217,37 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
     );
 
     let mut symbols = Vec::new();
-    let mut add_symbol = |rel_section_idx: u8, offset: u32, name: &str| -> Result<()> {
-        if rel_section_idx > 0 {
-            let (section_index, _) = sections
-                .iter()
-                .enumerate()
-                .find(|&(_, section)| section.elf_index == rel_section_idx as usize)
-                .ok_or_else(|| anyhow!("Failed to locate {name} section {rel_section_idx}"))?;
-            log::debug!("Adding {name} section {rel_section_idx} offset {offset:#X}");
-            symbols.push(ObjSymbol {
-                name: name.to_string(),
-                demangled_name: None,
-                address: offset as u64,
-                section: Some(section_index),
-                size: 0,
-                size_known: false,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                kind: ObjSymbolKind::Function,
-                align: None,
-                data_kind: Default::default(),
-            });
-        }
-        Ok(())
-    };
-    add_symbol(header.prolog_section, header.prolog_offset, "_prolog")?;
-    add_symbol(header.epilog_section, header.epilog_offset, "_epilog")?;
-    add_symbol(header.unresolved_section, header.unresolved_offset, "_unresolved")?;
+    let mut add_symbol =
+        |rel_section_idx: u8, offset: u32, name: &str, force_active: bool| -> Result<()> {
+            if rel_section_idx > 0 {
+                let (section_index, _) = sections
+                    .iter()
+                    .enumerate()
+                    .find(|&(_, section)| section.elf_index == rel_section_idx as usize)
+                    .ok_or_else(|| anyhow!("Failed to locate {name} section {rel_section_idx}"))?;
+                log::debug!("Adding {name} section {rel_section_idx} offset {offset:#X}");
+                let mut flags = ObjSymbolFlagSet(ObjSymbolFlags::Global.into());
+                if force_active {
+                    flags.set_force_active(true);
+                }
+                symbols.push(ObjSymbol {
+                    name: name.to_string(),
+                    demangled_name: None,
+                    address: offset as u64,
+                    section: Some(section_index),
+                    size: 0,
+                    size_known: false,
+                    flags,
+                    kind: ObjSymbolKind::Function,
+                    align: None,
+                    data_kind: Default::default(),
+                });
+            }
+            Ok(())
+        };
+    add_symbol(header.prolog_section, header.prolog_offset, "_prolog", true)?;
+    add_symbol(header.epilog_section, header.epilog_offset, "_epilog", true)?;
+    add_symbol(header.unresolved_section, header.unresolved_offset, "_unresolved", true)?;
 
     let mut unresolved_relocations = Vec::new();
     let mut imp_idx = 0;
@@ -303,6 +319,8 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
                 module_id: import.module_id,
                 target_section: reloc.section,
                 addend: reloc.addend,
+                original_section: section,
+                original_target_section: reloc.section,
             };
             unresolved_relocations.push(reloc);
         }
@@ -338,6 +356,10 @@ pub struct RelReloc {
     /// Target addend within section.
     /// If target module ID is 0 (DOL), this is an absolute address.
     pub addend: u32,
+
+    // EXTRA for matching
+    pub original_section: u8,
+    pub original_target_section: u8,
 }
 
 #[inline]
@@ -356,13 +378,15 @@ fn apply_relocation(
     data: &mut [u8],
     module_id: u32,
     rel_reloc: &RelReloc,
-    unresolved: u32,
+    header: &RelHeader,
 ) -> Result<()> {
     let diff = if rel_reloc.module_id == module_id && rel_reloc.section == rel_reloc.target_section
     {
         rel_reloc.addend as i32 - rel_reloc.address as i32
+    } else if header.unresolved_section == rel_reloc.section {
+        header.unresolved_offset as i32 - rel_reloc.address as i32
     } else {
-        unresolved as i32 - rel_reloc.address as i32
+        return Ok(());
     };
     let ins_ref = array_ref_mut!(data, rel_reloc.address as usize, 4);
     let mut ins = u32::from_be_bytes(*ins_ref);
@@ -404,7 +428,7 @@ pub struct RelWriteInfo {
     pub quiet: bool,
 }
 
-const PERMITTED_SECTIONS: [&str; 7] =
+pub const PERMITTED_SECTIONS: [&str; 7] =
     [".init", ".text", ".ctors", ".dtors", ".rodata", ".data", ".bss"];
 
 pub fn should_write_section(section: &object::Section) -> bool {
@@ -445,7 +469,7 @@ pub fn write_rel<W: Write>(
     let mut apply_relocations = vec![];
     relocations.retain(|r| {
         if !should_write_section(
-            &file.section_by_index(object::SectionIndex(r.section as usize)).unwrap(),
+            &file.section_by_index(object::SectionIndex(r.original_section as usize)).unwrap(),
         ) {
             return false;
         }
@@ -660,10 +684,10 @@ pub fn write_rel<W: Write>(
 
         let section_index = section.index().0 as u8;
         let mut section_data = section.uncompressed_data()?;
-        if apply_relocations.iter().any(|r| r.section == section_index) {
+        if apply_relocations.iter().any(|r| r.original_section == section_index) {
             let mut data = section_data.into_owned();
-            for reloc in apply_relocations.iter().filter(|r| r.section == section_index) {
-                apply_relocation(&mut data, info.module_id, reloc, header.unresolved_offset)?;
+            for reloc in apply_relocations.iter().filter(|r| r.original_section == section_index) {
+                apply_relocation(&mut data, info.module_id, reloc, &header)?;
             }
             section_data = data.into_cow();
         }

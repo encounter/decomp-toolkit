@@ -8,11 +8,12 @@ use ppc750cl::{Ins, Opcode};
 
 use crate::{
     analysis::{
-        cfa::SectionAddress,
+        cfa::{FunctionInfo, SectionAddress},
         disassemble,
         executor::{ExecCbData, ExecCbResult, Executor},
         uniq_jump_table_entries,
         vm::{section_address_for, BranchTarget, StepResult, VM},
+        RelocationTarget,
     },
     obj::{ObjInfo, ObjKind, ObjSection},
 };
@@ -26,10 +27,11 @@ pub struct FunctionSlices {
     pub prologue: Option<SectionAddress>,
     pub epilogue: Option<SectionAddress>,
     // Either a block or tail call
-    pub possible_blocks: BTreeSet<SectionAddress>,
+    pub possible_blocks: BTreeMap<SectionAddress, Box<VM>>,
     pub has_conditional_blr: bool,
     pub has_rfi: bool,
     pub finalized: bool,
+    pub has_r1_load: bool, // Possibly instead of a prologue
 }
 
 pub enum TailCallResult {
@@ -72,6 +74,25 @@ fn check_sequence(
     Ok(found)
 }
 
+fn check_prologue_sequence(section: &ObjSection, ins: &Ins) -> Result<bool> {
+    #[inline(always)]
+    fn is_mflr(ins: &Ins) -> bool {
+        // mfspr r0, LR
+        ins.op == Opcode::Mfspr && ins.field_rD() == 0 && ins.field_spr() == 8
+    }
+    #[inline(always)]
+    fn is_stwu(ins: &Ins) -> bool {
+        // stwu r1, d(r1)
+        ins.op == Opcode::Stwu && ins.field_rS() == 1 && ins.field_rA() == 1
+    }
+    #[inline(always)]
+    fn is_stw(ins: &Ins) -> bool {
+        // stw r0, d(r1)
+        ins.op == Opcode::Stw && ins.field_rS() == 0 && ins.field_rA() == 1
+    }
+    check_sequence(section, ins, &[(&is_stwu, &is_mflr), (&is_mflr, &is_stw)])
+}
+
 impl FunctionSlices {
     pub fn end(&self) -> Option<SectionAddress> {
         self.blocks.last_key_value().and_then(|(_, &end)| end)
@@ -109,22 +130,16 @@ impl FunctionSlices {
         ins: &Ins,
     ) -> Result<()> {
         #[inline(always)]
-        fn is_mflr(ins: &Ins) -> bool {
-            // mfspr r0, LR
-            ins.op == Opcode::Mfspr && ins.field_rD() == 0 && ins.field_spr() == 8
-        }
-        #[inline(always)]
-        fn is_stwu(ins: &Ins) -> bool {
-            // stwu r1, d(r1)
-            ins.op == Opcode::Stwu && ins.field_rS() == 1 && ins.field_rA() == 1
-        }
-        #[inline(always)]
-        fn is_stw(ins: &Ins) -> bool {
-            // stw r0, d(r1)
-            ins.op == Opcode::Stw && ins.field_rS() == 0 && ins.field_rA() == 1
+        fn is_lwz(ins: &Ins) -> bool {
+            // lwz r1, d(r)
+            ins.op == Opcode::Lwz && ins.field_rD() == 1
         }
 
-        if check_sequence(section, ins, &[(&is_stwu, &is_mflr), (&is_mflr, &is_stw)])? {
+        if is_lwz(ins) {
+            self.has_r1_load = true;
+            return Ok(()); // Possibly instead of a prologue
+        }
+        if check_prologue_sequence(section, ins)? {
             if let Some(prologue) = self.prologue {
                 if prologue != addr && prologue != addr - 4 {
                     bail!("Found duplicate prologue: {:#010X} and {:#010X}", prologue, addr)
@@ -170,21 +185,37 @@ impl FunctionSlices {
         Ok(())
     }
 
+    fn is_known_function(
+        &self,
+        known_functions: &BTreeMap<SectionAddress, FunctionInfo>,
+        addr: SectionAddress,
+    ) -> Option<SectionAddress> {
+        if self.function_references.contains(&addr) {
+            return Some(addr);
+        }
+        if let Some((&fn_addr, info)) = known_functions.range(..=addr).next_back() {
+            if fn_addr == addr || info.end.is_some_and(|end| addr < end) {
+                return Some(fn_addr);
+            }
+        }
+        None
+    }
+
     fn instruction_callback(
         &mut self,
         data: ExecCbData,
         obj: &ObjInfo,
         function_start: SectionAddress,
         function_end: Option<SectionAddress>,
-        known_functions: &BTreeSet<SectionAddress>,
+        known_functions: &BTreeMap<SectionAddress, FunctionInfo>,
     ) -> Result<ExecCbResult<bool>> {
         let ExecCbData { executor, vm, result, ins_addr, section, ins, block_start } = data;
 
         // Track discovered prologue(s) and epilogue(s)
         self.check_prologue(section, ins_addr, ins)
-            .with_context(|| format!("While processing {:#010X}", function_start))?;
+            .with_context(|| format!("While processing {:#010X}: {:#?}", function_start, self))?;
         self.check_epilogue(section, ins_addr, ins)
-            .with_context(|| format!("While processing {:#010X}", function_start))?;
+            .with_context(|| format!("While processing {:#010X}: {:#?}", function_start, self))?;
         if !self.has_conditional_blr && is_conditional_blr(ins) {
             self.has_conditional_blr = true;
         }
@@ -193,8 +224,19 @@ impl FunctionSlices {
         }
         // If control flow hits a block we thought may be a tail call,
         // we know it isn't.
-        if self.possible_blocks.contains(&ins_addr) {
+        if self.possible_blocks.contains_key(&ins_addr) {
             self.possible_blocks.remove(&ins_addr);
+        }
+        if let Some(fn_addr) = self.is_known_function(known_functions, ins_addr) {
+            if fn_addr != function_start {
+                log::warn!(
+                    "Control flow from {} hit known function {} (instruction: {})",
+                    function_start,
+                    fn_addr,
+                    ins_addr
+                );
+                return Ok(ExecCbResult::End(false));
+            }
         }
 
         match result {
@@ -214,7 +256,9 @@ impl FunctionSlices {
                 Ok(ExecCbResult::End(false))
             }
             StepResult::Jump(target) => match target {
-                BranchTarget::Unknown => {
+                BranchTarget::Unknown
+                | BranchTarget::Address(RelocationTarget::External)
+                | BranchTarget::JumpTable { address: RelocationTarget::External, .. } => {
                     // Likely end of function
                     let next_addr = ins_addr + 4;
                     self.blocks.insert(block_start, Some(next_addr));
@@ -234,34 +278,41 @@ impl FunctionSlices {
                     self.blocks.insert(block_start, Some(ins_addr + 4));
                     Ok(ExecCbResult::EndBlock)
                 }
-                BranchTarget::Address(addr) => {
+                BranchTarget::Address(RelocationTarget::Address(addr)) => {
                     // End of block
                     self.blocks.insert(block_start, Some(ins_addr + 4));
                     self.branches.insert(ins_addr, vec![addr]);
                     if addr == ins_addr {
                         // Infinite loop
                     } else if addr >= function_start
-                        && matches!(function_end, Some(known_end) if addr < known_end)
+                        && (matches!(function_end, Some(known_end) if addr < known_end)
+                            || matches!(self.end(), Some(end) if addr < end)
+                            || addr < ins_addr)
                     {
                         // If target is within known function bounds, jump
                         if self.add_block_start(addr) {
                             return Ok(ExecCbResult::Jump(addr));
                         }
-                    } else if matches!(section.data_range(ins_addr.address, ins_addr.address + 4), Ok(data) if data == [0u8; 4])
-                    {
+                    } else if let Some(fn_addr) = self.is_known_function(known_functions, addr) {
+                        ensure!(fn_addr != function_start); // Sanity check
+                        self.function_references.insert(fn_addr);
+                    } else if addr.section != ins_addr.section
                         // If this branch has zeroed padding after it, assume tail call.
+                        || matches!(section.data_range(ins_addr.address, ins_addr.address + 4), Ok(data) if data == [0u8; 4])
+                    {
                         self.function_references.insert(addr);
                     } else {
-                        self.possible_blocks.insert(addr);
+                        self.possible_blocks.insert(addr, vm.clone_all());
                     }
                     Ok(ExecCbResult::EndBlock)
                 }
-                BranchTarget::JumpTable { address, size } => {
+                BranchTarget::JumpTable { address: RelocationTarget::Address(address), size } => {
                     // End of block
                     let next_address = ins_addr + 4;
                     self.blocks.insert(block_start, Some(next_address));
 
-                    let (mut entries, size) = uniq_jump_table_entries(
+                    log::debug!("Fetching jump table entries @ {} with size {:?}", address, size);
+                    let (entries, size) = uniq_jump_table_entries(
                         obj,
                         address,
                         size,
@@ -269,8 +320,12 @@ impl FunctionSlices {
                         function_start,
                         function_end.or_else(|| self.end()),
                     )?;
+                    log::debug!("-> size {}: {:?}", size, entries);
                     if entries.contains(&next_address)
-                        && !entries.iter().any(|addr| known_functions.contains(addr))
+                        && !entries.iter().any(|&addr| {
+                            self.is_known_function(known_functions, addr)
+                                .is_some_and(|fn_addr| fn_addr != function_start)
+                        })
                     {
                         self.jump_table_references.insert(address, size);
                         let mut branches = vec![];
@@ -284,7 +339,8 @@ impl FunctionSlices {
                     } else {
                         // If the table doesn't contain the next address,
                         // it could be a function jump table instead
-                        self.possible_blocks.append(&mut entries);
+                        self.possible_blocks
+                            .extend(entries.into_iter().map(|addr| (addr, vm.clone_all())));
                     }
                     Ok(ExecCbResult::EndBlock)
                 }
@@ -296,11 +352,15 @@ impl FunctionSlices {
                 let mut out_branches = vec![];
                 for branch in branches {
                     match branch.target {
-                        BranchTarget::Unknown | BranchTarget::Return => {
-                            continue;
-                        }
-                        BranchTarget::Address(addr) => {
-                            if branch.link || known_functions.contains(&addr) {
+                        BranchTarget::Address(RelocationTarget::Address(addr)) => {
+                            let known = self.is_known_function(known_functions, addr);
+                            if let Some(fn_addr) = known {
+                                if fn_addr != function_start {
+                                    self.function_references.insert(fn_addr);
+                                    continue;
+                                }
+                            }
+                            if branch.link {
                                 self.function_references.insert(addr);
                             } else {
                                 out_branches.push(addr);
@@ -310,8 +370,14 @@ impl FunctionSlices {
                             }
                         }
                         BranchTarget::JumpTable { address, size } => {
-                            bail!("Conditional jump table unsupported @ {:#010X} -> {:#010X} size {:#X?}", ins_addr, address, size);
+                            bail!(
+                                "Conditional jump table unsupported @ {:#010X} -> {:?} size {:#X?}",
+                                ins_addr,
+                                address,
+                                size
+                            );
                         }
+                        _ => continue,
                     }
                 }
                 if !out_branches.is_empty() {
@@ -328,14 +394,15 @@ impl FunctionSlices {
         start: SectionAddress,
         function_start: SectionAddress,
         function_end: Option<SectionAddress>,
-        known_functions: &BTreeSet<SectionAddress>,
+        known_functions: &BTreeMap<SectionAddress, FunctionInfo>,
+        vm: Option<Box<VM>>,
     ) -> Result<bool> {
         if !self.add_block_start(start) {
             return Ok(true);
         }
 
         let mut executor = Executor::new(obj);
-        executor.push(start, VM::new_from_obj(obj), false);
+        executor.push(start, vm.unwrap_or_else(|| VM::new_from_obj(obj)), false);
         let result = executor.run(obj, |data| {
             self.instruction_callback(data, obj, function_start, function_end, known_functions)
         })?;
@@ -345,7 +412,8 @@ impl FunctionSlices {
 
         // Visit unreachable blocks
         while let Some((first, _)) = self.first_disconnected_block() {
-            executor.push(first.end, VM::new_from_obj(obj), true);
+            let vm = self.possible_blocks.remove(&first.start);
+            executor.push(first.end, vm.unwrap_or_else(|| VM::new_from_obj(obj)), true);
             let result = executor.run(obj, |data| {
                 self.instruction_callback(data, obj, function_start, function_end, known_functions)
             })?;
@@ -356,13 +424,25 @@ impl FunctionSlices {
 
         // Visit trailing blocks
         if let Some(known_end) = function_end {
-            loop {
-                let Some(end) = self.end() else {
+            'outer: loop {
+                let Some(mut end) = self.end() else {
                     log::warn!("Trailing block analysis failed @ {:#010X}", function_start);
                     break;
                 };
-                if end >= known_end {
-                    break;
+                loop {
+                    if end >= known_end {
+                        break 'outer;
+                    }
+                    // Skip nops
+                    match disassemble(&obj.sections[end.section], end.address) {
+                        Some(ins) => {
+                            if !is_nop(&ins) {
+                                break;
+                            }
+                        }
+                        _ => break,
+                    }
+                    end += 4;
                 }
                 executor.push(end, VM::new_from_obj(obj), true);
                 let result = executor.run(obj, |data| {
@@ -393,19 +473,22 @@ impl FunctionSlices {
     pub fn finalize(
         &mut self,
         obj: &ObjInfo,
-        known_functions: &BTreeSet<SectionAddress>,
+        known_functions: &BTreeMap<SectionAddress, FunctionInfo>,
     ) -> Result<()> {
         ensure!(!self.finalized, "Already finalized");
         ensure!(self.can_finalize(), "Can't finalize");
 
-        match (self.prologue, self.epilogue) {
-            (Some(_), Some(_)) | (None, None) => {}
-            (Some(_), None) => {
+        match (self.prologue, self.epilogue, self.has_r1_load) {
+            (Some(_), Some(_), _) | (None, None, _) => {}
+            (Some(_), None, _) => {
                 // Likely __noreturn
             }
-            (None, Some(e)) => {
+            (None, Some(e), false) => {
                 log::warn!("{:#010X?}", self);
                 bail!("Unpaired epilogue {:#010X}", e);
+            }
+            (None, Some(_), true) => {
+                // Possible stack setup
             }
         }
 
@@ -425,7 +508,7 @@ impl FunctionSlices {
                     if !self.has_conditional_blr {
                         if let Some(ins) = disassemble(section, end.address - 4) {
                             if ins.op == Opcode::B {
-                                if let Some(target) = ins
+                                if let Some(RelocationTarget::Address(target)) = ins
                                     .branch_dest()
                                     .and_then(|addr| section_address_for(obj, end - 4, addr))
                                 {
@@ -450,7 +533,7 @@ impl FunctionSlices {
                     if self.has_conditional_blr
                         && matches!(disassemble(section, end.address - 4), Some(ins) if !ins.is_blr())
                         && matches!(disassemble(section, end.address), Some(ins) if ins.is_blr())
-                        && !known_functions.contains(&end)
+                        && !known_functions.contains_key(&end)
                     {
                         log::trace!("Found trailing blr @ {:#010X}, merging with function", end);
                         self.blocks.insert(end, Some(end + 4));
@@ -459,7 +542,7 @@ impl FunctionSlices {
                     // Some functions with rfi also include a trailing nop
                     if self.has_rfi
                         && matches!(disassemble(section, end.address), Some(ins) if is_nop(&ins))
-                        && !known_functions.contains(&end)
+                        && !known_functions.contains_key(&end)
                     {
                         log::trace!("Found trailing nop @ {:#010X}, merging with function", end);
                         self.blocks.insert(end, Some(end + 4));
@@ -480,7 +563,8 @@ impl FunctionSlices {
         addr: SectionAddress,
         function_start: SectionAddress,
         function_end: Option<SectionAddress>,
-        known_functions: &BTreeSet<SectionAddress>,
+        known_functions: &BTreeMap<SectionAddress, FunctionInfo>,
+        vm: Option<Box<VM>>,
     ) -> TailCallResult {
         // If jump target is already a known block or within known function bounds, not a tail call.
         if self.blocks.contains_key(&addr) {
@@ -521,12 +605,37 @@ impl FunctionSlices {
         {
             return TailCallResult::Is;
         }
+        // If we haven't discovered a prologue yet, and one exists between the function
+        // start and the jump target, known tail call.
+        if self.prologue.is_none() {
+            let mut current_address = function_start;
+            while current_address < addr {
+                let ins = disassemble(target_section, current_address.address).unwrap();
+                match check_prologue_sequence(target_section, &ins) {
+                    Ok(true) => {
+                        log::debug!(
+                            "Prologue discovered @ {}; known tail call: {}",
+                            current_address,
+                            addr
+                        );
+                        return TailCallResult::Is;
+                    }
+                    Ok(false) => {}
+                    Err(e) => {
+                        log::warn!("Error while checking prologue sequence: {}", e);
+                        return TailCallResult::Error(e);
+                    }
+                }
+                current_address += 4;
+            }
+        }
         // Perform CFA on jump target to determine more
         let mut slices = FunctionSlices {
             function_references: self.function_references.clone(),
             ..Default::default()
         };
-        if let Ok(result) = slices.analyze(obj, addr, function_start, function_end, known_functions)
+        if let Ok(result) =
+            slices.analyze(obj, addr, function_start, function_end, known_functions, vm)
         {
             // If analysis failed, assume tail call.
             if !result {
@@ -545,7 +654,7 @@ impl FunctionSlices {
                 let other_blocks = self
                     .possible_blocks
                     .range(start + 4..end)
-                    .cloned()
+                    .map(|(&addr, _)| addr)
                     .collect::<Vec<SectionAddress>>();
                 if !other_blocks.is_empty() {
                     for other_addr in other_blocks {
@@ -563,6 +672,7 @@ impl FunctionSlices {
                 return TailCallResult::Is;
             }
         }
+        // If all else fails, try again later.
         TailCallResult::Possible
     }
 
