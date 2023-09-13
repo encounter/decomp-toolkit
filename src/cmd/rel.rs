@@ -1,7 +1,7 @@
 use std::{
     collections::{btree_map, BTreeMap},
     fs,
-    io::{ Write},
+    io::Write,
     path::PathBuf,
     time::Instant,
 };
