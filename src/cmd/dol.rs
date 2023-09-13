@@ -276,6 +276,7 @@ pub struct OutputModule {
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OutputConfig {
+    pub version: String,
     #[serde(flatten)]
     pub base: OutputModule,
     pub modules: Vec<OutputModule>,
@@ -1036,7 +1037,11 @@ fn split(args: SplitArgs) -> Result<()> {
         });
     });
     let duration = start.elapsed();
-    let out_config = OutputConfig { base: dol_result.unwrap()?, modules: modules_result.unwrap()? };
+    let out_config = OutputConfig {
+        version: env!("CARGO_PKG_VERSION").to_string(),
+        base: dol_result.unwrap()?,
+        modules: modules_result.unwrap()?,
+    };
     let mut object_count = out_config.base.units.len();
     for module in &out_config.modules {
         object_count += module.units.len();
