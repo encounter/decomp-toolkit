@@ -244,6 +244,8 @@ pub struct ModuleConfig {
     /// Forces the given symbols to be active in the linker script.
     #[serde(default, skip_serializing_if = "is_default")]
     pub force_active: Vec<String>,
+    #[serde(skip_serializing_if = "is_default")]
+    pub ldscript_template: Option<PathBuf>,
 }
 
 impl ModuleConfig {
@@ -821,7 +823,17 @@ fn split_write_obj(
     }
 
     // Generate ldscript.lcf
-    fs::write(&out_config.ldscript, generate_ldscript(obj, &module_config.force_active)?)?;
+    let ldscript_template = if let Some(template) = &module_config.ldscript_template {
+        Some(fs::read_to_string(template).with_context(|| {
+            format!("Failed to read linker script template '{}'", template.display())
+        })?)
+    } else {
+        None
+    };
+    fs::write(
+        &out_config.ldscript,
+        generate_ldscript(obj, ldscript_template.as_deref(), &module_config.force_active)?,
+    )?;
 
     if config.write_asm {
         debug!("Writing disassembly");
@@ -1556,6 +1568,7 @@ fn config(args: ConfigArgs) -> Result<()> {
             symbols: None,
             map: None,
             force_active: vec![],
+            ldscript_template: None,
         },
         selfile: None,
         selfile_hash: None,
@@ -1590,6 +1603,7 @@ fn config(args: ConfigArgs) -> Result<()> {
                     symbols: None,
                     map: None,
                     force_active: vec![],
+                    ldscript_template: None,
                 });
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("sel")) => {
@@ -1605,6 +1619,7 @@ fn config(args: ConfigArgs) -> Result<()> {
                     symbols: None,
                     map: None,
                     force_active: vec![],
+                    ldscript_template: None,
                 });
             }
             _ => bail!("Unknown file extension: '{}'", path.display()),

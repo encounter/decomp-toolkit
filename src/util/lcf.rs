@@ -9,9 +9,16 @@ use crate::obj::{ObjInfo, ObjKind};
 #[inline]
 const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
 
-pub fn generate_ldscript(obj: &ObjInfo, force_active: &[String]) -> Result<String> {
+const LCF_TEMPLATE: &str = include_str!("../../assets/ldscript.lcf");
+const LCF_PARTIAL_TEMPLATE: &str = include_str!("../../assets/ldscript_partial.lcf");
+
+pub fn generate_ldscript(
+    obj: &ObjInfo,
+    template: Option<&str>,
+    force_active: &[String],
+) -> Result<String> {
     if obj.kind == ObjKind::Relocatable {
-        return generate_ldscript_partial(obj, force_active);
+        return generate_ldscript_partial(obj, template, force_active);
     }
 
     let origin = obj.sections.iter().map(|(_, s)| s.address).min().unwrap();
@@ -66,7 +73,8 @@ pub fn generate_ldscript(obj: &ObjInfo, force_active: &[String]) -> Result<Strin
     let last_section_name = obj.sections.iter().next_back().unwrap().1.name.clone();
     let last_section_symbol = format!("_f_{}", last_section_name.trim_start_matches('.'));
 
-    let out = include_str!("../../assets/ldscript.lcf")
+    let out = template
+        .unwrap_or(LCF_TEMPLATE)
         .replace("$ORIGIN", &format!("{:#X}", origin))
         .replace("$SECTIONS", &section_defs)
         .replace("$LAST_SECTION_SYMBOL", &last_section_symbol)
@@ -77,7 +85,11 @@ pub fn generate_ldscript(obj: &ObjInfo, force_active: &[String]) -> Result<Strin
     Ok(out)
 }
 
-pub fn generate_ldscript_partial(obj: &ObjInfo, force_active: &[String]) -> Result<String> {
+pub fn generate_ldscript_partial(
+    obj: &ObjInfo,
+    template: Option<&str>,
+    force_active: &[String],
+) -> Result<String> {
     let mut force_files = Vec::with_capacity(obj.link_order.len());
     for unit in &obj.link_order {
         let obj_path = obj_path_for_unit(&unit.name);
@@ -92,7 +104,8 @@ pub fn generate_ldscript_partial(obj: &ObjInfo, force_active: &[String]) -> Resu
         }
     }
 
-    let out = include_str!("../../assets/ldscript_partial.lcf")
+    let out = template
+        .unwrap_or(LCF_PARTIAL_TEMPLATE)
         .replace("$FORCEACTIVE", &force_active.join("\n    "));
     Ok(out)
 }
