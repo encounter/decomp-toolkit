@@ -18,6 +18,9 @@ pub mod signatures;
 pub mod split;
 pub mod yaz0;
 
+#[inline]
+pub const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
+
 /// Creates a fixed-size array reference from a slice.
 #[macro_export]
 macro_rules! array_ref {

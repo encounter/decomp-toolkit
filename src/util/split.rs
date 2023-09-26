@@ -15,7 +15,7 @@ use crate::{
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
         ObjUnit,
     },
-    util::comment::MWComment,
+    util::{align_up, comment::MWComment},
 };
 
 /// Create splits for function pointers in the given section.
@@ -643,9 +643,6 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
     }
     Ok(())
 }
-
-#[inline]
-const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
 
 #[allow(dead_code)]
 fn trim_split_alignment(obj: &mut ObjInfo) -> Result<()> {

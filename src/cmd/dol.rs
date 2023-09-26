@@ -48,7 +48,7 @@ use crate::{
         file::{buf_reader, buf_writer, map_file, touch, verify_hash, FileIterator},
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
-        rel::{process_rel, process_rel_header},
+        rel::{process_rel, process_rel_header, update_rel_section_alignment},
         rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_NAMES},
         split::{is_linker_generated_object, split_obj, update_splits},
         IntoCow, ToCow,
@@ -856,7 +856,7 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
     if let Some(hash_str) = &module_config.hash {
         verify_hash(file.as_slice(), hash_str)?;
     }
-    let (_, mut module_obj) =
+    let (header, mut module_obj) =
         process_rel(&mut Cursor::new(file.as_slice()), module_config.name().as_ref())?;
 
     if let Some(comment_version) = config.mw_comment_version {
@@ -894,6 +894,9 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
 
     // Create _ctors and _dtors symbols if missing
     update_ctors_dtors(&mut module_obj)?;
+
+    // Determine REL section alignment
+    update_rel_section_alignment(&mut module_obj, &header)?;
 
     Ok((module_obj, dep))
 }

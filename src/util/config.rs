@@ -390,10 +390,10 @@ struct SplitUnit {
     comment_version: Option<u8>,
 }
 
-struct SectionDef {
-    name: String,
-    kind: Option<ObjSectionKind>,
-    align: Option<u32>,
+pub struct SectionDef {
+    pub name: String,
+    pub kind: Option<ObjSectionKind>,
+    pub align: Option<u32>,
 }
 
 enum SplitLine {
@@ -625,4 +625,43 @@ pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
         }
     }
     Ok(())
+}
+
+pub fn read_splits_sections<P: AsRef<Path>>(path: P) -> Result<Option<Vec<SectionDef>>> {
+    if !path.as_ref().is_file() {
+        return Ok(None);
+    }
+    let file = map_file(path)?;
+    let r = file.as_reader();
+    let mut sections = Vec::new();
+    let mut state = SplitState::None;
+    for result in r.lines() {
+        let line = match result {
+            Ok(line) => line,
+            Err(e) => return Err(e.into()),
+        };
+        let split_line = parse_split_line(&line, &state)?;
+        match (&mut state, split_line) {
+            (SplitState::None | SplitState::Unit(_), SplitLine::SectionsStart) => {
+                state = SplitState::Sections(0);
+            }
+            (SplitState::Sections(index), SplitLine::Section(def)) => {
+                sections.push(def);
+                *index += 1;
+            }
+            (SplitState::Sections(_), SplitLine::None) => {
+                // Continue
+            }
+            (SplitState::Sections(_), _) => {
+                // End of sections
+                break;
+            }
+            _ => {}
+        }
+    }
+    if sections.is_empty() {
+        Ok(None)
+    } else {
+        Ok(Some(sections))
+    }
 }

@@ -15,7 +15,7 @@ use crate::{
         ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
         ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
     },
-    util::IntoCow,
+    util::{align_up, split::default_section_align, IntoCow},
 };
 
 /// Do not relocate anything, but accumulate the offset field for the next relocation offset calculation.
@@ -198,7 +198,7 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
             data,
             align: match offset {
                 0 => header.bss_align,
-                _ => header.align,
+                _ => None, // determined later
             }
             .unwrap_or_default() as u64,
             elf_index: idx,
@@ -426,14 +426,19 @@ pub struct RelWriteInfo {
     pub section_count: Option<usize>,
     /// If true, don't print warnings about overriding values.
     pub quiet: bool,
+    /// Override individual section alignment in the file.
+    pub section_align: Option<Vec<u32>>,
 }
 
 pub const PERMITTED_SECTIONS: [&str; 7] =
     [".init", ".text", ".ctors", ".dtors", ".rodata", ".data", ".bss"];
 
-pub fn should_write_section(section: &object::Section) -> bool {
+pub fn is_permitted_section(section: &object::Section) -> bool {
     matches!(section.name(), Ok(name) if PERMITTED_SECTIONS.contains(&name))
-        && section.kind() != object::SectionKind::UninitializedData
+}
+
+pub fn should_write_section(section: &object::Section) -> bool {
+    section.kind() != object::SectionKind::UninitializedData
 }
 
 pub fn write_rel<W: Write>(
@@ -468,7 +473,7 @@ pub fn write_rel<W: Write>(
 
     let mut apply_relocations = vec![];
     relocations.retain(|r| {
-        if !should_write_section(
+        if !is_permitted_section(
             &file.section_by_index(object::SectionIndex(r.original_section as usize)).unwrap(),
         ) {
             return false;
@@ -481,10 +486,34 @@ pub fn write_rel<W: Write>(
         }
     });
 
-    let mut align =
-        file.sections().filter(should_write_section).map(|s| s.align() as u32).max().unwrap_or(0);
-    let bss = file.sections().find(|s| s.name() == Ok(".bss"));
-    let mut bss_align = bss.as_ref().map(|s| s.align() as u32).unwrap_or(1);
+    /// Get the alignment of a section, checking for overrides.
+    /// permitted_section_idx increments whenever a permitted section is encountered,
+    /// rather than being the raw ELF section index.
+    fn section_align(
+        permitted_section_idx: usize,
+        section: &object::Section,
+        info: &RelWriteInfo,
+    ) -> u32 {
+        info.section_align
+            .as_ref()
+            .and_then(|v| v.get(permitted_section_idx))
+            .cloned()
+            .unwrap_or(section.align() as u32)
+    }
+
+    let mut align = file
+        .sections()
+        .filter(is_permitted_section)
+        .enumerate()
+        .map(|(i, s)| section_align(i, &s, info))
+        .max()
+        .unwrap_or(0);
+    let bss = file
+        .sections()
+        .filter(is_permitted_section)
+        .enumerate()
+        .find(|(_, s)| s.name() == Ok(".bss"));
+    let mut bss_align = bss.as_ref().map(|(i, s)| section_align(*i, s, info)).unwrap_or(1);
     let mut num_sections = file.sections().count() as u32;
 
     // Apply overrides
@@ -521,7 +550,7 @@ pub fn write_rel<W: Write>(
         name_offset: info.name_offset.unwrap_or(0),
         name_size: info.name_size.unwrap_or(0),
         version: info.version,
-        bss_size: bss.as_ref().map(|s| s.size() as u32).unwrap_or(0),
+        bss_size: bss.as_ref().map(|(_, s)| s.size() as u32).unwrap_or(0),
         rel_offset: 0,
         imp_offset: 0,
         imp_size: 0,
@@ -538,8 +567,11 @@ pub fn write_rel<W: Write>(
     let mut offset = header.section_info_offset;
     offset += num_sections * 8;
     let section_data_offset = offset;
-    for section in file.sections().filter(should_write_section) {
-        let align = section.align() as u32 - 1;
+    for (idx, section) in file.sections().filter(is_permitted_section).enumerate() {
+        if !should_write_section(&section) {
+            continue;
+        }
+        let align = section_align(idx, &section, info) - 1;
         offset = (offset + align) & !align;
         offset += section.size() as u32;
     }
@@ -649,16 +681,17 @@ pub fn write_rel<W: Write>(
     header.write_be(&mut w)?;
     ensure!(w.stream_position()? as u32 == header.section_info_offset);
     let mut current_data_offset = section_data_offset;
+    let mut permitted_section_idx = 0;
     for section_index in 0..num_sections {
         let Ok(section) = file.section_by_index(object::SectionIndex(section_index as usize))
         else {
             RelSectionHeader::new(0, 0, false).write_be(&mut w)?;
             continue;
         };
-        if matches!(section.name(), Ok(name) if PERMITTED_SECTIONS.contains(&name)) {
+        if is_permitted_section(&section) {
             let mut offset = 0;
-            if section.kind() != object::SectionKind::UninitializedData {
-                let align = section.align() as u32 - 1;
+            if should_write_section(&section) {
+                let align = section_align(permitted_section_idx, &section, info) - 1;
                 current_data_offset = (current_data_offset + align) & !align;
                 offset = current_data_offset;
                 current_data_offset += section.size() as u32;
@@ -669,18 +702,24 @@ pub fn write_rel<W: Write>(
                 section.kind() == object::SectionKind::Text,
             )
             .write_be(&mut w)?;
+            permitted_section_idx += 1;
         } else {
             RelSectionHeader::new(0, 0, false).write_be(&mut w)?;
         }
     }
     ensure!(w.stream_position()? as u32 == section_data_offset);
-    for section in file.sections().filter(should_write_section) {
+    for (idx, section) in file.sections().filter(is_permitted_section).enumerate() {
+        if !should_write_section(&section) {
+            continue;
+        }
+
         fn calculate_padding(position: u64, align: u64) -> u64 {
             let align = align - 1;
             ((position + align) & !align) - position
         }
         let position = w.stream_position()?;
-        w.write_all(&vec![0; calculate_padding(position, section.align()) as usize])?;
+        let align = section_align(idx, &section, info);
+        w.write_all(&vec![0u8; calculate_padding(position, align as u64) as usize])?;
 
         let section_index = section.index().0 as u8;
         let mut section_data = section.uncompressed_data()?;
@@ -702,5 +741,48 @@ pub fn write_rel<W: Write>(
         reloc.write_be(&mut w)?;
     }
     ensure!(w.stream_position()? as u32 == offset);
+    Ok(())
+}
+
+/// Determines REL section alignment based on its file offset.
+pub fn update_rel_section_alignment(obj: &mut ObjInfo, header: &RelHeader) -> Result<()> {
+    let mut last_offset = header.section_info_offset + header.num_sections * 8;
+    for (_, section) in obj.sections.iter_mut() {
+        let prev_offset = last_offset;
+        last_offset = (section.file_offset + section.size) as u32;
+
+        if section.align > 0 {
+            // Already set
+            continue;
+        }
+
+        if section.section_known {
+            // Try the default section alignment for known sections
+            let default_align = default_section_align(section);
+            if align_up(prev_offset, default_align as u32) == section.file_offset as u32 {
+                section.align = default_align;
+                continue;
+            }
+        }
+
+        // Work our way down from the REL header alignment
+        let mut align = header.align.unwrap_or(32);
+        while align >= 4 {
+            if align_up(prev_offset, align) == section.file_offset as u32 {
+                section.align = align as u64;
+                break;
+            }
+            align /= 2;
+        }
+
+        if section.align == 0 {
+            bail!(
+                "Failed to determine alignment for REL section {}: {:#X} -> {:#X}",
+                section.name,
+                prev_offset,
+                section.file_offset
+            );
+        }
+    }
     Ok(())
 }

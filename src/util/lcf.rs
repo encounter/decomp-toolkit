@@ -4,10 +4,10 @@ use anyhow::{bail, Result};
 use itertools::Itertools;
 use path_slash::PathBufExt;
 
-use crate::obj::{ObjInfo, ObjKind};
-
-#[inline]
-const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
+use crate::{
+    obj::{ObjInfo, ObjKind},
+    util::align_up,
+};
 
 const LCF_TEMPLATE: &str = include_str!("../../assets/ldscript.lcf");
 const LCF_PARTIAL_TEMPLATE: &str = include_str!("../../assets/ldscript_partial.lcf");
