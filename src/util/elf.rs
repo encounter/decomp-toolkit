@@ -13,7 +13,7 @@ use object::{
     elf,
     elf::{SHF_ALLOC, SHF_EXECINSTR, SHF_WRITE, SHT_NOBITS, SHT_PROGBITS},
     write::{
-        elf::{ProgramHeader, Rel, SectionHeader, SectionIndex, SymbolIndex},
+        elf::{ProgramHeader, Rel, SectionHeader, SectionIndex, SymbolIndex, Writer},
         StringId,
     },
     Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
@@ -21,6 +21,7 @@ use object::{
 };
 
 use crate::{
+    array_ref,
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
@@ -631,7 +632,11 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         }
         writer.write_align(32);
         ensure!(writer.len() == out_section.offset);
-        writer.write(&section.data);
+        if obj.kind == ObjKind::Relocatable {
+            write_relocatable_section_data(&mut writer, section)?;
+        } else {
+            writer.write(&section.data);
+        }
     }
 
     for ((_, section), out_section) in obj.sections.iter().zip(&out_sections) {
@@ -875,4 +880,36 @@ fn to_obj_reloc(
         _ => Err(anyhow!("Unhandled relocation symbol type {:?}", symbol.kind())),
     }?;
     Ok(Some(ObjReloc { kind: reloc_kind, target_symbol, addend, module: None }))
+}
+
+/// Writes section data while zeroing out relocations.
+fn write_relocatable_section_data(w: &mut Writer, section: &ObjSection) -> Result<()> {
+    ensure!(section.address == 0);
+    let mut current_address = 0;
+    for (addr, reloc) in section.relocations.iter() {
+        w.write(&section.data[current_address..addr as usize]);
+        let mut ins = u32::from_be_bytes(*array_ref!(section.data, addr as usize, 4));
+        match reloc.kind {
+            ObjRelocKind::Absolute => {
+                ins = 0;
+            }
+            ObjRelocKind::PpcAddr16Hi | ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo => {
+                ins &= !0xFFFF;
+            }
+            ObjRelocKind::PpcRel24 => {
+                ins &= !0x3FFFFFC;
+            }
+            ObjRelocKind::PpcRel14 => {
+                ins &= !0xFFFC;
+            }
+            ObjRelocKind::PpcEmbSda21 => {
+                ins &= !0x1FFFFF;
+            }
+        }
+        w.write(&ins.to_be_bytes());
+        current_address = addr as usize + 4;
+    }
+    // Write remaining data
+    w.write(&section.data[current_address..]);
+    Ok(())
 }
