@@ -8,6 +8,38 @@ Yet another GameCube/Wii decompilation toolkit.
 decomp-toolkit functions both as a command-line tool for developers, and as a replacement for various parts of a
 decompilation project's build system.
 
+For use in a new decompilation project, see [dtk-template](https://github.com/encounter/dtk-template), which provides a
+project structure and build system that uses decomp-toolkit under the hood.
+
+## Sections
+
+- [Goals](#goals)
+- [Background](#background)
+- [Other approaches](#other-approaches)
+- [Terminology](#terminology)
+- [Analyzer features](#analyzer-features)
+- [Commands](#commands)
+  - [ar create](#ar-create)
+  - [demangle](#demangle)
+  - [dol info](#dol-info)
+  - [dol split](#dol-split)
+  - [dol diff](#dol-diff)
+  - [dol apply](#dol-apply)
+  - [dol config](#dol-config)
+  - [dwarf dump](#dwarf-dump)
+  - [elf disasm](#elf-disasm)
+  - [elf fixup](#elf-fixup)
+  - [elf2dol](#elf2dol)
+  - [map](#map)
+  - [rel info](#rel-info)
+  - [rel merge](#rel-merge)
+  - [rso info](#rso-info)
+  - [shasum](#shasum)
+  - [nlzss decompress](#nlzss-decompress)
+  - [rarc list](#rarc-list)
+  - [rarc extract](#rarc-extract)
+  - [yaz0 decompress](#yaz0-decompress)
+
 ## Goals
 
 - Automate as much as possible, allowing developers to focus on matching code rather than months-long tedious setup.
@@ -268,11 +300,45 @@ $ dtk dol info input.dol
 
 Analyzes and splits a DOL file into relocatable objects based on user configuration.
 
+**This command is intended to be used as part of a decompilation project's build system.**  
+For an example project structure and for documentation on the configuration, see
+[dtk-template](https://github.com/encounter/dtk-template).
+
 ```shell
 $ dtk dol split config.yml target
 ```
 
-TODO: document configuration file
+### dol diff
+
+Simple diff tool for issues in a linked ELF. (Yes, not DOL. It's misnamed.)  
+Tries to find the most obvious difference causing a mismatch.
+
+Pass in the project configuration file, and the path to the linked ELF file to compare against.
+
+```shell
+$ dtk dol diff config.yml build/main.elf
+```
+
+### dol apply
+
+Applies updated symbols from a linked ELF to the project configuration. (Again, misnamed.)
+
+Useful after matching a file. It will pull updated symbol information from the final result.
+
+```shell
+$ dtk dol apply config.yml build/main.elf
+```
+
+### dol config
+
+Generates an initial project configuration file from a DOL (& RELs).
+
+Pass in the DOL file, and any REL files that are linked with it.  
+Or, for Wii games, pass in the `selfile.sel`. (Not RSOs)
+
+```shell
+$ dtk dol config main.dol rels/*.rel -o config.yml
+```
 
 ### dwarf dump
 
@@ -371,4 +437,40 @@ $ dtk shasum baserom.dol
 
 $ dtk shasum -c baserom.sha1 
 baserom.dol: OK
+```
+
+### nlzss decompress
+
+Decompresses NLZSS-compressed files.
+
+```shell
+$ dtk nlzss decompress input.bin.lz -o output.bin
+# or, for batch processing
+$ dtk nlzss decompress rels/*.lz -o rels
+```
+
+### rarc list
+
+Lists the contents of an RARC archive.
+
+```shell
+$ dtk rarc list input.arc
+```
+
+### rarc extract
+
+Extracts the contents of an RARC archive.
+
+```shell
+$ dtk rarc extract input.arc -o output_dir
+```
+
+### yaz0 decompress
+
+Decompresses Yaz0-compressed files.
+
+```shell
+$ dtk yaz0 decompress input.bin.yaz0 -o output.bin
+# or, for batch processing
+$ dtk yaz0 decompress rels/*.yaz0 -o rels
 ```
