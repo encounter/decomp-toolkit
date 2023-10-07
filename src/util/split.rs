@@ -554,7 +554,6 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
             log::debug!("Adding padding symbol {} at {:#010X}", symbol_name, addr);
             obj.symbols.add_direct(ObjSymbol {
                 name: symbol_name,
-                demangled_name: None,
                 address: addr as u64,
                 section: Some(section_index),
                 size: next_symbol_address - addr as u64,
@@ -568,8 +567,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                         ObjSymbolKind::Object
                     }
                 },
-                align: None,
-                data_kind: Default::default(),
+                ..Default::default()
             })?;
         }
     }
@@ -600,7 +598,6 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                     log::debug!("Adding gap symbol {} at {:#010X}", symbol_name, aligned_end);
                     to_add.push(ObjSymbol {
                         name: symbol_name,
-                        demangled_name: None,
                         address: aligned_end as u64,
                         section: Some(section_index),
                         size: next_symbol.address - aligned_end as u64,
@@ -616,8 +613,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                             | ObjSectionKind::ReadOnlyData
                             | ObjSectionKind::Bss => ObjSymbolKind::Object,
                         },
-                        align: None,
-                        data_kind: Default::default(),
+                        ..Default::default()
                     });
                 }
                 Ordering::Equal => {}
@@ -1048,6 +1044,8 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     kind: symbol.kind,
                     align: symbol.align,
                     data_kind: symbol.data_kind,
+                    name_hash: symbol.name_hash,
+                    demangled_name_hash: symbol.demangled_name_hash,
                 })?);
             }
 

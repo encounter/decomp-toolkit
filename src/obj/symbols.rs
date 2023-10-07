@@ -165,6 +165,9 @@ pub struct ObjSymbol {
     pub kind: ObjSymbolKind,
     pub align: Option<u32>,
     pub data_kind: ObjDataKind,
+    /// ALF hashes
+    pub name_hash: Option<u32>,
+    pub demangled_name_hash: Option<u32>,
 }
 
 pub type SymbolIndex = usize;
@@ -263,6 +266,8 @@ impl ObjSymbols {
                     ObjDataKind::Unknown => existing.data_kind,
                     kind => kind,
                 },
+                name_hash: in_symbol.name_hash.or(existing.name_hash),
+                demangled_name_hash: in_symbol.demangled_name_hash.or(existing.demangled_name_hash),
             };
             if existing != &new_symbol {
                 log::debug!("Replacing {:?} with {:?}", existing, new_symbol);
@@ -282,6 +287,8 @@ impl ObjSymbols {
                 kind: in_symbol.kind,
                 align: in_symbol.align,
                 data_kind: in_symbol.data_kind,
+                name_hash: in_symbol.name_hash,
+                demangled_name_hash: in_symbol.demangled_name_hash,
             })?;
             target_symbol_idx
         };

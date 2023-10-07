@@ -74,6 +74,7 @@ struct TopLevel {
 #[derive(FromArgs, PartialEq, Debug)]
 #[argp(subcommand)]
 enum SubCommand {
+    Alf(cmd::alf::Args),
     Ar(cmd::ar::Args),
     Demangle(cmd::demangle::Args),
     Dol(cmd::dol::Args),
@@ -122,6 +123,7 @@ fn main() {
         });
     }
     result = result.and_then(|_| match args.command {
+        SubCommand::Alf(c_args) => cmd::alf::run(c_args),
         SubCommand::Ar(c_args) => cmd::ar::run(c_args),
         SubCommand::Demangle(c_args) => cmd::demangle::run(c_args),
         SubCommand::Dol(c_args) => cmd::dol::run(c_args),

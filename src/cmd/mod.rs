@@ -1,3 +1,4 @@
+pub mod alf;
 pub mod ar;
 pub mod demangle;
 pub mod dol;

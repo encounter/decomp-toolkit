@@ -688,7 +688,7 @@ fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usi
                 SymbolKind::NoType => ObjSymbolKind::Unknown,
             },
             align: symbol_entry.align,
-            data_kind: Default::default(),
+            ..Default::default()
         },
         true,
     )?;

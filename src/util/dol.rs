@@ -1,13 +1,20 @@
-use std::{collections::BTreeMap, io::Cursor};
+use std::{
+    collections::BTreeMap,
+    io,
+    io::{Cursor, Read, Seek},
+};
 
 use anyhow::{anyhow, bail, ensure, Result};
-use dol::{Dol, DolSection, DolSectionType};
 
 use crate::{
     analysis::cfa::{locate_sda_bases, SectionAddress},
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
+    },
+    util::{
+        alf::{AlfFile, AlfSymbol},
+        reader::{skip_bytes, Endian, FromReader},
     },
 };
 
@@ -17,34 +24,188 @@ const MAX_ROM_COPY_INFO_SIZE: usize = (MAX_TEXT_SECTIONS + MAX_DATA_SECTIONS + 1
 const MAX_BSS_INIT_INFO_SIZE: usize = (MAX_DATA_SECTIONS + 1) * 2 * 4; // num sections * 2 entries * u32
 const ETI_INIT_INFO_SIZE: usize = 16; // eti_start, eti_end, code_start, code_size
 
-fn read_u32(dol: &Dol, addr: u32) -> Result<u32> {
-    Ok(u32::from_be_bytes(dol.virtual_data_at(addr, 4)?.try_into()?))
+/// Unified trait for DOL and ALF files
+pub trait DolLike {
+    fn sections(&self) -> &[DolSection];
+
+    fn symbols(&self) -> &[AlfSymbol] { &[] }
+
+    fn entry_point(&self) -> u32;
+
+    fn has_unified_bss(&self) -> bool;
+
+    fn section_by_address(&self, addr: u32) -> Option<&DolSection> {
+        self.sections()
+            .iter()
+            .find(|section| addr >= section.address && addr < section.address + section.size)
+    }
+
+    fn virtual_data_at<'a>(&self, buf: &'a [u8], addr: u32, size: u32) -> Result<&'a [u8]> {
+        let section = self
+            .section_by_address(addr)
+            .ok_or_else(|| anyhow!("Failed to locate section for address {:#010X}", addr))?;
+        let offset = addr - section.address;
+        ensure!(
+            offset + size <= section.size,
+            "Invalid virtual data range {:#010X}-{:#010X} (section: {:#010X}-{:#010X})",
+            addr,
+            addr + size,
+            section.address,
+            section.address + section.size
+        );
+        let offset = section.file_offset as usize + offset as usize;
+        Ok(&buf[offset..offset + size as usize])
+    }
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DolSectionKind {
+    Text,
+    Data,
+    Bss,
+}
+
+#[derive(Debug, Clone)]
+pub struct DolSection {
+    pub address: u32,
+    pub file_offset: u32,
+    pub data_size: u32,
+    pub size: u32,
+    pub kind: DolSectionKind,
+    // TODO remove
+    pub index: usize,
+}
+
+#[derive(Debug, Clone)]
+pub struct DolFile {
+    pub header: DolHeader,
+    pub sections: Vec<DolSection>,
+}
+
+impl FromReader for DolFile {
+    type Args = ();
+
+    const STATIC_SIZE: usize = DolHeader::STATIC_SIZE;
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        let header = DolHeader::from_reader(reader, e)?;
+        let mut sections = Vec::with_capacity(header.text_sizes.len() + header.data_sizes.len());
+        for (idx, &size) in header.text_sizes.iter().enumerate() {
+            if size == 0 {
+                continue;
+            }
+            sections.push(DolSection {
+                address: header.text_addrs[idx],
+                file_offset: header.text_offs[idx],
+                data_size: size,
+                size,
+                kind: DolSectionKind::Text,
+                index: sections.len(),
+            });
+        }
+        for (idx, &size) in header.data_sizes.iter().enumerate() {
+            if size == 0 {
+                continue;
+            }
+            sections.push(DolSection {
+                address: header.data_addrs[idx],
+                file_offset: header.data_offs[idx],
+                data_size: size,
+                size,
+                kind: DolSectionKind::Data,
+                index: sections.len(),
+            });
+        }
+        sections.push(DolSection {
+            address: header.bss_addr,
+            file_offset: 0,
+            data_size: 0,
+            size: header.bss_size,
+            kind: DolSectionKind::Bss,
+            index: sections.len(),
+        });
+        Ok(Self { header, sections })
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct DolHeader {
+    pub text_offs: [u32; MAX_TEXT_SECTIONS],
+    pub data_offs: [u32; MAX_DATA_SECTIONS],
+    pub text_addrs: [u32; MAX_TEXT_SECTIONS],
+    pub data_addrs: [u32; MAX_DATA_SECTIONS],
+    pub text_sizes: [u32; MAX_TEXT_SECTIONS],
+    pub data_sizes: [u32; MAX_DATA_SECTIONS],
+    pub bss_addr: u32,
+    pub bss_size: u32,
+    pub entry_point: u32,
+}
+
+impl FromReader for DolHeader {
+    type Args = ();
+
+    const STATIC_SIZE: usize = 0x100;
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        let result = Self {
+            text_offs: <_>::from_reader(reader, e)?,
+            data_offs: <_>::from_reader(reader, e)?,
+            text_addrs: <_>::from_reader(reader, e)?,
+            data_addrs: <_>::from_reader(reader, e)?,
+            text_sizes: <_>::from_reader(reader, e)?,
+            data_sizes: <_>::from_reader(reader, e)?,
+            bss_addr: <_>::from_reader(reader, e)?,
+            bss_size: <_>::from_reader(reader, e)?,
+            entry_point: <_>::from_reader(reader, e)?,
+        };
+        skip_bytes::<0x1C, _>(reader)?; // padding
+        Ok(result)
+    }
+}
+
+impl DolLike for DolFile {
+    fn sections(&self) -> &[DolSection] { &self.sections }
+
+    fn entry_point(&self) -> u32 { self.header.entry_point }
+
+    fn has_unified_bss(&self) -> bool { true }
+}
+
+fn read_u32(buf: &[u8], dol: &dyn DolLike, addr: u32) -> Result<u32> {
+    Ok(u32::from_be_bytes(dol.virtual_data_at(buf, addr, 4)?.try_into()?))
 }
 
 pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
-    let dol = Dol::read_from(Cursor::new(buf))?;
+    let mut reader = Cursor::new(buf);
+    let dol: Box<dyn DolLike> = if buf.len() > 4 && &buf[0..4] == b"RBOF" {
+        Box::new(AlfFile::from_reader(&mut reader, Endian::Little)?)
+    } else {
+        Box::new(DolFile::from_reader(&mut reader, Endian::Big)?)
+    };
 
     // Locate _rom_copy_info
     let first_rom_section = dol
-        .header
-        .sections
+        .sections()
         .iter()
-        .find(|section| section.kind != DolSectionType::Bss)
+        .find(|section| section.kind != DolSectionKind::Bss)
         .ok_or_else(|| anyhow!("Failed to locate first rom section"))?;
-    let init_section = section_by_address(&dol, dol.header.entry_point)
+    let init_section = dol
+        .section_by_address(dol.entry_point())
         .ok_or_else(|| anyhow!("Failed to locate .init section"))?;
     let rom_copy_info_addr = {
-        let mut addr = init_section.target + init_section.size
+        let mut addr = init_section.address + init_section.size
             - MAX_ROM_COPY_INFO_SIZE as u32
             - MAX_BSS_INIT_INFO_SIZE as u32;
         loop {
-            let value = read_u32(&dol, addr)?;
-            if value == first_rom_section.target {
+            let value = read_u32(buf, dol.as_ref(), addr)?;
+            if value == first_rom_section.address {
                 log::debug!("Found _rom_copy_info @ {addr:#010X}");
                 break Some(addr);
             }
             addr += 4;
-            if addr >= init_section.target + init_section.size {
+            if addr >= init_section.address + init_section.size {
                 log::warn!("Failed to locate _rom_copy_info");
                 break None;
             }
@@ -55,19 +216,19 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
     let mut rom_sections = BTreeMap::<u32, u32>::new();
     let rom_copy_info_end = match rom_copy_info_addr {
         Some(mut addr) => loop {
-            let rom = read_u32(&dol, addr)?;
-            let copy = read_u32(&dol, addr + 4)?;
+            let rom = read_u32(buf, dol.as_ref(), addr)?;
+            let copy = read_u32(buf, dol.as_ref(), addr + 4)?;
             ensure!(
                 rom == copy,
                 "Unsupported section: ROM address {rom:#010X} != copy address {copy:#010X}",
             );
-            let size = read_u32(&dol, addr + 8)?;
+            let size = read_u32(buf, dol.as_ref(), addr + 8)?;
             addr += 12;
             if size == 0 {
                 log::debug!("Found _rom_copy_info end @ {addr:#010X}");
                 break Some(addr);
             }
-            if addr >= init_section.target + init_section.size {
+            if addr >= init_section.address + init_section.size {
                 log::warn!("Failed to locate _rom_copy_info end");
                 break None;
             }
@@ -78,20 +239,19 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
 
     // Locate _bss_init_info
     let bss_section = dol
-        .header
-        .sections
+        .sections()
         .iter()
-        .find(|section| section.kind == DolSectionType::Bss)
+        .find(|section| section.kind == DolSectionKind::Bss)
         .ok_or_else(|| anyhow!("Failed to locate BSS section"))?;
     let bss_init_info_addr = match rom_copy_info_end {
         Some(mut addr) => loop {
-            let value = read_u32(&dol, addr)?;
-            if value == bss_section.target {
+            let value = read_u32(buf, dol.as_ref(), addr)?;
+            if value == bss_section.address {
                 log::debug!("Found _bss_init_info @ {addr:#010X}");
                 break Some(addr);
             }
             addr += 4;
-            if addr >= init_section.target + init_section.size {
+            if addr >= init_section.address + init_section.size {
                 log::warn!("Failed to locate _bss_init_info");
                 break None;
             }
@@ -103,14 +263,14 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
     let mut bss_sections = BTreeMap::<u32, u32>::new();
     let bss_init_info_end = match bss_init_info_addr {
         Some(mut addr) => loop {
-            let rom = read_u32(&dol, addr)?;
-            let size = read_u32(&dol, addr + 4)?;
+            let rom = read_u32(buf, dol.as_ref(), addr)?;
+            let size = read_u32(buf, dol.as_ref(), addr + 4)?;
             addr += 8;
             if size == 0 {
                 log::debug!("Found _bss_init_info end @ {addr:#010X}");
                 break Some(addr);
             }
-            if addr >= init_section.target + init_section.size {
+            if addr >= init_section.address + init_section.size {
                 log::warn!("Failed to locate _bss_init_info end");
                 break None;
             }
@@ -121,27 +281,27 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
 
     // Locate _eti_init_info
     let num_text_sections =
-        dol.header.sections.iter().filter(|section| section.kind == DolSectionType::Text).count();
+        dol.sections().iter().filter(|section| section.kind == DolSectionKind::Text).count();
     let mut eti_entries: Vec<EtiEntry> = Vec::new();
     let mut eti_init_info_range: Option<(u32, u32)> = None;
     let mut extab_section: Option<usize> = None;
     let mut extabindex_section: Option<usize> = None;
     'outer: for dol_section in
-        dol.header.sections.iter().filter(|section| section.kind == DolSectionType::Data)
+        dol.sections().iter().filter(|section| section.kind == DolSectionKind::Data)
     {
         // Use section size from _rom_copy_info
-        let dol_section_size = match rom_sections.get(&dol_section.target) {
+        let dol_section_size = match rom_sections.get(&dol_section.address) {
             Some(&size) => size,
             None => dol_section.size,
         };
-        let dol_section_end = dol_section.target + dol_section_size;
+        let dol_section_end = dol_section.address + dol_section_size;
 
         let eti_init_info_addr = {
             let mut addr = dol_section_end - (ETI_INIT_INFO_SIZE * (num_text_sections + 1)) as u32;
             loop {
-                let eti_init_info = read_eti_init_info(&dol, addr)?;
+                let eti_init_info = read_eti_init_info(buf, dol.as_ref(), addr)?;
                 if validate_eti_init_info(
-                    &dol,
+                    dol.as_ref(),
                     &eti_init_info,
                     dol_section,
                     dol_section_end,
@@ -160,7 +320,7 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         let eti_init_info_end = {
             let mut addr = eti_init_info_addr;
             loop {
-                let eti_init_info = read_eti_init_info(&dol, addr)?;
+                let eti_init_info = read_eti_init_info(buf, dol.as_ref(), addr)?;
                 addr += 16;
                 if eti_init_info.is_zero() {
                     break;
@@ -172,7 +332,7 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
                     );
                 }
                 if !validate_eti_init_info(
-                    &dol,
+                    dol.as_ref(),
                     &eti_init_info,
                     dol_section,
                     dol_section_end,
@@ -181,9 +341,9 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
                     bail!("Invalid _eti_init_info entry: {:#010X?}", eti_init_info);
                 }
                 for addr in (eti_init_info.eti_start..eti_init_info.eti_end).step_by(12) {
-                    let eti_entry = read_eti_entry(&dol, addr)?;
+                    let eti_entry = read_eti_entry(buf, dol.as_ref(), addr)?;
                     let entry_section =
-                        section_by_address(&dol, eti_entry.extab_addr).ok_or_else(|| {
+                        dol.section_by_address(eti_entry.extab_addr).ok_or_else(|| {
                             anyhow!(
                                 "Failed to locate section for extab address {:#010X}",
                                 eti_entry.extab_addr
@@ -216,9 +376,12 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
 
     // Add text and data sections
     let mut sections = vec![];
-    for dol_section in
-        dol.header.sections.iter().filter(|section| section.kind != DolSectionType::Bss)
-    {
+    for dol_section in dol.sections().iter() {
+        // We'll split .bss later
+        if dol_section.kind == DolSectionKind::Bss && dol.has_unified_bss() {
+            continue;
+        }
+
         let (name, kind, known) = match dol_section.index {
             idx if idx == init_section.index => (".init".to_string(), ObjSectionKind::Code, true),
             idx if Some(idx) == extab_section => {
@@ -227,78 +390,85 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
             idx if Some(idx) == extabindex_section => {
                 ("extabindex".to_string(), ObjSectionKind::ReadOnlyData, true)
             }
-            _ if num_text_sections == 2 && dol_section.kind == DolSectionType::Text => {
+            _ if num_text_sections == 2 && dol_section.kind == DolSectionKind::Text => {
                 (".text".to_string(), ObjSectionKind::Code, true)
             }
             idx => match dol_section.kind {
-                DolSectionType::Text => (format!(".text{idx}"), ObjSectionKind::Code, false),
-                DolSectionType::Data => (format!(".data{idx}"), ObjSectionKind::Data, false),
-                DolSectionType::Bss => unreachable!(),
+                DolSectionKind::Text => (format!(".text{idx}"), ObjSectionKind::Code, false),
+                DolSectionKind::Data => (format!(".data{idx}"), ObjSectionKind::Data, false),
+                DolSectionKind::Bss => (format!(".bss{}", idx), ObjSectionKind::Bss, false),
             },
         };
 
-        // Use section size from _rom_copy_info
-        let size = match rom_sections.get(&dol_section.target) {
-            Some(&size) => size,
-            None => {
-                if !rom_sections.is_empty() {
-                    log::warn!(
-                        "Section {} ({:#010X}) doesn't exist in _rom_copy_info",
-                        dol_section.index,
-                        dol_section.target
-                    );
+        let (size, data): (u32, &[u8]) = if kind == ObjSectionKind::Bss {
+            (dol_section.size, &[])
+        } else {
+            // Use section size from _rom_copy_info
+            let size = match rom_sections.get(&dol_section.address) {
+                Some(&size) => size,
+                None => {
+                    if !rom_sections.is_empty() {
+                        log::warn!(
+                            "Section {} ({:#010X}) doesn't exist in _rom_copy_info",
+                            dol_section.index,
+                            dol_section.address
+                        );
+                    }
+                    dol_section.size
                 }
-                dol_section.size
-            }
+            };
+            (size, dol.virtual_data_at(buf, dol_section.address, size)?)
         };
 
         sections.push(ObjSection {
             name,
             kind,
-            address: dol_section.target as u64,
+            address: dol_section.address as u64,
             size: size as u64,
-            data: dol.virtual_data_at(dol_section.target, size)?.to_vec(),
+            data: data.to_vec(),
             align: 0,
             elf_index: 0,
             relocations: Default::default(),
             original_address: 0,
-            file_offset: dol_section.offset as u64,
+            file_offset: dol_section.file_offset as u64,
             section_known: known,
             splits: Default::default(),
         });
     }
 
-    // Add BSS sections from _bss_init_info
-    for (idx, (&addr, &size)) in bss_sections.iter().enumerate() {
-        ensure!(
-            addr >= bss_section.target
-                && addr < bss_section.target + bss_section.size
-                && addr + size <= bss_section.target + bss_section.size,
-            "Invalid BSS range {:#010X}-{:#010X} (DOL BSS: {:#010X}-{:#010X})",
-            addr,
-            addr + size,
-            bss_section.target,
-            bss_section.target + bss_section.size
-        );
+    if dol.has_unified_bss() {
+        // Add BSS sections from _bss_init_info
+        for (idx, (&addr, &size)) in bss_sections.iter().enumerate() {
+            ensure!(
+                addr >= bss_section.address
+                    && addr < bss_section.address + bss_section.size
+                    && addr + size <= bss_section.address + bss_section.size,
+                "Invalid BSS range {:#010X}-{:#010X} (DOL BSS: {:#010X}-{:#010X})",
+                addr,
+                addr + size,
+                bss_section.address,
+                bss_section.address + bss_section.size
+            );
 
-        sections.push(ObjSection {
-            name: format!(".bss{}", idx),
-            kind: ObjSectionKind::Bss,
-            address: addr as u64,
-            size: size as u64,
-            data: vec![],
-            align: 0,
-            elf_index: 0,
-            relocations: Default::default(),
-            original_address: 0,
-            file_offset: 0,
-            section_known: false,
-            splits: Default::default(),
-        });
+            sections.push(ObjSection {
+                name: format!(".bss{}", idx),
+                kind: ObjSectionKind::Bss,
+                address: addr as u64,
+                size: size as u64,
+                data: vec![],
+                align: 0,
+                elf_index: 0,
+                relocations: Default::default(),
+                original_address: 0,
+                file_offset: 0,
+                section_known: false,
+                splits: Default::default(),
+            });
+        }
+
+        // Sort sections by address ascending
+        sections.sort_by_key(|s| s.address);
     }
-
-    // Sort sections by address ascending
-    sections.sort_by_key(|s| s.address);
 
     // Apply section indices
     let mut init_section_index = None;
@@ -328,7 +498,7 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         vec![],
         sections,
     );
-    obj.entry = Some(dol.header.entry_point as u64);
+    obj.entry = Some(dol.entry_point() as u64);
 
     // Generate _rom_copy_info symbol
     if let (Some(rom_copy_info_addr), Some(rom_copy_info_end)) =
@@ -337,15 +507,13 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         obj.add_symbol(
             ObjSymbol {
                 name: "_rom_copy_info".to_string(),
-                demangled_name: None,
                 address: rom_copy_info_addr as u64,
                 section: init_section_index,
                 size: (rom_copy_info_end - rom_copy_info_addr) as u64,
                 size_known: true,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                 kind: ObjSymbolKind::Object,
-                align: None,
-                data_kind: Default::default(),
+                ..Default::default()
             },
             true,
         )?;
@@ -358,15 +526,13 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         obj.add_symbol(
             ObjSymbol {
                 name: "_bss_init_info".to_string(),
-                demangled_name: None,
                 address: bss_init_info_addr as u64,
                 section: init_section_index,
                 size: (bss_init_info_end - bss_init_info_addr) as u64,
                 size_known: true,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                 kind: ObjSymbolKind::Object,
-                align: None,
-                data_kind: Default::default(),
+                ..Default::default()
             },
             true,
         )?;
@@ -377,15 +543,13 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         obj.add_symbol(
             ObjSymbol {
                 name: "_eti_init_info".to_string(),
-                demangled_name: None,
                 address: eti_init_info_addr as u64,
                 section: extabindex_section,
                 size: (eti_init_info_end - eti_init_info_addr) as u64,
                 size_known: true,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                 kind: ObjSymbolKind::Object,
-                align: None,
-                data_kind: Default::default(),
+                ..Default::default()
             },
             true,
         )?;
@@ -424,15 +588,13 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
             obj.add_symbol(
                 ObjSymbol {
                     name: format!("@eti_{:08X}", entry.address),
-                    demangled_name: None,
                     address: entry.address as u64,
                     section: Some(extabindex_section_index),
                     size: 12,
                     size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Local | ObjSymbolFlags::Hidden),
                     kind: ObjSymbolKind::Object,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 false,
             )?;
@@ -451,15 +613,13 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
             obj.add_symbol(
                 ObjSymbol {
                     name: format!("@etb_{:08X}", addr),
-                    demangled_name: None,
                     address: addr as u64,
                     section: Some(extab_section_index),
                     size: size as u64,
                     size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Local | ObjSymbolFlags::Hidden),
                     kind: ObjSymbolKind::Object,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 false,
             )?;
@@ -504,30 +664,20 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
             obj.add_symbol(
                 ObjSymbol {
                     name: "_SDA2_BASE_".to_string(),
-                    demangled_name: None,
                     address: sda2_base as u64,
-                    section: None,
-                    size: 0,
-                    size_known: false,
+                    size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                    kind: ObjSymbolKind::Unknown,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 true,
             )?;
             obj.add_symbol(
                 ObjSymbol {
                     name: "_SDA_BASE_".to_string(),
-                    demangled_name: None,
                     address: sda_base as u64,
-                    section: None,
-                    size: 0,
-                    size_known: false,
+                    size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                    kind: ObjSymbolKind::Unknown,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 true,
             )?;
@@ -538,6 +688,11 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         Err(e) => {
             log::warn!("Failed to locate SDA bases: {:?}", e);
         }
+    }
+
+    // Apply ALF symbols
+    for symbol in dol.symbols() {
+        obj.add_symbol(symbol.to_obj_symbol()?, true)?;
     }
 
     Ok(obj)
@@ -566,35 +721,35 @@ struct EtiEntry {
     extab_addr: u32,
 }
 
-fn read_eti_init_info(dol: &Dol, addr: u32) -> Result<EtiInitInfo> {
-    let eti_start = read_u32(dol, addr)?;
-    let eti_end = read_u32(dol, addr + 4)?;
-    let code_start = read_u32(dol, addr + 8)?;
-    let code_size = read_u32(dol, addr + 12)?;
+fn read_eti_init_info(buf: &[u8], dol: &dyn DolLike, addr: u32) -> Result<EtiInitInfo> {
+    let eti_start = read_u32(buf, dol, addr)?;
+    let eti_end = read_u32(buf, dol, addr + 4)?;
+    let code_start = read_u32(buf, dol, addr + 8)?;
+    let code_size = read_u32(buf, dol, addr + 12)?;
     Ok(EtiInitInfo { eti_start, eti_end, code_start, code_size })
 }
 
-fn read_eti_entry(dol: &Dol, address: u32) -> Result<EtiEntry> {
-    let function = read_u32(dol, address)?;
-    let function_size = read_u32(dol, address + 4)?;
-    let extab_addr = read_u32(dol, address + 8)?;
+fn read_eti_entry(buf: &[u8], dol: &dyn DolLike, address: u32) -> Result<EtiEntry> {
+    let function = read_u32(buf, dol, address)?;
+    let function_size = read_u32(buf, dol, address + 4)?;
+    let extab_addr = read_u32(buf, dol, address + 8)?;
     Ok(EtiEntry { address, function, function_size, extab_addr })
 }
 
 fn validate_eti_init_info(
-    dol: &Dol,
+    dol: &dyn DolLike,
     eti_init_info: &EtiInitInfo,
     eti_section: &DolSection,
     eti_section_end: u32,
     rom_sections: &BTreeMap<u32, u32>,
 ) -> Result<bool> {
-    if eti_init_info.eti_start >= eti_section.target
+    if eti_init_info.eti_start >= eti_section.address
         && eti_init_info.eti_start < eti_section_end
-        && eti_init_info.eti_end >= eti_section.target
+        && eti_init_info.eti_end >= eti_section.address
         && eti_init_info.eti_end < eti_section_end
     {
-        if let Some(code_section) = section_by_address(dol, eti_init_info.code_start) {
-            let code_section_size = match rom_sections.get(&code_section.target) {
+        if let Some(code_section) = dol.section_by_address(eti_init_info.code_start) {
+            let code_section_size = match rom_sections.get(&code_section.address) {
                 Some(&size) => size,
                 None => code_section.size,
             };
@@ -604,11 +759,4 @@ fn validate_eti_init_info(
         }
     }
     Ok(false)
-}
-
-fn section_by_address(dol: &Dol, addr: u32) -> Option<&DolSection> {
-    dol.header
-        .sections
-        .iter()
-        .find(|section| addr >= section.target && addr < section.target + section.size)
 }

@@ -37,28 +37,20 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
                 log::debug!("Found gTRKInterruptVectorTable @ {:#010X}", start);
                 state.known_symbols.insert(start, ObjSymbol {
                     name: "gTRKInterruptVectorTable".to_string(),
-                    demangled_name: None,
                     address: start.address as u64,
                     section: Some(start.section),
-                    size: 0,
                     size_known: true,
                     flags: ObjSymbolFlagSet(FlagSet::from(ObjSymbolFlags::Global)),
-                    kind: ObjSymbolKind::Unknown,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 });
                 let end = start + TRK_TABLE_SIZE;
                 state.known_symbols.insert(end, ObjSymbol {
                     name: "gTRKInterruptVectorTableEnd".to_string(),
-                    demangled_name: None,
                     address: end.address as u64,
                     section: Some(start.section),
-                    size: 0,
                     size_known: true,
                     flags: ObjSymbolFlagSet(FlagSet::from(ObjSymbolFlags::Global)),
-                    kind: ObjSymbolKind::Unknown,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 });
 
                 return Ok(());
@@ -96,29 +88,23 @@ impl AnalysisPass for FindSaveRestSleds {
                 });
                 state.known_symbols.insert(start, ObjSymbol {
                     name: func.to_string(),
-                    demangled_name: None,
                     address: start.address as u64,
                     section: Some(start.section),
                     size: SLED_SIZE as u64,
                     size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                     kind: ObjSymbolKind::Function,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 });
                 for i in 14..=31 {
                     let addr = start + (i - 14) * 4;
                     state.known_symbols.insert(addr, ObjSymbol {
                         name: format!("{}{}", label, i),
-                        demangled_name: None,
                         address: addr.address as u64,
                         section: Some(start.section),
-                        size: 0,
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                        kind: ObjSymbolKind::Unknown,
-                        align: None,
-                        data_kind: Default::default(),
+                        ..Default::default()
                     });
                 }
             }
@@ -202,30 +188,20 @@ impl AnalysisPass for FindRelCtorsDtors {
         state.known_sections.insert(ctors_section_index, ".ctors".to_string());
         state.known_symbols.insert(SectionAddress::new(ctors_section_index, 0), ObjSymbol {
             name: "_ctors".to_string(),
-            demangled_name: None,
-            address: 0,
             section: Some(ctors_section_index),
-            size: 0,
             size_known: true,
             flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            kind: Default::default(),
-            align: None,
-            data_kind: Default::default(),
+            ..Default::default()
         });
 
         let dtors_section_index = possible_sections[1].0;
         state.known_sections.insert(dtors_section_index, ".dtors".to_string());
         state.known_symbols.insert(SectionAddress::new(dtors_section_index, 0), ObjSymbol {
             name: "_dtors".to_string(),
-            demangled_name: None,
-            address: 0,
             section: Some(dtors_section_index),
-            size: 0,
             size_known: true,
             flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            kind: Default::default(),
-            align: None,
-            data_kind: Default::default(),
+            ..Default::default()
         });
 
         // Check for duplicate entries in .dtors, indicating __destroy_global_chain_reference

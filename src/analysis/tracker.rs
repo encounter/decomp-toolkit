@@ -710,15 +710,10 @@ impl Tracker {
                 };
                 let symbol_idx = obj.symbols.add_direct(ObjSymbol {
                     name,
-                    demangled_name: None,
                     address: target.address as u64,
                     section: Some(target.section),
-                    size: 0,
-                    size_known: false,
-                    flags: Default::default(),
-                    kind: Default::default(),
-                    align: None,
                     data_kind,
+                    ..Default::default()
                 })?;
                 (symbol_idx, 0)
             };

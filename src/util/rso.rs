@@ -128,15 +128,11 @@ pub fn process_rso<R: Read + Seek>(reader: &mut R) -> Result<ObjInfo> {
             log::debug!("Adding {name} section {rel_section_idx} offset {offset:#X}");
             symbols.push(ObjSymbol {
                 name: name.to_string(),
-                demangled_name: None,
                 address: offset as u64,
                 section: Some(section_index),
-                size: 0,
-                size_known: false,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                 kind: ObjSymbolKind::Function,
-                align: None,
-                data_kind: Default::default(),
+                ..Default::default()
             });
         }
         Ok(())
@@ -196,12 +192,7 @@ pub fn process_rso<R: Read + Seek>(reader: &mut R) -> Result<ObjInfo> {
             demangled_name,
             address: sym_off as u64,
             section: Some(section),
-            size: 0,
-            size_known: false,
-            flags: Default::default(),
-            kind: Default::default(),
-            align: None,
-            data_kind: Default::default(),
+            ..Default::default()
         });
     }
     reader.seek(SeekFrom::Start(import_table_offset as u64))?;

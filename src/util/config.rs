@@ -75,18 +75,8 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
             bail!("Section {} not found", section_name)
         };
         let demangled_name = demangle(&name, &DemangleOptions::default());
-        let mut symbol = ObjSymbol {
-            name,
-            demangled_name,
-            address: addr as u64,
-            section,
-            size: 0,
-            size_known: false,
-            flags: Default::default(),
-            kind: ObjSymbolKind::Unknown,
-            align: None,
-            data_kind: Default::default(),
-        };
+        let mut symbol =
+            ObjSymbol { name, demangled_name, address: addr as u64, section, ..Default::default() };
         // TODO move somewhere common
         if symbol.name.starts_with("..") {
             symbol.flags.0 |= ObjSymbolFlags::ForceActive;
@@ -113,6 +103,16 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                     "data" => {
                         symbol.data_kind = symbol_data_kind_from_str(value)
                             .ok_or_else(|| anyhow!("Unknown symbol data type '{}'", value))?;
+                    }
+                    "hash" => {
+                        let hash = parse_hex(value)?;
+                        symbol.name_hash = Some(hash);
+                        if symbol.demangled_name_hash.is_none() {
+                            symbol.demangled_name_hash = Some(hash);
+                        }
+                    }
+                    "dhash" => {
+                        symbol.demangled_name_hash = Some(parse_hex(value)?);
                     }
                     _ => bail!("Unknown symbol attribute '{name}'"),
                 }
@@ -163,7 +163,9 @@ pub fn is_skip_symbol(symbol: &ObjSymbol) -> bool {
 }
 
 pub fn is_auto_symbol(symbol: &ObjSymbol) -> bool {
-    symbol.name.starts_with("lbl_") || symbol.name.starts_with("fn_")
+    symbol.name.starts_with("lbl_")
+        || symbol.name.starts_with("fn_")
+        || symbol.name.starts_with("jumptable_")
 }
 
 #[inline]
@@ -203,6 +205,14 @@ fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Resul
     }
     if let Some(kind) = symbol_data_kind_to_str(symbol.data_kind) {
         write!(w, " data:{kind}")?;
+    }
+    if let Some(hash) = symbol.name_hash {
+        write!(w, " hash:{:#010X}", hash)?;
+    }
+    if let Some(hash) = symbol.demangled_name_hash {
+        if symbol.name_hash != symbol.demangled_name_hash {
+            write!(w, " dhash:{:#010X}", hash)?;
+        }
     }
     if symbol.flags.is_hidden() {
         write!(w, " hidden")?;

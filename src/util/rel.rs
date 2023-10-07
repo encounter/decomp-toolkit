@@ -232,15 +232,11 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
                 }
                 symbols.push(ObjSymbol {
                     name: name.to_string(),
-                    demangled_name: None,
                     address: offset as u64,
                     section: Some(section_index),
-                    size: 0,
-                    size_known: false,
                     flags,
                     kind: ObjSymbolKind::Function,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 });
             }
             Ok(())

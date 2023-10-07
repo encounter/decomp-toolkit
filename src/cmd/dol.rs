@@ -31,9 +31,8 @@ use crate::{
     },
     cmd::shasum::file_sha1_string,
     obj::{
-        best_match_for_reloc, ObjDataKind, ObjInfo, ObjKind, ObjReloc, ObjRelocKind,
-        ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
-        SymbolIndex,
+        best_match_for_reloc, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol,
+        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SymbolIndex,
     },
     util::{
         asm::write_asm,
@@ -79,10 +78,10 @@ enum SubCommand {
 pub struct InfoArgs {
     #[argp(positional)]
     /// DOL file
-    dol_file: PathBuf,
+    pub dol_file: PathBuf,
     #[argp(option, short = 's')]
     /// optional path to selfile.sel
-    selfile: Option<PathBuf>,
+    pub selfile: Option<PathBuf>,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -366,6 +365,8 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
                 kind: existing_symbol.kind,
                 align: existing_symbol.align,
                 data_kind: existing_symbol.data_kind,
+                name_hash: existing_symbol.name_hash,
+                demangled_name_hash: existing_symbol.demangled_name_hash,
             })?;
         } else {
             log::debug!("Creating symbol {} at {:#010X}", symbol.name, address);
@@ -385,7 +386,7 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
     Ok(())
 }
 
-fn info(args: InfoArgs) -> Result<()> {
+pub fn info(args: InfoArgs) -> Result<()> {
     let mut obj = {
         let file = map_file(&args.dol_file)?;
         process_dol(file.as_slice(), "")?
@@ -523,15 +524,10 @@ fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>, create_symbols: bo
             };
             obj.symbols.add_direct(ObjSymbol {
                 name,
-                demangled_name: None,
                 address: rel_reloc.addend as u64,
                 section: Some(target_section_index),
-                size: 0,
-                size_known: false,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::ForceActive.into()),
-                kind: Default::default(),
-                align: None,
-                data_kind: ObjDataKind::Unknown,
+                ..Default::default()
             })?;
         }
     }
@@ -654,14 +650,7 @@ fn resolve_external_relocations(
                         let symbol_idx = obj.symbols.add_direct(ObjSymbol {
                             name: target_symbol.name.clone(),
                             demangled_name: target_symbol.demangled_name.clone(),
-                            address: 0,
-                            section: None,
-                            size: 0,
-                            size_known: false,
-                            flags: Default::default(),
-                            kind: Default::default(),
-                            align: None,
-                            data_kind: Default::default(),
+                            ..Default::default()
                         })?;
 
                         e.insert(symbol_idx);
@@ -1542,6 +1531,8 @@ fn apply(args: ApplyArgs) -> Result<()> {
                 kind: linked_sym.kind,
                 align: linked_sym.align,
                 data_kind: linked_sym.data_kind,
+                name_hash: linked_sym.name_hash,
+                demangled_name_hash: linked_sym.demangled_name_hash,
             })?;
         }
     }

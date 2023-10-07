@@ -142,8 +142,7 @@ pub fn apply_symbol(
             size_known: sig_symbol.size > 0 || sig_symbol.kind == ObjSymbolKind::Unknown,
             flags: sig_symbol.flags,
             kind: sig_symbol.kind,
-            align: None,
-            data_kind: Default::default(),
+            ..Default::default()
         },
         false,
     )?;

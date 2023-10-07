@@ -816,7 +816,7 @@ fn to_obj_symbol(
             _ => bail!("Unsupported symbol kind: {:?}", symbol),
         },
         align,
-        data_kind: Default::default(),
+        ..Default::default()
     })
 }
 

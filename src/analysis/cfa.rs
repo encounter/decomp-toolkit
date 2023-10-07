@@ -144,15 +144,12 @@ impl AnalyzerState {
             obj.add_symbol(
                 ObjSymbol {
                     name,
-                    demangled_name: None,
                     address: start.address as u64,
                     section: Some(start.section),
                     size: (end.address - start.address) as u64,
                     size_known: true,
-                    flags: Default::default(),
                     kind: ObjSymbolKind::Function,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 false,
             )?;
@@ -188,15 +185,13 @@ impl AnalyzerState {
             obj.add_symbol(
                 ObjSymbol {
                     name: format!("jumptable_{}", address_str),
-                    demangled_name: None,
                     address: addr.address as u64,
                     section: Some(addr.section),
                     size: size as u64,
                     size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Local.into()),
                     kind: ObjSymbolKind::Object,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 false,
             )?;

@@ -1,5 +1,6 @@
 use std::{borrow::Cow, ops::Deref};
 
+pub mod alf;
 pub mod asm;
 pub mod comment;
 pub mod config;
@@ -12,6 +13,7 @@ pub mod lcf;
 pub mod map;
 pub mod nested;
 pub mod rarc;
+pub mod reader;
 pub mod rel;
 pub mod rso;
 pub mod signatures;

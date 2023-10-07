@@ -471,8 +471,10 @@ fn merge(args: MergeArgs) -> Result<()> {
                     size_known: mod_symbol.size_known,
                     flags: mod_symbol.flags,
                     kind: mod_symbol.kind,
-                    align: None,
-                    data_kind: Default::default(),
+                    align: mod_symbol.align,
+                    data_kind: mod_symbol.data_kind,
+                    name_hash: mod_symbol.name_hash,
+                    demangled_name_hash: mod_symbol.demangled_name_hash,
                 })?;
             }
             offset += align32(mod_section.size as u32);
@@ -506,15 +508,9 @@ fn merge(args: MergeArgs) -> Result<()> {
                 // Create a new label
                 let symbol_idx = obj.symbols.add_direct(ObjSymbol {
                     name: String::new(),
-                    demangled_name: None,
                     address: target_addr as u64,
                     section: Some(target_section_index),
-                    size: 0,
-                    size_known: false,
-                    flags: Default::default(),
-                    kind: Default::default(),
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 })?;
                 (symbol_idx, 0)
             };

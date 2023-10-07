@@ -245,15 +245,13 @@ fn apply_ctors_signatures(obj: &mut ObjInfo) -> Result<()> {
     obj.symbols.add(
         ObjSymbol {
             name: "__init_cpp_exceptions_reference".to_string(),
-            demangled_name: None,
             address,
             section: Some(ctors_section_index),
             size: 4,
             size_known: true,
             flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::RelocationIgnore),
             kind: ObjSymbolKind::Object,
-            align: None,
-            data_kind: Default::default(),
+            ..Default::default()
         },
         true,
     )?;
@@ -303,7 +301,6 @@ fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
             obj.add_symbol(
                 ObjSymbol {
                     name: "__destroy_global_chain_reference".to_string(),
-                    demangled_name: None,
                     address,
                     section: Some(dtors_section_index),
                     size: 4,
@@ -312,8 +309,7 @@ fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
                         ObjSymbolFlags::Global | ObjSymbolFlags::RelocationIgnore,
                     ),
                     kind: ObjSymbolKind::Object,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 true,
             )?;
@@ -334,7 +330,6 @@ fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
             obj.add_symbol(
                 ObjSymbol {
                     name: "__fini_cpp_exceptions_reference".to_string(),
-                    demangled_name: None,
                     address: address + 4,
                     section: Some(dtors_section_index),
                     size: 4,
@@ -343,8 +338,7 @@ fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
                         ObjSymbolFlags::Global | ObjSymbolFlags::RelocationIgnore,
                     ),
                     kind: ObjSymbolKind::Object,
-                    align: None,
-                    data_kind: Default::default(),
+                    ..Default::default()
                 },
                 true,
             )?;
@@ -452,15 +446,11 @@ pub fn update_ctors_dtors(obj: &mut ObjInfo) -> Result<()> {
         if let Some((section_index, section)) = obj.sections.by_name(".ctors")? {
             obj.symbols.add_direct(ObjSymbol {
                 name: "_ctors".to_string(),
-                demangled_name: None,
                 address: section.address,
                 section: Some(section_index),
-                size: 0,
                 size_known: true,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                kind: ObjSymbolKind::Unknown,
-                align: None,
-                data_kind: Default::default(),
+                ..Default::default()
             })?;
         }
     }
@@ -468,15 +458,11 @@ pub fn update_ctors_dtors(obj: &mut ObjInfo) -> Result<()> {
         if let Some((section_index, section)) = obj.sections.by_name(".dtors")? {
             obj.symbols.add_direct(ObjSymbol {
                 name: "_dtors".to_string(),
-                demangled_name: None,
                 address: section.address,
                 section: Some(section_index),
-                size: 0,
                 size_known: true,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                kind: ObjSymbolKind::Unknown,
-                align: None,
-                data_kind: Default::default(),
+                ..Default::default()
             })?;
         }
     }
