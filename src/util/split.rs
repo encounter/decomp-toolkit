@@ -604,6 +604,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                         size_known: true,
                         flags: ObjSymbolFlagSet(
                             ObjSymbolFlags::Global
+                                | ObjSymbolFlags::Hidden
                                 | ObjSymbolFlags::ForceActive
                                 | ObjSymbolFlags::NoWrite,
                         ),
