@@ -29,6 +29,8 @@ pub const DOL_SECTION_NAMES: [Option<&str>; 14] = [
     Some(".sbss2"),
     None, // s_zero2
 ];
+/// extabindex section index.
+pub const DOL_SECTION_ETI: u32 = 241;
 /// ABS symbol section index.
 pub const DOL_SECTION_ABS: u32 = 65521;
 

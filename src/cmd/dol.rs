@@ -48,7 +48,7 @@ use crate::{
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         rel::{process_rel, process_rel_header, update_rel_section_alignment},
-        rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_NAMES},
+        rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_ETI, DOL_SECTION_NAMES},
         split::{is_linker_generated_object, split_obj, update_splits},
         IntoCow, ToCow,
     },
@@ -320,10 +320,13 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
         let (section, address, section_kind) = if dol_section_index == DOL_SECTION_ABS as usize {
             (None, symbol.address as u32, None)
         } else {
-            let dol_section_name =
+            let dol_section_name = if dol_section_index == DOL_SECTION_ETI as usize {
+                "extabindex"
+            } else {
                 DOL_SECTION_NAMES.get(dol_section_index).and_then(|&opt| opt).ok_or_else(|| {
                     anyhow!("Can't add symbol for unknown DOL section {}", dol_section_index)
-                })?;
+                })?
+            };
             let (dol_section_index, dol_section) = obj
                 .sections
                 .iter()
