@@ -10,6 +10,7 @@ build = "build.rs"
 repository = "https://github.com/encounter/decomp-toolkit"
 readme = "README.md"
 categories = ["command-line-utilities"]
+rust-version = "1.70.0"
 
 [[bin]]
 name = "dtk"
@@ -30,6 +31,7 @@ binrw = "0.12.0"
 byteorder = "1.5.0"
 cwdemangle = "0.1.6"
 dol = { git = "https://github.com/encounter/ppc750cl", rev = "4a2bbbc6f84dcb76255ab6f3595a8d4a0ce96618" }
+enable-ansi-support = "0.2.1"
 filetime = "0.2.22"
 fixedbitset = "0.4.2"
 flagset = { version = "0.4.4", features = ["serde"] }
@@ -59,6 +61,7 @@ serde_repr = "0.1.16"
 serde_yaml = "0.9.25"
 sha-1 = "0.10.1"
 smallvec = "1.11.1"
+supports-color = "2.1.0"
 tracing = "0.1.37"
 tracing-attributes = "0.1.26"
 tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }

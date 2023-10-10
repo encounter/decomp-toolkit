@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
-use owo_colors::OwoColorize;
+use owo_colors::{OwoColorize, Stream};
 use sha1::{Digest, Sha1};
 
 use crate::util::file::{open_file, process_rsp, touch};
@@ -71,21 +71,26 @@ fn check<R: BufRead>(args: &Args, reader: &mut R) -> Result<()> {
         )?;
         if hash_bytes == found_hash.as_ref() {
             if !args.quiet {
-                println!("{}: {}", file_name, "OK".green());
+                println!(
+                    "{}: {}",
+                    file_name,
+                    "OK".if_supports_color(Stream::Stdout, |t| t.green())
+                );
             }
             matches += 1;
         } else {
-            println!("{}: {}", file_name, "FAILED".red());
+            println!("{}: {}", file_name, "FAILED".if_supports_color(Stream::Stdout, |t| t.red()));
             mismatches += 1;
         }
     }
     if args.quiet && matches > 0 {
-        println!("{} files {}", matches, "OK".green());
+        println!("{} files {}", matches, "OK".if_supports_color(Stream::Stdout, |t| t.green()));
     }
     if mismatches != 0 {
         eprintln!(
             "{}",
-            format!("WARNING: {mismatches} computed checksum(s) did NOT match").yellow()
+            format!("WARNING: {mismatches} computed checksum(s) did NOT match")
+                .if_supports_color(Stream::Stdout, |t| t.yellow())
         );
         std::process::exit(1);
     }

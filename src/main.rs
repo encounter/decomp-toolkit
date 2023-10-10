@@ -1,6 +1,9 @@
-use std::{ffi::OsStr, path::PathBuf, str::FromStr};
+use std::{env, ffi::OsStr, path::PathBuf, process::exit, str::FromStr};
 
+use anyhow::Error;
 use argp::{FromArgValue, FromArgs};
+use enable_ansi_support::enable_ansi_support;
+use supports_color::Stream;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::EnvFilter;
 
@@ -69,6 +72,9 @@ struct TopLevel {
     /// Print version information and exit.
     #[argp(switch, short = 'V')]
     version: bool,
+    /// Disable color output. (env: NO_COLOR)
+    #[argp(switch)]
+    no_color: bool,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -91,9 +97,32 @@ enum SubCommand {
     Yaz0(cmd::yaz0::Args),
 }
 
+// Duplicated from supports-color so we can check early.
+fn env_no_color() -> bool {
+    match env::var("NO_COLOR").as_deref() {
+        Ok("0") | Err(_) => false,
+        Ok(_) => true,
+    }
+}
+
 fn main() {
     let args: TopLevel = argp_version::from_env();
-    let format = tracing_subscriber::fmt::format().with_target(false).without_time();
+    let use_colors = if args.no_color || env_no_color() {
+        false
+    } else {
+        // Try to enable ANSI support on Windows.
+        let _ = enable_ansi_support();
+        // Disable isatty check for supports-color. (e.g. when used with ninja)
+        env::set_var("IGNORE_IS_TERMINAL", "1");
+        supports_color::on(Stream::Stdout).is_some_and(|c| c.has_basic)
+    };
+    // owo-colors uses an old version of supports-color, so we need to override manually.
+    // Ideally, we'd be able to remove the old version of supports-color, but disabling the feature
+    // in owo-colors removes set_override and if_supports_color entirely.
+    owo_colors::set_override(use_colors);
+
+    let format =
+        tracing_subscriber::fmt::format().with_ansi(use_colors).with_target(false).without_time();
     let builder = tracing_subscriber::fmt().event_format(format);
     if let Some(level) = args.log_level {
         builder
@@ -117,8 +146,8 @@ fn main() {
 
     let mut result = Ok(());
     if let Some(dir) = &args.chdir {
-        result = std::env::set_current_dir(dir).map_err(|e| {
-            anyhow::Error::new(e)
+        result = env::set_current_dir(dir).map_err(|e| {
+            Error::new(e)
                 .context(format!("Failed to change working directory to '{}'", dir.display()))
         });
     }
@@ -141,6 +170,6 @@ fn main() {
     });
     if let Err(e) = result {
         eprintln!("Failed: {e:?}");
-        std::process::exit(1);
+        exit(1);
     }
 }
