@@ -6,7 +6,7 @@ pub mod dwarf;
 pub mod elf;
 pub mod elf2dol;
 pub mod map;
-pub mod metroidbuildinfo;
+pub mod bakeversion;
 pub mod nlzss;
 pub mod rarc;
 pub mod rel;
