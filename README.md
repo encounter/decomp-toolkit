@@ -381,9 +381,6 @@ $ dtk elf2dol input.elf output.dol
 
 ### map
 
-> [!WARNING]  
-> This command is currently broken.
-
 Processes CodeWarrior map files and provides information about symbols and TUs.
 
 ```shell
