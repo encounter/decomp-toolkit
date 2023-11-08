@@ -1,10 +1,10 @@
 use std::{
     cmp::Ordering,
+    io,
     io::{Read, Seek, SeekFrom, Write},
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use binrw::{binrw, io::NoSeek, BinRead, BinWrite};
 use itertools::Itertools;
 use object::{elf, Object, ObjectSection, ObjectSymbol};
 use tracing::warn;
@@ -15,7 +15,12 @@ use crate::{
         ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
         ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
     },
-    util::{align_up, split::default_section_align, IntoCow},
+    util::{
+        align_up,
+        reader::{struct_size, Endian, FromReader, ToWriter, DYNAMIC_SIZE},
+        split::default_section_align,
+        IntoCow,
+    },
 };
 
 /// Do not relocate anything, but accumulate the offset field for the next relocation offset calculation.
@@ -30,12 +35,7 @@ pub const R_DOLPHIN_END: u32 = 203;
 #[allow(unused)]
 pub const R_DOLPHIN_MRKREF: u32 = 204;
 
-#[binrw]
 #[derive(Clone, Debug)]
-#[br(assert(next == 0))]
-#[br(assert(prev == 0))]
-#[br(assert(bss_section == 0))]
-#[brw(assert(matches!(version, 1..=3), "Unsupported REL version {version}"))]
 pub struct RelHeader {
     /// Arbitrary identification number.
     /// Must be unique amongst all RELs used by a game.
@@ -43,12 +43,10 @@ pub struct RelHeader {
     pub module_id: u32,
     /// Pointer to next module.
     /// Filled at runtime.
-    #[bw(calc = 0)]
-    pub next: u32,
+    // pub next: u32,
     /// Pointer to previous module.
     /// Filled at runtime.
-    #[bw(calc = 0)]
-    pub prev: u32,
+    // pub prev: u32,
     /// Number of sections in the file.
     pub num_sections: u32,
     /// Offset to the start of the section table.
@@ -75,8 +73,7 @@ pub struct RelHeader {
     pub unresolved_section: u8,
     /// Index into section table which bss is relative to.
     /// Filled at runtime.
-    #[bw(calc = 0)]
-    pub bss_section: u8,
+    // pub bss_section: u8,
     /// Offset into the section containing `_prolog`.
     pub prolog_offset: u32,
     /// Offset into the section containing `_epilog`.
@@ -85,34 +82,216 @@ pub struct RelHeader {
     pub unresolved_offset: u32,
     /// (Version >= 2 only)
     /// Alignment constraint on all sections.
-    #[br(if(version >= 2))]
-    #[bw(if(*version >= 2))]
     pub align: Option<u32>,
     /// (Version >= 2 only)
     /// Alignment constraint on the `.bss` section.
-    #[br(if(version >= 2))]
-    #[bw(if(*version >= 2))]
     pub bss_align: Option<u32>,
     /// (Version >= 3 only)
     /// If REL is linked with `OSLinkFixed` (instead of `OSLink`), the
     /// space after this offset can be used for other purposes, like BSS.
-    #[br(if(version >= 3))]
-    #[bw(if(*version >= 3))]
     pub fix_size: Option<u32>,
 }
 
-#[binrw]
+impl FromReader for RelHeader {
+    type Args = ();
+
+    // Differs by version
+    const STATIC_SIZE: usize = DYNAMIC_SIZE;
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        let module_id = u32::from_reader(reader, e)?;
+        let next = u32::from_reader(reader, e)?;
+        if next != 0 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Expected next == 0"));
+        }
+        let prev = u32::from_reader(reader, e)?;
+        if prev != 0 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Expected prev == 0"));
+        }
+        let num_sections = u32::from_reader(reader, e)?;
+        let section_info_offset = u32::from_reader(reader, e)?;
+        let name_offset = u32::from_reader(reader, e)?;
+        let name_size = u32::from_reader(reader, e)?;
+        let version = u32::from_reader(reader, e)?;
+        if version > 3 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Unsupported REL version"));
+        }
+        let bss_size = u32::from_reader(reader, e)?;
+        let rel_offset = u32::from_reader(reader, e)?;
+        let imp_offset = u32::from_reader(reader, e)?;
+        let imp_size = u32::from_reader(reader, e)?;
+        let prolog_section = u8::from_reader(reader, e)?;
+        let epilog_section = u8::from_reader(reader, e)?;
+        let unresolved_section = u8::from_reader(reader, e)?;
+        let bss_section = u8::from_reader(reader, e)?;
+        if bss_section != 0 {
+            return Err(io::Error::new(io::ErrorKind::InvalidData, "Expected bss_section == 0"));
+        }
+        let prolog_offset = u32::from_reader(reader, e)?;
+        let epilog_offset = u32::from_reader(reader, e)?;
+        let unresolved_offset = u32::from_reader(reader, e)?;
+        let align = if version >= 2 { Some(u32::from_reader(reader, e)?) } else { None };
+        let bss_align = if version >= 2 { Some(u32::from_reader(reader, e)?) } else { None };
+        let fix_size = if version >= 3 { Some(u32::from_reader(reader, e)?) } else { None };
+        Ok(Self {
+            module_id,
+            num_sections,
+            section_info_offset,
+            name_offset,
+            name_size,
+            version,
+            bss_size,
+            rel_offset,
+            imp_offset,
+            imp_size,
+            prolog_section,
+            epilog_section,
+            unresolved_section,
+            prolog_offset,
+            epilog_offset,
+            unresolved_offset,
+            align,
+            bss_align,
+            fix_size,
+        })
+    }
+}
+
+impl ToWriter for RelHeader {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        self.module_id.to_writer(writer, e)?;
+        0u32.to_writer(writer, e)?; // next
+        0u32.to_writer(writer, e)?; // prev
+        self.num_sections.to_writer(writer, e)?;
+        self.section_info_offset.to_writer(writer, e)?;
+        self.name_offset.to_writer(writer, e)?;
+        self.name_size.to_writer(writer, e)?;
+        self.version.to_writer(writer, e)?;
+        self.bss_size.to_writer(writer, e)?;
+        self.rel_offset.to_writer(writer, e)?;
+        self.imp_offset.to_writer(writer, e)?;
+        self.imp_size.to_writer(writer, e)?;
+        self.prolog_section.to_writer(writer, e)?;
+        self.epilog_section.to_writer(writer, e)?;
+        self.unresolved_section.to_writer(writer, e)?;
+        0u8.to_writer(writer, e)?; // bss_section
+        self.prolog_offset.to_writer(writer, e)?;
+        self.epilog_offset.to_writer(writer, e)?;
+        self.unresolved_offset.to_writer(writer, e)?;
+        if let Some(align) = self.align {
+            align.to_writer(writer, e)?;
+        }
+        if let Some(bss_align) = self.bss_align {
+            bss_align.to_writer(writer, e)?;
+        }
+        if let Some(fix_size) = self.fix_size {
+            fix_size.to_writer(writer, e)?;
+        }
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize {
+        const V1_SIZE: usize = struct_size([
+            u32::STATIC_SIZE, // module_id
+            u32::STATIC_SIZE, // next
+            u32::STATIC_SIZE, // prev
+            u32::STATIC_SIZE, // num_sections
+            u32::STATIC_SIZE, // section_info_offset
+            u32::STATIC_SIZE, // name_offset
+            u32::STATIC_SIZE, // name_size
+            u32::STATIC_SIZE, // version
+            u32::STATIC_SIZE, // bss_size
+            u32::STATIC_SIZE, // rel_offset
+            u32::STATIC_SIZE, // imp_offset
+            u32::STATIC_SIZE, // imp_size
+            u8::STATIC_SIZE,  // prolog_section
+            u8::STATIC_SIZE,  // epilog_section
+            u8::STATIC_SIZE,  // unresolved_section
+            u8::STATIC_SIZE,  // bss_section
+            u32::STATIC_SIZE, // prolog_offset
+            u32::STATIC_SIZE, // epilog_offset
+            u32::STATIC_SIZE, // unresolved_offset
+        ]);
+        const V2_SIZE: usize = V1_SIZE
+            + struct_size([
+                u32::STATIC_SIZE, // align
+                u32::STATIC_SIZE, // bss_align
+            ]);
+        const V3_SIZE: usize = V2_SIZE + u32::STATIC_SIZE; // fix_size
+        match self.version {
+            1 => V1_SIZE,
+            2 => V2_SIZE,
+            3 => V3_SIZE,
+            _ => panic!("Unsupported REL version {}", self.version),
+        }
+    }
+}
+
 #[derive(Copy, Clone, Debug)]
 struct RelImport {
     module_id: u32,
     offset: u32,
 }
 
-#[binrw]
+impl FromReader for RelImport {
+    type Args = ();
+
+    const STATIC_SIZE: usize = struct_size([
+        u32::STATIC_SIZE, // module_id
+        u32::STATIC_SIZE, // offset
+    ]);
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        Ok(Self { module_id: u32::from_reader(reader, e)?, offset: u32::from_reader(reader, e)? })
+    }
+}
+
+impl ToWriter for RelImport {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        self.module_id.to_writer(writer, e)?;
+        self.offset.to_writer(writer, e)?;
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { Self::STATIC_SIZE }
+}
+
 #[derive(Copy, Clone, Debug)]
 pub struct RelSectionHeader {
     offset_and_flags: u32,
     size: u32,
+}
+
+impl FromReader for RelSectionHeader {
+    type Args = ();
+
+    const STATIC_SIZE: usize = struct_size([
+        u32::STATIC_SIZE, // offset_and_flags
+        u32::STATIC_SIZE, // size
+    ]);
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        Ok(Self {
+            offset_and_flags: u32::from_reader(reader, e)?,
+            size: u32::from_reader(reader, e)?,
+        })
+    }
+}
+
+impl ToWriter for RelSectionHeader {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        self.offset_and_flags.to_writer(writer, e)?;
+        self.size.to_writer(writer, e)?;
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { Self::STATIC_SIZE }
 }
 
 impl RelSectionHeader {
@@ -127,7 +306,6 @@ impl RelSectionHeader {
     pub fn exec(&self) -> bool { self.offset_and_flags & 1 != 0 }
 }
 
-#[binrw]
 #[derive(Copy, Clone, Debug)]
 struct RelRelocRaw {
     offset: u16,
@@ -136,25 +314,64 @@ struct RelRelocRaw {
     addend: u32,
 }
 
-pub fn process_rel_header<R: Read + Seek>(reader: &mut R) -> Result<RelHeader> {
-    RelHeader::read_be(reader).context("Failed to read REL header")
+impl FromReader for RelRelocRaw {
+    type Args = ();
+
+    const STATIC_SIZE: usize = struct_size([
+        u16::STATIC_SIZE, // offset
+        u8::STATIC_SIZE,  // kind
+        u8::STATIC_SIZE,  // section
+        u32::STATIC_SIZE, // addend
+    ]);
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        Ok(Self {
+            offset: u16::from_reader(reader, e)?,
+            kind: u8::from_reader(reader, e)?,
+            section: u8::from_reader(reader, e)?,
+            addend: u32::from_reader(reader, e)?,
+        })
+    }
 }
 
-pub fn process_rel_sections<R: Read + Seek>(
+impl ToWriter for RelRelocRaw {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        self.offset.to_writer(writer, e)?;
+        self.kind.to_writer(writer, e)?;
+        self.section.to_writer(writer, e)?;
+        self.addend.to_writer(writer, e)?;
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { Self::STATIC_SIZE }
+}
+
+pub fn process_rel_header<R>(reader: &mut R) -> Result<RelHeader>
+where R: Read + Seek + ?Sized {
+    RelHeader::from_reader(reader, Endian::Big).context("Failed to read REL header")
+}
+
+pub fn process_rel_sections<R>(
     reader: &mut R,
     header: &RelHeader,
-) -> Result<Vec<RelSectionHeader>> {
+) -> Result<Vec<RelSectionHeader>>
+where
+    R: Read + Seek + ?Sized,
+{
     let mut sections = Vec::with_capacity(header.num_sections as usize);
     reader.seek(SeekFrom::Start(header.section_info_offset as u64))?;
     for idx in 0..header.num_sections {
-        let section = RelSectionHeader::read_be(reader)
+        let section = RelSectionHeader::from_reader(reader, Endian::Big)
             .with_context(|| format!("Failed to read REL section header {}", idx))?;
         sections.push(section);
     }
     Ok(sections)
 }
 
-pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHeader, ObjInfo)> {
+pub fn process_rel<R>(reader: &mut R, name: &str) -> Result<(RelHeader, ObjInfo)>
+where R: Read + Seek + ?Sized {
     let header = process_rel_header(reader)?;
     let mut sections = Vec::with_capacity(header.num_sections as usize);
     let mut text_section = None;
@@ -250,7 +467,7 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
     let imp_end = (header.imp_offset + header.imp_size) as u64;
     reader.seek(SeekFrom::Start(header.imp_offset as u64))?;
     while reader.stream_position()? < imp_end {
-        let import = RelImport::read_be(reader)?;
+        let import = RelImport::from_reader(reader, Endian::Big)?;
 
         if imp_idx == 0 {
             ensure!(
@@ -278,7 +495,7 @@ pub fn process_rel<R: Read + Seek>(reader: &mut R, name: &str) -> Result<(RelHea
         let mut address = 0u32;
         let mut section = u8::MAX;
         loop {
-            let reloc = RelRelocRaw::read_be(reader)?;
+            let reloc = RelRelocRaw::from_reader(reader, Endian::Big)?;
             let kind = match reloc.kind as u32 {
                 elf::R_PPC_NONE => continue,
                 elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 => ObjRelocKind::Absolute,
@@ -437,12 +654,15 @@ pub fn should_write_section(section: &object::Section) -> bool {
     section.kind() != object::SectionKind::UninitializedData
 }
 
-pub fn write_rel<W: Write>(
+pub fn write_rel<W>(
     w: &mut W,
     info: &RelWriteInfo,
     file: &object::File,
     mut relocations: Vec<RelReloc>,
-) -> Result<()> {
+) -> Result<()>
+where
+    W: Write + Seek + ?Sized,
+{
     relocations.sort_by(|a, b| {
         if a.module_id == 0 {
             if b.module_id == 0 {
@@ -537,12 +757,7 @@ pub fn write_rel<W: Write>(
     let mut header = RelHeader {
         module_id: info.module_id,
         num_sections,
-        section_info_offset: match info.version {
-            1 => 0x40,
-            2 => 0x48,
-            3 => 0x4C,
-            _ => bail!("Unsupported REL version {}", info.version),
-        },
+        section_info_offset: 0, // Calculated below
         name_offset: info.name_offset.unwrap_or(0),
         name_size: info.name_size.unwrap_or(0),
         version: info.version,
@@ -560,8 +775,9 @@ pub fn write_rel<W: Write>(
         bss_align: if info.version >= 2 { Some(bss_align) } else { None },
         fix_size: None,
     };
-    let mut offset = header.section_info_offset;
-    offset += num_sections * 8;
+    let mut offset = header.write_size() as u32;
+    header.section_info_offset = offset;
+    offset += num_sections * RelSectionHeader::STATIC_SIZE as u32;
     let section_data_offset = offset;
     for (idx, section) in file.sections().filter(is_permitted_section).enumerate() {
         if !should_write_section(&section) {
@@ -573,7 +789,7 @@ pub fn write_rel<W: Write>(
     }
     header.imp_offset = offset;
     let imp_count = relocations.iter().map(|r| r.module_id).dedup().count();
-    header.imp_size = imp_count as u32 * 8;
+    header.imp_size = imp_count as u32 * RelImport::STATIC_SIZE as u32;
     offset += header.imp_size;
     header.rel_offset = offset;
 
@@ -673,15 +889,14 @@ pub fn write_rel<W: Write>(
         }
     }
 
-    let mut w = NoSeek::new(w);
-    header.write_be(&mut w)?;
+    header.to_writer(w, Endian::Big)?;
     ensure!(w.stream_position()? as u32 == header.section_info_offset);
     let mut current_data_offset = section_data_offset;
     let mut permitted_section_idx = 0;
     for section_index in 0..num_sections {
         let Ok(section) = file.section_by_index(object::SectionIndex(section_index as usize))
         else {
-            RelSectionHeader::new(0, 0, false).write_be(&mut w)?;
+            RelSectionHeader::new(0, 0, false).to_writer(w, Endian::Big)?;
             continue;
         };
         if is_permitted_section(&section) {
@@ -697,10 +912,10 @@ pub fn write_rel<W: Write>(
                 section.size() as u32,
                 section.kind() == object::SectionKind::Text,
             )
-            .write_be(&mut w)?;
+            .to_writer(w, Endian::Big)?;
             permitted_section_idx += 1;
         } else {
-            RelSectionHeader::new(0, 0, false).write_be(&mut w)?;
+            RelSectionHeader::new(0, 0, false).to_writer(w, Endian::Big)?;
         }
     }
     ensure!(w.stream_position()? as u32 == section_data_offset);
@@ -730,11 +945,11 @@ pub fn write_rel<W: Write>(
     }
     ensure!(w.stream_position()? as u32 == header.imp_offset);
     for entry in imp_entries {
-        entry.write_be(&mut w)?;
+        entry.to_writer(w, Endian::Big)?;
     }
     ensure!(w.stream_position()? as u32 == header.rel_offset);
     for reloc in raw_relocations {
-        reloc.write_be(&mut w)?;
+        reloc.to_writer(w, Endian::Big)?;
     }
     ensure!(w.stream_position()? as u32 == offset);
     Ok(())

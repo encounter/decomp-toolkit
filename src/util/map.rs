@@ -8,7 +8,7 @@ use std::{
     path::Path,
 };
 
-use anyhow::{anyhow, bail, ensure, Error, Result};
+use anyhow::{anyhow, bail, Error, Result};
 use cwdemangle::{demangle, DemangleOptions};
 use flagset::FlagSet;
 use multimap::MultiMap;
@@ -119,15 +119,27 @@ pub struct MapInfo {
     pub unit_entries: MultiMap<String, SymbolRef>,
     pub entry_references: MultiMap<SymbolRef, SymbolRef>,
     pub entry_referenced_from: MultiMap<SymbolRef, SymbolRef>,
+    pub unit_references: MultiMap<SymbolRef, String>,
     pub sections: Vec<SectionInfo>,
     pub link_map_symbols: HashMap<SymbolRef, SymbolEntry>,
     pub section_symbols: HashMap<String, BTreeMap<u32, Vec<SymbolEntry>>>,
     pub section_units: HashMap<String, Vec<(u32, String)>>,
 }
 
+impl MapInfo {
+    // TODO rework to make this lookup easier
+    pub fn get_section_symbol(&self, symbol: &SymbolRef) -> Option<(String, &SymbolEntry)> {
+        self.section_symbols.iter().find_map(|(section, m)| {
+            m.values()
+                .find_map(|v| v.iter().find(|e| e.name == symbol.name && e.unit == symbol.unit))
+                .map(|e| (section.clone(), e))
+        })
+    }
+}
+
 #[derive(Default)]
 struct LinkMapState {
-    last_symbol_name: String,
+    last_symbol: Option<SymbolRef>,
     symbol_stack: Vec<SymbolRef>,
 }
 
@@ -245,7 +257,7 @@ impl StateMachine {
     fn end_state(&mut self, old_state: ProcessMapState) -> Result<()> {
         match old_state {
             ProcessMapState::LinkMap(state) => {
-                self.has_link_map = !state.last_symbol_name.is_empty();
+                self.has_link_map = state.last_symbol.is_some();
             }
             ProcessMapState::SectionLayout(state) => {
                 StateMachine::end_section_layout(state, &mut self.result)?;
@@ -293,8 +305,10 @@ impl StateMachine {
         let is_duplicate = &captures["sym"] == ">>>";
         let unit = captures["tu"].trim().to_string();
         let name = if is_duplicate {
-            ensure!(!state.last_symbol_name.is_empty(), "Last name empty?");
-            state.last_symbol_name.clone()
+            let Some(last_symbol) = &state.last_symbol else {
+                bail!("Last symbol empty?");
+            };
+            last_symbol.name.clone()
         } else {
             captures["sym"].to_string()
         };
@@ -325,6 +339,14 @@ impl StateMachine {
             result.entry_referenced_from.insert(symbol_ref.clone(), from.clone());
             result.entry_references.insert(from.clone(), symbol_ref.clone());
         }
+        result.unit_references.insert(
+            if is_duplicate {
+                state.last_symbol.as_ref().unwrap().clone()
+            } else {
+                symbol_ref.clone()
+            },
+            unit.clone(),
+        );
         let mut should_insert = true;
         if let Some(symbol) = result.link_map_symbols.get(&symbol_ref) {
             if symbol.kind != kind {
@@ -358,7 +380,9 @@ impl StateMachine {
                 size: 0,
                 align: None,
             });
-            state.last_symbol_name = name;
+            if !is_duplicate {
+                state.last_symbol = Some(symbol_ref.clone());
+            }
             result.unit_entries.insert(unit, symbol_ref);
         }
         Ok(())
@@ -564,7 +588,8 @@ impl StateMachine {
     }
 }
 
-pub fn process_map<R: BufRead + ?Sized>(reader: &mut R) -> Result<MapInfo> {
+pub fn process_map<R>(reader: &mut R) -> Result<MapInfo>
+where R: BufRead + ?Sized {
     let mut sm = StateMachine {
         state: ProcessMapState::None,
         result: Default::default(),
@@ -582,7 +607,8 @@ pub fn process_map<R: BufRead + ?Sized>(reader: &mut R) -> Result<MapInfo> {
     Ok(sm.result)
 }
 
-pub fn apply_map_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<()> {
+pub fn apply_map_file<P>(path: P, obj: &mut ObjInfo) -> Result<()>
+where P: AsRef<Path> {
     let file = map_file(&path)?;
     let info = process_map(&mut file.as_reader())?;
     apply_map(&info, obj)

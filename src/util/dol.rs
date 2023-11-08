@@ -8,12 +8,13 @@ use anyhow::{anyhow, bail, ensure, Result};
 
 use crate::{
     analysis::cfa::{locate_sda_bases, SectionAddress},
+    array_ref,
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
         ObjSymbolFlags, ObjSymbolKind,
     },
     util::{
-        alf::{AlfFile, AlfSymbol},
+        alf::{AlfFile, AlfSymbol, ALF_MAGIC},
         reader::{skip_bytes, Endian, FromReader},
     },
 };
@@ -179,7 +180,7 @@ fn read_u32(buf: &[u8], dol: &dyn DolLike, addr: u32) -> Result<u32> {
 
 pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
     let mut reader = Cursor::new(buf);
-    let dol: Box<dyn DolLike> = if buf.len() > 4 && &buf[0..4] == b"RBOF" {
+    let dol: Box<dyn DolLike> = if buf.len() > 4 && *array_ref!(buf, 0, 4) == ALF_MAGIC {
         Box::new(AlfFile::from_reader(&mut reader, Endian::Little)?)
     } else {
         Box::new(DolFile::from_reader(&mut reader, Endian::Big)?)

@@ -6,8 +6,11 @@ use std::ffi::OsStr;
 
 use argp::{parser::ParseGlobalOptions, EarlyExit, FromArgs, TopLevelCommand};
 
-struct ArgsOrVersion<T: FromArgs>(T);
+struct ArgsOrVersion<T>(T)
+where T: FromArgs;
+
 impl<T> TopLevelCommand for ArgsOrVersion<T> where T: FromArgs {}
+
 impl<T> FromArgs for ArgsOrVersion<T>
 where T: FromArgs
 {

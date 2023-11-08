@@ -16,7 +16,8 @@ pub struct DepFile {
 impl DepFile {
     pub fn new(name: PathBuf) -> Self { Self { name, dependencies: vec![] } }
 
-    pub fn push<P: AsRef<Path>>(&mut self, dependency: P) {
+    pub fn push<P>(&mut self, dependency: P)
+    where P: AsRef<Path> {
         let path = split_path(dependency.as_ref())
             .map(|(p, _)| p)
             .unwrap_or_else(|_| dependency.as_ref().to_path_buf());
@@ -29,7 +30,8 @@ impl DepFile {
         }));
     }
 
-    pub fn write<W: Write>(&self, w: &mut W) -> std::io::Result<()> {
+    pub fn write<W>(&self, w: &mut W) -> std::io::Result<()>
+    where W: Write + ?Sized {
         write!(w, "{}:", self.name.to_slash_lossy())?;
         for dep in self.dependencies.iter().unique() {
             write!(w, " \\\n  {}", dep.to_slash_lossy().replace(' ', "\\ "))?;

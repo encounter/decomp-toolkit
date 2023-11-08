@@ -125,7 +125,10 @@ impl ObjSymbolFlagSet {
 
 #[allow(clippy::derived_hash_with_manual_eq)]
 impl Hash for ObjSymbolFlagSet {
-    fn hash<H: Hasher>(&self, state: &mut H) { self.0.bits().hash(state) }
+    fn hash<H>(&self, state: &mut H)
+    where H: Hasher {
+        self.0.bits().hash(state)
+    }
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Default, Serialize, Deserialize)]

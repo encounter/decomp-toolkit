@@ -101,11 +101,14 @@ fn dump(args: DumpArgs) -> Result<()> {
     Ok(())
 }
 
-fn dump_debug_section<W: Write>(
+fn dump_debug_section<W>(
     w: &mut W,
     obj_file: &object::File<'_>,
     debug_section: Section,
-) -> Result<()> {
+) -> Result<()>
+where
+    W: Write + ?Sized,
+{
     let mut data = debug_section.uncompressed_data()?.into_owned();
 
     // Apply relocations to data

@@ -47,7 +47,8 @@ pub fn run(args: Args) -> Result<()> {
     Ok(())
 }
 
-fn check<R: BufRead>(args: &Args, reader: &mut R) -> Result<()> {
+fn check<R>(args: &Args, reader: &mut R) -> Result<()>
+where R: BufRead + ?Sized {
     let mut matches = 0usize;
     let mut mismatches = 0usize;
     for line in reader.lines() {
@@ -97,7 +98,8 @@ fn check<R: BufRead>(args: &Args, reader: &mut R) -> Result<()> {
     Ok(())
 }
 
-fn hash<R: Read>(reader: &mut R, path: &Path) -> Result<()> {
+fn hash<R>(reader: &mut R, path: &Path) -> Result<()>
+where R: Read + ?Sized {
     let hash = file_sha1(reader)?;
     let mut hash_buf = [0u8; 40];
     let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
@@ -106,7 +108,8 @@ fn hash<R: Read>(reader: &mut R, path: &Path) -> Result<()> {
     Ok(())
 }
 
-pub fn file_sha1<R: Read>(reader: &mut R) -> Result<sha1::digest::Output<Sha1>> {
+pub fn file_sha1<R>(reader: &mut R) -> Result<sha1::digest::Output<Sha1>>
+where R: Read + ?Sized {
     let mut buf = [0u8; DEFAULT_BUF_SIZE];
     let mut hasher = Sha1::new();
     Ok(loop {
@@ -118,7 +121,8 @@ pub fn file_sha1<R: Read>(reader: &mut R) -> Result<sha1::digest::Output<Sha1>> 
     })
 }
 
-pub fn file_sha1_string<R: Read>(reader: &mut R) -> Result<String> {
+pub fn file_sha1_string<R>(reader: &mut R) -> Result<String>
+where R: Read + ?Sized {
     let hash = file_sha1(reader)?;
     let mut hash_buf = [0u8; 40];
     let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)

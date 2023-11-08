@@ -19,10 +19,11 @@ use crate::{
     obj::ObjKind,
     util::{
         asm::write_asm,
-        comment::{read_comment_sym, MWComment},
+        comment::{CommentSym, MWComment},
         config::{write_splits_file, write_symbols_file},
         elf::{process_elf, write_elf},
         file::{buf_writer, process_rsp},
+        reader::{Endian, FromReader},
         signatures::{compare_signature, generate_signature, FunctionSignature},
         split::split_obj,
         IntoCow, ToCow,
@@ -136,8 +137,8 @@ fn config(args: ConfigArgs) -> Result<()> {
     let obj = process_elf(&args.in_file)?;
 
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
-    write_symbols_file(args.out_dir.join("symbols.txt"), &obj)?;
-    write_splits_file(args.out_dir.join("splits.txt"), &obj, false)?;
+    write_symbols_file(args.out_dir.join("symbols.txt"), &obj, None)?;
+    write_splits_file(args.out_dir.join("splits.txt"), &obj, false, None)?;
     Ok(())
 }
 
@@ -545,8 +546,8 @@ fn info(args: InfoArgs) -> Result<()> {
         let data = comment_section.uncompressed_data()?;
         if !data.is_empty() {
             let mut reader = Cursor::new(&*data);
-            let header =
-                MWComment::parse_header(&mut reader).context("While reading .comment section")?;
+            let header = MWComment::from_reader(&mut reader, Endian::Big)
+                .context("While reading .comment section")?;
             println!("\nMetrowerks metadata (.comment):");
             println!("\tVersion: {}", header.version);
             println!(
@@ -577,7 +578,7 @@ fn info(args: InfoArgs) -> Result<()> {
             println!("\tUnsafe global reg vars: {}", header.unsafe_global_reg_vars);
             println!("\n{: >10} | {: <6} | {: <6} | {: <10}", "Align", "Vis", "Active", "Symbol");
             for symbol in in_file.symbols() {
-                let comment_sym = read_comment_sym(&mut reader)?;
+                let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
                 if symbol.is_definition() {
                     println!(
                         "{: >10} | {: <#6X} | {: <#6X} | {: <10}",

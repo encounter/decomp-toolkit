@@ -1,13 +1,15 @@
 use std::{
-    io::{Read, Seek, SeekFrom, Write},
-    ops::Deref,
+    io,
+    io::{Read, Seek, Write},
 };
 
-use anyhow::{bail, ensure, Context, Result};
-use byteorder::{BigEndian, ReadBytesExt, WriteBytesExt};
+use anyhow::{bail, Result};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-use crate::obj::{ObjSymbol, ObjSymbolKind};
+use crate::{
+    obj::{ObjSymbol, ObjSymbolKind},
+    util::reader::{skip_bytes, struct_size, Endian, FromReader, ToWriter},
+};
 
 #[derive(Debug, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u8)]
@@ -27,6 +29,131 @@ pub struct MWComment {
     pub incompatible_return_small_structs: bool,
     pub incompatible_sfpe_double_params: bool,
     pub unsafe_global_reg_vars: bool,
+}
+
+const MAGIC: &[u8] = "CodeWarrior".as_bytes();
+const HEADER_SIZE: u8 = 0x2C;
+const PADDING: &[u8] = &[0u8; 0x16];
+
+impl FromReader for MWComment {
+    type Args = ();
+
+    const STATIC_SIZE: usize = HEADER_SIZE as usize;
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        let mut header = MWComment {
+            version: 0,
+            compiler_version: [0; 4],
+            pool_data: false,
+            float: MWFloatKind::None,
+            processor: 0,
+            incompatible_return_small_structs: false,
+            incompatible_sfpe_double_params: false,
+            unsafe_global_reg_vars: false,
+        };
+        // 0x0 - 0xA
+        let magic = <[u8; MAGIC.len()]>::from_reader(reader, e)?;
+        if magic != MAGIC {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Invalid .comment section magic: {:?}", magic),
+            ));
+        }
+        // 0xB
+        header.version = u8::from_reader(reader, e)?;
+        if !matches!(header.version, 8 | 10 | 11 | 13 | 14 | 15) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Unknown .comment section version: {}", header.version),
+            ));
+        }
+        // 0xC - 0xF
+        reader.read_exact(&mut header.compiler_version)?;
+        // 0x10
+        header.pool_data = match u8::from_reader(reader, e)? {
+            0 => false,
+            1 => true,
+            value => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Invalid value for pool_data: {}", value),
+                ))
+            }
+        };
+        // 0x11
+        header.float = MWFloatKind::try_from(u8::from_reader(reader, e)?)
+            .map_err(|_| io::Error::new(io::ErrorKind::InvalidData, "Invalid value for float"))?;
+        // 0x12 - 0x13
+        header.processor = u16::from_reader(reader, e)?;
+        // 0x14
+        match u8::from_reader(reader, e)? {
+            HEADER_SIZE => {}
+            v => {
+                return Err(io::Error::new(
+                    io::ErrorKind::InvalidData,
+                    format!("Expected header size {:#X}, got {:#X}", HEADER_SIZE, v),
+                ))
+            }
+        }
+        // 0x15
+        let flags = u8::from_reader(reader, e)?;
+        if flags & !7 != 0 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Unexpected flag value {:#X}", flags),
+            ));
+        }
+        if flags & 1 == 1 {
+            header.incompatible_return_small_structs = true;
+        }
+        if flags & 2 == 2 {
+            header.incompatible_sfpe_double_params = true;
+        }
+        if flags & 4 == 4 {
+            header.unsafe_global_reg_vars = true;
+        }
+        // 0x16 - 0x2C
+        skip_bytes::<0x16, _>(reader)?;
+        Ok(header)
+    }
+}
+
+impl ToWriter for MWComment {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        // 0x0 - 0xA
+        MAGIC.to_writer(writer, e)?;
+        // 0xB
+        self.version.to_writer(writer, e)?;
+        // 0xC - 0xF
+        self.compiler_version.to_writer(writer, e)?;
+        // 0x10
+        (if self.pool_data { 1u8 } else { 0u8 }).to_writer(writer, e)?;
+        // 0x11
+        u8::from(self.float).to_writer(writer, e)?;
+        // 0x12 - 0x13
+        self.processor.to_writer(writer, e)?;
+        // 0x14
+        HEADER_SIZE.to_writer(writer, e)?;
+        // 0x15
+        let mut flags = 0u8;
+        if self.incompatible_return_small_structs {
+            flags |= 1;
+        }
+        if self.incompatible_sfpe_double_params {
+            flags |= 2;
+        }
+        if self.unsafe_global_reg_vars {
+            flags |= 4;
+        }
+        flags.to_writer(writer, e)?;
+        // 0x16 - 0x2C
+        PADDING.to_writer(writer, e)?;
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { Self::STATIC_SIZE }
 }
 
 impl MWComment {
@@ -60,112 +187,70 @@ impl MWComment {
     }
 }
 
-const MAGIC: &[u8] = "CodeWarrior".as_bytes();
-const PADDING: &[u8] = &[0u8; 0x16];
-
-impl MWComment {
-    pub fn parse_header<R: Read + Seek>(reader: &mut R) -> Result<MWComment> {
-        let mut header = MWComment {
-            version: 0,
-            compiler_version: [0; 4],
-            pool_data: false,
-            float: MWFloatKind::None,
-            processor: 0,
-            incompatible_return_small_structs: false,
-            incompatible_sfpe_double_params: false,
-            unsafe_global_reg_vars: false,
-        };
-        // 0x0 - 0xA
-        let mut magic = vec![0u8; MAGIC.len()];
-        reader.read_exact(&mut magic).context("While reading magic")?;
-        if magic.deref() != MAGIC {
-            bail!("Invalid .comment section magic: {:?}", magic);
-        }
-        // 0xB
-        header.version = reader.read_u8()?;
-        ensure!(
-            matches!(header.version, 8 | 10 | 11 | 13 | 14 | 15),
-            "Unknown .comment section version: {}",
-            header.version
-        );
-        // 0xC - 0xF
-        reader
-            .read_exact(&mut header.compiler_version)
-            .context("While reading compiler version")?;
-        // 0x10
-        header.pool_data = match reader.read_u8()? {
-            0 => false,
-            1 => true,
-            value => bail!("Invalid value for pool_data: {}", value),
-        };
-        // 0x11
-        header.float =
-            MWFloatKind::try_from(reader.read_u8()?).context("Invalid value for float")?;
-        // 0x12 - 0x13
-        header.processor = reader.read_u16::<BigEndian>()?;
-        // 0x14
-        match reader.read_u8()? as char {
-            // This is 0x2C, which could also be the size of the header? Unclear
-            ',' => {}
-            c => bail!("Expected ',' after processor, got '{}'", c),
-        }
-        // 0x15
-        let flags = reader.read_u8()?;
-        if flags & !7 != 0 {
-            bail!("Unexpected flag value {:#X}", flags);
-        }
-        if flags & 1 == 1 {
-            header.incompatible_return_small_structs = true;
-        }
-        if flags & 2 == 2 {
-            header.incompatible_sfpe_double_params = true;
-        }
-        if flags & 4 == 4 {
-            header.unsafe_global_reg_vars = true;
-        }
-        // 0x16 - 0x2C
-        reader.seek(SeekFrom::Current(0x16))?;
-        Ok(header)
-    }
-
-    pub fn write_header<W: Write>(&self, w: &mut W) -> Result<()> {
-        // 0x0 - 0xA
-        w.write_all(MAGIC)?;
-        // 0xB
-        w.write_u8(self.version)?;
-        // 0xC - 0xF
-        w.write_all(&self.compiler_version)?;
-        // 0x10
-        w.write_u8(if self.pool_data { 1 } else { 0 })?;
-        // 0x11
-        w.write_u8(self.float.into())?;
-        // 0x12 - 0x13
-        w.write_u16::<BigEndian>(self.processor)?;
-        // 0x14
-        w.write_u8(0x2C)?;
-        // 0x15
-        let mut flags = 0u8;
-        if self.incompatible_return_small_structs {
-            flags |= 1;
-        }
-        if self.incompatible_sfpe_double_params {
-            flags |= 2;
-        }
-        if self.unsafe_global_reg_vars {
-            flags |= 4;
-        }
-        w.write_u8(flags)?;
-        // 0x16 - 0x2C
-        w.write_all(PADDING)?;
-        Ok(())
-    }
-}
-
 #[derive(Debug, Copy, Clone)]
 pub struct CommentSym {
     pub align: u32,
     pub vis_flags: u8,
     pub active_flags: u8,
+}
+
+impl FromReader for CommentSym {
+    type Args = ();
+
+    const STATIC_SIZE: usize = struct_size([
+        u32::STATIC_SIZE, // align
+        u8::STATIC_SIZE,  // vis_flags
+        u8::STATIC_SIZE,  // active_flags
+        2,                // padding
+    ]);
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        let mut out = CommentSym { align: 0, vis_flags: 0, active_flags: 0 };
+        out.align = u32::from_reader(reader, e)?;
+        out.vis_flags = u8::from_reader(reader, e)?;
+        if !matches!(out.vis_flags, 0 | 0xD | 0xE) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Unknown vis_flags: {:#X}", out.vis_flags),
+            ));
+        }
+        out.active_flags = u8::from_reader(reader, e)?;
+        if !matches!(out.active_flags, 0 | 0x8 | 0x10 | 0x20) {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Unknown active_flags: {:#X}", out.active_flags),
+            ));
+        }
+        let value = u8::from_reader(reader, e)?;
+        if value != 0 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Unexpected value after active_flags (1): {:#X}", value),
+            ));
+        }
+        let value = u8::from_reader(reader, e)?;
+        if value != 0 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("Unexpected value after active_flags (2): {:#X}", value),
+            ));
+        }
+        Ok(out)
+    }
+}
+
+impl ToWriter for CommentSym {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        self.align.to_writer(writer, e)?;
+        self.vis_flags.to_writer(writer, e)?;
+        self.active_flags.to_writer(writer, e)?;
+        [0u8; 2].to_writer(writer, e)?;
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { Self::STATIC_SIZE }
 }
 
 impl CommentSym {
@@ -204,29 +289,4 @@ impl CommentSym {
         }
         Self { align, vis_flags, active_flags }
     }
-}
-
-pub fn write_comment_sym<W: Write>(w: &mut W, symbol: CommentSym) -> Result<()> {
-    w.write_u32::<BigEndian>(symbol.align)?;
-    w.write_u8(symbol.vis_flags)?;
-    w.write_u8(symbol.active_flags)?;
-    w.write_u8(0)?;
-    w.write_u8(0)?;
-    Ok(())
-}
-
-pub fn read_comment_sym<R: Read>(r: &mut R) -> Result<CommentSym> {
-    let mut out = CommentSym { align: 0, vis_flags: 0, active_flags: 0 };
-    out.align = r.read_u32::<BigEndian>()?;
-    out.vis_flags = r.read_u8()?;
-    ensure!(matches!(out.vis_flags, 0 | 0xD | 0xE), "Unknown vis_flags {}", out.vis_flags);
-    out.active_flags = r.read_u8()?;
-    ensure!(
-        matches!(out.active_flags, 0 | 0x8 | 0x10 | 0x20),
-        "Unknown active_flags {}",
-        out.active_flags
-    );
-    ensure!(r.read_u8()? == 0, "Unexpected value after active_flags (1)");
-    ensure!(r.read_u8()? == 0, "Unexpected value after active_flags (2)");
-    Ok(out)
 }

@@ -18,6 +18,7 @@ pub mod rel;
 pub mod rso;
 pub mod signatures;
 pub mod split;
+pub mod take_seek;
 pub mod yaz0;
 
 #[inline]

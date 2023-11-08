@@ -1,4 +1,5 @@
 use std::{
+    fs,
     io::{BufRead, Write},
     num::ParseIntError,
     path::Path,
@@ -7,8 +8,11 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use cwdemangle::{demangle, DemangleOptions};
+use filetime::FileTime;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
+use tracing::{debug, info, warn};
+use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
     analysis::cfa::SectionAddress,
@@ -17,7 +21,7 @@ use crate::{
         ObjSymbolFlags, ObjSymbolKind, ObjUnit,
     },
     util::{
-        file::{buf_writer, map_file},
+        file::{buf_writer, map_file, FileReadInfo},
         split::default_section_align,
     },
 };
@@ -30,9 +34,11 @@ fn parse_hex(s: &str) -> Result<u32, ParseIntError> {
     }
 }
 
-pub fn apply_symbols_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<bool> {
+pub fn apply_symbols_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileReadInfo>>
+where P: AsRef<Path> {
     Ok(if path.as_ref().is_file() {
         let file = map_file(path)?;
+        let cached = FileReadInfo::new(&file)?;
         for result in file.as_reader().lines() {
             let line = match result {
                 Ok(line) => line,
@@ -42,9 +48,9 @@ pub fn apply_symbols_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<
                 obj.add_symbol(symbol, true)?;
             }
         }
-        true
+        Some(cached)
     } else {
-        false
+        None
     })
 }
 
@@ -168,15 +174,58 @@ pub fn is_auto_symbol(symbol: &ObjSymbol) -> bool {
         || symbol.name.starts_with("jumptable_")
 }
 
-#[inline]
-pub fn write_symbols_file<P: AsRef<Path>>(path: P, obj: &ObjInfo) -> Result<()> {
-    let mut w = buf_writer(path)?;
-    write_symbols(&mut w, obj)?;
-    w.flush()?;
+fn write_if_unchanged<P, Cb>(path: P, cb: Cb, cached_file: Option<FileReadInfo>) -> Result<()>
+where
+    P: AsRef<Path>,
+    Cb: FnOnce(&mut dyn Write) -> Result<()>,
+{
+    if let Some(cached_file) = cached_file {
+        // Check file mtime
+        let path = path.as_ref();
+        let new_mtime = fs::metadata(path).ok().map(|m| FileTime::from_last_modification_time(&m));
+        if let Some(new_mtime) = new_mtime {
+            if new_mtime != cached_file.mtime {
+                // File changed, don't write
+                warn!(path = %path.display(), "File changed since read, not updating");
+                return Ok(());
+            }
+        }
+
+        // Write to buffer and compare with hash
+        let mut buf = Vec::new();
+        cb(&mut buf)?;
+        if xxh3_64(&buf) == cached_file.hash {
+            // No changes
+            debug!(path = %path.display(), "File unchanged");
+            return Ok(());
+        }
+
+        // Write to file
+        info!("Writing updated {}", path.display());
+        fs::write(path, &buf)?;
+    } else {
+        // Write directly
+        let mut w = buf_writer(path)?;
+        cb(&mut w)?;
+        w.flush()?;
+    }
     Ok(())
 }
 
-pub fn write_symbols<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
+#[inline]
+pub fn write_symbols_file<P>(
+    path: P,
+    obj: &ObjInfo,
+    cached_file: Option<FileReadInfo>,
+) -> Result<()>
+where
+    P: AsRef<Path>,
+{
+    write_if_unchanged(path, |w| write_symbols(w, obj), cached_file)
+}
+
+pub fn write_symbols<W>(w: &mut W, obj: &ObjInfo) -> Result<()>
+where W: Write + ?Sized {
     for (_, symbol) in obj.symbols.iter_ordered() {
         if symbol.kind == ObjSymbolKind::Section || is_skip_symbol(symbol) {
             continue;
@@ -186,7 +235,8 @@ pub fn write_symbols<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
     Ok(())
 }
 
-fn write_symbol<W: Write>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Result<()> {
+fn write_symbol<W>(w: &mut W, obj: &ObjInfo, symbol: &ObjSymbol) -> Result<()>
+where W: Write + ?Sized {
     write!(w, "{} = ", symbol.name)?;
     let section = symbol.section.and_then(|idx| obj.sections.get(idx));
     if let Some(section) = section {
@@ -330,14 +380,20 @@ fn section_kind_to_str(kind: ObjSectionKind) -> &'static str {
 }
 
 #[inline]
-pub fn write_splits_file<P: AsRef<Path>>(path: P, obj: &ObjInfo, all: bool) -> Result<()> {
-    let mut w = buf_writer(path)?;
-    write_splits(&mut w, obj, all)?;
-    w.flush()?;
-    Ok(())
+pub fn write_splits_file<P>(
+    path: P,
+    obj: &ObjInfo,
+    all: bool,
+    cached_file: Option<FileReadInfo>,
+) -> Result<()>
+where
+    P: AsRef<Path>,
+{
+    write_if_unchanged(path, |w| write_splits(w, obj, all), cached_file)
 }
 
-pub fn write_splits<W: Write>(w: &mut W, obj: &ObjInfo, all: bool) -> Result<()> {
+pub fn write_splits<W>(w: &mut W, obj: &ObjInfo, all: bool) -> Result<()>
+where W: Write + ?Sized {
     writeln!(w, "Sections:")?;
     for (_, section) in obj.sections.iter() {
         write!(w, "\t{:<11} type:{}", section.name, section_kind_to_str(section.kind))?;
@@ -530,17 +586,20 @@ enum SplitState {
     Unit(String),
 }
 
-pub fn apply_splits_file<P: AsRef<Path>>(path: P, obj: &mut ObjInfo) -> Result<bool> {
+pub fn apply_splits_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileReadInfo>>
+where P: AsRef<Path> {
     Ok(if path.as_ref().is_file() {
         let file = map_file(path)?;
-        apply_splits(file.as_reader(), obj)?;
-        true
+        let cached = FileReadInfo::new(&file)?;
+        apply_splits(&mut file.as_reader(), obj)?;
+        Some(cached)
     } else {
-        false
+        None
     })
 }
 
-pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
+pub fn apply_splits<R>(r: &mut R, obj: &mut ObjInfo) -> Result<()>
+where R: BufRead + ?Sized {
     let mut state = SplitState::None;
     for result in r.lines() {
         let line = match result {
@@ -637,7 +696,8 @@ pub fn apply_splits<R: BufRead>(r: R, obj: &mut ObjInfo) -> Result<()> {
     Ok(())
 }
 
-pub fn read_splits_sections<P: AsRef<Path>>(path: P) -> Result<Option<Vec<SectionDef>>> {
+pub fn read_splits_sections<P>(path: P) -> Result<Option<Vec<SectionDef>>>
+where P: AsRef<Path> {
     if !path.as_ref().is_file() {
         return Ok(None);
     }

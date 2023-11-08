@@ -246,10 +246,8 @@ pub fn compare_signature(existing: &mut FunctionSignature, new: &FunctionSignatu
     Ok(())
 }
 
-pub fn generate_signature<P: AsRef<Path>>(
-    path: P,
-    symbol_name: &str,
-) -> Result<Option<FunctionSignature>> {
+pub fn generate_signature<P>(path: P, symbol_name: &str) -> Result<Option<FunctionSignature>>
+where P: AsRef<Path> {
     let mut out_symbols: Vec<OutSymbol> = Vec::new();
     let mut out_relocs: Vec<OutReloc> = Vec::new();
     let mut symbol_map: BTreeMap<usize, usize> = BTreeMap::new();

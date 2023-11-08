@@ -27,8 +27,9 @@ use crate::{
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
     },
     util::{
-        comment::{read_comment_sym, write_comment_sym, CommentSym, MWComment},
+        comment::{CommentSym, MWComment},
         file::map_file,
+        reader::{Endian, FromReader, ToWriter},
     },
 };
 
@@ -41,7 +42,8 @@ enum BoundaryState {
     FilesEnded,
 }
 
-pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
+pub fn process_elf<P>(path: P) -> Result<ObjInfo>
+where P: AsRef<Path> {
     let file = map_file(path)?;
     let obj_file = object::read::File::parse(file.as_slice())?;
     let architecture = match obj_file.architecture() {
@@ -106,12 +108,12 @@ pub fn process_elf<P: AsRef<Path>>(path: P) -> Result<ObjInfo> {
             None
         } else {
             let mut reader = Cursor::new(&*data);
-            let header =
-                MWComment::parse_header(&mut reader).context("While reading .comment section")?;
+            let header = MWComment::from_reader(&mut reader, Endian::Big)
+                .context("While reading .comment section")?;
             log::debug!("Loaded .comment section header {:?}", header);
             let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
             for symbol in obj_file.symbols() {
-                let comment_sym = read_comment_sym(&mut reader)?;
+                let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
                 log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
                 comment_syms.push(comment_sym);
             }
@@ -406,13 +408,10 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             name,
             rela_name: None,
         });
-        mw_comment.write_header(&mut comment_data)?;
+        mw_comment.to_writer_static(&mut comment_data, Endian::Big)?;
         // Null symbol
-        write_comment_sym(&mut comment_data, CommentSym {
-            align: 0,
-            vis_flags: 0,
-            active_flags: 0,
-        })?;
+        CommentSym { align: 0, vis_flags: 0, active_flags: 0 }
+            .to_writer_static(&mut comment_data, Endian::Big)?;
         Some(comment_data)
     } else {
         None
@@ -451,11 +450,8 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             },
         });
         if let Some(comment_data) = &mut comment_data {
-            write_comment_sym(comment_data, CommentSym {
-                align: 1,
-                vis_flags: 0,
-                active_flags: 0,
-            })?;
+            CommentSym { align: 1, vis_flags: 0, active_flags: 0 }
+                .to_writer_static(comment_data, Endian::Big)?;
         }
         section_symbol_offset += 1;
     }
@@ -477,11 +473,8 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
             num_local = writer.symbol_count();
             out_symbols.push(OutSymbol { index, sym });
             if let Some(comment_data) = &mut comment_data {
-                write_comment_sym(comment_data, CommentSym {
-                    align: section.align as u32,
-                    vis_flags: 0,
-                    active_flags: 0,
-                })?;
+                CommentSym { align: section.align as u32, vis_flags: 0, active_flags: 0 }
+                    .to_writer_static(comment_data, Endian::Big)?;
             }
         }
     }
@@ -547,7 +540,7 @@ pub fn write_elf(obj: &ObjInfo) -> Result<Vec<u8>> {
         out_symbols.push(OutSymbol { index, sym });
         symbol_map[symbol_index] = Some(index.0);
         if let Some(comment_data) = &mut comment_data {
-            write_comment_sym(comment_data, CommentSym::from(symbol, true))?;
+            CommentSym::from(symbol, true).to_writer_static(comment_data, Endian::Big)?;
         }
     }
 

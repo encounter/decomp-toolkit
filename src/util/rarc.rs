@@ -1,17 +1,21 @@
 // Source: https://github.com/Julgodis/picori/blob/650da9f4fe6050b39b80d5360416591c748058d5/src/rarc.rs
 // License: MIT
-// Modified to use `std::io::Cursor<&[u8]>` and `byteorder`
+// Modified to use `std::io::Cursor<&[u8]>` and project's FromReader trait
 use std::{
     collections::HashMap,
     fmt::Display,
+    hash::{Hash, Hasher},
+    io,
     io::{Read, Seek, SeekFrom},
     path::{Component, Path, PathBuf},
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
-use byteorder::{BigEndian, LittleEndian, ReadBytesExt};
 
-use crate::util::file::read_c_string;
+use crate::util::{
+    file::read_c_string,
+    reader::{struct_size, Endian, FromReader},
+};
 
 #[derive(Debug, Clone)]
 pub struct NamedHash {
@@ -25,8 +29,11 @@ impl Display for NamedHash {
     }
 }
 
-impl std::hash::Hash for NamedHash {
-    fn hash<H: std::hash::Hasher>(&self, state: &mut H) { self.hash.hash(state); }
+impl Hash for NamedHash {
+    fn hash<H>(&self, state: &mut H)
+    where H: Hasher {
+        self.hash.hash(state);
+    }
 }
 
 impl PartialEq for NamedHash {
@@ -73,105 +80,238 @@ pub struct RarcReader {
     root_node: NamedHash,
 }
 
+pub const RARC_MAGIC: [u8; 4] = *b"RARC";
+
+struct RarcHeader {
+    magic: [u8; 4],
+    _file_length: u32,
+    header_length: u32,
+    file_offset: u32,
+    _file_length_2: u32,
+    _unk0: u32,
+    _unk1: u32,
+    _unk2: u32,
+    node_count: u32,
+    node_offset: u32,
+    directory_count: u32,
+    directory_offset: u32,
+    string_table_length: u32,
+    string_table_offset: u32,
+    _file_count: u16,
+    _unk3: u16,
+    _unk4: u32,
+}
+
+impl FromReader for RarcHeader {
+    type Args = ();
+
+    const STATIC_SIZE: usize = struct_size([
+        4,                // magic
+        u32::STATIC_SIZE, // file_length
+        u32::STATIC_SIZE, // header_length
+        u32::STATIC_SIZE, // file_offset
+        u32::STATIC_SIZE, // file_length
+        u32::STATIC_SIZE, // unk0
+        u32::STATIC_SIZE, // unk1
+        u32::STATIC_SIZE, // unk2
+        u32::STATIC_SIZE, // node_count
+        u32::STATIC_SIZE, // node_offset
+        u32::STATIC_SIZE, // directory_count
+        u32::STATIC_SIZE, // directory_offset
+        u32::STATIC_SIZE, // string_table_length
+        u32::STATIC_SIZE, // string_table_offset
+        u16::STATIC_SIZE, // file_count
+        u16::STATIC_SIZE, // unk3
+        u32::STATIC_SIZE, // unk4
+    ]);
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        let header = Self {
+            magic: <[u8; 4]>::from_reader(reader, e)?,
+            _file_length: u32::from_reader(reader, e)?,
+            header_length: u32::from_reader(reader, e)?,
+            file_offset: u32::from_reader(reader, e)?,
+            _file_length_2: u32::from_reader(reader, e)?,
+            _unk0: u32::from_reader(reader, e)?,
+            _unk1: u32::from_reader(reader, e)?,
+            _unk2: u32::from_reader(reader, e)?,
+            node_count: u32::from_reader(reader, e)?,
+            node_offset: u32::from_reader(reader, e)?,
+            directory_count: u32::from_reader(reader, e)?,
+            directory_offset: u32::from_reader(reader, e)?,
+            string_table_length: u32::from_reader(reader, e)?,
+            string_table_offset: u32::from_reader(reader, e)?,
+            _file_count: u16::from_reader(reader, e)?,
+            _unk3: u16::from_reader(reader, e)?,
+            _unk4: u32::from_reader(reader, e)?,
+        };
+        if header.magic != RARC_MAGIC {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("invalid RARC magic: {:?}", header.magic),
+            ));
+        }
+        if header.node_count >= 0x10000 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("invalid node count: {}", header.node_count),
+            ));
+        }
+        if header.directory_count >= 0x10000 {
+            return Err(io::Error::new(
+                io::ErrorKind::InvalidData,
+                format!("invalid directory count: {}", header.directory_count),
+            ));
+        }
+        Ok(header)
+    }
+}
+
+struct RarcFileNode {
+    index: u16,
+    name_hash: u16,
+    _unk0: u16, // 0x200 for folders, 0x1100 for files
+    name_offset: u16,
+    data_offset: u32,
+    data_length: u32,
+    _unk1: u32,
+}
+
+impl FromReader for RarcFileNode {
+    type Args = ();
+
+    const STATIC_SIZE: usize = struct_size([
+        u16::STATIC_SIZE, // index
+        u16::STATIC_SIZE, // name_hash
+        u16::STATIC_SIZE, // unk0
+        u16::STATIC_SIZE, // name_offset
+        u32::STATIC_SIZE, // data_offset
+        u32::STATIC_SIZE, // data_length
+        u32::STATIC_SIZE, // unk1
+    ]);
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        Ok(Self {
+            index: u16::from_reader(reader, e)?,
+            name_hash: u16::from_reader(reader, e)?,
+            _unk0: u16::from_reader(reader, e)?,
+            name_offset: u16::from_reader(reader, e)?,
+            data_offset: u32::from_reader(reader, e)?,
+            data_length: u32::from_reader(reader, e)?,
+            _unk1: u32::from_reader(reader, e)?,
+        })
+    }
+}
+
+struct RarcDirectoryNode {
+    _identifier: u32,
+    name_offset: u32,
+    name_hash: u16,
+    count: u16,
+    index: u32,
+}
+
+impl FromReader for RarcDirectoryNode {
+    type Args = ();
+
+    const STATIC_SIZE: usize = struct_size([
+        u32::STATIC_SIZE, // identifier
+        u32::STATIC_SIZE, // name_offset
+        u16::STATIC_SIZE, // name_hash
+        u16::STATIC_SIZE, // count
+        u32::STATIC_SIZE, // index
+    ]);
+
+    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
+    where R: Read + Seek + ?Sized {
+        Ok(Self {
+            _identifier: u32::from_reader(reader, e)?,
+            name_offset: u32::from_reader(reader, e)?,
+            name_hash: u16::from_reader(reader, e)?,
+            count: u16::from_reader(reader, e)?,
+            index: u32::from_reader(reader, e)?,
+        })
+    }
+}
+
 impl RarcReader {
     /// Creates a new RARC reader.
-    pub fn new<R: Read + Seek>(reader: &mut R) -> Result<Self> {
+    pub fn new<R>(reader: &mut R) -> Result<Self>
+    where R: Read + Seek + ?Sized {
         let base = reader.stream_position()?;
+        let header = RarcHeader::from_reader(reader, Endian::Big)?;
 
-        let magic = reader.read_u32::<LittleEndian>()?;
-        let _file_length = reader.read_u32::<BigEndian>()?;
-        let header_length = reader.read_u32::<BigEndian>()?;
-        let file_offset = reader.read_u32::<BigEndian>()?;
-        let _file_length = reader.read_u32::<BigEndian>()?;
-        let _ = reader.read_u32::<BigEndian>()?;
-        let _ = reader.read_u32::<BigEndian>()?;
-        let _ = reader.read_u32::<BigEndian>()?;
-        let node_count = reader.read_u32::<BigEndian>()?;
-        let node_offset = reader.read_u32::<BigEndian>()?;
-        let directory_count = reader.read_u32::<BigEndian>()?;
-        let directory_offset = reader.read_u32::<BigEndian>()?;
-        let string_table_length = reader.read_u32::<BigEndian>()?;
-        let string_table_offset = reader.read_u32::<BigEndian>()?;
-        let _file_count = reader.read_u16::<BigEndian>()?;
-        let _ = reader.read_u16::<BigEndian>()?;
-        let _ = reader.read_u32::<BigEndian>()?;
-
-        ensure!(magic == 0x43524152, "invalid RARC magic");
-        ensure!(node_count < 0x10000, "invalid node count");
-        ensure!(directory_count < 0x10000, "invalid directory count");
-
-        let base = base + header_length as u64;
-        let directory_base = base + directory_offset as u64;
-        let data_base = base + file_offset as u64;
-        let mut directories = Vec::with_capacity(directory_count as usize);
-        for i in 0..directory_count {
+        let base = base + header.header_length as u64;
+        let directory_base = base + header.directory_offset as u64;
+        let data_base = base + header.file_offset as u64;
+        let mut directories = Vec::with_capacity(header.directory_count as usize);
+        for i in 0..header.directory_count {
             reader.seek(SeekFrom::Start(directory_base + 20 * i as u64))?;
-            let index = reader.read_u16::<BigEndian>()?;
-            let name_hash = reader.read_u16::<BigEndian>()?;
-            let _ = reader.read_u16::<BigEndian>()?; // 0x200 for folders, 0x1100 for files
-            let name_offset = reader.read_u16::<BigEndian>()?;
-            let data_offset = reader.read_u32::<BigEndian>()?;
-            let data_length = reader.read_u32::<BigEndian>()?;
-            let _ = reader.read_u32::<BigEndian>()?;
+            let node = RarcFileNode::from_reader(reader, Endian::Big)?;
 
             let name = {
-                let offset = string_table_offset as u64;
-                let offset = offset + name_offset as u64;
-                ensure!((name_offset as u32) < string_table_length, "invalid string table offset");
+                let offset = header.string_table_offset as u64;
+                let offset = offset + node.name_offset as u64;
+                ensure!(
+                    (node.name_offset as u32) < header.string_table_length,
+                    "invalid string table offset"
+                );
                 read_c_string(reader, base + offset)
             }?;
 
-            if index == 0xFFFF {
+            if node.index == 0xFFFF {
                 if name == "." {
                     directories.push(RarcDirectory::CurrentFolder);
                 } else if name == ".." {
                     directories.push(RarcDirectory::ParentFolder);
                 } else {
-                    directories
-                        .push(RarcDirectory::Folder { name: NamedHash { name, hash: name_hash } });
+                    directories.push(RarcDirectory::Folder {
+                        name: NamedHash { name, hash: node.name_hash },
+                    });
                 }
             } else {
                 directories.push(RarcDirectory::File {
-                    name: NamedHash { name, hash: name_hash },
-                    offset: data_base + data_offset as u64,
-                    size: data_length,
+                    name: NamedHash { name, hash: node.name_hash },
+                    offset: data_base + node.data_offset as u64,
+                    size: node.data_length,
                 });
             }
         }
 
-        let node_base = base + node_offset as u64;
+        let node_base = base + header.node_offset as u64;
         let mut root_node: Option<NamedHash> = None;
-        let mut nodes = HashMap::with_capacity(node_count as usize);
-        for i in 0..node_count {
+        let mut nodes = HashMap::with_capacity(header.node_count as usize);
+        for i in 0..header.node_count {
             reader.seek(SeekFrom::Start(node_base + 16 * i as u64))?;
-            let _identifier = reader.read_u32::<BigEndian>()?;
-            let name_offset = reader.read_u32::<BigEndian>()?;
-            let name_hash = reader.read_u16::<BigEndian>()?;
-            let count = reader.read_u16::<BigEndian>()? as u32;
-            let index = reader.read_u32::<BigEndian>()?;
+            let node = RarcDirectoryNode::from_reader(reader, Endian::Big)?;
 
-            ensure!(index < directory_count, "first directory index out of bounds");
+            ensure!(node.index < header.directory_count, "first directory index out of bounds");
 
-            let last_index = index.checked_add(count);
+            let last_index = node.index.checked_add(node.count as u32);
             ensure!(
-                last_index.is_some() && last_index.unwrap() <= directory_count,
+                last_index.is_some() && last_index.unwrap() <= header.directory_count,
                 "last directory index out of bounds"
             );
 
             let name = {
-                let offset = string_table_offset as u64;
-                let offset = offset + name_offset as u64;
-                ensure!(name_offset < string_table_length, "invalid string table offset");
+                let offset = header.string_table_offset as u64;
+                let offset = offset + node.name_offset as u64;
+                ensure!(
+                    node.name_offset < header.string_table_length,
+                    "invalid string table offset"
+                );
                 read_c_string(reader, base + offset)
             }?;
 
             // FIXME: this assumes that the root node is the first node in the list
             if root_node.is_none() {
-                root_node = Some(NamedHash { name: name.clone(), hash: name_hash });
+                root_node = Some(NamedHash { name: name.clone(), hash: node.name_hash });
             }
 
-            let name = NamedHash { name, hash: name_hash };
-            nodes.insert(name.clone(), RarcNode { index, count });
+            let name = NamedHash { name, hash: node.name_hash };
+            nodes.insert(name.clone(), RarcNode { index: node.index, count: node.count as u32 });
         }
 
         if let Some(root_node) = root_node {
@@ -188,7 +328,8 @@ impl RarcReader {
     }
 
     /// Find a file in the RARC file.
-    pub fn find_file<P: AsRef<Path>>(&self, path: P) -> Result<Option<(u64, u32)>> {
+    pub fn find_file<P>(&self, path: P) -> Result<Option<(u64, u32)>>
+    where P: AsRef<Path> {
         let mut cmp_path = PathBuf::new();
         for component in path.as_ref().components() {
             match component {

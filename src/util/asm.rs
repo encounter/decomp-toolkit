@@ -29,7 +29,8 @@ struct SymbolEntry {
     kind: SymbolEntryKind,
 }
 
-pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
+pub fn write_asm<W>(w: &mut W, obj: &ObjInfo) -> Result<()>
+where W: Write + ?Sized {
     writeln!(w, ".include \"macros.inc\"")?;
     if !obj.name.is_empty() {
         let name = obj
@@ -230,7 +231,7 @@ pub fn write_asm<W: Write>(w: &mut W, obj: &ObjInfo) -> Result<()> {
     Ok(())
 }
 
-fn write_code_chunk<W: Write>(
+fn write_code_chunk<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
     _entries: &BTreeMap<u32, Vec<SymbolEntry>>,
@@ -238,7 +239,10 @@ fn write_code_chunk<W: Write>(
     section: &ObjSection,
     address: u32,
     data: &[u8],
-) -> Result<()> {
+) -> Result<()>
+where
+    W: Write + ?Sized,
+{
     for ins in disasm_iter(data, address) {
         let reloc = relocations.get(&ins.addr);
         let file_offset = section.file_offset + (ins.addr as u64 - section.address);
@@ -247,14 +251,17 @@ fn write_code_chunk<W: Write>(
     Ok(())
 }
 
-fn write_ins<W: Write>(
+fn write_ins<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
     ins: Ins,
     reloc: Option<&ObjReloc>,
     file_offset: u64,
     section_address: u64,
-) -> Result<()> {
+) -> Result<()>
+where
+    W: Write + ?Sized,
+{
     write!(
         w,
         "/* {:08X} {:08X}  {:02X} {:02X} {:02X} {:02X} */\t",
@@ -316,7 +323,8 @@ fn write_ins<W: Write>(
     Ok(())
 }
 
-fn write_reloc<W: Write>(w: &mut W, symbols: &[ObjSymbol], reloc: &ObjReloc) -> Result<()> {
+fn write_reloc<W>(w: &mut W, symbols: &[ObjSymbol], reloc: &ObjReloc) -> Result<()>
+where W: Write + ?Sized {
     write_reloc_symbol(w, symbols, reloc)?;
     match reloc.kind {
         ObjRelocKind::Absolute | ObjRelocKind::PpcRel24 | ObjRelocKind::PpcRel14 => {
@@ -338,11 +346,8 @@ fn write_reloc<W: Write>(w: &mut W, symbols: &[ObjSymbol], reloc: &ObjReloc) -> 
     Ok(())
 }
 
-fn write_symbol_entry<W: Write>(
-    w: &mut W,
-    symbols: &[ObjSymbol],
-    entry: &SymbolEntry,
-) -> Result<()> {
+fn write_symbol_entry<W>(w: &mut W, symbols: &[ObjSymbol], entry: &SymbolEntry) -> Result<()>
+where W: Write + ?Sized {
     let symbol = &symbols[entry.index];
 
     // Skip writing certain symbols
@@ -405,7 +410,7 @@ fn write_symbol_entry<W: Write>(
 }
 
 #[allow(clippy::too_many_arguments)]
-fn write_data<W: Write>(
+fn write_data<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
     entries: &BTreeMap<u32, Vec<SymbolEntry>>,
@@ -414,7 +419,10 @@ fn write_data<W: Write>(
     start: u32,
     end: u32,
     section_entries: &[BTreeMap<u32, Vec<SymbolEntry>>],
-) -> Result<()> {
+) -> Result<()>
+where
+    W: Write + ?Sized,
+{
     let mut entry_iter = entries.range(start..end);
     let mut reloc_iter = relocations.range(start..end);
 
@@ -577,7 +585,8 @@ fn find_data_kind(
     Ok(kind)
 }
 
-fn write_string<W: Write>(w: &mut W, data: &[u8]) -> Result<()> {
+fn write_string<W>(w: &mut W, data: &[u8]) -> Result<()>
+where W: Write + ?Sized {
     let terminated = matches!(data.last(), Some(&b) if b == 0);
     if terminated {
         write!(w, "\t.string \"")?;
@@ -601,7 +610,8 @@ fn write_string<W: Write>(w: &mut W, data: &[u8]) -> Result<()> {
     Ok(())
 }
 
-fn write_string16<W: Write>(w: &mut W, data: &[u16]) -> Result<()> {
+fn write_string16<W>(w: &mut W, data: &[u16]) -> Result<()>
+where W: Write + ?Sized {
     if matches!(data.last(), Some(&b) if b == 0) {
         write!(w, "\t.string16 \"")?;
     } else {
@@ -630,7 +640,8 @@ fn write_string16<W: Write>(w: &mut W, data: &[u16]) -> Result<()> {
     Ok(())
 }
 
-fn write_data_chunk<W: Write>(w: &mut W, data: &[u8], data_kind: ObjDataKind) -> Result<()> {
+fn write_data_chunk<W>(w: &mut W, data: &[u8], data_kind: ObjDataKind) -> Result<()>
+where W: Write + ?Sized {
     let remain = data;
     match data_kind {
         ObjDataKind::String => {
@@ -718,14 +729,17 @@ fn write_data_chunk<W: Write>(w: &mut W, data: &[u8], data_kind: ObjDataKind) ->
     Ok(())
 }
 
-fn write_data_reloc<W: Write>(
+fn write_data_reloc<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
     _entries: &BTreeMap<u32, Vec<SymbolEntry>>,
     reloc_address: u32,
     reloc: &ObjReloc,
     section_entries: &[BTreeMap<u32, Vec<SymbolEntry>>],
-) -> Result<u32> {
+) -> Result<u32>
+where
+    W: Write + ?Sized,
+{
     match reloc.kind {
         ObjRelocKind::Absolute => {
             // Attempt to use .rel macro for relative relocations
@@ -759,13 +773,16 @@ fn write_data_reloc<W: Write>(
     }
 }
 
-fn write_bss<W: Write>(
+fn write_bss<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
     entries: &BTreeMap<u32, Vec<SymbolEntry>>,
     start: u32,
     end: u32,
-) -> Result<()> {
+) -> Result<()>
+where
+    W: Write + ?Sized,
+{
     let mut entry_iter = entries.range(start..end);
 
     let mut current_address = start;
@@ -798,13 +815,16 @@ fn write_bss<W: Write>(
     Ok(())
 }
 
-fn write_section_header<W: Write>(
+fn write_section_header<W>(
     w: &mut W,
     section: &ObjSection,
     subsection: usize,
     start: u32,
     end: u32,
-) -> Result<()> {
+) -> Result<()>
+where
+    W: Write + ?Sized,
+{
     writeln!(
         w,
         "\n# {:#010X} - {:#010X}",
@@ -865,11 +885,14 @@ fn write_section_header<W: Write>(
     Ok(())
 }
 
-fn write_reloc_symbol<W: Write>(
+fn write_reloc_symbol<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
     reloc: &ObjReloc,
-) -> std::io::Result<()> {
+) -> std::io::Result<()>
+where
+    W: Write + ?Sized,
+{
     write_symbol_name(w, &symbols[reloc.target_symbol].name)?;
     match reloc.addend.cmp(&0i64) {
         Ordering::Greater => write!(w, "+{:#X}", reloc.addend),
@@ -878,7 +901,8 @@ fn write_reloc_symbol<W: Write>(
     }
 }
 
-fn write_symbol_name<W: Write>(w: &mut W, name: &str) -> std::io::Result<()> {
+fn write_symbol_name<W>(w: &mut W, name: &str) -> std::io::Result<()>
+where W: Write + ?Sized {
     if name.contains('@')
         || name.contains('<')
         || name.contains('\\')

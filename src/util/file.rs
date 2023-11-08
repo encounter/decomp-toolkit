@@ -7,17 +7,27 @@ use std::{
 };
 
 use anyhow::{anyhow, Context, Result};
-use binrw::io::{TakeSeek, TakeSeekExt};
-use byteorder::ReadBytesExt;
 use filetime::{set_file_mtime, FileTime};
 use memmap2::{Mmap, MmapOptions};
 use path_slash::PathBufExt;
 use sha1::{Digest, Sha1};
+use xxhash_rust::xxh3::xxh3_64;
 
-use crate::util::{rarc, rarc::Node, yaz0, IntoCow, ToCow};
+use crate::{
+    array_ref,
+    util::{
+        rarc,
+        rarc::{Node, RARC_MAGIC},
+        take_seek::{TakeSeek, TakeSeekExt},
+        yaz0,
+        yaz0::YAZ0_MAGIC,
+        IntoCow, ToCow,
+    },
+};
 
 pub struct MappedFile {
     mmap: Mmap,
+    mtime: FileTime,
     offset: u64,
     len: u64,
 }
@@ -36,7 +46,8 @@ impl MappedFile {
     pub fn into_inner(self) -> Mmap { self.mmap }
 }
 
-pub fn split_path<P: AsRef<Path>>(path: P) -> Result<(PathBuf, Option<PathBuf>)> {
+pub fn split_path<P>(path: P) -> Result<(PathBuf, Option<PathBuf>)>
+where P: AsRef<Path> {
     let mut base_path = PathBuf::new();
     let mut sub_path: Option<PathBuf> = None;
     for component in path.as_ref().components() {
@@ -58,22 +69,30 @@ pub fn split_path<P: AsRef<Path>>(path: P) -> Result<(PathBuf, Option<PathBuf>)>
 }
 
 /// Opens a memory mapped file, and decompresses it if needed.
-pub fn map_file<P: AsRef<Path>>(path: P) -> Result<FileEntry> {
+pub fn map_file<P>(path: P) -> Result<FileEntry>
+where P: AsRef<Path> {
     let (base_path, sub_path) = split_path(path.as_ref())?;
     let file = File::open(&base_path)
         .with_context(|| format!("Failed to open file '{}'", base_path.display()))?;
+    let mtime = FileTime::from_last_modification_time(&file.metadata()?);
     let mmap = unsafe { MmapOptions::new().map(&file) }
         .with_context(|| format!("Failed to mmap file: '{}'", base_path.display()))?;
     let (offset, len) = if let Some(sub_path) = sub_path {
         let mut reader = Cursor::new(&*mmap);
         if sub_path.as_os_str() == OsStr::new("nlzss") {
-            return Ok(FileEntry::Buffer(nintendo_lz::decompress(&mut reader).map_err(|e| {
-                anyhow!("Failed to decompress '{}' with NLZSS: {}", path.as_ref().display(), e)
-            })?));
+            return Ok(FileEntry::Buffer(
+                nintendo_lz::decompress(&mut reader).map_err(|e| {
+                    anyhow!("Failed to decompress '{}' with NLZSS: {}", path.as_ref().display(), e)
+                })?,
+                mtime,
+            ));
         } else if sub_path.as_os_str() == OsStr::new("yaz0") {
-            return Ok(FileEntry::Buffer(yaz0::decompress_file(&mut reader).with_context(
-                || format!("Failed to decompress '{}' with Yaz0", path.as_ref().display()),
-            )?));
+            return Ok(FileEntry::Buffer(
+                yaz0::decompress_file(&mut reader).with_context(|| {
+                    format!("Failed to decompress '{}' with Yaz0", path.as_ref().display())
+                })?,
+                mtime,
+            ));
         }
 
         let rarc = rarc::RarcReader::new(&mut reader)
@@ -84,13 +103,16 @@ pub fn map_file<P: AsRef<Path>>(path: P) -> Result<FileEntry> {
     } else {
         (0, mmap.len() as u64)
     };
-    let map = MappedFile { mmap, offset, len };
+    let map = MappedFile { mmap, mtime, offset, len };
     let buf = map.as_slice();
     // Auto-detect compression if there's a magic number.
-    if buf.len() > 4 && buf[0..4] == *b"Yaz0" {
-        return Ok(FileEntry::Buffer(yaz0::decompress_file(&mut map.as_reader()).with_context(
-            || format!("Failed to decompress '{}' with Yaz0", path.as_ref().display()),
-        )?));
+    if buf.len() > 4 && buf[0..4] == YAZ0_MAGIC {
+        return Ok(FileEntry::Buffer(
+            yaz0::decompress_file(&mut map.as_reader()).with_context(|| {
+                format!("Failed to decompress '{}' with Yaz0", path.as_ref().display())
+            })?,
+            mtime,
+        ));
     }
     Ok(FileEntry::MappedFile(map))
 }
@@ -98,7 +120,8 @@ pub fn map_file<P: AsRef<Path>>(path: P) -> Result<FileEntry> {
 pub type OpenedFile = TakeSeek<File>;
 
 /// Opens a file (not memory mapped). No decompression is performed.
-pub fn open_file<P: AsRef<Path>>(path: P) -> Result<OpenedFile> {
+pub fn open_file<P>(path: P) -> Result<OpenedFile>
+where P: AsRef<Path> {
     let (base_path, sub_path) = split_path(path)?;
     let mut file = File::open(&base_path)
         .with_context(|| format!("Failed to open file '{}'", base_path.display()))?;
@@ -118,17 +141,18 @@ pub fn open_file<P: AsRef<Path>>(path: P) -> Result<OpenedFile> {
 pub trait Reader: BufRead + Seek {}
 
 impl Reader for Cursor<&[u8]> {}
-// impl Reader for &mut OpenedFile {}
 
 /// Creates a buffered reader around a file (not memory mapped).
-pub fn buf_reader<P: AsRef<Path>>(path: P) -> Result<BufReader<File>> {
+pub fn buf_reader<P>(path: P) -> Result<BufReader<File>>
+where P: AsRef<Path> {
     let file = File::open(&path)
         .with_context(|| format!("Failed to open file '{}'", path.as_ref().display()))?;
     Ok(BufReader::new(file))
 }
 
 /// Creates a buffered writer around a file (not memory mapped).
-pub fn buf_writer<P: AsRef<Path>>(path: P) -> Result<BufWriter<File>> {
+pub fn buf_writer<P>(path: P) -> Result<BufWriter<File>>
+where P: AsRef<Path> {
     if let Some(parent) = path.as_ref().parent() {
         DirBuilder::new().recursive(true).create(parent)?;
     }
@@ -138,7 +162,8 @@ pub fn buf_writer<P: AsRef<Path>>(path: P) -> Result<BufWriter<File>> {
 }
 
 /// Reads a string with known size at the specified offset.
-pub fn read_string<R: Read + Seek>(reader: &mut R, off: u64, size: usize) -> Result<String> {
+pub fn read_string<R>(reader: &mut R, off: u64, size: usize) -> Result<String>
+where R: Read + Seek + ?Sized {
     let mut data = vec![0u8; size];
     let pos = reader.stream_position()?;
     reader.seek(SeekFrom::Start(off))?;
@@ -148,16 +173,18 @@ pub fn read_string<R: Read + Seek>(reader: &mut R, off: u64, size: usize) -> Res
 }
 
 /// Reads a zero-terminated string at the specified offset.
-pub fn read_c_string<R: Read + Seek>(reader: &mut R, off: u64) -> Result<String> {
+pub fn read_c_string<R>(reader: &mut R, off: u64) -> Result<String>
+where R: Read + Seek + ?Sized {
     let pos = reader.stream_position()?;
     reader.seek(SeekFrom::Start(off))?;
     let mut s = String::new();
+    let mut buf = [0u8; 1];
     loop {
-        let b = reader.read_u8()?;
-        if b == 0 {
+        reader.read_exact(&mut buf)?;
+        if buf[0] == 0 {
             break;
         }
-        s.push(b as char);
+        s.push(buf[0] as char);
     }
     reader.seek(SeekFrom::Start(pos))?;
     Ok(s)
@@ -190,15 +217,15 @@ pub fn process_rsp(files: &[PathBuf]) -> Result<Vec<PathBuf>> {
 
 /// Iterator over files in a RARC archive.
 struct RarcIterator {
-    file: Mmap,
+    file: MappedFile,
     base_path: PathBuf,
     paths: Vec<(PathBuf, u64, u32)>,
     index: usize,
 }
 
 impl RarcIterator {
-    pub fn new(file: Mmap, base_path: &Path) -> Result<Self> {
-        let reader = rarc::RarcReader::new(&mut Cursor::new(&*file))?;
+    pub fn new(file: MappedFile, base_path: &Path) -> Result<Self> {
+        let reader = rarc::RarcReader::new(&mut file.as_reader())?;
         let paths = Self::collect_paths(&reader, base_path);
         Ok(Self { file, base_path: base_path.to_owned(), paths, index: 0 })
     }
@@ -237,7 +264,7 @@ impl Iterator for RarcIterator {
         let (path, off, size) = self.paths[self.index].clone();
         self.index += 1;
 
-        let slice = &self.file[off as usize..off as usize + size as usize];
+        let slice = &self.file.as_slice()[off as usize..off as usize + size as usize];
         match decompress_if_needed(slice) {
             Ok(buf) => Some(Ok((path, buf.into_owned()))),
             Err(e) => Some(Err(e)),
@@ -248,37 +275,60 @@ impl Iterator for RarcIterator {
 /// A file entry, either a memory mapped file or an owned buffer.
 pub enum FileEntry {
     MappedFile(MappedFile),
-    Buffer(Vec<u8>),
+    Buffer(Vec<u8>, FileTime),
 }
 
 impl FileEntry {
     /// Creates a reader for the file.
-    pub fn as_reader(&self) -> Box<dyn Reader + '_> {
+    pub fn as_reader(&self) -> Cursor<&[u8]> {
         match self {
-            Self::MappedFile(file) => Box::new(file.as_reader()),
-            Self::Buffer(slice) => Box::new(Cursor::new(slice.as_slice())),
+            Self::MappedFile(file) => file.as_reader(),
+            Self::Buffer(slice, _) => Cursor::new(slice.as_slice()),
         }
     }
 
     pub fn as_slice(&self) -> &[u8] {
         match self {
             Self::MappedFile(file) => file.as_slice(),
-            Self::Buffer(slice) => slice.as_slice(),
+            Self::Buffer(slice, _) => slice.as_slice(),
         }
     }
 
     pub fn len(&self) -> u64 {
         match self {
             Self::MappedFile(file) => file.len(),
-            Self::Buffer(slice) => slice.len() as u64,
+            Self::Buffer(slice, _) => slice.len() as u64,
         }
     }
 
     pub fn is_empty(&self) -> bool {
         match self {
             Self::MappedFile(file) => file.is_empty(),
-            Self::Buffer(slice) => slice.is_empty(),
+            Self::Buffer(slice, _) => slice.is_empty(),
         }
+    }
+
+    pub fn mtime(&self) -> FileTime {
+        match self {
+            Self::MappedFile(file) => file.mtime,
+            Self::Buffer(_, mtime) => *mtime,
+        }
+    }
+}
+
+/// Information about a file when it was read.
+/// Used to determine if a file has changed since it was read (mtime)
+/// and if it needs to be written (hash).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct FileReadInfo {
+    pub mtime: FileTime,
+    pub hash: u64,
+}
+
+impl FileReadInfo {
+    pub fn new(entry: &FileEntry) -> Result<Self> {
+        let hash = xxh3_64(entry.as_slice());
+        Ok(Self { mtime: entry.mtime(), hash })
     }
 }
 
@@ -303,7 +353,7 @@ impl FileIterator {
                     let mut path_str = rarc.base_path.as_os_str().to_os_string();
                     path_str.push(OsStr::new(":"));
                     path_str.push(path.as_os_str());
-                    return Some(Ok((path, FileEntry::Buffer(buf))));
+                    return Some(Ok((path, FileEntry::Buffer(buf, rarc.file.mtime))));
                 }
                 Some(Err(err)) => return Some(Err(err)),
                 None => self.rarc = None,
@@ -321,7 +371,7 @@ impl FileIterator {
         self.index += 1;
         match map_file(&path) {
             Ok(FileEntry::MappedFile(map)) => self.handle_file(map, path),
-            Ok(FileEntry::Buffer(_)) => todo!(),
+            Ok(FileEntry::Buffer(_, _)) => todo!(),
             Err(err) => Some(Err(err)),
         }
     }
@@ -336,26 +386,30 @@ impl FileIterator {
             return Some(Ok((path, FileEntry::MappedFile(file))));
         }
 
-        match &buf[0..4] {
-            b"Yaz0" => self.handle_yaz0(file.as_reader(), path),
-            b"RARC" => self.handle_rarc(file.into_inner(), path),
+        match *array_ref!(buf, 0, 4) {
+            YAZ0_MAGIC => self.handle_yaz0(file, path),
+            RARC_MAGIC => self.handle_rarc(file, path),
             _ => Some(Ok((path, FileEntry::MappedFile(file)))),
         }
     }
 
     fn handle_yaz0(
         &mut self,
-        mut reader: Cursor<&[u8]>,
+        file: MappedFile,
         path: PathBuf,
     ) -> Option<Result<(PathBuf, FileEntry)>> {
-        Some(match yaz0::decompress_file(&mut reader) {
-            Ok(buf) => Ok((path, FileEntry::Buffer(buf))),
+        Some(match yaz0::decompress_file(&mut file.as_reader()) {
+            Ok(buf) => Ok((path, FileEntry::Buffer(buf, file.mtime))),
             Err(e) => Err(e),
         })
     }
 
-    fn handle_rarc(&mut self, map: Mmap, path: PathBuf) -> Option<Result<(PathBuf, FileEntry)>> {
-        self.rarc = match RarcIterator::new(map, &path) {
+    fn handle_rarc(
+        &mut self,
+        file: MappedFile,
+        path: PathBuf,
+    ) -> Option<Result<(PathBuf, FileEntry)>> {
+        self.rarc = match RarcIterator::new(file, &path) {
             Ok(iter) => Some(iter),
             Err(e) => return Some(Err(e)),
         };
@@ -369,7 +423,8 @@ impl Iterator for FileIterator {
     fn next(&mut self) -> Option<Self::Item> { self.next_rarc().or_else(|| self.next_path()) }
 }
 
-pub fn touch<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
+pub fn touch<P>(path: P) -> std::io::Result<()>
+where P: AsRef<Path> {
     if path.as_ref().exists() {
         set_file_mtime(path, FileTime::now())
     } else {
@@ -381,14 +436,15 @@ pub fn touch<P: AsRef<Path>>(path: P) -> std::io::Result<()> {
 }
 
 pub fn decompress_if_needed(buf: &[u8]) -> Result<Cow<[u8]>> {
-    Ok(if buf.len() > 4 && buf[0..4] == *b"Yaz0" {
+    Ok(if buf.len() > 4 && buf[0..4] == YAZ0_MAGIC {
         yaz0::decompress_file(&mut Cursor::new(buf))?.into_cow()
     } else {
         buf.to_cow()
     })
 }
 
-pub fn decompress_reader<R: Read + Seek>(reader: &mut R) -> Result<Vec<u8>> {
+pub fn decompress_reader<R>(reader: &mut R) -> Result<Vec<u8>>
+where R: Read + Seek + ?Sized {
     let mut magic = [0u8; 4];
     if reader.read_exact(&mut magic).is_err() {
         reader.seek(SeekFrom::Start(0))?;
@@ -396,7 +452,7 @@ pub fn decompress_reader<R: Read + Seek>(reader: &mut R) -> Result<Vec<u8>> {
         reader.read_to_end(&mut buf)?;
         return Ok(buf);
     }
-    Ok(if magic == *b"Yaz0" {
+    Ok(if magic == YAZ0_MAGIC {
         reader.seek(SeekFrom::Start(0))?;
         yaz0::decompress_file(reader)?
     } else {

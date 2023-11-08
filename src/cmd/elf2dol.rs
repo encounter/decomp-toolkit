@@ -150,7 +150,8 @@ const fn align32(x: u32) -> u32 { (x + 31) & !31 }
 const ZERO_BUF: [u8; 32] = [0u8; 32];
 
 #[inline]
-fn write_aligned<T: Write>(out: &mut T, bytes: &[u8], aligned_size: u32) -> std::io::Result<()> {
+fn write_aligned<T>(out: &mut T, bytes: &[u8], aligned_size: u32) -> std::io::Result<()>
+where T: Write + ?Sized {
     out.write_all(bytes)?;
     let padding = aligned_size - bytes.len() as u32;
     if padding > 0 {

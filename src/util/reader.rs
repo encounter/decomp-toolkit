@@ -172,6 +172,12 @@ pub trait ToWriter: Sized {
     fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
     where W: Write + ?Sized;
 
+    #[inline]
+    fn to_writer_static<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        writer.write_all(&self.to_bytes(e)?)
+    }
+
     fn to_bytes(&self, e: Endian) -> io::Result<Vec<u8>> {
         let mut buf = vec![0u8; self.write_size()];
         self.to_writer(&mut buf.as_mut_slice(), e)?;

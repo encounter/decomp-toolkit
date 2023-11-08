@@ -7,10 +7,12 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use byteorder::{BigEndian, ReadBytesExt};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 
-use crate::array_ref;
+use crate::{
+    array_ref,
+    util::reader::{Endian, FromReader},
+};
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u16)]
@@ -362,7 +364,8 @@ impl Tag {
     }
 }
 
-pub fn read_debug_section<R: BufRead + Seek>(reader: &mut R) -> Result<TagMap> {
+pub fn read_debug_section<R>(reader: &mut R) -> Result<TagMap>
+where R: BufRead + Seek + ?Sized {
     let len = {
         let old_pos = reader.stream_position()?;
         let len = reader.seek(SeekFrom::End(0))?;
@@ -383,7 +386,8 @@ pub fn read_debug_section<R: BufRead + Seek>(reader: &mut R) -> Result<TagMap> {
 }
 
 #[allow(unused)]
-pub fn read_aranges_section<R: BufRead + Seek>(reader: &mut R) -> Result<()> {
+pub fn read_aranges_section<R>(reader: &mut R) -> Result<()>
+where R: BufRead + Seek + ?Sized {
     let len = {
         let old_pos = reader.stream_position()?;
         let len = reader.seek(SeekFrom::End(0))?;
@@ -398,22 +402,23 @@ pub fn read_aranges_section<R: BufRead + Seek>(reader: &mut R) -> Result<()> {
             break;
         }
 
-        let size = reader.read_u32::<BigEndian>()?;
-        let version = reader.read_u8()?;
+        let size = u32::from_reader(reader, Endian::Big)?;
+        let version = u8::from_reader(reader, Endian::Big)?;
         ensure!(version == 1, "Expected version 1, got {version}");
-        let _debug_offs = reader.read_u32::<BigEndian>()?;
-        let _debug_size = reader.read_u32::<BigEndian>()?;
+        let _debug_offs = u32::from_reader(reader, Endian::Big)?;
+        let _debug_size = u32::from_reader(reader, Endian::Big)?;
         while reader.stream_position()? < position + size as u64 {
-            let _address = reader.read_u32::<BigEndian>()?;
-            let _length = reader.read_u32::<BigEndian>()?;
+            let _address = u32::from_reader(reader, Endian::Big)?;
+            let _length = u32::from_reader(reader, Endian::Big)?;
         }
     }
     Ok(())
 }
 
-fn read_tag<R: BufRead + Seek>(reader: &mut R) -> Result<Tag> {
+fn read_tag<R>(reader: &mut R) -> Result<Tag>
+where R: BufRead + Seek + ?Sized {
     let position = reader.stream_position()?;
-    let size = reader.read_u32::<BigEndian>()?;
+    let size = u32::from_reader(reader, Endian::Big)?;
     if size < 8 {
         // Null entry
         if size > 4 {
@@ -422,8 +427,8 @@ fn read_tag<R: BufRead + Seek>(reader: &mut R) -> Result<Tag> {
         return Ok(Tag { key: position as u32, kind: TagKind::Padding, attributes: vec![] });
     }
 
-    let tag =
-        TagKind::try_from(reader.read_u16::<BigEndian>()?).context("Unknown DWARF tag type")?;
+    let tag = TagKind::try_from(u16::from_reader(reader, Endian::Big)?)
+        .context("Unknown DWARF tag type")?;
     let mut attributes = Vec::new();
     if tag == TagKind::Padding {
         reader.seek(SeekFrom::Start(position + size as u64))?; // Skip padding
@@ -437,40 +442,43 @@ fn read_tag<R: BufRead + Seek>(reader: &mut R) -> Result<Tag> {
 }
 
 // TODO Shift-JIS?
-fn read_string<R: BufRead>(reader: &mut R) -> Result<String> {
+fn read_string<R>(reader: &mut R) -> Result<String>
+where R: BufRead + ?Sized {
     let mut str = String::new();
+    let mut buf = [0u8; 1];
     loop {
-        let byte = reader.read_u8()?;
-        if byte == 0 {
+        reader.read_exact(&mut buf)?;
+        if buf[0] == 0 {
             break;
         }
-        str.push(byte as char);
+        str.push(buf[0] as char);
     }
     Ok(str)
 }
 
-fn read_attribute<R: BufRead + Seek>(reader: &mut R) -> Result<Attribute> {
-    let attr_type = reader.read_u16::<BigEndian>()?;
+fn read_attribute<R>(reader: &mut R) -> Result<Attribute>
+where R: BufRead + Seek + ?Sized {
+    let attr_type = u16::from_reader(reader, Endian::Big)?;
     let attr = AttributeKind::try_from(attr_type).context("Unknown DWARF attribute type")?;
     let form = FormKind::try_from(attr_type & FORM_MASK).context("Unknown DWARF form type")?;
     let value = match form {
-        FormKind::Addr => AttributeValue::Address(reader.read_u32::<BigEndian>()?),
-        FormKind::Ref => AttributeValue::Reference(reader.read_u32::<BigEndian>()?),
+        FormKind::Addr => AttributeValue::Address(u32::from_reader(reader, Endian::Big)?),
+        FormKind::Ref => AttributeValue::Reference(u32::from_reader(reader, Endian::Big)?),
         FormKind::Block2 => {
-            let size = reader.read_u16::<BigEndian>()?;
+            let size = u16::from_reader(reader, Endian::Big)?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
             AttributeValue::Block(data)
         }
         FormKind::Block4 => {
-            let size = reader.read_u32::<BigEndian>()?;
+            let size = u32::from_reader(reader, Endian::Big)?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
             AttributeValue::Block(data)
         }
-        FormKind::Data2 => AttributeValue::Data2(reader.read_u16::<BigEndian>()?),
-        FormKind::Data4 => AttributeValue::Data4(reader.read_u32::<BigEndian>()?),
-        FormKind::Data8 => AttributeValue::Data8(reader.read_u64::<BigEndian>()?),
+        FormKind::Data2 => AttributeValue::Data2(u16::from_reader(reader, Endian::Big)?),
+        FormKind::Data4 => AttributeValue::Data4(u32::from_reader(reader, Endian::Big)?),
+        FormKind::Data8 => AttributeValue::Data8(u64::from_reader(reader, Endian::Big)?),
         FormKind::String => AttributeValue::String(read_string(reader)?),
     };
     Ok(Attribute { kind: attr, value })
@@ -1033,7 +1041,7 @@ pub fn ud_type(tags: &TagMap, tag: &Tag) -> Result<UserDefinedType> {
             let mut members = Vec::new();
             let mut cursor = Cursor::new(data);
             while cursor.position() < data.len() as u64 {
-                let value = cursor.read_u32::<BigEndian>()?;
+                let value = u32::from_reader(&mut cursor, Endian::Big)?;
                 let name = read_string(&mut cursor)?;
                 members.push(EnumerationMember { name, value });
             }
