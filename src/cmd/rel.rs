@@ -36,8 +36,8 @@ use crate::{
         file::{buf_reader, buf_writer, map_file, process_rsp, verify_hash, FileIterator},
         nested::NestedMap,
         rel::{
-            process_rel, process_rel_header, process_rel_sections, write_rel, RelHeader, RelReloc,
-            RelSectionHeader, RelWriteInfo, PERMITTED_SECTIONS,
+            print_relocations, process_rel, process_rel_header, process_rel_sections, write_rel,
+            RelHeader, RelReloc, RelSectionHeader, RelWriteInfo, PERMITTED_SECTIONS,
         },
         IntoCow, ToCow,
     },
@@ -66,6 +66,9 @@ pub struct InfoArgs {
     #[argp(positional)]
     /// REL file
     rel_file: PathBuf,
+    #[argp(switch, short = 'r')]
+    /// print relocations
+    relocations: bool,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -407,6 +410,12 @@ fn info(args: InfoArgs) -> Result<()> {
             "{: >10} | {: <#10X} | {: <10} | {: <10}",
             section_str, symbol.address, size_str, symbol.name
         );
+    }
+
+    if args.relocations {
+        println!("\nRelocations:");
+        println!("    [Source] section:address RelocType -> [Target] module:section:address");
+        print_relocations(&mut file.as_reader(), &header)?;
     }
     Ok(())
 }

@@ -553,6 +553,53 @@ where R: Read + Seek + ?Sized {
     Ok((header, obj))
 }
 
+pub fn print_relocations<R>(reader: &mut R, header: &RelHeader) -> Result<()>
+where R: Read + Seek + ?Sized {
+    let imp_end = (header.imp_offset + header.imp_size) as u64;
+    reader.seek(SeekFrom::Start(header.imp_offset as u64))?;
+    while reader.stream_position()? < imp_end {
+        let import = RelImport::from_reader(reader, Endian::Big)?;
+        println!("Module {} (file offset {:#X}):", import.module_id, import.offset);
+
+        let position = reader.stream_position()?;
+        reader.seek(SeekFrom::Start(import.offset as u64))?;
+        let mut address = 0u32;
+        let mut section = u8::MAX;
+        loop {
+            let reloc = RelRelocRaw::from_reader(reader, Endian::Big)?;
+            let kind = match reloc.kind as u32 {
+                elf::R_PPC_NONE => continue,
+                elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 => ObjRelocKind::Absolute,
+                elf::R_PPC_ADDR16_LO => ObjRelocKind::PpcAddr16Lo,
+                elf::R_PPC_ADDR16_HI => ObjRelocKind::PpcAddr16Hi,
+                elf::R_PPC_ADDR16_HA => ObjRelocKind::PpcAddr16Ha,
+                elf::R_PPC_REL24 => ObjRelocKind::PpcRel24,
+                elf::R_PPC_REL14 => ObjRelocKind::PpcRel14,
+                R_DOLPHIN_NOP => {
+                    address += reloc.offset as u32;
+                    continue;
+                }
+                R_DOLPHIN_SECTION => {
+                    address = 0;
+                    section = reloc.section;
+                    continue;
+                }
+                R_DOLPHIN_END => break,
+                // R_DOLPHIN_MRKREF => ?
+                reloc_type => bail!("Unhandled REL relocation type {reloc_type}"),
+            };
+            address += reloc.offset as u32;
+            println!(
+                "    {}:{:#X} {:?} -> {}:{}:{:#X}",
+                reloc.section, address, kind, import.module_id, section, reloc.addend
+            );
+        }
+        reader.seek(SeekFrom::Start(position))?;
+    }
+
+    Ok(())
+}
+
 /// REL relocation.
 #[derive(Debug, Clone)]
 pub struct RelReloc {
@@ -663,29 +710,41 @@ pub fn write_rel<W>(
 where
     W: Write + Seek + ?Sized,
 {
-    relocations.sort_by(|a, b| {
-        if a.module_id == 0 {
-            if b.module_id == 0 {
-                Ordering::Equal
-            } else {
-                Ordering::Greater
-            }
-        } else if a.module_id == info.module_id {
-            if b.module_id == 0 {
+    if info.version >= 3 {
+        // Version 3 RELs put module ID 0 and self-relocations last,
+        // so that the space can be reclaimed via OSLinkFixed. (See fix_size)
+        relocations.sort_by(|a, b| {
+            if a.module_id == 0 {
+                if b.module_id == 0 {
+                    Ordering::Equal
+                } else {
+                    Ordering::Greater
+                }
+            } else if a.module_id == info.module_id {
+                if b.module_id == 0 {
+                    Ordering::Less
+                } else if b.module_id == info.module_id {
+                    Ordering::Equal
+                } else {
+                    Ordering::Greater
+                }
+            } else if b.module_id == 0 || b.module_id == info.module_id {
                 Ordering::Less
-            } else if b.module_id == info.module_id {
-                Ordering::Equal
             } else {
-                Ordering::Greater
+                a.module_id.cmp(&b.module_id)
             }
-        } else if b.module_id == 0 || b.module_id == info.module_id {
-            Ordering::Less
-        } else {
-            a.module_id.cmp(&b.module_id)
-        }
-        .then(a.section.cmp(&b.section))
-        .then(a.address.cmp(&b.address))
-    });
+            .then(a.section.cmp(&b.section))
+            .then(a.address.cmp(&b.address))
+        });
+    } else {
+        // Version 1 and 2 RELs use simple ascending order.
+        relocations.sort_by(|a, b| {
+            a.module_id
+                .cmp(&b.module_id)
+                .then(a.section.cmp(&b.section))
+                .then(a.address.cmp(&b.address))
+        });
+    }
 
     let mut apply_relocations = vec![];
     relocations.retain(|r| {
@@ -779,27 +838,28 @@ where
     header.section_info_offset = offset;
     offset += num_sections * RelSectionHeader::STATIC_SIZE as u32;
     let section_data_offset = offset;
-    for (idx, section) in file.sections().filter(is_permitted_section).enumerate() {
-        if !should_write_section(&section) {
-            continue;
-        }
+    for (idx, section) in file
+        .sections()
+        .filter(is_permitted_section)
+        .enumerate()
+        .filter(|(_, s)| should_write_section(s))
+    {
         let align = section_align(idx, &section, info) - 1;
         offset = (offset + align) & !align;
         offset += section.size() as u32;
     }
-    header.imp_offset = offset;
-    let imp_count = relocations.iter().map(|r| r.module_id).dedup().count();
-    header.imp_size = imp_count as u32 * RelImport::STATIC_SIZE as u32;
-    offset += header.imp_size;
-    header.rel_offset = offset;
 
-    let mut imp_entries = Vec::<RelImport>::with_capacity(imp_count);
-    let mut raw_relocations = vec![];
-    {
+    fn do_relocation_layout(
+        relocations: &[RelReloc],
+        header: &mut RelHeader,
+        imp_entries: &mut Vec<RelImport>,
+        raw_relocations: &mut Vec<RelRelocRaw>,
+        offset: &mut u32,
+    ) -> Result<()> {
         let mut address = 0u32;
         let mut section = u8::MAX;
         let mut last_module_id = u32::MAX;
-        for reloc in &relocations {
+        for reloc in relocations {
             if reloc.module_id != last_module_id {
                 if last_module_id != u32::MAX {
                     raw_relocations.push(RelRelocRaw {
@@ -808,17 +868,17 @@ where
                         section: 0,
                         addend: 0,
                     });
-                    offset += 8;
+                    *offset += 8;
                 }
-                imp_entries.push(RelImport { module_id: reloc.module_id, offset });
+                imp_entries.push(RelImport { module_id: reloc.module_id, offset: *offset });
                 section = u8::MAX;
                 last_module_id = reloc.module_id;
             }
-            if info.version >= 3
+            if header.version >= 3
                 && header.fix_size.is_none()
-                && (reloc.module_id == 0 || reloc.module_id == info.module_id)
+                && (reloc.module_id == 0 || reloc.module_id == header.module_id)
             {
-                header.fix_size = Some(offset);
+                header.fix_size = Some(*offset);
             }
             if reloc.section != section {
                 raw_relocations.push(RelRelocRaw {
@@ -827,7 +887,7 @@ where
                     section: reloc.section,
                     addend: 0,
                 });
-                offset += 8;
+                *offset += 8;
                 address = 0;
                 section = reloc.section;
             }
@@ -839,7 +899,7 @@ where
                     section: 0,
                     addend: 0,
                 });
-                offset += 8;
+                *offset += 8;
                 reloc_offset -= 0xffff;
             }
             raw_relocations.push(RelRelocRaw {
@@ -857,16 +917,47 @@ where
                 addend: reloc.addend,
             });
             address = reloc.address;
-            offset += 8;
+            *offset += 8;
         }
+        raw_relocations.push(RelRelocRaw {
+            offset: 0,
+            kind: R_DOLPHIN_END as u8,
+            section: 0,
+            addend: 0,
+        });
+        *offset += 8;
+        Ok(())
     }
-    raw_relocations.push(RelRelocRaw {
-        offset: 0,
-        kind: R_DOLPHIN_END as u8,
-        section: 0,
-        addend: 0,
-    });
-    offset += 8;
+
+    let imp_count = relocations.iter().map(|r| r.module_id).dedup().count();
+    let mut imp_entries = Vec::<RelImport>::with_capacity(imp_count);
+    let mut raw_relocations = vec![];
+    if info.version < 3 {
+        // Version 1 and 2 RELs write relocations before the import table.
+        header.rel_offset = offset;
+        do_relocation_layout(
+            &relocations,
+            &mut header,
+            &mut imp_entries,
+            &mut raw_relocations,
+            &mut offset,
+        )?;
+    }
+    header.imp_offset = offset;
+    header.imp_size = imp_count as u32 * RelImport::STATIC_SIZE as u32;
+    offset += header.imp_size;
+    if info.version >= 3 {
+        // Version 3 RELs write relocations after the import table,
+        // so that the import table isn't clobbered by OSLinkFixed.
+        header.rel_offset = offset;
+        do_relocation_layout(
+            &relocations,
+            &mut header,
+            &mut imp_entries,
+            &mut raw_relocations,
+            &mut offset,
+        )?;
+    }
 
     for symbol in file.symbols().filter(|s| s.is_definition()) {
         let Some(symbol_section) = symbol.section_index() else {
@@ -919,11 +1010,12 @@ where
         }
     }
     ensure!(w.stream_position()? as u32 == section_data_offset);
-    for (idx, section) in file.sections().filter(is_permitted_section).enumerate() {
-        if !should_write_section(&section) {
-            continue;
-        }
-
+    for (idx, section) in file
+        .sections()
+        .filter(is_permitted_section)
+        .enumerate()
+        .filter(|(_, s)| should_write_section(s))
+    {
         fn calculate_padding(position: u64, align: u64) -> u64 {
             let align = align - 1;
             ((position + align) & !align) - position
@@ -943,13 +1035,23 @@ where
         }
         w.write_all(&section_data)?;
     }
+    if info.version < 3 {
+        // Version 1 and 2 RELs write relocations before the import table.
+        ensure!(w.stream_position()? as u32 == header.rel_offset);
+        for reloc in &raw_relocations {
+            reloc.to_writer(w, Endian::Big)?;
+        }
+    }
     ensure!(w.stream_position()? as u32 == header.imp_offset);
-    for entry in imp_entries {
+    for entry in &imp_entries {
         entry.to_writer(w, Endian::Big)?;
     }
-    ensure!(w.stream_position()? as u32 == header.rel_offset);
-    for reloc in raw_relocations {
-        reloc.to_writer(w, Endian::Big)?;
+    if info.version >= 3 {
+        // Version 3 RELs write relocations after the import table. See above.
+        ensure!(w.stream_position()? as u32 == header.rel_offset);
+        for reloc in &raw_relocations {
+            reloc.to_writer(w, Endian::Big)?;
+        }
     }
     ensure!(w.stream_position()? as u32 == offset);
     Ok(())
