@@ -1,0 +1,11 @@
+syntect packs generated from:
+https://github.com/braver/Solarized/blob/87e01090cf5fb821a234265b3138426ae84900e7/Solarized%20(dark).tmTheme
+https://github.com/sublimehq/Packages/tree/fa6b8629c95041bf262d4c1dab95c456a0530122/C%2B%2B
+
+// let mut theme_set = ThemeSet::load_from_folder("../Solarized")?;
+// syntect::dumps::dump_to_file(&theme_set, "assets/syntax/default.themedump")?;
+//
+// let mut builder = SyntaxSetBuilder::new();
+// builder.add_from_folder("../sublimehq-Packages/C++", true)?;
+// let syntax_set = builder.build();
+// syntect::dumps::dump_to_file(&syntax_set, "assets/syntax/default_newlines.packdump")?;

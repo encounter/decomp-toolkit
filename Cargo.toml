@@ -63,7 +63,7 @@ serde_yaml = "0.9.27"
 sha-1 = "0.10.1"
 smallvec = "1.11.2"
 supports-color = "2.1.0"
-syntect = "5.1.0"
+syntect = { version = "5.1.0", features = ["parsing", "regex-onig", "dump-load"], default-features = false }
 tracing = "0.1.40"
 tracing-attributes = "0.1.27"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }

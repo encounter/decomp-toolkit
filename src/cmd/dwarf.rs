@@ -57,11 +57,14 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn dump(args: DumpArgs) -> Result<()> {
-    let theme_set = ThemeSet::load_defaults();
+    // Load syntect
+    let theme_set: ThemeSet =
+        syntect::dumps::from_binary(include_bytes!("../../assets/syntax/default.themedump"));
+    let syntax_set: SyntaxSet = syntect::dumps::from_binary(include_bytes!(
+        "../../assets/syntax/default_newlines.packdump"
+    ));
     let theme = theme_set.themes.get("Solarized (dark)").context("Failed to load theme")?;
-    let syntax_set = SyntaxSet::load_defaults_newlines();
-    let syntax =
-        syntax_set.find_syntax_by_extension("cpp").context("Failed to find syntax")?.clone();
+    let syntax = syntax_set.find_syntax_by_name("C++").context("Failed to find syntax")?.clone();
 
     let file = map_file(&args.in_file)?;
     let buf = file.as_slice();
