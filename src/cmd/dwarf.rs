@@ -2,16 +2,21 @@ use std::{
     collections::{btree_map, BTreeMap},
     io::{stdout, Cursor, Read, Write},
     path::PathBuf,
+    str::from_utf8,
 };
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
 use object::{elf, Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, Section};
+use syntect::{
+    highlighting::{Color, HighlightIterator, HighlightState, Highlighter, Theme, ThemeSet},
+    parsing::{ParseState, ScopeStack, SyntaxReference, SyntaxSet},
+};
 
 use crate::util::{
     dwarf::{
-        process_address, process_type, process_variable_location, read_debug_section, type_string,
-        ud_type, ud_type_def, ud_type_string, AttributeKind, TagKind,
+        process_root_tag, read_debug_section, should_skip_tag, tag_type_string, AttributeKind,
+        TagKind,
     },
     file::{buf_writer, map_file},
 };
@@ -40,6 +45,9 @@ pub struct DumpArgs {
     #[argp(option, short = 'o')]
     /// Output file. (Or directory, for archive)
     out: Option<PathBuf>,
+    #[argp(switch)]
+    /// Disable color output.
+    no_color: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -49,6 +57,12 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn dump(args: DumpArgs) -> Result<()> {
+    let theme_set = ThemeSet::load_defaults();
+    let theme = theme_set.themes.get("Solarized (dark)").context("Failed to load theme")?;
+    let syntax_set = SyntaxSet::load_defaults_newlines();
+    let syntax =
+        syntax_set.find_syntax_by_extension("cpp").context("Failed to find syntax")?.clone();
+
     let file = map_file(&args.in_file)?;
     let buf = file.as_slice();
     if buf.starts_with(b"!<arch>\n") {
@@ -80,9 +94,13 @@ fn dump(args: DumpArgs) -> Result<()> {
                 let mut file = buf_writer(file_path)?;
                 dump_debug_section(&mut file, &obj_file, debug_section)?;
                 file.flush()?;
-            } else {
-                println!("\nFile {}:", name);
+            } else if args.no_color {
+                println!("\n// File {}:", name);
                 dump_debug_section(&mut stdout(), &obj_file, debug_section)?;
+            } else {
+                let mut writer = HighlightWriter::new(syntax_set.clone(), syntax.clone(), theme);
+                writeln!(writer, "\n// File {}:", name)?;
+                dump_debug_section(&mut writer, &obj_file, debug_section)?;
             }
         }
     } else {
@@ -94,8 +112,11 @@ fn dump(args: DumpArgs) -> Result<()> {
             let mut file = buf_writer(out_path)?;
             dump_debug_section(&mut file, &obj_file, debug_section)?;
             file.flush()?;
-        } else {
+        } else if args.no_color {
             dump_debug_section(&mut stdout(), &obj_file, debug_section)?;
+        } else {
+            let mut writer = HighlightWriter::new(syntax_set, syntax, theme);
+            dump_debug_section(&mut writer, &obj_file, debug_section)?;
         }
     }
     Ok(())
@@ -145,140 +166,37 @@ where
                         .string_attribute(AttributeKind::Name)
                         .ok_or_else(|| anyhow!("CompileUnit without name {:?}", tag))?;
                     if units.contains(unit) {
-                        log::warn!("Duplicate unit '{}'", unit);
+                        // log::warn!("Duplicate unit '{}'", unit);
                     } else {
                         units.push(unit.clone());
                     }
+                    writeln!(w, "\n// Compile unit: {}", unit)?;
 
                     let children = tag.children(&tags);
                     let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
                     for child in children {
-                        match child.kind {
-                            TagKind::GlobalSubroutine | TagKind::Subroutine => {
-                                let _is_prototyped =
-                                    child.string_attribute(AttributeKind::Prototyped).is_some();
-                                if let (Some(_hi), Some(_lo)) = (
-                                    child.address_attribute(AttributeKind::HighPc),
-                                    child.address_attribute(AttributeKind::LowPc),
-                                ) {}
-                                let name = child
-                                    .string_attribute(AttributeKind::Name)
-                                    .ok_or_else(|| anyhow!("Subroutine without name"))?;
-                                let udt = ud_type(&tags, child)?;
-                                let ts = ud_type_string(&tags, &typedefs, &udt)?;
-                                writeln!(w, "{} {}{} {{", ts.prefix, name, ts.suffix)?;
-                                for tag in child.children(&tags) {
-                                    match tag.kind {
-                                        TagKind::LocalVariable => {}
-                                        _ => continue,
-                                    }
-                                    let type_attr = tag.type_attribute().ok_or_else(|| {
-                                        anyhow!("LocalVariable without type attr")
-                                    })?;
-                                    let var_type = process_type(type_attr)?;
-                                    let ts = type_string(&tags, &typedefs, &var_type)?;
-                                    let name = tag
-                                        .string_attribute(AttributeKind::Name)
-                                        .ok_or_else(|| anyhow!("LocalVariable without name"))?;
-                                    write!(w, "\t{} {}{};", ts.prefix, name, ts.suffix)?;
-                                    if let Some(location) =
-                                        tag.block_attribute(AttributeKind::Location)
-                                    {
-                                        if !location.is_empty() {
-                                            write!(
-                                                w,
-                                                " // {}",
-                                                process_variable_location(location)?
-                                            )?;
-                                        }
-                                    }
-                                    writeln!(w)?;
-                                }
-                                writeln!(w, "}}")?;
-                            }
-                            TagKind::Typedef => {
-                                let name = child
-                                    .string_attribute(AttributeKind::Name)
-                                    .ok_or_else(|| anyhow!("Typedef without name"))?;
-                                let attr = child
-                                    .type_attribute()
-                                    .ok_or_else(|| anyhow!("Typedef without type attribute"))?;
-                                let t = process_type(attr)?;
-                                let ts = type_string(&tags, &typedefs, &t)?;
-                                writeln!(w, "typedef {} {}{};", ts.prefix, name, ts.suffix)?;
+                        let tag_type = process_root_tag(&tags, child)?;
+                        if should_skip_tag(&tag_type) {
+                            continue;
+                        }
+                        writeln!(w, "{}", tag_type_string(&tags, &typedefs, &tag_type)?)?;
 
-                                // TODO fundamental typedefs?
-                                if let Some(ud_type_ref) =
-                                    child.reference_attribute(AttributeKind::UserDefType)
-                                {
-                                    match typedefs.entry(ud_type_ref) {
-                                        btree_map::Entry::Vacant(e) => {
-                                            e.insert(vec![child.key]);
-                                        }
-                                        btree_map::Entry::Occupied(e) => {
-                                            e.into_mut().push(child.key);
-                                        }
+                        if let TagKind::Typedef = child.kind {
+                            // TODO fundamental typedefs?
+                            if let Some(ud_type_ref) =
+                                child.reference_attribute(AttributeKind::UserDefType)
+                            {
+                                match typedefs.entry(ud_type_ref) {
+                                    btree_map::Entry::Vacant(e) => {
+                                        e.insert(vec![child.key]);
+                                    }
+                                    btree_map::Entry::Occupied(e) => {
+                                        e.into_mut().push(child.key);
                                     }
                                 }
-                            }
-                            TagKind::GlobalVariable | TagKind::LocalVariable => {
-                                let name = child
-                                    .string_attribute(AttributeKind::Name)
-                                    .ok_or_else(|| anyhow!("Variable without name"))?;
-                                let address = if let Some(location) =
-                                    child.block_attribute(AttributeKind::Location)
-                                {
-                                    Some(process_address(location)?)
-                                } else {
-                                    None
-                                };
-                                if let Some(type_attr) = child.type_attribute() {
-                                    let var_type = process_type(type_attr)?;
-                                    // log::info!("{:?}", var_type);
-                                    // if let TypeKind::UserDefined(key) = var_type.kind {
-                                    //     let ud_tag = tags
-                                    //         .get(&key)
-                                    //         .ok_or_else(|| anyhow!("Invalid UD type ref"))?;
-                                    //     let ud_type = ud_type(&tags, ud_tag)?;
-                                    //     log::info!("{:?}", ud_type);
-                                    // }
-                                    let ts = type_string(&tags, &typedefs, &var_type)?;
-                                    let st = if child.kind == TagKind::LocalVariable {
-                                        "static "
-                                    } else {
-                                        ""
-                                    };
-                                    let address_str = match address {
-                                        Some(addr) => format!(" : {:#010X}", addr),
-                                        None => String::new(),
-                                    };
-                                    let size = var_type.size(&tags)?;
-                                    writeln!(
-                                        w,
-                                        "{}{} {}{}{}; // size: {:#X}",
-                                        st, ts.prefix, name, ts.suffix, address_str, size,
-                                    )?;
-                                }
-                            }
-                            TagKind::StructureType
-                            | TagKind::ArrayType
-                            | TagKind::EnumerationType
-                            | TagKind::UnionType
-                            | TagKind::ClassType
-                            | TagKind::SubroutineType => {
-                                let udt = ud_type(&tags, child)?;
-                                if child.string_attribute(AttributeKind::Name).is_some() {
-                                    writeln!(w, "{}", ud_type_def(&tags, &typedefs, &udt)?)?;
-                                } else {
-                                    // log::warn!("No name for tag: {:?}", child);
-                                }
-                            }
-                            _ => {
-                                log::warn!("Unhandled CompileUnit child {:?}", child.kind);
                             }
                         }
                     }
-                    // println!("Children: {:?}", children.iter().map(|c| c.kind).collect::<Vec<TagKind>>());
                 }
                 _ => {
                     log::warn!("Expected CompileUnit, got {:?}", tag.kind);
@@ -297,4 +215,82 @@ where
     //     log::info!("{}", x);
     // }
     Ok(())
+}
+
+struct HighlightWriter<'a> {
+    line: String,
+    highlighter: Highlighter<'a>,
+    parse_state: ParseState,
+    highlight_state: HighlightState,
+    syntax_set: SyntaxSet,
+}
+
+impl<'a> HighlightWriter<'a> {
+    pub fn new(
+        syntax_set: SyntaxSet,
+        syntax: SyntaxReference,
+        theme: &'a Theme,
+    ) -> HighlightWriter<'a> {
+        let highlighter = Highlighter::new(theme);
+        let highlight_state = HighlightState::new(&highlighter, ScopeStack::new());
+        HighlightWriter {
+            line: String::new(),
+            highlighter,
+            syntax_set,
+            parse_state: ParseState::new(&syntax),
+            highlight_state,
+        }
+    }
+}
+
+#[inline]
+fn blend_fg_color(fg: Color, bg: Color) -> Color {
+    if fg.a == 0xff {
+        return fg;
+    }
+    let ratio = fg.a as u32;
+    let r = (fg.r as u32 * ratio + bg.r as u32 * (255 - ratio)) / 255;
+    let g = (fg.g as u32 * ratio + bg.g as u32 * (255 - ratio)) / 255;
+    let b = (fg.b as u32 * ratio + bg.b as u32 * (255 - ratio)) / 255;
+    Color { r: r as u8, g: g as u8, b: b as u8, a: 255 }
+}
+
+impl Write for HighlightWriter<'_> {
+    fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
+        let str = from_utf8(buf).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        for s in str.split_inclusive('\n') {
+            self.line.push_str(s);
+            if self.line.ends_with('\n') {
+                self.flush()?;
+            }
+        }
+        Ok(buf.len())
+    }
+
+    fn flush(&mut self) -> std::io::Result<()> {
+        if self.line.is_empty() {
+            return Ok(());
+        }
+        let ops = self
+            .parse_state
+            .parse_line(&self.line, &self.syntax_set)
+            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        let iter = HighlightIterator::new(
+            &mut self.highlight_state,
+            &ops[..],
+            &self.line,
+            &self.highlighter,
+        );
+        for (style, text) in iter {
+            print!(
+                "\x1b[48;2;{};{};{}m",
+                style.background.r, style.background.g, style.background.b
+            );
+            let fg = blend_fg_color(style.foreground, style.background);
+            print!("\x1b[38;2;{};{};{}m{}", fg.r, fg.g, fg.b, text);
+        }
+        print!("\x1b[0m");
+        self.line.clear();
+        Ok(())
+    }
 }
