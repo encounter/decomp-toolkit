@@ -16,8 +16,11 @@ name = "dtk"
 path = "src/main.rs"
 
 [profile.release]
-lto = "thin"
 panic = "abort"
+
+[profile.release-lto]
+inherits = "release"
+lto = "thin"
 strip = "debuginfo"
 
 [dependencies]
@@ -25,25 +28,25 @@ anyhow = { version = "1.0.75", features = ["backtrace"] }
 ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_table" }
 argp = "0.3.0"
 base16ct = "0.2.0"
-base64 = "0.21.4"
+base64 = "0.21.5"
 cwdemangle = "0.1.6"
 dol = { git = "https://github.com/encounter/ppc750cl", rev = "4a2bbbc6f84dcb76255ab6f3595a8d4a0ce96618" }
 enable-ansi-support = "0.2.1"
 filetime = "0.2.22"
 fixedbitset = "0.4.2"
 flagset = { version = "0.4.4", features = ["serde"] }
-flate2 = "1.0.27"
+flate2 = "1.0.28"
 glob = "0.3.1"
 hex = "0.4.3"
 indent = "0.1.1"
-indexmap = "2.0.2"
-itertools = "0.11.0"
+indexmap = "2.1.0"
+itertools = "0.12.0"
 log = "0.4.20"
 memchr = "2.6.4"
 memmap2 = "0.9.0"
-multimap = "0.9.0"
+multimap = "0.9.1"
 nintendo-lz = "0.1.3"
-num_enum = "0.7.0"
+num_enum = "0.7.1"
 object = { version = "0.32.1", features = ["read_core", "std", "elf", "write_std"], default-features = false }
 once_cell = "1.18.0"
 owo-colors = { version = "3.5.0", features = ["supports-colors"] }
@@ -51,17 +54,17 @@ path-slash = "0.2.1"
 petgraph = { version = "0.6.4", default-features = false }
 ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "4a2bbbc6f84dcb76255ab6f3595a8d4a0ce96618" }
 rayon = "1.8.0"
-regex = "1.9.6"
+regex = "1.10.2"
 rustc-hash = "1.1.0"
-serde = "1.0.188"
-serde_json = "1.0.107"
-serde_repr = "0.1.16"
-serde_yaml = "0.9.25"
+serde = "1.0.192"
+serde_json = "1.0.108"
+serde_repr = "0.1.17"
+serde_yaml = "0.9.27"
 sha-1 = "0.10.1"
-smallvec = "1.11.1"
+smallvec = "1.11.2"
 supports-color = "2.1.0"
 syntect = "5.1.0"
-tracing = "0.1.37"
-tracing-attributes = "0.1.26"
-tracing-subscriber = { version = "0.3.17", features = ["env-filter"] }
+tracing = "0.1.40"
+tracing-attributes = "0.1.27"
+tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 xxhash-rust = { version = "0.8.7", features = ["xxh3"] }

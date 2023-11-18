@@ -53,7 +53,8 @@ pub fn run(args: Args) -> Result<()> {
 
 fn list(args: ListArgs) -> Result<()> {
     let file = map_file(&args.file)?;
-    let rarc = RarcReader::new(&mut file.as_reader())?;
+    let rarc = RarcReader::new(&mut file.as_reader())
+        .with_context(|| format!("Failed to process RARC file '{}'", args.file.display()))?;
 
     let mut current_path = PathBuf::new();
     for node in rarc.nodes() {
@@ -77,7 +78,8 @@ fn list(args: ListArgs) -> Result<()> {
 
 fn extract(args: ExtractArgs) -> Result<()> {
     let file = map_file(&args.file)?;
-    let rarc = RarcReader::new(&mut file.as_reader())?;
+    let rarc = RarcReader::new(&mut file.as_reader())
+        .with_context(|| format!("Failed to process RARC file '{}'", args.file.display()))?;
 
     let mut current_path = PathBuf::new();
     for node in rarc.nodes() {
