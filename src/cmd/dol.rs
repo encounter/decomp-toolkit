@@ -17,6 +17,7 @@ use itertools::Itertools;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info, info_span};
+use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
     analysis::{
@@ -830,8 +831,7 @@ fn split_write_obj(
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
         }
-        fs::write(&out_path, out_obj)
-            .with_context(|| format!("Failed to write '{}'", out_path.display()))?;
+        write_if_changed(&out_path, &out_obj)?;
     }
 
     // Generate ldscript.lcf
@@ -842,10 +842,9 @@ fn split_write_obj(
     } else {
         None
     };
-    fs::write(
-        &out_config.ldscript,
-        generate_ldscript(&module.obj, ldscript_template.as_deref(), &module.config.force_active)?,
-    )?;
+    let ldscript_string =
+        generate_ldscript(&module.obj, ldscript_template.as_deref(), &module.config.force_active)?;
+    write_if_changed(&out_config.ldscript, ldscript_string.as_bytes())?;
 
     if config.write_asm {
         debug!("Writing disassembly");
@@ -860,6 +859,21 @@ fn split_write_obj(
         }
     }
     Ok(out_config)
+}
+
+fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
+    if path.is_file() {
+        let old_file = map_file(path)?;
+        // If the file is the same size, check if the contents are the same
+        // Avoid writing if unchanged, since it will update the file's mtime
+        if old_file.len() == contents.len() as u64
+            && xxh3_64(old_file.as_slice()) == xxh3_64(contents)
+        {
+            return Ok(());
+        }
+    }
+    fs::write(path, contents)?;
+    Ok(())
 }
 
 fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Result<AnalyzeResult> {
