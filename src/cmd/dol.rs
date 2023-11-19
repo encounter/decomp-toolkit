@@ -249,6 +249,9 @@ pub struct ModuleConfig {
     pub force_active: Vec<String>,
     #[serde(skip_serializing_if = "is_default")]
     pub ldscript_template: Option<PathBuf>,
+    /// Overrides links to other modules.
+    #[serde(skip_serializing_if = "is_default")]
+    pub links: Option<Vec<String>>,
 }
 
 impl ModuleConfig {
@@ -292,12 +295,18 @@ pub struct OutputModule {
     pub units: Vec<OutputUnit>,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, Hash)]
+pub struct OutputLink {
+    pub modules: Vec<String>,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OutputConfig {
     pub version: String,
     #[serde(flatten)]
     pub base: OutputModule,
     pub modules: Vec<OutputModule>,
+    pub links: Vec<OutputLink>,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -464,9 +473,14 @@ struct ModuleInfo<'a> {
     splits_cache: Option<FileReadInfo>,
 }
 
-type ModuleMap<'a> = BTreeMap<u32, ModuleInfo<'a>>;
+type ModuleMapByName<'a> = BTreeMap<String, ModuleInfo<'a>>;
+type ModuleMapById<'a> = BTreeMap<u32, &'a ModuleInfo<'a>>;
 
-fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>, create_symbols: bool) -> Result<()> {
+fn update_symbols(
+    obj: &mut ObjInfo,
+    modules: &[&ModuleInfo<'_>],
+    create_symbols: bool,
+) -> Result<()> {
     log::debug!("Updating symbols for module {}", obj.module_id);
 
     // Find all references to this module from other modules
@@ -474,7 +488,7 @@ fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>, create_symbols: bo
         .unresolved_relocations
         .iter()
         .map(|r| (obj.module_id, r))
-        .chain(modules.iter().flat_map(|(_, info)| {
+        .chain(modules.iter().flat_map(|info| {
             info.obj.unresolved_relocations.iter().map(|r| (info.obj.module_id, r))
         }))
         .filter(|(_, r)| r.module_id == obj.module_id)
@@ -549,7 +563,11 @@ fn update_symbols(obj: &mut ObjInfo, modules: &ModuleMap<'_>, create_symbols: bo
     Ok(())
 }
 
-fn create_relocations(obj: &mut ObjInfo, modules: &ModuleMap<'_>, dol_obj: &ObjInfo) -> Result<()> {
+fn create_relocations(
+    obj: &mut ObjInfo,
+    modules: &ModuleMapById<'_>,
+    dol_obj: &ObjInfo,
+) -> Result<()> {
     log::debug!("Creating relocations for module {}", obj.module_id);
 
     // Resolve all relocations in this module
@@ -628,7 +646,7 @@ fn create_relocations(obj: &mut ObjInfo, modules: &ModuleMap<'_>, dol_obj: &ObjI
 
 fn resolve_external_relocations(
     obj: &mut ObjInfo,
-    modules: &ModuleMap<'_>,
+    modules: &ModuleMapById<'_>,
     dol_obj: Option<&ObjInfo>,
 ) -> Result<()> {
     log::debug!("Resolving relocations for module {}", obj.module_id);
@@ -800,6 +818,10 @@ fn split_write_obj(
     let split_objs = split_obj(&module.obj)?;
 
     debug!("Writing object files");
+    DirBuilder::new()
+        .recursive(true)
+        .create(out_dir)
+        .with_context(|| format!("Failed to create out dir '{}'", out_dir.display()))?;
     let obj_dir = out_dir.join("obj");
     let entry = if module.obj.kind == ObjKind::Executable {
         module.obj.entry.and_then(|e| {
@@ -1005,18 +1027,18 @@ fn split(args: SplitArgs) -> Result<()> {
     };
     let mut function_count = dol.obj.symbols.by_kind(ObjSymbolKind::Function).count();
 
-    let mut modules = BTreeMap::<u32, ModuleInfo<'_>>::new();
+    let mut modules = ModuleMapByName::new();
     for (idx, result) in modules_result.unwrap()?.into_iter().enumerate() {
         function_count += result.obj.symbols.by_kind(ObjSymbolKind::Function).count();
         dep.extend(result.dep);
-        match modules.entry(result.obj.module_id) {
+        match modules.entry(result.obj.name.clone()) {
             Entry::Vacant(e) => e.insert(ModuleInfo {
                 obj: result.obj,
                 config: &config.modules[idx],
                 symbols_cache: result.symbols_cache,
                 splits_cache: result.splits_cache,
             }),
-            Entry::Occupied(_) => bail!("Duplicate module ID {}", result.obj.module_id),
+            Entry::Occupied(_) => bail!("Duplicate module name {}", result.obj.name),
         };
     }
     info!(
@@ -1026,30 +1048,72 @@ fn split(args: SplitArgs) -> Result<()> {
         function_count
     );
 
+    fn get_links<'a>(
+        module: &ModuleInfo<'_>,
+        modules: &'a ModuleMapByName<'a>,
+    ) -> Result<Vec<&'a ModuleInfo<'a>>> {
+        if let Some(links) = &module.config.links {
+            // Link to specified modules
+            links
+                .iter()
+                .map(|n| modules.get(n))
+                .collect::<Option<Vec<_>>>()
+                .with_context(|| format!("Failed to resolve links for module {}", module.obj.name))
+        } else {
+            // Link to all other modules
+            Ok(modules.values().collect())
+        }
+    }
+
+    fn get_links_map<'a>(
+        module: &ModuleInfo<'_>,
+        modules: &'a ModuleMapByName<'a>,
+    ) -> Result<ModuleMapById<'a>> {
+        let links = get_links(module, modules)?;
+        let mut map = ModuleMapById::new();
+        for link in links {
+            match map.entry(link.obj.module_id) {
+                Entry::Vacant(e) => {
+                    e.insert(link);
+                }
+                Entry::Occupied(_) => bail!(
+                    "Duplicate module ID {} in links for module {} (ID {}).\n\
+                    This likely means you need to specify the links manually.",
+                    link.obj.module_id,
+                    module.obj.name,
+                    module.obj.module_id
+                ),
+            }
+        }
+        Ok(map)
+    }
+
     if !modules.is_empty() {
-        let module_ids = modules.keys().cloned().collect_vec();
+        let module_names = modules.keys().cloned().collect_vec();
 
         // Create any missing symbols (referenced from other modules) and set FORCEACTIVE
-        update_symbols(&mut dol.obj, &modules, !config.symbols_known)?;
-        for &module_id in &module_ids {
-            let mut module = modules.remove(&module_id).unwrap();
-            update_symbols(&mut module.obj, &modules, !config.symbols_known)?;
-            modules.insert(module_id, module);
+        update_symbols(&mut dol.obj, &modules.values().collect::<Vec<_>>(), !config.symbols_known)?;
+        for module_name in &module_names {
+            let mut module = modules.remove(module_name).unwrap();
+            let links = get_links(&module, &modules)?;
+            update_symbols(&mut module.obj, &links, !config.symbols_known)?;
+            modules.insert(module_name.clone(), module);
         }
 
         // Create relocations to symbols in other modules
-        for &module_id in &module_ids {
-            let mut module = modules.remove(&module_id).unwrap();
-            create_relocations(&mut module.obj, &modules, &dol.obj)?;
-            modules.insert(module_id, module);
+        for module_name in &module_names {
+            let mut module = modules.remove(module_name).unwrap();
+            let links = get_links_map(&module, &modules)?;
+            create_relocations(&mut module.obj, &links, &dol.obj)?;
+            modules.insert(module_name.clone(), module);
         }
 
         // Replace external relocations with internal ones, creating extern symbols
-        resolve_external_relocations(&mut dol.obj, &modules, None)?;
-        for &module_id in &module_ids {
-            let mut module = modules.remove(&module_id).unwrap();
-            resolve_external_relocations(&mut module.obj, &modules, Some(&dol.obj))?;
-            modules.insert(module_id, module);
+        for module_name in &module_names {
+            let mut module = modules.remove(module_name).unwrap();
+            let links = get_links_map(&module, &modules)?;
+            resolve_external_relocations(&mut module.obj, &links, Some(&dol.obj))?;
+            modules.insert(module_name.clone(), module);
         }
     }
 
@@ -1086,17 +1150,18 @@ fn split(args: SplitArgs) -> Result<()> {
             modules_result = Some(
                 modules
                     .par_iter_mut()
-                    .map(|(&module_id, module)| {
+                    .map(|(module_name, module)| {
                         let _span =
-                            info_span!("module", name = %module.config.name(), id = module_id)
+                            info_span!("module", name = %module.config.name(), id = module.obj.module_id)
                                 .entered();
                         let out_dir = args.out_dir.join(module.config.name().as_ref());
                         split_write_obj(module, &config, &out_dir, args.no_update).with_context(
                             || {
                                 format!(
-                                    "While processing object '{}' (module ID {})",
+                                    "While processing object '{}' (module {} ID {})",
                                     module.config.file_name(),
-                                    module_id
+                                    module_name,
+                                    module.obj.module_id
                                 )
                             },
                         )
@@ -1106,10 +1171,16 @@ fn split(args: SplitArgs) -> Result<()> {
         });
     });
     let duration = start.elapsed();
-    let out_config = OutputConfig {
+    let mut modules_config = modules_result.unwrap()?;
+    modules_config.sort_by(|a, b| {
+        // Sort by module ID, then name
+        a.module_id.cmp(&b.module_id).then(a.name.cmp(&b.name))
+    });
+    let mut out_config = OutputConfig {
         version: env!("CARGO_PKG_VERSION").to_string(),
         base: dol_result.unwrap()?,
-        modules: modules_result.unwrap()?,
+        modules: modules_config,
+        links: vec![],
     };
     let mut object_count = out_config.base.units.len();
     for module in &out_config.modules {
@@ -1121,6 +1192,18 @@ fn split(args: SplitArgs) -> Result<()> {
         duration.subsec_millis(),
         object_count
     );
+
+    // Generate links
+    for module_info in modules.values() {
+        let mut links = get_links_map(module_info, &modules)?;
+        links.insert(0, &dol);
+        links.insert(module_info.obj.module_id, module_info);
+        let names = links.values().map(|m| m.obj.name.clone()).collect_vec();
+        let output_link = OutputLink { modules: names };
+        if !out_config.links.contains(&output_link) {
+            out_config.links.push(output_link);
+        }
+    }
 
     // Write output config
     {
@@ -1613,6 +1696,7 @@ fn config(args: ConfigArgs) -> Result<()> {
             map: None,
             force_active: vec![],
             ldscript_template: None,
+            links: None,
         },
         selfile: None,
         selfile_hash: None,
@@ -1627,7 +1711,7 @@ fn config(args: ConfigArgs) -> Result<()> {
         fill_gaps: true,
     };
 
-    let mut modules = BTreeMap::<u32, ModuleConfig>::new();
+    let mut modules = Vec::<(u32, ModuleConfig)>::new();
     for result in FileIterator::new(&args.objects)? {
         let (path, entry) = result?;
         log::info!("Loading {}", path.display());
@@ -1639,7 +1723,7 @@ fn config(args: ConfigArgs) -> Result<()> {
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rel")) => {
                 let header = process_rel_header(&mut entry.as_reader())?;
-                modules.insert(header.module_id, ModuleConfig {
+                modules.push((header.module_id, ModuleConfig {
                     name: None,
                     object: path,
                     hash: Some(file_sha1_string(&mut entry.as_reader())?),
@@ -1648,7 +1732,8 @@ fn config(args: ConfigArgs) -> Result<()> {
                     map: None,
                     force_active: vec![],
                     ldscript_template: None,
-                });
+                    links: None,
+                }));
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("sel")) => {
                 config.selfile = Some(path);
@@ -1664,12 +1749,17 @@ fn config(args: ConfigArgs) -> Result<()> {
                     map: None,
                     force_active: vec![],
                     ldscript_template: None,
+                    links: None,
                 });
             }
             _ => bail!("Unknown file extension: '{}'", path.display()),
         }
     }
-    config.modules.extend(modules.into_values());
+    modules.sort_by(|(a_id, a_config), (b_id, b_config)| {
+        // Sort by module ID, then by name
+        a_id.cmp(b_id).then(a_config.name().cmp(&b_config.name()))
+    });
+    config.modules.extend(modules.into_iter().map(|(_, m)| m));
 
     let mut out = buf_writer(&args.out_file)?;
     serde_yaml::to_writer(&mut out, &config)?;

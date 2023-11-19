@@ -328,7 +328,12 @@ impl AnalyzerState {
                 log::trace!("Finalizing {:#010X}", addr);
                 slices.finalize(obj, &self.functions)?;
                 for address in slices.function_references.iter().cloned() {
-                    self.functions.entry(address).or_default();
+                    // Only create functions for code sections
+                    // Some games use branches to data sections to prevent dead stripping (Mario Party)
+                    if matches!(obj.sections.get(address.section), Some(section) if section.kind == ObjSectionKind::Code)
+                    {
+                        self.functions.entry(address).or_default();
+                    }
                 }
                 self.jump_tables.append(&mut slices.jump_table_references.clone());
                 let end = slices.end();
@@ -366,7 +371,12 @@ impl AnalyzerState {
     pub fn process_function_at(&mut self, obj: &ObjInfo, addr: SectionAddress) -> Result<bool> {
         Ok(if let Some(mut slices) = self.process_function(obj, addr)? {
             for address in slices.function_references.iter().cloned() {
-                self.functions.entry(address).or_default();
+                // Only create functions for code sections
+                // Some games use branches to data sections to prevent dead stripping (Mario Party)
+                if matches!(obj.sections.get(address.section), Some(section) if section.kind == ObjSectionKind::Code)
+                {
+                    self.functions.entry(address).or_default();
+                }
             }
             self.jump_tables.append(&mut slices.jump_table_references.clone());
             if slices.can_finalize() {

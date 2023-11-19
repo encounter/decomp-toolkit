@@ -118,7 +118,7 @@ pub struct FindRelCtorsDtors {}
 impl AnalysisPass for FindRelCtorsDtors {
     fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
         ensure!(obj.kind == ObjKind::Relocatable);
-        ensure!(!obj.unresolved_relocations.is_empty());
+        // ensure!(!obj.unresolved_relocations.is_empty());
 
         match (obj.sections.by_name(".ctors")?, obj.sections.by_name(".dtors")?) {
             (Some(_), Some(_)) => return Ok(()),
