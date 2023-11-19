@@ -158,8 +158,8 @@ jobs:
         working-directory: artifacts
         run: |
           mkdir ../out
-          for i in */*/release/$CARGO_BIN_NAME*; do
-            mv "$i" "../out/$(sed -E "s/([^/]+)\/[^/]+\/release\/($CARGO_BIN_NAME)/\2-\1/" <<< "$i")"
+          for i in */*/$BUILD_PROFILE/$CARGO_BIN_NAME*; do
+            mv "$i" "../out/$(sed -E "s/([^/]+)\/[^/]+\/$BUILD_PROFILE\/($CARGO_BIN_NAME)/\2-\1/" <<< "$i")"
           done
           ls -R ../out
       - name: Release
