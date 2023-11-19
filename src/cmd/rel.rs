@@ -96,9 +96,15 @@ pub struct MakeArgs {
     #[argp(option, short = 'c')]
     /// (optional) project configuration file
     config: Option<PathBuf>,
+    #[argp(option, short = 'n')]
+    /// (optional) module names
+    names: Vec<String>,
     #[argp(switch, short = 'w')]
     /// disable warnings
     no_warn: bool,
+    #[argp(switch, short = 'q')]
+    /// only print errors
+    quiet: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -250,16 +256,26 @@ fn make(args: MakeArgs) -> Result<()> {
     if let Some(config_path) = &args.config {
         let config: ProjectConfig = serde_yaml::from_reader(&mut buf_reader(config_path)?)?;
         for module_config in &config.modules {
+            if !args.names.is_empty() && !args.names.iter().any(|n| n == &module_config.name()) {
+                continue;
+            }
             let _span = info_span!("module", name = %module_config.name()).entered();
             let info = load_rel(module_config).with_context(|| {
                 format!("While loading REL '{}'", module_config.object.display())
             })?;
-            existing_headers.insert(info.0.module_id, info);
+            match existing_headers.entry(info.0.module_id) {
+                btree_map::Entry::Vacant(e) => e.insert(info),
+                btree_map::Entry::Occupied(_) => {
+                    bail!("Duplicate module ID {}", info.0.module_id)
+                }
+            };
         }
     }
 
     let paths = process_rsp(&args.files)?;
-    info!("Loading {} modules", paths.len());
+    if !args.quiet {
+        info!("Loading {} modules", paths.len());
+    }
 
     // Load all modules
     let files = paths.iter().map(map_file).collect::<Result<Vec<_>>>()?;
@@ -304,13 +320,15 @@ fn make(args: MakeArgs) -> Result<()> {
         .with_context(|| format!("While resolving relocations in '{}'", path.display()))?;
     }
 
-    let duration = start.elapsed();
-    info!(
-        "Symbol resolution completed in {}.{:03}s (resolved {} symbols)",
-        duration.as_secs(),
-        duration.subsec_millis(),
-        resolved
-    );
+    if !args.quiet {
+        let duration = start.elapsed();
+        info!(
+            "Symbol resolution completed in {}.{:03}s (resolved {} symbols)",
+            duration.as_secs(),
+            duration.subsec_millis(),
+            resolved
+        );
+    }
 
     // Write RELs
     let start = Instant::now();
@@ -347,11 +365,14 @@ fn make(args: MakeArgs) -> Result<()> {
             .with_context(|| format!("Failed to write '{}'", rel_path.display()))?;
         w.flush()?;
     }
-    let duration = start.elapsed();
-    info!("RELs written in {}.{:03}s", duration.as_secs(), duration.subsec_millis());
 
-    let duration = total.elapsed();
-    info!("Total time: {}.{:03}s", duration.as_secs(), duration.subsec_millis());
+    if !args.quiet {
+        let duration = start.elapsed();
+        info!("RELs written in {}.{:03}s", duration.as_secs(), duration.subsec_millis());
+
+        let duration = total.elapsed();
+        info!("Total time: {}.{:03}s", duration.as_secs(), duration.subsec_millis());
+    }
     Ok(())
 }
 
