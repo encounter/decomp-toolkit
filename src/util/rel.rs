@@ -932,31 +932,33 @@ where
     let imp_count = relocations.iter().map(|r| r.module_id).dedup().count();
     let mut imp_entries = Vec::<RelImport>::with_capacity(imp_count);
     let mut raw_relocations = vec![];
-    if info.version < 3 {
-        // Version 1 and 2 RELs write relocations before the import table.
-        header.rel_offset = offset;
-        do_relocation_layout(
-            &relocations,
-            &mut header,
-            &mut imp_entries,
-            &mut raw_relocations,
-            &mut offset,
-        )?;
-    }
-    header.imp_offset = offset;
-    header.imp_size = imp_count as u32 * RelImport::STATIC_SIZE as u32;
-    offset += header.imp_size;
-    if info.version >= 3 {
-        // Version 3 RELs write relocations after the import table,
-        // so that the import table isn't clobbered by OSLinkFixed.
-        header.rel_offset = offset;
-        do_relocation_layout(
-            &relocations,
-            &mut header,
-            &mut imp_entries,
-            &mut raw_relocations,
-            &mut offset,
-        )?;
+    if !relocations.is_empty() {
+        if info.version < 3 {
+            // Version 1 and 2 RELs write relocations before the import table.
+            header.rel_offset = offset;
+            do_relocation_layout(
+                &relocations,
+                &mut header,
+                &mut imp_entries,
+                &mut raw_relocations,
+                &mut offset,
+            )?;
+        }
+        header.imp_offset = offset;
+        header.imp_size = imp_count as u32 * RelImport::STATIC_SIZE as u32;
+        offset += header.imp_size;
+        if info.version >= 3 {
+            // Version 3 RELs write relocations after the import table,
+            // so that the import table isn't clobbered by OSLinkFixed.
+            header.rel_offset = offset;
+            do_relocation_layout(
+                &relocations,
+                &mut header,
+                &mut imp_entries,
+                &mut raw_relocations,
+                &mut offset,
+            )?;
+        }
     }
 
     for symbol in file.symbols().filter(|s| s.is_definition()) {
@@ -1035,22 +1037,24 @@ where
         }
         w.write_all(&section_data)?;
     }
-    if info.version < 3 {
-        // Version 1 and 2 RELs write relocations before the import table.
-        ensure!(w.stream_position()? as u32 == header.rel_offset);
-        for reloc in &raw_relocations {
-            reloc.to_writer(w, Endian::Big)?;
+    if !relocations.is_empty() {
+        if info.version < 3 {
+            // Version 1 and 2 RELs write relocations before the import table.
+            ensure!(w.stream_position()? as u32 == header.rel_offset);
+            for reloc in &raw_relocations {
+                reloc.to_writer(w, Endian::Big)?;
+            }
         }
-    }
-    ensure!(w.stream_position()? as u32 == header.imp_offset);
-    for entry in &imp_entries {
-        entry.to_writer(w, Endian::Big)?;
-    }
-    if info.version >= 3 {
-        // Version 3 RELs write relocations after the import table. See above.
-        ensure!(w.stream_position()? as u32 == header.rel_offset);
-        for reloc in &raw_relocations {
-            reloc.to_writer(w, Endian::Big)?;
+        ensure!(w.stream_position()? as u32 == header.imp_offset);
+        for entry in &imp_entries {
+            entry.to_writer(w, Endian::Big)?;
+        }
+        if info.version >= 3 {
+            // Version 3 RELs write relocations after the import table. See above.
+            ensure!(w.stream_position()? as u32 == header.rel_offset);
+            for reloc in &raw_relocations {
+                reloc.to_writer(w, Endian::Big)?;
+            }
         }
     }
     ensure!(w.stream_position()? as u32 == offset);
