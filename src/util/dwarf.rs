@@ -1137,8 +1137,8 @@ pub fn struct_def_string(
     t: &StructureType,
 ) -> Result<String> {
     let mut out = match t.kind {
-        StructureKind::Struct => "class".to_string(),
-        StructureKind::Class => "struct".to_string(),
+        StructureKind::Struct => "struct".to_string(),
+        StructureKind::Class => "class".to_string(),
     };
     if let Some(name) = t.name.as_ref() {
         write!(out, " {}", name)?;
