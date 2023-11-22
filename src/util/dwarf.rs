@@ -373,20 +373,19 @@ impl Tag {
     pub fn children<'a>(&self, tags: &'a TagMap) -> Vec<&'a Tag> {
         let sibling = self.next_sibling(tags);
         let mut children = Vec::new();
-        let (_, mut child) = match tags.range(self.key + 1..).next() {
+        let mut child = match self.next_tag(tags) {
             Some(child) => child,
             None => return children,
         };
-        if child.kind == TagKind::Padding {
-            return children;
-        }
         loop {
             if let Some(end) = sibling {
                 if child.key == end.key {
                     break;
                 }
             }
-            children.push(child);
+            if child.kind != TagKind::Padding {
+                children.push(child);
+            }
             match child.next_sibling(tags) {
                 Some(next) => child = next,
                 None => break,
@@ -395,15 +394,18 @@ impl Tag {
         children
     }
 
+    /// Returns the next sibling tag, if any
     pub fn next_sibling<'a>(&self, tags: &'a TagMap) -> Option<&'a Tag> {
         if let Some(key) = self.reference_attribute(AttributeKind::Sibling) {
-            if let Some(next) = tags.get(&key) {
-                if next.kind != TagKind::Padding {
-                    return Some(next);
-                }
-            }
+            tags.get(&key)
+        } else {
+            self.next_tag(tags)
         }
-        None
+    }
+
+    /// Returns the next tag sequentially, if any
+    pub fn next_tag<'a>(&self, tags: &'a TagMap) -> Option<&'a Tag> {
+        tags.range(self.key + 1..).next().map(|(_, tag)| tag)
     }
 }
 
