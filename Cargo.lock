@@ -295,7 +295,7 @@ dependencies = [
 
 [[package]]
 name = "decomp-toolkit"
-version = "0.6.1"
+version = "0.6.2"
 dependencies = [
  "anyhow",
  "ar",

@@ -37,6 +37,7 @@ use crate::{
     },
     util::{
         asm::write_asm,
+        bin2c::bin2c,
         comment::MWComment,
         config::{
             apply_splits_file, apply_symbols_file, is_auto_symbol, write_splits_file,
@@ -252,6 +253,22 @@ pub struct ModuleConfig {
     /// Overrides links to other modules.
     #[serde(skip_serializing_if = "is_default")]
     pub links: Option<Vec<String>>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub extract: Vec<ExtractConfig>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct ExtractConfig {
+    /// The name of the symbol to extract.
+    pub symbol: String,
+    /// If specified, the symbol's data will be extracted to the given file.
+    /// Path is relative to `out_dir/bin`.
+    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "Option::is_none")]
+    pub binary: Option<PathBuf>,
+    /// If specified, the symbol's data will be extracted to the given file as a C array.
+    /// Path is relative to `out_dir/include`.
+    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "Option::is_none")]
+    pub header: Option<PathBuf>,
 }
 
 impl ModuleConfig {
@@ -776,6 +793,7 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
 fn split_write_obj(
     module: &mut ModuleInfo,
     config: &ProjectConfig,
+    base_dir: &Path,
     out_dir: &Path,
     no_update: bool,
 ) -> Result<OutputModule> {
@@ -856,6 +874,37 @@ fn split_write_obj(
         write_if_changed(&out_path, &out_obj)?;
     }
 
+    // Write extracted files
+    for extract in &module.config.extract {
+        let (_, symbol) = module
+            .obj
+            .symbols
+            .by_name(&extract.symbol)?
+            .with_context(|| format!("Failed to locate symbol '{}'", extract.symbol))?;
+        let section_index = symbol
+            .section
+            .with_context(|| format!("Symbol '{}' has no section", extract.symbol))?;
+        let section = &module.obj.sections[section_index];
+        let data = section.symbol_data(symbol)?;
+
+        if let Some(binary) = &extract.binary {
+            let out_path = base_dir.join("bin").join(binary);
+            if let Some(parent) = out_path.parent() {
+                DirBuilder::new().recursive(true).create(parent)?;
+            }
+            write_if_changed(&out_path, data)?;
+        }
+
+        if let Some(header) = &extract.header {
+            let header_string = bin2c(symbol, section, data);
+            let out_path = base_dir.join("include").join(header);
+            if let Some(parent) = out_path.parent() {
+                DirBuilder::new().recursive(true).create(parent)?;
+            }
+            write_if_changed(&out_path, header_string.as_bytes())?;
+        }
+    }
+
     // Generate ldscript.lcf
     let ldscript_template = if let Some(template) = &module.config.ldscript_template {
         Some(fs::read_to_string(template).with_context(|| {
@@ -894,7 +943,8 @@ fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
             return Ok(());
         }
     }
-    fs::write(path, contents)?;
+    fs::write(path, contents)
+        .with_context(|| format!("Failed to write file '{}'", path.display()))?;
     Ok(())
 }
 
@@ -1134,15 +1184,14 @@ fn split(args: SplitArgs) -> Result<()> {
             let _span =
                 info_span!("module", name = %config.base.name(), id = dol.obj.module_id).entered();
             dol_result = Some(
-                split_write_obj(&mut dol, &config, &args.out_dir, args.no_update).with_context(
-                    || {
+                split_write_obj(&mut dol, &config, &args.out_dir, &args.out_dir, args.no_update)
+                    .with_context(|| {
                         format!(
                             "While processing object '{}' (module ID {})",
                             config.base.file_name(),
                             dol.obj.module_id
                         )
-                    },
-                ),
+                    }),
             );
         });
         // Modules
@@ -1155,7 +1204,7 @@ fn split(args: SplitArgs) -> Result<()> {
                             info_span!("module", name = %module.config.name(), id = module.obj.module_id)
                                 .entered();
                         let out_dir = args.out_dir.join(module.config.name().as_ref());
-                        split_write_obj(module, &config, &out_dir, args.no_update).with_context(
+                        split_write_obj(module, &config, &args.out_dir, &out_dir, args.no_update).with_context(
                             || {
                                 format!(
                                     "While processing object '{}' (module {} ID {})",
@@ -1697,6 +1746,7 @@ fn config(args: ConfigArgs) -> Result<()> {
             force_active: vec![],
             ldscript_template: None,
             links: None,
+            extract: vec![],
         },
         selfile: None,
         selfile_hash: None,
@@ -1733,6 +1783,7 @@ fn config(args: ConfigArgs) -> Result<()> {
                     force_active: vec![],
                     ldscript_template: None,
                     links: None,
+                    extract: vec![],
                 }));
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("sel")) => {
@@ -1750,6 +1801,7 @@ fn config(args: ConfigArgs) -> Result<()> {
                     force_active: vec![],
                     ldscript_template: None,
                     links: None,
+                    extract: vec![],
                 });
             }
             _ => bail!("Unknown file extension: '{}'", path.display()),

@@ -2,6 +2,7 @@ use std::{borrow::Cow, ops::Deref};
 
 pub mod alf;
 pub mod asm;
+pub mod bin2c;
 pub mod comment;
 pub mod config;
 pub mod dep;
