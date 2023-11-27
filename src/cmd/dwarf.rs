@@ -178,11 +178,43 @@ where
                     let children = tag.children(&tags);
                     let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
                     for child in children {
-                        let tag_type = process_root_tag(&tags, child)?;
+                        let tag_type = match process_root_tag(&tags, child) {
+                            Ok(tag_type) => tag_type,
+                            Err(e) => {
+                                log::error!(
+                                    "Failed to process tag {} (unit {}): {}",
+                                    child.key,
+                                    unit,
+                                    e
+                                );
+                                writeln!(
+                                    w,
+                                    "// ERROR: Failed to process tag {} ({:?})",
+                                    child.key, child.kind
+                                )?;
+                                continue;
+                            }
+                        };
                         if should_skip_tag(&tag_type) {
                             continue;
                         }
-                        writeln!(w, "{}", tag_type_string(&tags, &typedefs, &tag_type)?)?;
+                        match tag_type_string(&tags, &typedefs, &tag_type) {
+                            Ok(s) => writeln!(w, "{}", s)?,
+                            Err(e) => {
+                                log::error!(
+                                    "Failed to emit tag {} (unit {}): {}",
+                                    child.key,
+                                    unit,
+                                    e
+                                );
+                                writeln!(
+                                    w,
+                                    "// ERROR: Failed to emit tag {} ({:?})",
+                                    child.key, child.kind
+                                )?;
+                                continue;
+                            }
+                        }
 
                         if let TagKind::Typedef = child.kind {
                             // TODO fundamental typedefs?
