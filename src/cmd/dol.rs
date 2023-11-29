@@ -739,7 +739,7 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
     }
 
     if let Some(map_path) = &config.base.map {
-        apply_map_file(map_path, &mut obj)?;
+        apply_map_file(map_path, &mut obj, config.common_start, config.mw_comment_version)?;
         dep.push(map_path.clone());
     }
 
@@ -963,7 +963,7 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
 
     let mut dep = vec![module_config.object.clone()];
     if let Some(map_path) = &module_config.map {
-        apply_map_file(map_path, &mut module_obj)?;
+        apply_map_file(map_path, &mut module_obj, None, None)?;
         dep.push(map_path.clone());
     }
 
@@ -1451,11 +1451,10 @@ fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.elf_file.display());
     let linked_obj = process_elf(&args.elf_file)?;
 
-    for orig_sym in obj
-        .symbols
-        .iter()
-        .filter(|s| !matches!(s.kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section))
-    {
+    let common_bss = obj.sections.common_bss_start();
+    for orig_sym in obj.symbols.iter().filter(|s| {
+        !matches!(s.kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section) && !s.flags.is_stripped()
+    }) {
         let Some(orig_section_index) = orig_sym.section else { continue };
         let orig_section = &obj.sections[orig_section_index];
         let (linked_section_index, linked_section) =
@@ -1474,7 +1473,12 @@ fn diff(args: DiffArgs) -> Result<()> {
         let mut found = false;
         if let Some((_, linked_sym)) = linked_sym {
             if linked_sym.name.starts_with(&orig_sym.name) {
-                if linked_sym.size != orig_sym.size {
+                if linked_sym.size != orig_sym.size &&
+                    // TODO validate common symbol sizes
+                    // (need to account for inflation bug)
+                    matches!(common_bss, Some((idx, addr)) if
+                        orig_section_index == idx && orig_sym.address as u32 >= addr)
+                {
                     log::error!(
                         "Expected {} (type {:?}) to have size {:#X}, but found {:#X}",
                         orig_sym.name,

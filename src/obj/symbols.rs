@@ -26,9 +26,9 @@ pub enum ObjSymbolScope {
 }
 
 flags! {
-    #[repr(u8)]
+    #[repr(u32)]
     #[derive(Deserialize_repr, Serialize_repr)]
-    pub enum ObjSymbolFlags: u8 {
+    pub enum ObjSymbolFlags: u32 {
         Global,
         Local,
         Weak,
@@ -39,6 +39,9 @@ flags! {
         RelocationIgnore,
         /// Symbol won't be written to symbols file
         NoWrite,
+        /// Symbol was stripped from the original object,
+        /// but is still useful for common BSS matching.
+        Stripped,
     }
 }
 
@@ -84,6 +87,9 @@ impl ObjSymbolFlagSet {
     pub fn is_no_write(&self) -> bool { self.0.contains(ObjSymbolFlags::NoWrite) }
 
     #[inline]
+    pub fn is_stripped(&self) -> bool { self.0.contains(ObjSymbolFlags::Stripped) }
+
+    #[inline]
     pub fn set_scope(&mut self, scope: ObjSymbolScope) {
         match scope {
             ObjSymbolScope::Unknown => {
@@ -119,7 +125,8 @@ impl ObjSymbolFlagSet {
         self.0
             & (ObjSymbolFlags::ForceActive
                 | ObjSymbolFlags::NoWrite
-                | ObjSymbolFlags::RelocationIgnore)
+                | ObjSymbolFlags::RelocationIgnore
+                | ObjSymbolFlags::Stripped)
     }
 }
 
@@ -212,7 +219,10 @@ impl ObjSymbols {
     }
 
     pub fn add(&mut self, in_symbol: ObjSymbol, replace: bool) -> Result<SymbolIndex> {
-        let opt = if let Some(section_index) = in_symbol.section {
+        let opt = if in_symbol.flags.is_stripped() {
+            // Stripped symbols don't overwrite existing symbols
+            None
+        } else if let Some(section_index) = in_symbol.section {
             self.at_section_address(section_index, in_symbol.address as u32).find(|(_, symbol)| {
                 symbol.kind == in_symbol.kind ||
                     // Replace auto symbols with real symbols
@@ -228,7 +238,8 @@ impl ObjSymbols {
             let replace = replace || (is_auto_symbol(existing) && !is_auto_symbol(&in_symbol));
             let size =
                 if existing.size_known && in_symbol.size_known && existing.size != in_symbol.size {
-                    log::warn!(
+                    // TODO fix this and restore to warning
+                    log::debug!(
                         "Conflicting size for {}: was {:#X}, now {:#X}",
                         existing.name,
                         existing.size,
@@ -336,6 +347,8 @@ impl ObjSymbols {
             .into_iter()
             .flatten()
             .map(move |&idx| (idx, &self.symbols[idx]))
+            // "Stripped" symbols don't actually exist at the address
+            .filter(|(_, sym)| !sym.flags.is_stripped())
     }
 
     pub fn kind_at_section_address(
@@ -513,7 +526,7 @@ impl Index<SymbolIndex> for ObjSymbols {
 impl ObjSymbol {
     /// Whether this symbol can be referenced by the given relocation kind.
     pub fn referenced_by(&self, reloc_kind: ObjRelocKind) -> bool {
-        if self.flags.is_relocation_ignore() {
+        if self.flags.is_relocation_ignore() || self.flags.is_stripped() {
             return false;
         }
 

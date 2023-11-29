@@ -130,6 +130,9 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                     "force_active" => {
                         symbol.flags.0 |= ObjSymbolFlags::ForceActive;
                     }
+                    "stripped" => {
+                        symbol.flags.0 |= ObjSymbolFlags::Stripped;
+                    }
                     "noreloc" => {
                         ensure!(
                             symbol.size != 0,
@@ -270,6 +273,9 @@ where W: Write + ?Sized {
     // if symbol.flags.is_force_active() {
     //     write!(w, " force_active")?;
     // }
+    if symbol.flags.is_stripped() {
+        write!(w, " stripped")?;
+    }
     if let Some(section) = symbol.section {
         if obj.blocked_ranges.contains_key(&SectionAddress::new(section, symbol.address as u32)) {
             write!(w, " noreloc")?;

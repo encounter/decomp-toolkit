@@ -125,6 +125,13 @@ impl ObjSections {
         self.iter()
             .flat_map(|(idx, s)| s.splits.iter().map(move |(addr, split)| (idx, s, addr, split)))
     }
+
+    pub fn common_bss_start(&self) -> Option<(usize, u32)> {
+        let Ok(Some((section_index, section))) = self.by_name(".bss") else {
+            return None;
+        };
+        section.splits.iter().find(|(_, split)| split.common).map(|(addr, _)| (section_index, addr))
+    }
 }
 
 impl Index<usize> for ObjSections {

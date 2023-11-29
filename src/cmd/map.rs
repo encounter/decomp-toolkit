@@ -57,7 +57,7 @@ pub fn run(args: Args) -> Result<()> {
 
 fn entries(args: EntriesArgs) -> Result<()> {
     let file = map_file(&args.map_file)?;
-    let entries = process_map(&mut file.as_reader())?;
+    let entries = process_map(&mut file.as_reader(), None, None)?;
     match entries.unit_entries.get_vec(&args.unit) {
         Some(vec) => {
             println!("Entries for {}:", args.unit);
@@ -89,7 +89,7 @@ fn entries(args: EntriesArgs) -> Result<()> {
 fn symbol(args: SymbolArgs) -> Result<()> {
     let file = map_file(&args.map_file)?;
     log::info!("Processing map...");
-    let entries = process_map(&mut file.as_reader())?;
+    let entries = process_map(&mut file.as_reader(), None, None)?;
     log::info!("Done!");
     let mut opt_ref: Option<(String, SymbolEntry)> = None;
 

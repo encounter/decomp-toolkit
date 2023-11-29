@@ -281,9 +281,10 @@ impl CommentSym {
             vis_flags |= 0xD;
         }
         let mut active_flags = 0;
-        if symbol.flags.is_force_active()
-            || (force_active
-                && matches!(symbol.kind, ObjSymbolKind::Function | ObjSymbolKind::Object))
+        if !symbol.flags.is_stripped()
+            && (symbol.flags.is_force_active()
+                || (force_active
+                    && matches!(symbol.kind, ObjSymbolKind::Function | ObjSymbolKind::Object)))
         {
             active_flags |= 0x8;
         }

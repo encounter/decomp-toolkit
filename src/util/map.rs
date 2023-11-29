@@ -1,22 +1,26 @@
 #![allow(dead_code)]
 #![allow(unused_mut)]
 use std::{
-    collections::{BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, HashSet},
     hash::Hash,
     io::BufRead,
-    mem::replace,
+    mem::{replace, take},
     path::Path,
 };
 
 use anyhow::{anyhow, bail, Error, Result};
 use cwdemangle::{demangle, DemangleOptions};
 use flagset::FlagSet;
+use itertools::Itertools;
 use multimap::MultiMap;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 
 use crate::{
-    obj::{ObjInfo, ObjKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
+    obj::{
+        ObjInfo, ObjKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+        ObjUnit,
+    },
     util::{file::map_file, nested::NestedVec},
 };
 
@@ -46,6 +50,7 @@ pub struct SymbolEntry {
     pub address: u32,
     pub size: u32,
     pub align: Option<u32>,
+    pub unused: bool,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq)]
@@ -124,6 +129,9 @@ pub struct MapInfo {
     pub link_map_symbols: HashMap<SymbolRef, SymbolEntry>,
     pub section_symbols: HashMap<String, BTreeMap<u32, Vec<SymbolEntry>>>,
     pub section_units: HashMap<String, Vec<(u32, String)>>,
+    // For common BSS inflation correction
+    pub common_bss_start: Option<u32>,
+    pub mw_comment_version: Option<u8>,
 }
 
 impl MapInfo {
@@ -146,10 +154,10 @@ struct LinkMapState {
 #[derive(Default)]
 struct SectionLayoutState {
     current_section: String,
-    current_unit: Option<String>,
     units: Vec<(u32, String)>,
     symbols: BTreeMap<u32, Vec<SymbolEntry>>,
     has_link_map: bool,
+    last_address: u32,
 }
 
 enum ProcessMapState {
@@ -379,6 +387,7 @@ impl StateMachine {
                 address: 0,
                 size: 0,
                 align: None,
+                unused: false,
             });
             if !is_duplicate {
                 state.last_symbol = Some(symbol_ref.clone());
@@ -405,59 +414,137 @@ impl StateMachine {
             address: 0,
             size: 0,
             align: None,
+            unused: false,
         });
         Ok(())
     }
 
     fn end_section_layout(mut state: SectionLayoutState, entries: &mut MapInfo) -> Result<()> {
-        // Resolve duplicate TUs
-        // let mut existing = HashSet::new();
-        // for idx in 0..state.units.len() {
-        //     let (addr, unit) = &state.units[idx];
-        //     // FIXME
-        //     if
-        //     /*state.current_section == ".bss" ||*/
-        //     existing.contains(unit) {
-        //         if
-        //         /*state.current_section == ".bss" ||*/
-        //         &state.units[idx - 1].1 != unit {
-        //             let new_name = format!("{unit}_{}_{:010X}", state.current_section, addr);
-        //             log::info!("Renaming {unit} to {new_name}");
-        //             for idx2 in 0..idx {
-        //                 let (addr, n_unit) = &state.units[idx2];
-        //                 if unit == n_unit {
-        //                     let new_name =
-        //                         format!("{n_unit}_{}_{:010X}", state.current_section, addr);
-        //                     log::info!("Renaming 2 {n_unit} to {new_name}");
-        //                     state.units[idx2].1 = new_name;
-        //                     break;
-        //                 }
-        //             }
-        //             state.units[idx].1 = new_name;
-        //         }
-        //     } else {
-        //         existing.insert(unit.clone());
-        //     }
-        // }
+        // Check for duplicate TUs and common BSS
+        let mut existing = HashSet::new();
+        for (addr, unit) in state.units.iter().dedup_by(|(_, a), (_, b)| a == b) {
+            if existing.contains(unit) {
+                if state.current_section == ".bss" {
+                    if entries.common_bss_start.is_none() {
+                        log::warn!("Assuming common BSS start @ {:#010X} ({})", addr, unit);
+                        log::warn!("Please verify and set common_start in config.yml");
+                        entries.common_bss_start = Some(*addr);
+                    }
+                } else {
+                    log::error!(
+                        "Duplicate TU in {}: {} @ {:#010X}",
+                        state.current_section,
+                        unit,
+                        addr
+                    );
+                    log::error!("Please rename the TUs manually to avoid conflicts");
+                }
+            } else {
+                existing.insert(unit.clone());
+            }
+        }
+
+        // Perform common BSS inflation correction
+        // https://github.com/encounter/dtk-template/blob/main/docs/common_bss.md#inflation-bug
+        let check_common_bss_inflation = state.current_section == ".bss"
+            && entries.common_bss_start.is_some()
+            && matches!(entries.mw_comment_version, Some(n) if n < 11);
+        if check_common_bss_inflation {
+            log::info!("Checking for common BSS inflation...");
+            let common_bss_start = entries.common_bss_start.unwrap();
+
+            // Correct address for unused common BSS symbols that are first in a TU
+            let mut symbols_iter = state.symbols.iter_mut().peekable();
+            let mut last_unit = None;
+            let mut add_to_next = vec![];
+            while let Some((_, symbols)) = symbols_iter.next() {
+                let next_addr = if let Some((&next_addr, _)) = symbols_iter.peek() {
+                    next_addr
+                } else {
+                    u32::MAX
+                };
+                let mut to_add = take(&mut add_to_next);
+                symbols.retain(|e| {
+                    if e.address >= common_bss_start && e.unused && e.unit != last_unit {
+                        log::debug!(
+                            "Updating address for {} @ {:#010X} to {:#010X}",
+                            e.name,
+                            e.address,
+                            next_addr
+                        );
+                        let mut e = e.clone();
+                        e.address = next_addr;
+                        add_to_next.push(e);
+                        return false;
+                    }
+                    if !e.unused {
+                        last_unit = e.unit.clone();
+                    }
+                    true
+                });
+                to_add.extend(take(symbols));
+                *symbols = to_add;
+            }
+
+            // Correct size for common BSS symbols that are first in a TU (inflated)
+            let mut unit_iter = state
+                .units
+                .iter()
+                .skip_while(|&&(addr, _)| addr < common_bss_start)
+                .dedup_by(|&(_, a), &(_, b)| a == b)
+                .peekable();
+            while let Some((start_addr, unit)) = unit_iter.next() {
+                let unit_symbols = if let Some(&&(end_addr, _)) = unit_iter.peek() {
+                    state.symbols.range(*start_addr..end_addr).collect_vec()
+                } else {
+                    state.symbols.range(*start_addr..).collect_vec()
+                };
+                let mut symbol_iter = unit_symbols.iter().flat_map(|(_, v)| *v);
+                let Some(first_symbol) = symbol_iter.next() else { continue };
+                let first_addr = first_symbol.address;
+                let mut remaining_size = symbol_iter.map(|e| e.size).sum::<u32>();
+                if remaining_size == 0 {
+                    continue;
+                }
+                if first_symbol.size > remaining_size {
+                    let new_size = first_symbol.size - remaining_size;
+                    log::info!(
+                        "Correcting size for {} ({}) @ {:#010X} ({:#X} -> {:#X})",
+                        first_symbol.name,
+                        unit,
+                        first_addr,
+                        first_symbol.size,
+                        new_size
+                    );
+                    state.symbols.get_mut(&first_addr).unwrap().iter_mut().next().unwrap().size =
+                        new_size;
+                } else {
+                    log::warn!(
+                        "Inflated size not detected for {} ({}) @ {:#010X} ({} <= {})",
+                        first_symbol.name,
+                        unit,
+                        first_addr,
+                        first_symbol.size,
+                        remaining_size
+                    );
+                }
+            }
+        }
+
         if !state.symbols.is_empty() {
+            // Remove "unused" symbols
+            for symbols in state.symbols.values_mut() {
+                symbols.retain(|e| {
+                    !e.unused ||
+                        // Except for unused common BSS symbols needed to match the inflated size
+                        (check_common_bss_inflation && e.address >= entries.common_bss_start.unwrap())
+                });
+            }
             entries.section_symbols.insert(state.current_section.clone(), state.symbols);
         }
         if !state.units.is_empty() {
             entries.section_units.insert(state.current_section.clone(), state.units);
         }
-        // Set last section size
-        // if let Some(last_unit) = state.section_units.last() {
-        //     let last_unit = state.unit_override.as_ref().unwrap_or(last_unit);
-        //     nested_try_insert(
-        //         &mut entries.unit_section_ranges,
-        //         last_unit.clone(),
-        //         state.current_section.clone(),
-        //         state.last_unit_start..state.last_section_end,
-        //     )
-        //     .with_context(|| {
-        //         format!("TU '{}' already exists in section '{}'", last_unit, state.current_section)
-        //     })?;
-        // }
         Ok(())
     }
 
@@ -466,10 +553,6 @@ impl StateMachine {
         state: &mut SectionLayoutState,
         result: &MapInfo,
     ) -> Result<()> {
-        if captures["rom_addr"].trim() == "UNUSED" {
-            return Ok(());
-        }
-
         let sym_name = captures["sym"].trim();
         if sym_name == "*fill*" {
             return Ok(());
@@ -479,14 +562,27 @@ impl StateMachine {
         if tu == "*fill*" || tu == "Linker Generated Symbol File" {
             return Ok(());
         }
+        let is_new_tu = match state.units.last() {
+            None => true,
+            Some((_, name)) => name != &tu,
+        };
 
-        let address = u32::from_str_radix(captures["addr"].trim(), 16)?;
+        let (address, unused) = if captures["rom_addr"].trim() == "UNUSED" {
+            // Addresses for unused symbols that _start_ a TU
+            // are corrected in end_section_layout
+            (state.last_address, true)
+        } else {
+            let address = u32::from_str_radix(captures["addr"].trim(), 16)?;
+            state.last_address = address;
+            (address, false)
+        };
         let size = u32::from_str_radix(captures["size"].trim(), 16)?;
         let align = captures.name("align").and_then(|m| m.as_str().trim().parse::<u32>().ok());
 
-        if state.current_unit.as_ref() != Some(&tu) || sym_name == state.current_section {
-            state.current_unit = Some(tu.clone());
-            state.units.push((address, tu.clone()));
+        if is_new_tu || sym_name == state.current_section {
+            if !unused {
+                state.units.push((address, tu.clone()));
+            }
             if sym_name == state.current_section {
                 return Ok(());
             }
@@ -503,9 +599,10 @@ impl StateMachine {
                 address,
                 size,
                 align,
+                unused,
             }
         } else {
-            let mut visibility = if state.has_link_map {
+            let mut visibility = if state.has_link_map && !unused {
                 log::warn!(
                     "Symbol not in link map: {} ({}). Type and visibility unknown.",
                     sym_name,
@@ -535,6 +632,7 @@ impl StateMachine {
                 address,
                 size,
                 align,
+                unused,
             }
         };
         state.symbols.nested_push(address, entry);
@@ -581,18 +679,24 @@ impl StateMachine {
                 address,
                 size: 0,
                 align: None,
+                unused: false,
             });
         };
-        // log::info!("Linker generated symbol: {} @ {:#010X}", name, address);
         Ok(())
     }
 }
 
-pub fn process_map<R>(reader: &mut R) -> Result<MapInfo>
-where R: BufRead + ?Sized {
+pub fn process_map<R>(
+    reader: &mut R,
+    common_bss_start: Option<u32>,
+    mw_comment_version: Option<u8>,
+) -> Result<MapInfo>
+where
+    R: BufRead + ?Sized,
+{
     let mut sm = StateMachine {
         state: ProcessMapState::None,
-        result: Default::default(),
+        result: MapInfo { common_bss_start, mw_comment_version, ..Default::default() },
         has_link_map: false,
     };
     for result in reader.lines() {
@@ -607,10 +711,17 @@ where R: BufRead + ?Sized {
     Ok(sm.result)
 }
 
-pub fn apply_map_file<P>(path: P, obj: &mut ObjInfo) -> Result<()>
-where P: AsRef<Path> {
+pub fn apply_map_file<P>(
+    path: P,
+    obj: &mut ObjInfo,
+    common_bss_start: Option<u32>,
+    mw_comment_version: Option<u8>,
+) -> Result<()>
+where
+    P: AsRef<Path>,
+{
     let file = map_file(&path)?;
-    let info = process_map(&mut file.as_reader())?;
+    let info = process_map(&mut file.as_reader(), common_bss_start, mw_comment_version)?;
     apply_map(&info, obj)
 }
 
@@ -644,6 +755,7 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
             log::warn!("Section {} @ {:#010X} not found in map", section.name, section.address);
         }
     }
+
     // Add section symbols
     for (section_name, symbol_map) in &result.section_symbols {
         let (section_index, _) = obj
@@ -654,11 +766,13 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
             add_symbol(obj, symbol_entry, Some(section_index))?;
         }
     }
+
     // Add absolute symbols
     // TODO
     // for symbol_entry in result.link_map_symbols.values().filter(|s| s.unit.is_none()) {
     //     add_symbol(obj, symbol_entry, None)?;
     // }
+
     // Add splits
     for (section_name, unit_order) in &result.section_units {
         let (_, section) = obj
@@ -672,11 +786,24 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
                 .peek()
                 .map(|(addr, _)| *addr)
                 .unwrap_or_else(|| (section.address + section.size) as u32);
+            let common = section_name == ".bss"
+                && matches!(result.common_bss_start, Some(start) if *addr >= start);
+            let unit = unit.replace(' ', "/");
+
+            // Disable mw_comment_version for assembly units
+            if unit.ends_with(".s") && !obj.link_order.iter().any(|u| u.name == unit) {
+                obj.link_order.push(ObjUnit {
+                    name: unit.clone(),
+                    autogenerated: false,
+                    comment_version: Some(0),
+                });
+            }
+
             section.splits.push(*addr, ObjSplit {
-                unit: unit.replace(' ', "/"),
+                unit,
                 end: next,
                 align: None,
-                common: false,
+                common,
                 autogenerated: false,
                 skip: false,
                 rename: None,
@@ -697,6 +824,9 @@ fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usi
     // TODO move somewhere common
     if symbol_entry.name.starts_with("..") {
         flags |= ObjSymbolFlags::ForceActive;
+    }
+    if symbol_entry.unused {
+        flags |= ObjSymbolFlags::Stripped;
     }
     obj.add_symbol(
         ObjSymbol {

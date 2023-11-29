@@ -439,11 +439,12 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
 
 /// Ensures that all .bss splits following a common split are also marked as common.
 fn update_common_splits(obj: &mut ObjInfo, common_start: Option<u32>) -> Result<()> {
-    let Some((bss_section_index, bss_section)) = obj.sections.by_name(".bss")? else {
-        return Ok(());
-    };
-    let Some(common_bss_start) = common_start.or_else(|| {
-        bss_section.splits.iter().find(|(_, split)| split.common).map(|(addr, _)| addr)
+    let Some((bss_section_index, common_bss_start)) = (match common_start {
+        Some(addr) => Some((
+            obj.sections.by_name(".bss")?.ok_or_else(|| anyhow!("Failed to find .bss section"))?.0,
+            addr,
+        )),
+        None => obj.sections.common_bss_start(),
     }) else {
         return Ok(());
     };
@@ -484,7 +485,7 @@ fn validate_splits(obj: &ObjInfo) -> Result<()> {
         if let Some((_, symbol)) = obj
             .symbols
             .for_section_range(section_index, ..addr)
-            .filter(|&(_, s)| s.size_known && s.size > 0)
+            .filter(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
             .next_back()
         {
             ensure!(
@@ -503,7 +504,7 @@ fn validate_splits(obj: &ObjInfo) -> Result<()> {
         if let Some((_, symbol)) = obj
             .symbols
             .for_section_range(section_index, ..split.end)
-            .filter(|&(_, s)| s.size_known && s.size > 0)
+            .filter(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
             .next_back()
         {
             ensure!(
@@ -573,6 +574,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
     }
 
     // Add padding symbols for gaps between symbols
+    let common_bss = obj.sections.common_bss_start();
     for (section_index, section) in obj.sections.iter() {
         if section.name == ".ctors" || section.name == ".dtors" {
             continue;
@@ -585,6 +587,12 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
             .filter(|(_, s)| s.size_known && s.size > 0)
             .peekable();
         while let (Some((_, symbol)), Some(&(_, next_symbol))) = (iter.next(), iter.peek()) {
+            // Common BSS is allowed to have gaps and overlaps to accurately match the common BSS inflation bug
+            if matches!(common_bss, Some((idx, addr)) if
+                section_index == idx && symbol.address as u32 >= addr)
+            {
+                continue;
+            }
             let aligned_end =
                 align_up((symbol.address + symbol.size) as u32, next_symbol.align.unwrap_or(1));
             match aligned_end.cmp(&(next_symbol.address as u32)) {
@@ -655,7 +663,7 @@ fn trim_split_alignment(obj: &mut ObjInfo) -> Result<()> {
         if let Some((_, symbol)) = obj
             .symbols
             .for_section_range(section_index, addr..split.end)
-            .filter(|&(_, s)| s.size_known && s.size > 0)
+            .filter(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
             .next_back()
         {
             split_end = symbol.address as u32 + symbol.size as u32;
@@ -1038,7 +1046,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     size: symbol.size,
                     size_known: symbol.size_known,
                     flags: if split.common {
-                        ObjSymbolFlagSet(ObjSymbolFlags::Common.into())
+                        ObjSymbolFlagSet(symbol.flags.keep_flags() | ObjSymbolFlags::Common)
                     } else {
                         symbol.flags
                     },
@@ -1303,7 +1311,12 @@ pub fn end_for_section(obj: &ObjInfo, section_index: usize) -> Result<SectionAdd
         let last_symbol = obj
             .symbols
             .for_section_range(section_index, ..section_end)
-            .filter(|(_, s)| s.kind == ObjSymbolKind::Object && s.size_known && s.size > 0)
+            .filter(|(_, s)| {
+                s.kind == ObjSymbolKind::Object
+                    && s.size_known
+                    && s.size > 0
+                    && !s.flags.is_stripped()
+            })
             .next_back();
         match last_symbol {
             Some((_, symbol)) if is_linker_generated_object(&symbol.name) => {
