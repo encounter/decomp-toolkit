@@ -20,6 +20,8 @@ use crate::util::{
     },
     file::{buf_writer, map_file},
 };
+use crate::util::dwarf::ENDIAN;
+use crate::util::reader::Endian;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing DWARF 1.1 information.
@@ -48,6 +50,9 @@ pub struct DumpArgs {
     #[argp(switch)]
     /// Disable color output.
     no_color: bool,
+    /// Whether to use Little Endian for DWARF parsing.
+    #[argp(switch)]
+    little_endian: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -65,6 +70,11 @@ fn dump(args: DumpArgs) -> Result<()> {
     ));
     let theme = theme_set.themes.get("Solarized (dark)").context("Failed to load theme")?;
     let syntax = syntax_set.find_syntax_by_name("C++").context("Failed to find syntax")?.clone();
+
+    // Set Endian
+    if args.little_endian {
+        unsafe { ENDIAN = Endian::Little };
+    }
 
     let file = map_file(&args.in_file)?;
     let buf = file.as_slice();
