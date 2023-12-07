@@ -110,13 +110,12 @@ fn dump(args: DumpArgs) -> Result<()> {
             }
         }
     } else {
-        // [.elf] e_ident.ei_data == ELFDATA2LSB
-        // This offset is constant for ELF32.
-        if buf[5] == 1 {
-            unsafe { ENDIAN = Endian::Little };
-        };
-
         let obj_file = object::read::File::parse(buf)?;
+
+        // [.elf] e_ident.ei_data == ELFDATA2LSB
+        if obj_file.endianness() == object::Endianness::Little {
+            unsafe { ENDIAN = Endian::Little };
+        }
         let debug_section = obj_file
             .section_by_name(".debug")
             .ok_or_else(|| anyhow!("Failed to locate .debug section"))?;
