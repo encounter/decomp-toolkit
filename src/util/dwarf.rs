@@ -568,6 +568,13 @@ pub struct ArrayDimension {
     pub size: Option<NonZeroU32>,
 }
 
+#[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
+#[repr(u16)]
+pub enum ArrayOrdering {
+    RowMajor = 0, // ORD_row_major
+    ColMajor = 1, // ORD_col_major
+}
+
 #[derive(Debug, Clone)]
 pub struct ArrayType {
     pub element_type: Box<Type>,
@@ -1647,6 +1654,17 @@ fn process_array_tag(tags: &TagMap, tag: &Tag) -> Result<ArrayType> {
                     Some(process_array_subscript_data(data).with_context(|| {
                         format!("Failed to process SubscrData for tag: {:?}", tag)
                     })?)
+            }
+            (AttributeKind::Ordering, val) => {
+                match val {
+                    AttributeValue::Data2(d2) => {
+                        let order = ArrayOrdering::try_from_primitive(*d2)?;
+                        if order == ArrayOrdering::ColMajor {
+                            log::warn!("Column Major Ordering in Tag {}, Cannot guarantee array will be correct if original source is in different programming language.", tag.key);
+                        }
+                    }
+                    _ => bail!("Unhandled ArrayType attribute {:?}", attr)
+                }
             }
             _ => {
                 bail!("Unhandled ArrayType attribute {:?}", attr)
