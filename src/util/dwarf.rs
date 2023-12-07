@@ -17,10 +17,25 @@ use crate::{
 };
 
 use super::reader;
+
 pub static mut ENDIAN: reader::Endian = Endian::Big;
 
-pub fn get_endian() -> reader::Endian {
+fn get_endian() -> reader::Endian {
     unsafe { ENDIAN }
+}
+
+fn u16_from_bytes(bytes: [u8; 2]) -> u16 {
+    match get_endian() {
+        Endian::Big => u16::from_be_bytes(bytes),
+        Endian::Little => u16::from_le_bytes(bytes),
+    }
+}
+
+fn u32_from_bytes(bytes: [u8; 4]) -> u32 {
+    match get_endian() {
+        Endian::Big => u32::from_be_bytes(bytes),
+        Endian::Little => u32::from_le_bytes(bytes),
+    }
 }
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
@@ -66,7 +81,8 @@ pub enum TagKind {
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u16)]
 pub enum FundType {
-    WideChar = 0x0000, // Likely an MW bug
+    WideChar = 0x0000,
+    // Likely an MW bug
     Char = 0x0001,
     SignedChar = 0x0002,
     UnsignedChar = 0x0003,
@@ -276,32 +292,56 @@ pub enum AttributeKind {
     HiUser = 0x3ff0,
     // User types
     MwMangled = 0x2000 | (FormKind::String as u16),
-    MwUnknown201 = 0x2010 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown201 = 0x2010 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
     MwGlobalRef = 0x2020 | (FormKind::Ref as u16),
     MwGlobalRefByName = 0x2030 | (FormKind::String as u16),
-    MwUnknown204 = 0x2040 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown205 = 0x2050 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown206 = 0x2060 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown207 = 0x2070 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown208 = 0x2080 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown209 = 0x2090 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown20A = 0x20A0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown20B = 0x20B0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown20C = 0x20C0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown20D = 0x20D0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown20E = 0x20E0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown20F = 0x20F0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown210 = 0x2100 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown211 = 0x2110 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown212 = 0x2120 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown213 = 0x2130 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown214 = 0x2140 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown215 = 0x2150 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown216 = 0x2160 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown217 = 0x2170 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown229 = 0x2290 | (FormKind::Data4 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown22A = 0x22A0 | (FormKind::String as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
-    MwUnknown230 = 0x2300 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown204 = 0x2040 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown205 = 0x2050 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown206 = 0x2060 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown207 = 0x2070 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown208 = 0x2080 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown209 = 0x2090 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20A = 0x20A0 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20B = 0x20B0 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20C = 0x20C0 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20D = 0x20D0 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20E = 0x20E0 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20F = 0x20F0 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown210 = 0x2100 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown211 = 0x2110 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown212 = 0x2120 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown213 = 0x2130 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown214 = 0x2140 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown215 = 0x2150 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown216 = 0x2160 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown217 = 0x2170 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown229 = 0x2290 | (FormKind::Data4 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown22A = 0x22A0 | (FormKind::String as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown230 = 0x2300 | (FormKind::Block2 as u16),
+    // <= From Sonic Heroes (PS2) Preview, 28/09/03.
     MwDwarf2Location = 0x2340 | (FormKind::Block2 as u16),
     Unknown800 = 0x8000 | (FormKind::Data4 as u16),
     Unknown801 = 0x8010 | (FormKind::Data4 as u16),
@@ -443,7 +483,7 @@ impl Tag {
 }
 
 pub fn read_debug_section<R>(reader: &mut R) -> Result<TagMap>
-where R: BufRead + Seek + ?Sized {
+    where R: BufRead + Seek + ?Sized {
     let len = {
         let old_pos = reader.stream_position()?;
         let len = reader.seek(SeekFrom::End(0))?;
@@ -465,7 +505,7 @@ where R: BufRead + Seek + ?Sized {
 
 #[allow(unused)]
 pub fn read_aranges_section<R>(reader: &mut R) -> Result<()>
-where R: BufRead + Seek + ?Sized {
+    where R: BufRead + Seek + ?Sized {
     let len = {
         let old_pos = reader.stream_position()?;
         let len = reader.seek(SeekFrom::End(0))?;
@@ -494,7 +534,7 @@ where R: BufRead + Seek + ?Sized {
 }
 
 fn read_tag<R>(reader: &mut R) -> Result<Tag>
-where R: BufRead + Seek + ?Sized {
+    where R: BufRead + Seek + ?Sized {
     let position = reader.stream_position()?;
     let size = u32::from_reader(reader, get_endian())?;
     if size < 8 {
@@ -521,7 +561,7 @@ where R: BufRead + Seek + ?Sized {
 
 // TODO Shift-JIS?
 fn read_string<R>(reader: &mut R) -> Result<String>
-where R: BufRead + ?Sized {
+    where R: BufRead + ?Sized {
     let mut str = String::new();
     let mut buf = [0u8; 1];
     loop {
@@ -535,7 +575,7 @@ where R: BufRead + ?Sized {
 }
 
 fn read_attribute<R>(reader: &mut R) -> Result<Attribute>
-where R: BufRead + Seek + ?Sized {
+    where R: BufRead + Seek + ?Sized {
     let attr_type = u16::from_reader(reader, get_endian())?;
     let attr = AttributeKind::try_from(attr_type).context("Unknown DWARF attribute type")?;
     let form = FormKind::try_from(attr_type & FORM_MASK).context("Unknown DWARF form type")?;
@@ -571,7 +611,8 @@ pub struct ArrayDimension {
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u16)]
 pub enum ArrayOrdering {
-    RowMajor = 0, // ORD_row_major
+    RowMajor = 0,
+    // ORD_row_major
     ColMajor = 1, // ORD_col_major
 }
 
@@ -1414,7 +1455,7 @@ pub fn union_def_string(tags: &TagMap, typedefs: &TypedefMap, t: &UnionType) -> 
 pub fn process_offset(block: &[u8]) -> Result<u32> {
     if block.len() == 6 && block[0] == LocationOp::Const as u8 && block[5] == LocationOp::Add as u8
     {
-        Ok(u32::from_be_bytes(*array_ref!(block, 1, 4)))
+        Ok(u32_from_bytes(*array_ref!(block, 1, 4)))
     } else {
         Err(anyhow!("Unhandled location data, expected offset"))
     }
@@ -1422,7 +1463,7 @@ pub fn process_offset(block: &[u8]) -> Result<u32> {
 
 pub fn process_address(block: &[u8]) -> Result<u32> {
     if block.len() == 5 && block[0] == LocationOp::Address as u8 {
-        Ok(u32::from_be_bytes(*array_ref!(block, 1, 4)))
+        Ok(u32_from_bytes(*array_ref!(block, 1, 4)))
     } else {
         Err(anyhow!("Unhandled location data, expected address"))
     }
@@ -1457,9 +1498,9 @@ pub fn process_variable_location(block: &[u8]) -> Result<String> {
     if block.len() == 5
         && (block[0] == LocationOp::Register as u8 || block[0] == LocationOp::BaseRegister as u8)
     {
-        Ok(register_name(u32::from_be_bytes(*array_ref!(block, 1, 4))).to_string())
+        Ok(register_name(u32_from_bytes(*array_ref!(block, 1, 4))).to_string())
     } else if block.len() == 5 && block[0] == LocationOp::Address as u8 {
-        Ok(format!("@ {:#010X}", u32::from_be_bytes(*array_ref!(block, 1, 4))))
+        Ok(format!("@ {:#010X}", u32_from_bytes(*array_ref!(block, 1, 4))))
     } else if block.len() == 11
         && block[0] == LocationOp::BaseRegister as u8
         && block[5] == LocationOp::Const as u8
@@ -1467,8 +1508,8 @@ pub fn process_variable_location(block: &[u8]) -> Result<String> {
     {
         Ok(format!(
             "{}+{:#X}",
-            register_name(u32::from_be_bytes(*array_ref!(block, 1, 4))),
-            u32::from_be_bytes(*array_ref!(block, 6, 4))
+            register_name(u32_from_bytes(*array_ref!(block, 1, 4))),
+            u32_from_bytes(*array_ref!(block, 6, 4))
         ))
     } else {
         Err(anyhow!("Unhandled location data {:?}, expected variable loc", block))
@@ -1689,15 +1730,15 @@ fn process_array_subscript_data(data: &[u8]) -> Result<(Type, Vec<ArrayDimension
         let format = SubscriptFormat::try_from(
             data.first().cloned().ok_or_else(|| anyhow!("Empty SubscrData"))?,
         )
-        .context("Unknown array subscript format")?;
+            .context("Unknown array subscript format")?;
         data = &data[1..];
         match format {
             SubscriptFormat::FundTypeConstConst => {
-                let index_type = FundType::try_from(u16::from_be_bytes(data[..2].try_into()?))
+                let index_type = FundType::try_from(u16_from_bytes(data[..2].try_into()?))
                     .context("Invalid fundamental type ID")?;
-                let low_bound = u32::from_be_bytes(data[2..6].try_into()?);
+                let low_bound = u32_from_bytes(data[2..6].try_into()?);
                 ensure!(low_bound == 0, "Invalid array low bound {low_bound}, expected 0");
-                let high_bound = u32::from_be_bytes(data[6..10].try_into()?);
+                let high_bound = u32_from_bytes(data[6..10].try_into()?);
                 data = &data[10..];
                 dimensions.push(ArrayDimension {
                     index_type: Type { kind: TypeKind::Fundamental(index_type), modifiers: vec![] },
@@ -1706,11 +1747,11 @@ fn process_array_subscript_data(data: &[u8]) -> Result<(Type, Vec<ArrayDimension
                 });
             }
             SubscriptFormat::FundTypeConstLocation => {
-                let index_type = FundType::try_from(u16::from_be_bytes(*array_ref!(data, 0, 2)))
+                let index_type = FundType::try_from(u16_from_bytes(*array_ref!(data, 0, 2)))
                     .context("Invalid fundamental type ID")?;
-                let low_bound = u32::from_be_bytes(*array_ref!(data, 2, 4));
+                let low_bound = u32_from_bytes(*array_ref!(data, 2, 4));
                 ensure!(low_bound == 0, "Invalid array low bound {low_bound}, expected 0");
-                let size = u16::from_be_bytes(*array_ref!(data, 6, 2));
+                let size = u16_from_bytes(*array_ref!(data, 6, 2));
                 let (block, remain) = data[8..].split_at(size as usize);
                 let location = if block.is_empty() { 0 } else { process_offset(block)? };
                 data = remain;
@@ -2208,7 +2249,7 @@ pub fn process_type(attr: &Attribute) -> Result<Type> {
             Ok(Type { kind: TypeKind::Fundamental(fund_type), modifiers: vec![] })
         }
         (AttributeKind::ModFundType, AttributeValue::Block(ops)) => {
-            let type_id = u16::from_be_bytes(ops[ops.len() - 2..].try_into()?);
+            let type_id = u16_from_bytes(ops[ops.len() - 2..].try_into()?);
             let fund_type = FundType::try_from(type_id)
                 .with_context(|| format!("Invalid fundamental type ID '{}'", type_id))?;
             let modifiers = process_modifiers(&ops[..ops.len() - 2])?;
@@ -2218,7 +2259,7 @@ pub fn process_type(attr: &Attribute) -> Result<Type> {
             Ok(Type { kind: TypeKind::UserDefined(key), modifiers: vec![] })
         }
         (AttributeKind::ModUDType, AttributeValue::Block(ops)) => {
-            let ud_ref = u32::from_be_bytes(ops[ops.len() - 4..].try_into()?);
+            let ud_ref = u32_from_bytes(ops[ops.len() - 4..].try_into()?);
             let modifiers = process_modifiers(&ops[..ops.len() - 4])?;
             Ok(Type { kind: TypeKind::UserDefined(ud_ref), modifiers })
         }
