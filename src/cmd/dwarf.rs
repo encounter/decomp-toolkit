@@ -50,9 +50,6 @@ pub struct DumpArgs {
     #[argp(switch)]
     /// Disable color output.
     no_color: bool,
-    /// Whether to use Little Endian for DWARF parsing.
-    #[argp(switch)]
-    little_endian: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -72,10 +69,6 @@ fn dump(args: DumpArgs) -> Result<()> {
     let syntax = syntax_set.find_syntax_by_name("C++").context("Failed to find syntax")?.clone();
 
     // Set Endian
-    if args.little_endian {
-        unsafe { ENDIAN = Endian::Little };
-    }
-
     let file = map_file(&args.in_file)?;
     let buf = file.as_slice();
     if buf.starts_with(b"!<arch>\n") {
@@ -117,6 +110,12 @@ fn dump(args: DumpArgs) -> Result<()> {
             }
         }
     } else {
+        // [.elf] e_ident.ei_data == ELFDATA2LSB
+        // This offset is constant for ELF32.
+        if buf[5] == 1 {
+            unsafe { ENDIAN = Endian::Little };
+        };
+
         let obj_file = object::read::File::parse(buf)?;
         let debug_section = obj_file
             .section_by_name(".debug")
@@ -140,8 +139,8 @@ fn dump_debug_section<W>(
     obj_file: &object::File<'_>,
     debug_section: Section,
 ) -> Result<()>
-where
-    W: Write + ?Sized,
+    where
+        W: Write + ?Sized,
 {
     let mut data = debug_section.uncompressed_data()?.into_owned();
 
