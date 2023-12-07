@@ -16,6 +16,9 @@ use crate::{
     util::reader::{Endian, FromReader},
 };
 
+use super::reader;
+pub const ENDIAN: reader::Endian = Endian::Big;
+
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u16)]
 pub enum TagKind {
@@ -53,6 +56,7 @@ pub enum TagKind {
     SubrangeType = 0x0021,
     WithStmt = 0x0022,
     // User types
+    MwUnknown408 = 0x4080, // <= From Sonic Heroes (PS2) Preview, 28/09/03. Shows up at end of file (last tag)
 }
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
@@ -268,8 +272,32 @@ pub enum AttributeKind {
     HiUser = 0x3ff0,
     // User types
     MwMangled = 0x2000 | (FormKind::String as u16),
+    MwUnknown201 = 0x2010 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
     MwGlobalRef = 0x2020 | (FormKind::Ref as u16),
     MwGlobalRefByName = 0x2030 | (FormKind::String as u16),
+    MwUnknown204 = 0x2040 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown205 = 0x2050 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown206 = 0x2060 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown207 = 0x2070 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown208 = 0x2080 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown209 = 0x2090 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20A = 0x20A0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20B = 0x20B0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20C = 0x20C0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20D = 0x20D0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20E = 0x20E0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown20F = 0x20F0 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown210 = 0x2100 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown211 = 0x2110 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown212 = 0x2120 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown213 = 0x2130 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown214 = 0x2140 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown215 = 0x2150 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown216 = 0x2160 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown217 = 0x2170 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown229 = 0x2290 | (FormKind::Data4 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown22A = 0x22A0 | (FormKind::String as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
+    MwUnknown230 = 0x2300 | (FormKind::Block2 as u16), // <= From Sonic Heroes (PS2) Preview, 28/09/03.
     MwDwarf2Location = 0x2340 | (FormKind::Block2 as u16),
     Unknown800 = 0x8000 | (FormKind::Data4 as u16),
     Unknown801 = 0x8010 | (FormKind::Data4 as u16),
@@ -448,14 +476,14 @@ where R: BufRead + Seek + ?Sized {
             break;
         }
 
-        let size = u32::from_reader(reader, Endian::Big)?;
-        let version = u8::from_reader(reader, Endian::Big)?;
+        let size = u32::from_reader(reader, ENDIAN)?;
+        let version = u8::from_reader(reader, ENDIAN)?;
         ensure!(version == 1, "Expected version 1, got {version}");
-        let _debug_offs = u32::from_reader(reader, Endian::Big)?;
-        let _debug_size = u32::from_reader(reader, Endian::Big)?;
+        let _debug_offs = u32::from_reader(reader, ENDIAN)?;
+        let _debug_size = u32::from_reader(reader, ENDIAN)?;
         while reader.stream_position()? < position + size as u64 {
-            let _address = u32::from_reader(reader, Endian::Big)?;
-            let _length = u32::from_reader(reader, Endian::Big)?;
+            let _address = u32::from_reader(reader, ENDIAN)?;
+            let _length = u32::from_reader(reader, ENDIAN)?;
         }
     }
     Ok(())
@@ -464,7 +492,7 @@ where R: BufRead + Seek + ?Sized {
 fn read_tag<R>(reader: &mut R) -> Result<Tag>
 where R: BufRead + Seek + ?Sized {
     let position = reader.stream_position()?;
-    let size = u32::from_reader(reader, Endian::Big)?;
+    let size = u32::from_reader(reader, ENDIAN)?;
     if size < 8 {
         // Null entry
         if size > 4 {
@@ -473,8 +501,8 @@ where R: BufRead + Seek + ?Sized {
         return Ok(Tag { key: position as u32, kind: TagKind::Padding, attributes: vec![] });
     }
 
-    let tag = TagKind::try_from(u16::from_reader(reader, Endian::Big)?)
-        .context("Unknown DWARF tag type")?;
+    let tag_num = u16::from_reader(reader, ENDIAN)?;
+    let tag = TagKind::try_from(tag_num).context("Unknown DWARF tag type")?;
     let mut attributes = Vec::new();
     if tag == TagKind::Padding {
         reader.seek(SeekFrom::Start(position + size as u64))?; // Skip padding
@@ -504,27 +532,27 @@ where R: BufRead + ?Sized {
 
 fn read_attribute<R>(reader: &mut R) -> Result<Attribute>
 where R: BufRead + Seek + ?Sized {
-    let attr_type = u16::from_reader(reader, Endian::Big)?;
+    let attr_type = u16::from_reader(reader, ENDIAN)?;
     let attr = AttributeKind::try_from(attr_type).context("Unknown DWARF attribute type")?;
     let form = FormKind::try_from(attr_type & FORM_MASK).context("Unknown DWARF form type")?;
     let value = match form {
-        FormKind::Addr => AttributeValue::Address(u32::from_reader(reader, Endian::Big)?),
-        FormKind::Ref => AttributeValue::Reference(u32::from_reader(reader, Endian::Big)?),
+        FormKind::Addr => AttributeValue::Address(u32::from_reader(reader, ENDIAN)?),
+        FormKind::Ref => AttributeValue::Reference(u32::from_reader(reader, ENDIAN)?),
         FormKind::Block2 => {
-            let size = u16::from_reader(reader, Endian::Big)?;
+            let size = u16::from_reader(reader, ENDIAN)?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
             AttributeValue::Block(data)
         }
         FormKind::Block4 => {
-            let size = u32::from_reader(reader, Endian::Big)?;
+            let size = u32::from_reader(reader, ENDIAN)?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
             AttributeValue::Block(data)
         }
-        FormKind::Data2 => AttributeValue::Data2(u16::from_reader(reader, Endian::Big)?),
-        FormKind::Data4 => AttributeValue::Data4(u32::from_reader(reader, Endian::Big)?),
-        FormKind::Data8 => AttributeValue::Data8(u64::from_reader(reader, Endian::Big)?),
+        FormKind::Data2 => AttributeValue::Data2(u16::from_reader(reader, ENDIAN)?),
+        FormKind::Data4 => AttributeValue::Data4(u32::from_reader(reader, ENDIAN)?),
+        FormKind::Data8 => AttributeValue::Data8(u64::from_reader(reader, ENDIAN)?),
         FormKind::String => AttributeValue::String(read_string(reader)?),
     };
     Ok(Attribute { kind: attr, value })
@@ -1696,7 +1724,7 @@ fn process_enumeration_tag(tags: &TagMap, tag: &Tag) -> Result<EnumerationType> 
             (AttributeKind::ElementList, AttributeValue::Block(data)) => {
                 let mut cursor = Cursor::new(data);
                 while cursor.position() < data.len() as u64 {
-                    let value = i32::from_reader(&mut cursor, Endian::Big)?;
+                    let value = i32::from_reader(&mut cursor, ENDIAN)?;
                     let name = read_string(&mut cursor)?;
                     members.push(EnumerationMember { name, value });
                 }
