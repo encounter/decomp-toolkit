@@ -20,8 +20,6 @@ use crate::util::{
     },
     file::{buf_writer, map_file},
 };
-use crate::util::dwarf::ENDIAN;
-use crate::util::reader::Endian;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing DWARF 1.1 information.
@@ -111,11 +109,6 @@ fn dump(args: DumpArgs) -> Result<()> {
         }
     } else {
         let obj_file = object::read::File::parse(buf)?;
-
-        // [.elf] e_ident.ei_data == ELFDATA2LSB
-        if obj_file.endianness() == object::Endianness::Little {
-            unsafe { ENDIAN = Endian::Little };
-        }
         let debug_section = obj_file
             .section_by_name(".debug")
             .ok_or_else(|| anyhow!("Failed to locate .debug section"))?;
@@ -138,8 +131,8 @@ fn dump_debug_section<W>(
     obj_file: &object::File<'_>,
     debug_section: Section,
 ) -> Result<()>
-    where
-        W: Write + ?Sized,
+where
+    W: Write + ?Sized,
 {
     let mut data = debug_section.uncompressed_data()?.into_owned();
 
@@ -162,14 +155,14 @@ fn dump_debug_section<W>(
     }
 
     let mut reader = Cursor::new(&*data);
-    let tags = read_debug_section(&mut reader)?;
+    let info = read_debug_section(&mut reader, obj_file.endianness().into())?;
 
-    for (&addr, tag) in &tags {
+    for (&addr, tag) in &info.tags {
         log::debug!("{}: {:?}", addr, tag);
     }
 
     let mut units = Vec::<String>::new();
-    if let Some((_, mut tag)) = tags.first_key_value() {
+    if let Some((_, mut tag)) = info.tags.first_key_value() {
         loop {
             match tag.kind {
                 TagKind::CompileUnit => {
@@ -183,10 +176,10 @@ fn dump_debug_section<W>(
                     }
                     writeln!(w, "\n// Compile unit: {}", unit)?;
 
-                    let children = tag.children(&tags);
+                    let children = tag.children(&info.tags);
                     let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
                     for child in children {
-                        let tag_type = match process_root_tag(&tags, child) {
+                        let tag_type = match process_root_tag(&info, child) {
                             Ok(tag_type) => tag_type,
                             Err(e) => {
                                 log::error!(
@@ -206,7 +199,7 @@ fn dump_debug_section<W>(
                         if should_skip_tag(&tag_type) {
                             continue;
                         }
-                        match tag_type_string(&tags, &typedefs, &tag_type) {
+                        match tag_type_string(&info, &typedefs, &tag_type) {
                             Ok(s) => writeln!(w, "{}", s)?,
                             Err(e) => {
                                 log::error!(
@@ -246,7 +239,7 @@ fn dump_debug_section<W>(
                     break;
                 }
             }
-            if let Some(next) = tag.next_sibling(&tags) {
+            if let Some(next) = tag.next_sibling(&info.tags) {
                 tag = next;
             } else {
                 break;

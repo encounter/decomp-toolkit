@@ -11,6 +11,15 @@ pub enum Endian {
     Little,
 }
 
+impl From<object::Endianness> for Endian {
+    fn from(value: object::Endianness) -> Self {
+        match value {
+            object::Endianness::Big => Endian::Big,
+            object::Endianness::Little => Endian::Little,
+        }
+    }
+}
+
 pub const DYNAMIC_SIZE: usize = 0;
 
 pub const fn struct_size<const N: usize>(fields: [usize; N]) -> usize {
@@ -52,9 +61,23 @@ pub trait FromReader: Sized {
     }
 }
 
+pub trait FromBytes<const N: usize>: Sized {
+    fn from_bytes(bytes: [u8; N], e: Endian) -> Self;
+}
+
 macro_rules! impl_from_reader {
     ($($t:ty),*) => {
         $(
+            impl FromBytes<{ <$t>::STATIC_SIZE }> for $t {
+                #[inline]
+                fn from_bytes(bytes: [u8; Self::STATIC_SIZE], e: Endian) -> Self {
+                    match e {
+                        Endian::Big => Self::from_be_bytes(bytes),
+                        Endian::Little => Self::from_le_bytes(bytes),
+                    }
+                }
+            }
+
             impl FromReader for $t {
                 const STATIC_SIZE: usize = std::mem::size_of::<Self>();
 
@@ -65,10 +88,7 @@ macro_rules! impl_from_reader {
                 where R: Read + Seek + ?Sized {
                     let mut buf = [0u8; Self::STATIC_SIZE];
                     reader.read_exact(&mut buf)?;
-                    Ok(match e {
-                        Endian::Big => Self::from_be_bytes(buf),
-                        Endian::Little => Self::from_le_bytes(buf),
-                    })
+                    Ok(Self::from_bytes(buf, e))
                 }
             }
         )*
