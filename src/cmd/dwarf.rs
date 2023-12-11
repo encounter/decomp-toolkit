@@ -66,7 +66,6 @@ fn dump(args: DumpArgs) -> Result<()> {
     let theme = theme_set.themes.get("Solarized (dark)").context("Failed to load theme")?;
     let syntax = syntax_set.find_syntax_by_name("C++").context("Failed to find syntax")?.clone();
 
-    // Set Endian
     let file = map_file(&args.in_file)?;
     let buf = file.as_slice();
     if buf.starts_with(b"!<arch>\n") {

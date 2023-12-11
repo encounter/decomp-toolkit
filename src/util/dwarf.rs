@@ -59,8 +59,7 @@ pub enum TagKind {
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
 #[repr(u16)]
 pub enum FundType {
-    WideChar = 0x0000,
-    // Likely an MW bug
+    WideChar = 0x0000, // Likely an MW bug
     Char = 0x0001,
     SignedChar = 0x0002,
     UnsignedChar = 0x0003,
