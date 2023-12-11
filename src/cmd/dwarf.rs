@@ -154,14 +154,14 @@ where
     }
 
     let mut reader = Cursor::new(&*data);
-    let tags = read_debug_section(&mut reader)?;
+    let info = read_debug_section(&mut reader, obj_file.endianness().into())?;
 
-    for (&addr, tag) in &tags {
+    for (&addr, tag) in &info.tags {
         log::debug!("{}: {:?}", addr, tag);
     }
 
     let mut units = Vec::<String>::new();
-    if let Some((_, mut tag)) = tags.first_key_value() {
+    if let Some((_, mut tag)) = info.tags.first_key_value() {
         loop {
             match tag.kind {
                 TagKind::CompileUnit => {
@@ -175,10 +175,10 @@ where
                     }
                     writeln!(w, "\n// Compile unit: {}", unit)?;
 
-                    let children = tag.children(&tags);
+                    let children = tag.children(&info.tags);
                     let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
                     for child in children {
-                        let tag_type = match process_root_tag(&tags, child) {
+                        let tag_type = match process_root_tag(&info, child) {
                             Ok(tag_type) => tag_type,
                             Err(e) => {
                                 log::error!(
@@ -198,7 +198,7 @@ where
                         if should_skip_tag(&tag_type) {
                             continue;
                         }
-                        match tag_type_string(&tags, &typedefs, &tag_type) {
+                        match tag_type_string(&info, &typedefs, &tag_type) {
                             Ok(s) => writeln!(w, "{}", s)?,
                             Err(e) => {
                                 log::error!(
@@ -238,7 +238,7 @@ where
                     break;
                 }
             }
-            if let Some(next) = tag.next_sibling(&tags) {
+            if let Some(next) = tag.next_sibling(&info.tags) {
                 tag = next;
             } else {
                 break;
