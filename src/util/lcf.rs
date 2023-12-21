@@ -111,9 +111,9 @@ pub fn generate_ldscript_partial(
 }
 
 pub fn obj_path_for_unit(unit: &str) -> PathBuf {
-    PathBuf::from_slash(unit).with_extension("").with_extension("o")
+    PathBuf::from_slash(unit).with_extension("o")
 }
 
 pub fn asm_path_for_unit(unit: &str) -> PathBuf {
-    PathBuf::from_slash(unit).with_extension("").with_extension("s")
+    PathBuf::from_slash(unit).with_extension("s")
 }
