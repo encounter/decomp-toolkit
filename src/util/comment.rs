@@ -5,6 +5,7 @@ use std::{
 
 use anyhow::{bail, Result};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
+use tracing::warn;
 
 use crate::{
     obj::{ObjSymbol, ObjSymbolKind},
@@ -210,17 +211,11 @@ impl FromReader for CommentSym {
         out.align = u32::from_reader(reader, e)?;
         out.vis_flags = u8::from_reader(reader, e)?;
         if !matches!(out.vis_flags, 0 | 0xD | 0xE) {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!("Unknown vis_flags: {:#X}", out.vis_flags),
-            ));
+            warn!("Unknown vis_flags: {:#X}", out.vis_flags);
         }
         out.active_flags = u8::from_reader(reader, e)?;
         if !matches!(out.active_flags, 0 | 0x8 | 0x10 | 0x20) {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!("Unknown active_flags: {:#X}", out.active_flags),
-            ));
+            warn!("Unknown active_flags: {:#X}", out.active_flags);
         }
         let value = u8::from_reader(reader, e)?;
         if value != 0 {
