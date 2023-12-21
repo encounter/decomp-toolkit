@@ -6,6 +6,7 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use itertools::Itertools;
 use petgraph::{graph::NodeIndex, Graph};
+use sanitise_file_name::sanitize_with_options;
 use tracing_attributes::instrument;
 
 use crate::{
@@ -69,7 +70,12 @@ fn split_ctors_dtors(obj: &mut ObjInfo, start: SectionAddress, end: SectionAddre
                     .section
                     .and_then(|idx| obj.sections.get(idx).map(|s| s.name.clone()))
                     .unwrap_or_else(|| "unknown".to_string());
-                format!("auto_{}_{}", function_symbol.name, section_name.trim_start_matches('.'))
+                let name =
+                    sanitize_with_options(&function_symbol.name, &sanitise_file_name::Options {
+                        length_limit: 20,
+                        ..Default::default()
+                    });
+                format!("auto_{}_{}", name, section_name.trim_start_matches('.'))
             });
             log::debug!("Adding splits to unit {}", unit);
 
