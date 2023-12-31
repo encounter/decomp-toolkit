@@ -673,6 +673,7 @@ pub struct SubroutineParameter {
 #[derive(Debug, Clone)]
 pub struct SubroutineVariable {
     pub name: Option<String>,
+    pub mangled_name: Option<String>,
     pub kind: Type,
     pub location: Option<String>,
 }
@@ -2146,6 +2147,7 @@ fn process_subroutine_parameter_tag(info: &DwarfInfo, tag: &Tag) -> Result<Subro
 fn process_local_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineVariable> {
     ensure!(tag.kind == TagKind::LocalVariable, "{:?} is not a LocalVariable tag", tag.kind);
 
+    let mut mangled_name = None;
     let mut name = None;
     let mut kind = None;
     let mut location = None;
@@ -2153,6 +2155,7 @@ fn process_local_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineV
         match (attr.kind, &attr.value) {
             (AttributeKind::Sibling, _) => {}
             (AttributeKind::Name, AttributeValue::String(s)) => name = Some(s.clone()),
+            (AttributeKind::MwMangled, AttributeValue::String(s)) => mangled_name = Some(s.clone()),
             (
                 AttributeKind::FundType
                 | AttributeKind::ModFundType
@@ -2191,7 +2194,7 @@ fn process_local_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineV
     }
 
     let kind = kind.ok_or_else(|| anyhow!("LocalVariable without type: {:?}", tag))?;
-    Ok(SubroutineVariable { name, kind, location })
+    Ok(SubroutineVariable { name, mangled_name, kind, location })
 }
 
 fn process_ptr_to_member_tag(info: &DwarfInfo, tag: &Tag) -> Result<PtrToMemberType> {
