@@ -86,6 +86,7 @@ pub enum FundType {
     LongLong = 0x8008,
     SignedLongLong = 0x8108,
     UnsignedLongLong = 0x8208,
+    Int128 = 0xa510,
     Vec2x32Float = 0xac00,
 }
 
@@ -108,6 +109,7 @@ impl FundType {
             | FundType::SignedLongLong
             | FundType::UnsignedLongLong
             | FundType::Vec2x32Float => 8,
+            FundType::Int128 => 16,
             FundType::Void => 0,
             FundType::ExtPrecFloat
             | FundType::Complex
@@ -145,6 +147,7 @@ impl FundType {
             FundType::LongLong => "long long",
             FundType::SignedLongLong => "signed long long",
             FundType::UnsignedLongLong => "unsigned long long",
+            FundType::Int128 => "__int128",
             FundType::Vec2x32Float => "__vec2x32float__",
         })
     }
