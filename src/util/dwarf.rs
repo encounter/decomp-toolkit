@@ -86,6 +86,7 @@ pub enum FundType {
     LongLong = 0x8008,
     SignedLongLong = 0x8108,
     UnsignedLongLong = 0x8208,
+    Int128 = 0xa510,
     Vec2x32Float = 0xac00,
 }
 
@@ -108,6 +109,7 @@ impl FundType {
             | FundType::SignedLongLong
             | FundType::UnsignedLongLong
             | FundType::Vec2x32Float => 8,
+            FundType::Int128 => 16,
             FundType::Void => 0,
             FundType::ExtPrecFloat
             | FundType::Complex
@@ -145,6 +147,7 @@ impl FundType {
             FundType::LongLong => "long long",
             FundType::SignedLongLong => "signed long long",
             FundType::UnsignedLongLong => "unsigned long long",
+            FundType::Int128 => "__int128",
             FundType::Vec2x32Float => "__vec2x32float__",
         })
     }
@@ -670,6 +673,7 @@ pub struct SubroutineParameter {
 #[derive(Debug, Clone)]
 pub struct SubroutineVariable {
     pub name: Option<String>,
+    pub mangled_name: Option<String>,
     pub kind: Type,
     pub location: Option<String>,
 }
@@ -1478,7 +1482,9 @@ pub const fn register_name(reg: u32) -> &'static str {
 
 pub fn process_variable_location(block: &[u8], e: Endian) -> Result<String> {
     if block.len() == 5
-        && (block[0] == LocationOp::Register as u8 || block[0] == LocationOp::BaseRegister as u8)
+        && (block[0] == LocationOp::Register as u8
+            || block[0] == LocationOp::BaseRegister as u8
+            || block[0] == LocationOp::MwFpReg as u8)
     {
         Ok(register_name(u32::from_bytes(*array_ref!(block, 1, 4), e)).to_string())
     } else if block.len() == 5 && block[0] == LocationOp::Address as u8 {
@@ -2143,6 +2149,7 @@ fn process_subroutine_parameter_tag(info: &DwarfInfo, tag: &Tag) -> Result<Subro
 fn process_local_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineVariable> {
     ensure!(tag.kind == TagKind::LocalVariable, "{:?} is not a LocalVariable tag", tag.kind);
 
+    let mut mangled_name = None;
     let mut name = None;
     let mut kind = None;
     let mut location = None;
@@ -2150,6 +2157,7 @@ fn process_local_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineV
         match (attr.kind, &attr.value) {
             (AttributeKind::Sibling, _) => {}
             (AttributeKind::Name, AttributeValue::String(s)) => name = Some(s.clone()),
+            (AttributeKind::MwMangled, AttributeValue::String(s)) => mangled_name = Some(s.clone()),
             (
                 AttributeKind::FundType
                 | AttributeKind::ModFundType
@@ -2188,7 +2196,7 @@ fn process_local_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineV
     }
 
     let kind = kind.ok_or_else(|| anyhow!("LocalVariable without type: {:?}", tag))?;
-    Ok(SubroutineVariable { name, kind, location })
+    Ok(SubroutineVariable { name, mangled_name, kind, location })
 }
 
 fn process_ptr_to_member_tag(info: &DwarfInfo, tag: &Tag) -> Result<PtrToMemberType> {
