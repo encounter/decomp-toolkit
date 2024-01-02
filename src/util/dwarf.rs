@@ -1482,7 +1482,9 @@ pub const fn register_name(reg: u32) -> &'static str {
 
 pub fn process_variable_location(block: &[u8], e: Endian) -> Result<String> {
     if block.len() == 5
-        && (block[0] == LocationOp::Register as u8 || block[0] == LocationOp::BaseRegister as u8 || block[0] == LocationOp::MwFpReg as u8)
+        && (block[0] == LocationOp::Register as u8
+            || block[0] == LocationOp::BaseRegister as u8
+            || block[0] == LocationOp::MwFpReg as u8)
     {
         Ok(register_name(u32::from_bytes(*array_ref!(block, 1, 4), e)).to_string())
     } else if block.len() == 5 && block[0] == LocationOp::Address as u8 {
