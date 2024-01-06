@@ -280,9 +280,9 @@ where
             ObjRelocKind::PpcEmbSda21 => ins.code & !0x1FFFFF,
             ObjRelocKind::PpcRel24 => ins.code & !0x3FFFFFC,
             ObjRelocKind::PpcRel14 => ins.code & !0xFFFC,
-            ObjRelocKind::PpcAddr16Hi
-            | ObjRelocKind::PpcAddr16Ha
-            | ObjRelocKind::PpcAddr16Lo => ins.code & !0xFFFF,
+            ObjRelocKind::PpcAddr16Hi | ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo => {
+                ins.code & !0xFFFF
+            }
         };
     }
 
