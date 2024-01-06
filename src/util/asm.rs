@@ -254,7 +254,7 @@ where
 fn write_ins<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
-    ins: Ins,
+    mut ins: Ins,
     reloc: Option<&ObjReloc>,
     file_offset: u64,
     section_address: u64,
@@ -272,6 +272,19 @@ where
         (ins.code >> 8) & 0xFF,
         ins.code & 0xFF
     )?;
+
+    if let Some(reloc) = reloc {
+        // Zero out relocations
+        ins.code = match reloc.kind {
+            ObjRelocKind::Absolute => 0,
+            ObjRelocKind::PpcEmbSda21 => ins.code & !0x1FFFFF,
+            ObjRelocKind::PpcRel24 => ins.code & !0x3FFFFFC,
+            ObjRelocKind::PpcRel14 => ins.code & !0xFFFC,
+            ObjRelocKind::PpcAddr16Hi
+            | ObjRelocKind::PpcAddr16Ha
+            | ObjRelocKind::PpcAddr16Lo => ins.code & !0xFFFF,
+        };
+    }
 
     if ins.op == Opcode::Illegal {
         write!(w, ".4byte {:#010X} /* invalid */", ins.code)?;
