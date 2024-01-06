@@ -572,7 +572,12 @@ impl Tracker {
         addr: u32,
         reloc_kind: ObjRelocKind,
     ) -> Option<usize> {
-        if !matches!(reloc_kind, ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo) {
+        if !matches!(
+            reloc_kind,
+            ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo
+            // RSOLinkInit uses a data table containing references to _SDA_BASE_ and _SDA2_BASE_
+            | ObjRelocKind::Absolute
+        ) {
             return None;
         }
         // HACK for RSOStaticLocateObject
