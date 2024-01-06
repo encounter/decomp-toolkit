@@ -12,7 +12,7 @@ use crate::{
         disassemble,
         executor::{ExecCbData, ExecCbResult, Executor},
         uniq_jump_table_entries,
-        vm::{section_address_for, BranchTarget, StepResult, VM},
+        vm::{section_address_for, BranchTarget, GprValue, StepResult, VM},
         RelocationTarget,
     },
     obj::{ObjInfo, ObjKind, ObjSection},
@@ -212,8 +212,13 @@ impl FunctionSlices {
         let ExecCbData { executor, vm, result, ins_addr, section, ins, block_start } = data;
 
         // Track discovered prologue(s) and epilogue(s)
-        self.check_prologue(section, ins_addr, ins)
-            .with_context(|| format!("While processing {:#010X}: {:#?}", function_start, self))?;
+        // HACK: ProDG sometimes uses LR as a storage register for int-to-float conversions
+        // To our heuristic, this looks like a prologue, so first check LR for the magic number.
+        if vm.lr != GprValue::Constant(0x43300000) {
+            self.check_prologue(section, ins_addr, ins).with_context(|| {
+                format!("While processing {:#010X}: {:#?} {:#?}", function_start, self, vm.gpr)
+            })?;
+        }
         self.check_epilogue(section, ins_addr, ins)
             .with_context(|| format!("While processing {:#010X}: {:#?}", function_start, self))?;
         if !self.has_conditional_blr && is_conditional_blr(ins) {

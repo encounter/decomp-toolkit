@@ -7,7 +7,7 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Result};
 
 use crate::{
-    analysis::cfa::{locate_sda_bases, SectionAddress},
+    analysis::cfa::{locate_bss_memsets, locate_sda_bases, SectionAddress},
     array_ref,
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
@@ -465,6 +465,70 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
                 section_known: false,
                 splits: Default::default(),
             });
+        }
+
+        // ProDG: Locate BSS sections by analyzing the entry point
+        if bss_sections.is_empty() {
+            // Create temporary object
+            let mut temp_sections = sections.clone();
+            temp_sections.push(ObjSection {
+                name: ".bss".to_string(),
+                kind: ObjSectionKind::Bss,
+                address: bss_section.address as u64,
+                size: bss_section.size as u64,
+                data: vec![],
+                align: 0,
+                elf_index: 0,
+                relocations: Default::default(),
+                original_address: 0,
+                file_offset: 0,
+                section_known: false,
+                splits: Default::default(),
+            });
+            let mut obj = ObjInfo::new(
+                ObjKind::Executable,
+                ObjArchitecture::PowerPc,
+                name.to_string(),
+                vec![],
+                temp_sections,
+            );
+            obj.entry = Some(dol.entry_point() as u64);
+            let bss_sections = locate_bss_memsets(&mut obj)?;
+            match bss_sections.len() {
+                0 => log::warn!("Failed to locate BSS sections"),
+                2 => {
+                    // .bss and .sbss
+                    sections.push(ObjSection {
+                        name: ".bss".to_string(),
+                        kind: ObjSectionKind::Bss,
+                        address: bss_sections[0].0 as u64,
+                        size: bss_sections[0].1 as u64,
+                        data: vec![],
+                        align: 0,
+                        elf_index: 0,
+                        relocations: Default::default(),
+                        original_address: 0,
+                        file_offset: 0,
+                        section_known: false,
+                        splits: Default::default(),
+                    });
+                    sections.push(ObjSection {
+                        name: ".sbss".to_string(),
+                        kind: ObjSectionKind::Bss,
+                        address: bss_sections[1].0 as u64,
+                        size: bss_sections[1].1 as u64,
+                        data: vec![],
+                        align: 0,
+                        elf_index: 0,
+                        relocations: Default::default(),
+                        original_address: 0,
+                        file_offset: 0,
+                        section_known: false,
+                        splits: Default::default(),
+                    });
+                }
+                n => bail!("Invalid number of BSS sections: {}", n),
+            }
         }
 
         // Sort sections by address ascending

@@ -531,3 +531,50 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
         None => Ok(false),
     }
 }
+
+/// ProDG hardcodes .bss and .sbss section initialization in `entry`
+/// This function locates the memset calls and returns a list of
+/// (address, size) pairs for the .bss sections.
+pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
+    let mut bss_sections: Vec<(u32, u32)> = Vec::new();
+    let Some(entry) = obj.entry else {
+        return Ok(bss_sections);
+    };
+    let (section_index, _) = obj
+        .sections
+        .at_address(entry as u32)
+        .context(format!("Entry point {:#010X} outside of any section", entry))?;
+    let entry_addr = SectionAddress::new(section_index, entry as u32);
+
+    let mut executor = Executor::new(obj);
+    executor.push(entry_addr, VM::new(), false);
+    executor.run(
+        obj,
+        |ExecCbData { executor: _, vm, result, ins_addr: _, section: _, ins, block_start: _ }| {
+            match result {
+                StepResult::Continue | StepResult::LoadStore { .. } => Ok(ExecCbResult::Continue),
+                StepResult::Illegal => bail!("Illegal instruction @ {:#010X}", ins.addr),
+                StepResult::Jump(_target) => Ok(ExecCbResult::End(())),
+                StepResult::Branch(branches) => {
+                    for branch in branches {
+                        if branch.link {
+                            // ProDG bug? Registers are supposed to start at r3
+                            if let (
+                                GprValue::Constant(addr),
+                                GprValue::Constant(value),
+                                GprValue::Constant(size),
+                            ) = (vm.gpr_value(4), vm.gpr_value(5), vm.gpr_value(6))
+                            {
+                                if value == 0 && size > 0 {
+                                    bss_sections.push((addr, size));
+                                }
+                            }
+                        }
+                    }
+                    Ok(ExecCbResult::Continue)
+                }
+            }
+        },
+    )?;
+    Ok(bss_sections)
+}

@@ -63,13 +63,13 @@ impl Gpr {
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
-struct Cr {
+pub struct Cr {
     /// The left-hand value of this comparison
-    left: GprValue,
+    pub left: GprValue,
     /// The right-hand value of this comparison
-    right: GprValue,
+    pub right: GprValue,
     /// Whether this comparison is signed
-    signed: bool,
+    pub signed: bool,
 }
 
 #[derive(Default, Debug, Clone, Eq, PartialEq)]
@@ -77,9 +77,11 @@ pub struct VM {
     /// General purpose registers
     pub gpr: [Gpr; 32],
     /// Condition registers
-    cr: [Cr; 8],
+    pub cr: [Cr; 8],
+    /// Link register
+    pub lr: GprValue,
     /// Count register
-    ctr: GprValue,
+    pub ctr: GprValue,
 }
 
 impl VM {
@@ -277,6 +279,27 @@ impl VM {
                     }
                 }
             }
+            // subf rD, rA, rB
+            // subfc rD, rA, rB
+            Opcode::Subf | Opcode::Subfc => {
+                self.gpr[ins.field_rD()].set_direct(
+                    match (self.gpr[ins.field_rA()].value, self.gpr[ins.field_rB()].value) {
+                        (GprValue::Constant(left), GprValue::Constant(right)) => {
+                            GprValue::Constant((!left).wrapping_add(right).wrapping_add(1))
+                        }
+                        _ => GprValue::Unknown,
+                    },
+                );
+            }
+            // subfic rD, rA, SIMM
+            Opcode::Subfic => {
+                self.gpr[ins.field_rD()].set_direct(match self.gpr[ins.field_rA()].value {
+                    GprValue::Constant(value) => GprValue::Constant(
+                        (!value).wrapping_add(ins.field_simm() as u32).wrapping_add(1),
+                    ),
+                    _ => GprValue::Unknown,
+                });
+            }
             // ori rA, rS, UIMM
             Opcode::Ori => {
                 if let Some(target) =
@@ -472,19 +495,17 @@ impl VM {
                 self.gpr[ins.field_rD()].set_direct(value);
             }
             // mtspr SPR, rS
-            Opcode::Mtspr => {
-                if ins.field_spr() == 9 {
-                    // CTR
-                    self.ctr = self.gpr[ins.field_rS()].value;
-                }
-            }
+            Opcode::Mtspr => match ins.field_spr() {
+                8 => self.lr = self.gpr[ins.field_rS()].value,
+                9 => self.ctr = self.gpr[ins.field_rS()].value,
+                _ => {}
+            },
             // mfspr rD, SPR
             Opcode::Mfspr => {
-                let value = if ins.field_spr() == 9 {
-                    // CTR
-                    self.ctr
-                } else {
-                    GprValue::Unknown
+                let value = match ins.field_spr() {
+                    8 => self.lr,
+                    9 => self.ctr,
+                    _ => GprValue::Unknown,
                 };
                 self.gpr[ins.field_rD()].set_direct(value);
             }
