@@ -1,0 +1,36 @@
+name: 🐞 Bug
+description: Create a new ticket for a bug.
+title: "[BUG] <title>"
+labels:
+  - bug
+body:
+  - type: input
+    id: repo-url
+    attributes:
+      label: Repository URL
+      description: |
+        The URL of the repository where this bug can be reproduced.
+        
+        If you're working with dtk-template locally, **please** consider pushing your configuration to a repository for easier reproduction.
+        In return, this also allows contributing configuration fixes back to your repository.
+      placeholder: ex. https://github.com/USERNAME/REPO-NAME
+  - type: input
+    id: game-name
+    attributes:
+      label: Game Name
+      description: The name of the game that is impacted by this bug.
+      placeholder: ex. Metroid Prime
+  - type: input
+    id: game-version
+    attributes:
+      label: Game Version
+      description: The version of the game that is impacted by this bug.
+      placeholder: ex. USA v0
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: Please describe the issue including full error messages if applicable.
+      placeholder: "ex. When I try to split the game, I get the following error: ..."
+    validations:
+      required: true
