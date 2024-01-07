@@ -1043,7 +1043,7 @@ fn structure_type_string(
     include_anonymous_def: bool,
 ) -> Result<TypeString> {
     let prefix = if let Some(name) = t.name.as_ref() {
-        if name.starts_with("@") {
+        if name.starts_with('@') {
             struct_def_string(info, typedefs, t)?
         } else if include_keyword {
             match t.kind {
@@ -1077,7 +1077,7 @@ fn enumeration_type_string(
     include_anonymous_def: bool,
 ) -> Result<TypeString> {
     let prefix = if let Some(name) = t.name.as_ref() {
-        if name.starts_with("@") {
+        if name.starts_with('@') {
             enum_def_string(t)?
         } else if include_keyword {
             format!("enum {}", name)
@@ -1102,7 +1102,7 @@ fn union_type_string(
     include_anonymous_def: bool,
 ) -> Result<TypeString> {
     let prefix = if let Some(name) = t.name.as_ref() {
-        if name.starts_with("@") {
+        if name.starts_with('@') {
             union_def_string(info, typedefs, t)?
         } else if include_keyword {
             format!("union {}", name)
@@ -1417,7 +1417,7 @@ pub fn struct_def_string(
         StructureKind::Class => "class".to_string(),
     };
     if let Some(name) = t.name.as_ref() {
-        if name.starts_with("@") {
+        if name.starts_with('@') {
             write!(out, " /* {} */", name)?;
         } else {
             write!(out, " {}", name)?;
@@ -1479,7 +1479,7 @@ pub fn struct_def_string(
 pub fn enum_def_string(t: &EnumerationType) -> Result<String> {
     let mut out = match t.name.as_ref() {
         Some(name) => {
-            if name.starts_with("@") {
+            if name.starts_with('@') {
                 format!("enum /* {} */ {{\n", name)
             } else {
                 format!("enum {} {{\n", name)
@@ -1497,7 +1497,7 @@ pub fn enum_def_string(t: &EnumerationType) -> Result<String> {
 pub fn union_def_string(info: &DwarfInfo, typedefs: &TypedefMap, t: &UnionType) -> Result<String> {
     let mut out = match t.name.as_ref() {
         Some(name) => {
-            if name.starts_with("@") {
+            if name.starts_with('@') {
                 format!("union /* {} */ {{\n", name)
             } else {
                 format!("union {} {{\n", name)
