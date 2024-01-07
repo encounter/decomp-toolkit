@@ -2405,8 +2405,10 @@ pub fn process_overlay_branch(tag: &Tag) -> Result<OverlayBranch> {
 
     let name = name.ok_or_else(|| anyhow!("OverlayBranch without Name: {:?}", tag))?;
     let id = id.ok_or_else(|| anyhow!("OverlayBranch without Id: {:?}", tag))?;
-    let start_address = start_address.ok_or_else(|| anyhow!("OverlayBranch without LowPc: {:?}", tag))?;
-    let end_address = end_address.ok_or_else(|| anyhow!("OverlayBranch without HighPc: {:?}", tag))?;
+    let start_address =
+        start_address.ok_or_else(|| anyhow!("OverlayBranch without LowPc: {:?}", tag))?;
+    let end_address =
+        end_address.ok_or_else(|| anyhow!("OverlayBranch without HighPc: {:?}", tag))?;
     Ok(OverlayBranch { name, id, start_address, end_address, compile_unit })
 }
 
