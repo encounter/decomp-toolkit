@@ -15,8 +15,8 @@ use syntect::{
 
 use crate::util::{
     dwarf::{
-        process_root_tag, read_debug_section, should_skip_tag, tag_type_string, AttributeKind,
-        TagKind,
+        process_cu_tag, process_root_tag, read_debug_section, should_skip_tag, tag_type_string,
+        AttributeKind, TagKind,
     },
     file::{buf_writer, map_file},
 };
@@ -163,81 +163,76 @@ where
     let mut units = Vec::<String>::new();
     if let Some((_, mut tag)) = info.tags.first_key_value() {
         loop {
-            match tag.kind {
-                TagKind::CompileUnit => {
-                    let unit = tag
-                        .string_attribute(AttributeKind::Name)
-                        .ok_or_else(|| anyhow!("CompileUnit without name {:?}", tag))?;
-                    if units.contains(unit) {
-                        // log::warn!("Duplicate unit '{}'", unit);
-                    } else {
-                        units.push(unit.clone());
+            let unit = process_root_tag(tag)?;
+            if units.contains(&unit.name) {
+                // log::warn!("Duplicate unit '{}'", unit.name);
+            } else {
+                units.push(unit.name.clone());
+            }
+            writeln!(w, "\n/*\n    Compile unit: {}", unit.name)?;
+            if let Some(producer) = unit.producer {
+                writeln!(w, "    Producer: {}", producer)?;
+            }
+            if let Some(language) = unit.language {
+                writeln!(w, "    Language: {}", language)?;
+            }
+            if let (Some(start), Some(end)) = (unit.start_address, unit.end_address) {
+                writeln!(w, "    Code range: {:#010X} -> {:#010X}", start, end)?;
+            }
+            writeln!(w, "*/")?;
+
+            let children = tag.children(&info.tags);
+            let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
+            for child in children {
+                let tag_type = match process_cu_tag(&info, child) {
+                    Ok(tag_type) => tag_type,
+                    Err(e) => {
+                        log::error!(
+                            "Failed to process tag {} (unit {}): {}",
+                            child.key,
+                            unit.name,
+                            e
+                        );
+                        writeln!(
+                            w,
+                            "// ERROR: Failed to process tag {} ({:?})",
+                            child.key, child.kind
+                        )?;
+                        continue;
                     }
-                    writeln!(w, "\n// Compile unit: {}", unit)?;
-
-                    let children = tag.children(&info.tags);
-                    let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
-                    for child in children {
-                        let tag_type = match process_root_tag(&info, child) {
-                            Ok(tag_type) => tag_type,
-                            Err(e) => {
-                                log::error!(
-                                    "Failed to process tag {} (unit {}): {}",
-                                    child.key,
-                                    unit,
-                                    e
-                                );
-                                writeln!(
-                                    w,
-                                    "// ERROR: Failed to process tag {} ({:?})",
-                                    child.key, child.kind
-                                )?;
-                                continue;
-                            }
-                        };
-                        if should_skip_tag(&tag_type) {
-                            continue;
-                        }
-                        match tag_type_string(&info, &typedefs, &tag_type) {
-                            Ok(s) => writeln!(w, "{}", s)?,
-                            Err(e) => {
-                                log::error!(
-                                    "Failed to emit tag {} (unit {}): {}",
-                                    child.key,
-                                    unit,
-                                    e
-                                );
-                                writeln!(
-                                    w,
-                                    "// ERROR: Failed to emit tag {} ({:?})",
-                                    child.key, child.kind
-                                )?;
-                                continue;
-                            }
-                        }
-
-                        if let TagKind::Typedef = child.kind {
-                            // TODO fundamental typedefs?
-                            if let Some(ud_type_ref) =
-                                child.reference_attribute(AttributeKind::UserDefType)
-                            {
-                                match typedefs.entry(ud_type_ref) {
-                                    btree_map::Entry::Vacant(e) => {
-                                        e.insert(vec![child.key]);
-                                    }
-                                    btree_map::Entry::Occupied(e) => {
-                                        e.into_mut().push(child.key);
-                                    }
-                                }
-                            }
-                        }
+                };
+                if should_skip_tag(&tag_type) {
+                    continue;
+                }
+                match tag_type_string(&info, &typedefs, &tag_type) {
+                    Ok(s) => writeln!(w, "{}", s)?,
+                    Err(e) => {
+                        log::error!("Failed to emit tag {} (unit {}): {}", child.key, unit.name, e);
+                        writeln!(
+                            w,
+                            "// ERROR: Failed to emit tag {} ({:?})",
+                            child.key, child.kind
+                        )?;
+                        continue;
                     }
                 }
-                _ => {
-                    log::warn!("Expected CompileUnit, got {:?}", tag.kind);
-                    break;
+
+                if let TagKind::Typedef = child.kind {
+                    // TODO fundamental typedefs?
+                    if let Some(ud_type_ref) = child.reference_attribute(AttributeKind::UserDefType)
+                    {
+                        match typedefs.entry(ud_type_ref) {
+                            btree_map::Entry::Vacant(e) => {
+                                e.insert(vec![child.key]);
+                            }
+                            btree_map::Entry::Occupied(e) => {
+                                e.into_mut().push(child.key);
+                            }
+                        }
+                    }
                 }
             }
+
             if let Some(next) = tag.next_sibling(&info.tags) {
                 tag = next;
             } else {

@@ -716,6 +716,8 @@ pub struct SubroutineType {
     pub labels: Vec<SubroutineLabel>,
     pub blocks: Vec<SubroutineBlock>,
     pub inlines: Vec<SubroutineInline>,
+    pub start_address: Option<u32>,
+    pub end_address: Option<u32>,
 }
 
 #[derive(Debug, Clone)]
@@ -754,6 +756,47 @@ pub enum TagType {
     Variable(VariableTag),
     Typedef(TypedefTag),
     UserDefined(UserDefinedType),
+}
+
+#[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
+#[repr(u32)]
+pub enum Language {
+    C89 = 0x1,
+    C = 0x2,
+    Ada83 = 0x3,
+    CPlusPlus = 0x4,
+    Cobol74 = 0x5,
+    Cobol85 = 0x6,
+    Fortran77 = 0x7,
+    Fortran90 = 0x8,
+    Pascal83 = 0x9,
+    Modula2 = 0xa,
+}
+
+impl Display for Language {
+    fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Language::C89 => write!(f, "C89"),
+            Language::C => write!(f, "C"),
+            Language::Ada83 => write!(f, "Ada83"),
+            Language::CPlusPlus => write!(f, "C++"),
+            Language::Cobol74 => write!(f, "Cobol74"),
+            Language::Cobol85 => write!(f, "Cobol85"),
+            Language::Fortran77 => write!(f, "Fortran77"),
+            Language::Fortran90 => write!(f, "Fortran90"),
+            Language::Pascal83 => write!(f, "Pascal83"),
+            Language::Modula2 => write!(f, "Modula2"),
+        }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct CompileUnit {
+    pub name: String,
+    pub producer: Option<String>,
+    pub language: Option<Language>,
+    pub start_address: Option<u32>,
+    pub end_address: Option<u32>,
 }
 
 impl UserDefinedType {
@@ -1171,8 +1214,14 @@ pub fn subroutine_def_string(
     typedefs: &TypedefMap,
     t: &SubroutineType,
 ) -> Result<String> {
+    let mut out = String::new();
+    if let (Some(start), Some(end)) = (t.start_address, t.end_address) {
+        writeln!(out, "// Range: {:#X} -> {:#X}", start, end)?;
+    }
     let rt = type_string(info, typedefs, &t.return_type, true)?;
-    let mut out = if t.local { "static ".to_string() } else { String::new() };
+    if t.local {
+        out.push_str("static ");
+    }
     if t.inline {
         out.push_str("inline ");
     }
@@ -1852,6 +1901,8 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut references = Vec::new();
     let mut member_of = None;
     let mut inline = false;
+    let mut start_address = None;
+    let mut end_address = None;
     for attr in &tag.attributes {
         match (attr.kind, &attr.value) {
             (AttributeKind::Sibling, _) => {}
@@ -1865,8 +1916,11 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                 _,
             ) => return_type = Some(process_type(attr, info.e)?),
             (AttributeKind::Prototyped, _) => prototyped = true,
-            (AttributeKind::LowPc, _) | (AttributeKind::HighPc, _) => {
-                // TODO?
+            (AttributeKind::LowPc, &AttributeValue::Address(addr)) => {
+                start_address = Some(addr);
+            }
+            (AttributeKind::HighPc, &AttributeValue::Address(addr)) => {
+                end_address = Some(addr);
             }
             (AttributeKind::MwGlobalRef, &AttributeValue::Reference(key)) => {
                 references.push(key);
@@ -1988,6 +2042,8 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         labels,
         blocks,
         inlines,
+        start_address,
+        end_address,
     })
 }
 
@@ -2287,7 +2343,38 @@ pub fn process_type(attr: &Attribute, e: Endian) -> Result<Type> {
     }
 }
 
-pub fn process_root_tag(info: &DwarfInfo, tag: &Tag) -> Result<TagType> {
+pub fn process_root_tag(tag: &Tag) -> Result<CompileUnit> {
+    ensure!(tag.kind == TagKind::CompileUnit, "{:?} is not a CompileUnit tag", tag.kind);
+
+    let mut name = None;
+    let mut producer = None;
+    let mut language = None;
+    let mut start_address = None;
+    let mut end_address = None;
+    for attr in &tag.attributes {
+        match (attr.kind, &attr.value) {
+            (AttributeKind::Sibling, _) => {}
+            (AttributeKind::Name, AttributeValue::String(s)) => name = Some(s.clone()),
+            (AttributeKind::Producer, AttributeValue::String(s)) => producer = Some(s.clone()),
+            (AttributeKind::Language, &AttributeValue::Data4(value)) => {
+                language = Some(Language::try_from_primitive(value)?)
+            }
+            (AttributeKind::LowPc, &AttributeValue::Address(addr)) => start_address = Some(addr),
+            (AttributeKind::HighPc, &AttributeValue::Address(addr)) => end_address = Some(addr),
+            (AttributeKind::StmtList, AttributeValue::Data4(_)) => {
+                // TODO .line support
+            }
+            _ => {
+                bail!("Unhandled CompileUnit attribute {:?}", attr);
+            }
+        }
+    }
+
+    let name = name.ok_or_else(|| anyhow!("CompileUnit without Name: {:?}", tag))?;
+    Ok(CompileUnit { name, producer, language, start_address, end_address })
+}
+
+pub fn process_cu_tag(info: &DwarfInfo, tag: &Tag) -> Result<TagType> {
     match tag.kind {
         TagKind::Typedef => Ok(TagType::Typedef(process_typedef_tag(info, tag)?)),
         TagKind::GlobalVariable | TagKind::LocalVariable => {
@@ -2352,14 +2439,13 @@ fn variable_string(
     out.push(' ');
     out.push_str(variable.name.as_deref().unwrap_or("[unknown]"));
     out.push_str(&ts.suffix);
-    match &variable.address {
-        Some(addr) => out.push_str(&format!(" : {:#010X}", addr)),
-        None => {}
-    }
     out.push(';');
     if include_extra {
         let size = variable.kind.size(info)?;
         out.push_str(&format!(" // size: {:#X}", size));
+        if let Some(addr) = variable.address {
+            out.push_str(&format!(", address: {:#X}", addr));
+        }
     }
     Ok(out)
 }
