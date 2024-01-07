@@ -1,4 +1,5 @@
 use anyhow::{anyhow, Result};
+use itertools::Itertools;
 
 use crate::{
     analysis::{
@@ -203,16 +204,16 @@ const POST_SIGNATURES: &[(&str, &str)] = &[
 ];
 
 fn apply_signature_for_symbol(obj: &mut ObjInfo, name: &str, sig_str: &str) -> Result<()> {
-    let Some((_, symbol)) = obj.symbols.by_name(name)? else {
-        return Ok(());
-    };
-    let Some(section_index) = symbol.section else {
-        return Ok(());
-    };
-    let addr = symbol.address as u32;
-    let section = &obj.sections[section_index];
-    if let Some(signature) = check_signatures_str(section, addr, sig_str)? {
-        apply_signature(obj, SectionAddress::new(section_index, addr), &signature)?;
+    for symbol_idx in obj.symbols.for_name(name).map(|(i, _)| i).collect_vec() {
+        let symbol = &obj.symbols[symbol_idx];
+        let Some(section_index) = symbol.section else {
+            continue;
+        };
+        let addr = symbol.address as u32;
+        let section = &obj.sections[section_index];
+        if let Some(signature) = check_signatures_str(section, addr, sig_str)? {
+            apply_signature(obj, SectionAddress::new(section_index, addr), &signature)?;
+        }
     }
     Ok(())
 }
