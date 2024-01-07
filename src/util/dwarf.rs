@@ -799,6 +799,15 @@ pub struct CompileUnit {
     pub end_address: Option<u32>,
 }
 
+#[derive(Debug, Clone)]
+pub struct OverlayBranch {
+    pub name: String,
+    pub id: u32,
+    pub start_address: u32,
+    pub end_address: u32,
+    pub compile_unit: Option<u32>,
+}
+
 impl UserDefinedType {
     pub fn name(&self) -> Option<String> {
         match self {
@@ -2343,7 +2352,7 @@ pub fn process_type(attr: &Attribute, e: Endian) -> Result<Type> {
     }
 }
 
-pub fn process_root_tag(tag: &Tag) -> Result<CompileUnit> {
+pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
     ensure!(tag.kind == TagKind::CompileUnit, "{:?} is not a CompileUnit tag", tag.kind);
 
     let mut name = None;
@@ -2372,6 +2381,35 @@ pub fn process_root_tag(tag: &Tag) -> Result<CompileUnit> {
 
     let name = name.ok_or_else(|| anyhow!("CompileUnit without Name: {:?}", tag))?;
     Ok(CompileUnit { name, producer, language, start_address, end_address })
+}
+
+pub fn process_overlay_branch(tag: &Tag) -> Result<OverlayBranch> {
+    ensure!(tag.kind == TagKind::MwOverlayBranch, "{:?} is not an OverlayBranch tag", tag.kind);
+
+    let mut name = None;
+    let mut id = None;
+    let mut start_address = None;
+    let mut end_address = None;
+    let mut compile_unit = None;
+    for attr in &tag.attributes {
+        match (attr.kind, &attr.value) {
+            (AttributeKind::Sibling, _) => {}
+            (AttributeKind::Member, AttributeValue::Reference(addr)) => compile_unit = Some(*addr),
+            (AttributeKind::MwOverlayName, AttributeValue::String(s)) => name = Some(s.clone()),
+            (AttributeKind::MwOverlayId, AttributeValue::Data4(value)) => id = Some(*value),
+            (AttributeKind::LowPc, &AttributeValue::Address(addr)) => start_address = Some(addr),
+            (AttributeKind::HighPc, &AttributeValue::Address(addr)) => end_address = Some(addr),
+            _ => bail!("Unhandled OverlayBranch attribute {:?}", attr),
+        }
+    }
+
+    let name = name.ok_or_else(|| anyhow!("OverlayBranch without Name: {:?}", tag))?;
+    let id = id.ok_or_else(|| anyhow!("OverlayBranch without Id: {:?}", tag))?;
+    let start_address =
+        start_address.ok_or_else(|| anyhow!("OverlayBranch without LowPc: {:?}", tag))?;
+    let end_address =
+        end_address.ok_or_else(|| anyhow!("OverlayBranch without HighPc: {:?}", tag))?;
+    Ok(OverlayBranch { name, id, start_address, end_address, compile_unit })
 }
 
 pub fn process_cu_tag(info: &DwarfInfo, tag: &Tag) -> Result<TagType> {
