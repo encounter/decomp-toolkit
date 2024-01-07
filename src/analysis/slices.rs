@@ -248,7 +248,9 @@ impl FunctionSlices {
             StepResult::Continue | StepResult::LoadStore { .. } => {
                 let next_address = ins_addr + 4;
                 // If we already visited the next address, connect the blocks and end
-                if executor.visited(section.address as u32, next_address) {
+                if executor.visited(section.address as u32, next_address)
+                    || self.blocks.contains_key(&next_address)
+                {
                     self.blocks.insert(block_start, Some(next_address));
                     self.branches.insert(ins_addr, vec![next_address]);
                     Ok(ExecCbResult::EndBlock)
