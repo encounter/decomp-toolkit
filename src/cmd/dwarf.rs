@@ -182,7 +182,7 @@ where
                             .tags
                             .get(&unit_addr)
                             .ok_or_else(|| anyhow!("Failed to get CompileUnit"))?;
-                        let unit = process_compile_unit(&tag)?;
+                        let unit = process_compile_unit(tag)?;
                         writeln!(w, "    Compile unit: {}", unit.name)?;
                     }
 
