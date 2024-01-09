@@ -1580,12 +1580,21 @@ pub fn struct_def_string(
                 Visibility::Public => out.push_str("public:\n"),
             }
         }
+        for anon in &groups {
+            if i == anon.member_index + anon.member_count {
+                indent -= 4;
+                out.push_str(&indent_all_by(indent, "};\n"));
+                in_group = false;
+            }
+        }
         for anon in &unions {
             if i == anon.member_index + anon.member_count {
                 indent -= 4;
                 out.push_str(&indent_all_by(indent, "};\n"));
                 in_union = false;
             }
+        }
+        for anon in &unions {
             if i == anon.member_index {
                 out.push_str(&indent_all_by(indent, "union { // inferred\n"));
                 indent += 4;
@@ -1593,11 +1602,6 @@ pub fn struct_def_string(
             }
         }
         for anon in &groups {
-            if i == anon.member_index + anon.member_count {
-                indent -= 4;
-                out.push_str(&indent_all_by(indent, "};\n"));
-                in_group = false;
-            }
             if i == anon.member_index {
                 out.push_str(&indent_all_by(indent, "struct { // inferred\n"));
                 indent += 4;
