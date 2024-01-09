@@ -1407,6 +1407,114 @@ fn subroutine_block_string(
     Ok(out)
 }
 
+#[derive(Debug, Clone)]
+struct AnonUnion {
+    offset: u32,
+    member_index: usize,
+    member_count: usize,
+}
+
+#[derive(Debug, Clone)]
+struct AnonUnionGroup {
+    member_index: usize,
+    member_count: usize,
+}
+
+fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<AnonUnion>> {
+    let mut unions = Vec::new();
+    let mut offset = u32::MAX;
+    for (prev, member) in members.iter().skip(1).enumerate() {
+        if let Some(bit) = &member.bit {
+            if bit.bit_offset != 0 {
+                continue;
+            }
+        }
+        if members[prev].offset == member.offset && member.offset != offset {
+            offset = member.offset;
+            unions.push(AnonUnion { offset, member_index: prev, member_count: 0 });
+        }
+    }
+    for anon in &mut unions {
+        for (i, member) in members.iter().skip(anon.member_index).enumerate() {
+            if let Some(bit) = &member.bit {
+                if bit.bit_offset != 0 {
+                    continue;
+                }
+            }
+            if member.offset == anon.offset {
+                anon.member_count = i;
+            }
+        }
+        let mut cur_size = 0;
+        let mut max_size = 0;
+        for member in members.iter().skip(anon.member_index).take(anon.member_count + 1) {
+            if let Some(bit) = &member.bit {
+                if bit.bit_offset != 0 {
+                    continue;
+                }
+            }
+            let size =
+                if let Some(size) = member.byte_size { size } else { member.kind.size(info)? };
+            if member.offset == anon.offset {
+                cur_size = size;
+            } else {
+                cur_size += size;
+            }
+            max_size = max(max_size, cur_size);
+        }
+        cur_size = 0;
+        for member in members.iter().skip(anon.member_index + anon.member_count) {
+            if let Some(bit) = &member.bit {
+                if bit.bit_offset != 0 {
+                    continue;
+                }
+            }
+            let size =
+                if let Some(size) = member.byte_size { size } else { member.kind.size(info)? };
+            cur_size += size;
+            if cur_size > max_size {
+                break;
+            }
+            anon.member_count += 1;
+        }
+    }
+    Ok(unions)
+}
+
+fn get_anon_union_groups(members: &[StructureMember], unions: &[AnonUnion]) -> Vec<AnonUnionGroup> {
+    let mut groups = Vec::new();
+    for anon in unions {
+        for (i, member) in
+            members.iter().skip(anon.member_index).take(anon.member_count).enumerate()
+        {
+            if let Some(bit) = &member.bit {
+                if bit.bit_offset != 0 {
+                    continue;
+                }
+            }
+            if member.offset == anon.offset {
+                let mut group =
+                    AnonUnionGroup { member_index: anon.member_index + i, member_count: 1 };
+
+                for member in
+                    members.iter().skip(anon.member_index).take(anon.member_count).skip(i + 1)
+                {
+                    if member.offset == anon.offset {
+                        break;
+                    }
+
+                    group.member_count += 1;
+                }
+
+                if group.member_count > 1 {
+                    groups.push(group);
+                }
+            }
+        }
+    }
+    groups
+}
+
 pub fn struct_def_string(
     info: &DwarfInfo,
     typedefs: &TypedefMap,
@@ -1453,13 +1561,42 @@ pub fn struct_def_string(
         StructureKind::Struct => Visibility::Public,
         StructureKind::Class => Visibility::Private,
     };
-    for member in &t.members {
+    let mut indent = 4;
+    let unions = get_anon_unions(info, &t.members)?;
+    let groups = get_anon_union_groups(&t.members, &unions);
+    let mut in_union = false;
+    let mut in_group = false;
+    for (i, member) in t.members.iter().enumerate() {
         if vis != member.visibility {
             vis = member.visibility;
             match member.visibility {
                 Visibility::Private => out.push_str("private:\n"),
                 Visibility::Protected => out.push_str("protected:\n"),
                 Visibility::Public => out.push_str("public:\n"),
+            }
+        }
+        for anon in &unions {
+            if i == anon.member_index + anon.member_count {
+                indent -= 4;
+                out.push_str(&indent_all_by(indent, "};\n"));
+                in_union = false;
+            }
+            if i == anon.member_index {
+                out.push_str(&indent_all_by(indent, "union {\n"));
+                indent += 4;
+                in_union = true;
+            }
+        }
+        for anon in &groups {
+            if i == anon.member_index + anon.member_count {
+                indent -= 4;
+                out.push_str(&indent_all_by(indent, "};\n"));
+                in_group = false;
+            }
+            if i == anon.member_index {
+                out.push_str(&indent_all_by(indent, "struct {\n"));
+                indent += 4;
+                in_group = true;
             }
         }
         let mut var_out = String::new();
@@ -1470,7 +1607,15 @@ pub fn struct_def_string(
         }
         let size = if let Some(size) = member.byte_size { size } else { member.kind.size(info)? };
         writeln!(var_out, "; // offset {:#X}, size {:#X}", member.offset, size)?;
-        out.push_str(&indent_all_by(4, var_out));
+        out.push_str(&indent_all_by(indent, var_out));
+    }
+    if in_group {
+        indent -= 4;
+        out.push_str(&indent_all_by(indent, "};\n"));
+    }
+    if in_union {
+        indent -= 4;
+        out.push_str(&indent_all_by(indent, "};\n"));
     }
     out.push('}');
     Ok(out)
