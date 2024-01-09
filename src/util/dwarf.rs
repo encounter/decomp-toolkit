@@ -1429,9 +1429,14 @@ fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<
                 continue;
             }
         }
-        if members[prev].offset == member.offset && member.offset != offset {
+        if member.offset <= members[prev].offset && member.offset != offset {
             offset = member.offset;
-            unions.push(AnonUnion { offset, member_index: prev, member_count: 0 });
+            for (i, member) in members.iter().enumerate() {
+                if member.offset == offset {
+                    unions.push(AnonUnion { offset, member_index: i, member_count: 0 });
+                    break;
+                }
+            }
         }
     }
     for anon in &mut unions {
