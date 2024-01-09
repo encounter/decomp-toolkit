@@ -1582,7 +1582,7 @@ pub fn struct_def_string(
                 in_union = false;
             }
             if i == anon.member_index {
-                out.push_str(&indent_all_by(indent, "union {\n"));
+                out.push_str(&indent_all_by(indent, "union { // inferred\n"));
                 indent += 4;
                 in_union = true;
             }
@@ -1594,7 +1594,7 @@ pub fn struct_def_string(
                 in_group = false;
             }
             if i == anon.member_index {
-                out.push_str(&indent_all_by(indent, "struct {\n"));
+                out.push_str(&indent_all_by(indent, "struct { // inferred\n"));
                 indent += 4;
                 in_group = true;
             }
