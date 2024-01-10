@@ -1472,9 +1472,7 @@ fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<
                     continue;
                 }
             }
-            let size =
-                if let Some(size) = member.byte_size { size } else { member.kind.size(info)? };
-            if member.offset + size > max_offset || member.offset < anon.offset {
+            if member.offset >= max_offset || member.offset < anon.offset {
                 break;
             }
             anon.member_count += 1;
