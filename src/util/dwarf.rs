@@ -1421,9 +1421,9 @@ struct AnonUnionGroup {
 }
 
 fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<AnonUnion>> {
-    let mut unions = Vec::new();
+    let mut unions = Vec::<AnonUnion>::new();
     let mut offset = u32::MAX;
-    for (prev, member) in members.iter().skip(1).enumerate() {
+    'member: for (prev, member) in members.iter().skip(1).enumerate() {
         if let Some(bit) = &member.bit {
             if bit.bit_offset != 0 {
                 continue;
@@ -1433,6 +1433,11 @@ fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<
             offset = member.offset;
             for (i, member) in members.iter().enumerate() {
                 if member.offset == offset {
+                    for anon in &unions {
+                        if anon.member_index == i {
+                            continue 'member;
+                        }
+                    }
                     unions.push(AnonUnion { offset, member_index: i, member_count: 0 });
                     break;
                 }
@@ -1450,8 +1455,7 @@ fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<
                 anon.member_count = i;
             }
         }
-        let mut cur_size = 0;
-        let mut max_size = 0;
+        let mut max_offset = 0;
         for member in members.iter().skip(anon.member_index).take(anon.member_count + 1) {
             if let Some(bit) = &member.bit {
                 if bit.bit_offset != 0 {
@@ -1460,14 +1464,8 @@ fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<
             }
             let size =
                 if let Some(size) = member.byte_size { size } else { member.kind.size(info)? };
-            if member.offset == anon.offset {
-                cur_size = size;
-            } else {
-                cur_size += size;
-            }
-            max_size = max(max_size, cur_size);
+            max_offset = max(max_offset, member.offset + size);
         }
-        cur_size = 0;
         for member in members.iter().skip(anon.member_index + anon.member_count) {
             if let Some(bit) = &member.bit {
                 if bit.bit_offset != 0 {
@@ -1476,8 +1474,7 @@ fn get_anon_unions(info: &DwarfInfo, members: &[StructureMember]) -> Result<Vec<
             }
             let size =
                 if let Some(size) = member.byte_size { size } else { member.kind.size(info)? };
-            cur_size += size;
-            if cur_size > max_size {
+            if member.offset + size > max_offset || member.offset < anon.offset {
                 break;
             }
             anon.member_count += 1;
@@ -1569,8 +1566,8 @@ pub fn struct_def_string(
     let mut indent = 4;
     let unions = get_anon_unions(info, &t.members)?;
     let groups = get_anon_union_groups(&t.members, &unions);
-    let mut in_union = false;
-    let mut in_group = false;
+    let mut in_union = 0;
+    let mut in_group = 0;
     for (i, member) in t.members.iter().enumerate() {
         if vis != member.visibility {
             vis = member.visibility;
@@ -1584,28 +1581,28 @@ pub fn struct_def_string(
             if i == anon.member_index + anon.member_count {
                 indent -= 4;
                 out.push_str(&indent_all_by(indent, "};\n"));
-                in_group = false;
+                in_group -= 1;
             }
         }
         for anon in &unions {
             if i == anon.member_index + anon.member_count {
                 indent -= 4;
                 out.push_str(&indent_all_by(indent, "};\n"));
-                in_union = false;
+                in_union -= 1;
             }
         }
         for anon in &unions {
             if i == anon.member_index {
                 out.push_str(&indent_all_by(indent, "union { // inferred\n"));
                 indent += 4;
-                in_union = true;
+                in_union += 1;
             }
         }
         for anon in &groups {
             if i == anon.member_index {
                 out.push_str(&indent_all_by(indent, "struct { // inferred\n"));
                 indent += 4;
-                in_group = true;
+                in_group += 1;
             }
         }
         let mut var_out = String::new();
@@ -1618,13 +1615,15 @@ pub fn struct_def_string(
         writeln!(var_out, "; // offset {:#X}, size {:#X}", member.offset, size)?;
         out.push_str(&indent_all_by(indent, var_out));
     }
-    if in_group {
+    while in_group > 0 {
         indent -= 4;
         out.push_str(&indent_all_by(indent, "};\n"));
+        in_group -= 1;
     }
-    if in_union {
+    while in_union > 0 {
         indent -= 4;
         out.push_str(&indent_all_by(indent, "};\n"));
+        in_union -= 1;
     }
     out.push('}');
     Ok(out)
