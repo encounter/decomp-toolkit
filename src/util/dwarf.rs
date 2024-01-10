@@ -1583,6 +1583,9 @@ pub fn struct_def_string(
             }
         }
         for anon in &unions {
+            if anon.member_count < 2 {
+                continue;
+            }
             if i == anon.member_index + anon.member_count {
                 indent -= 4;
                 out.push_str(&indent_all_by(indent, "};\n"));
@@ -1590,6 +1593,9 @@ pub fn struct_def_string(
             }
         }
         for anon in &unions {
+            if anon.member_count < 2 {
+                continue;
+            }
             if i == anon.member_index {
                 out.push_str(&indent_all_by(indent, "union { // inferred\n"));
                 indent += 4;
