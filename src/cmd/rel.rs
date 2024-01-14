@@ -579,7 +579,7 @@ fn merge(args: MergeArgs) -> Result<()> {
 
     // Write ELF
     log::info!("Writing {}", args.out_file.display());
-    fs::write(&args.out_file, write_elf(&obj)?)?;
+    fs::write(&args.out_file, write_elf(&obj, false)?)?;
     Ok(())
 }
 

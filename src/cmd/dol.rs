@@ -225,9 +225,12 @@ pub struct ProjectConfig {
     /// and instead assumes that all symbols are known.
     #[serde(default, skip_serializing_if = "is_default")]
     pub symbols_known: bool,
-    /// Fills gaps between symbols with
+    /// Fills gaps between symbols to avoid linker realignment.
     #[serde(default = "bool_true", skip_serializing_if = "is_true")]
     pub fill_gaps: bool,
+    /// Marks all emitted symbols as "force active" to prevent the linker from removing them.
+    #[serde(default = "bool_true", skip_serializing_if = "is_true")]
+    pub auto_force_active: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -859,7 +862,7 @@ fn split_write_obj(
         entry,
     };
     for (unit, split_obj) in module.obj.link_order.iter().zip(&split_objs) {
-        let out_obj = write_elf(split_obj)?;
+        let out_obj = write_elf(split_obj, config.auto_force_active)?;
         let out_path = obj_dir.join(obj_path_for_unit(&unit.name));
         out_config.units.push(OutputUnit {
             object: out_path.clone(),
@@ -1763,6 +1766,7 @@ fn config(args: ConfigArgs) -> Result<()> {
         common_start: None,
         symbols_known: false,
         fill_gaps: true,
+        auto_force_active: true,
     };
 
     let mut modules = Vec::<(u32, ModuleConfig)>::new();

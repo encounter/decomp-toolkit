@@ -185,7 +185,7 @@ fn split(args: SplitArgs) -> Result<()> {
 
     let split_objs = split_obj(&obj)?;
     for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
-        let out_obj = write_elf(split_obj)?;
+        let out_obj = write_elf(split_obj, false)?;
         match file_map.entry(unit.name.clone()) {
             hash_map::Entry::Vacant(e) => e.insert(out_obj),
             hash_map::Entry::Occupied(_) => bail!("Duplicate file {}", unit.name),
