@@ -228,9 +228,9 @@ pub struct ProjectConfig {
     /// Fills gaps between symbols to avoid linker realignment.
     #[serde(default = "bool_true", skip_serializing_if = "is_true")]
     pub fill_gaps: bool,
-    /// Marks all emitted symbols as "force active" to prevent the linker from removing them.
+    /// Marks all emitted symbols as "exported" to prevent the linker from removing them.
     #[serde(default = "bool_true", skip_serializing_if = "is_true")]
-    pub auto_force_active: bool,
+    pub export_all: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -248,7 +248,7 @@ pub struct ModuleConfig {
     pub symbols: Option<PathBuf>,
     #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "is_default")]
     pub map: Option<PathBuf>,
-    /// Forces the given symbols to be active in the linker script.
+    /// Forces the given symbols to be active (exported) in the linker script.
     #[serde(default, skip_serializing_if = "is_default")]
     pub force_active: Vec<String>,
     #[serde(skip_serializing_if = "is_default")]
@@ -397,7 +397,7 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
                 section,
                 size: existing_symbol.size,
                 size_known: existing_symbol.size_known,
-                flags: ObjSymbolFlagSet(existing_symbol.flags.0 | ObjSymbolFlags::ForceActive),
+                flags: ObjSymbolFlagSet(existing_symbol.flags.0 | ObjSymbolFlags::Exported),
                 kind: existing_symbol.kind,
                 align: existing_symbol.align,
                 data_kind: existing_symbol.data_kind,
@@ -412,7 +412,7 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
                     demangled_name: symbol.demangled_name.clone(),
                     address: address as u64,
                     section,
-                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::ForceActive),
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Exported),
                     ..*symbol
                 },
                 false,
@@ -574,7 +574,7 @@ fn update_symbols(
                 name,
                 address: rel_reloc.addend as u64,
                 section: Some(target_section_index),
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::ForceActive.into()),
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Exported.into()),
                 ..Default::default()
             })?;
         }
@@ -862,7 +862,7 @@ fn split_write_obj(
         entry,
     };
     for (unit, split_obj) in module.obj.link_order.iter().zip(&split_objs) {
-        let out_obj = write_elf(split_obj, config.auto_force_active)?;
+        let out_obj = write_elf(split_obj, config.export_all)?;
         let out_path = obj_dir.join(obj_path_for_unit(&unit.name));
         out_config.units.push(OutputUnit {
             object: out_path.clone(),
@@ -1766,7 +1766,7 @@ fn config(args: ConfigArgs) -> Result<()> {
         common_start: None,
         symbols_known: false,
         fill_gaps: true,
-        auto_force_active: true,
+        export_all: true,
     };
 
     let mut modules = Vec::<(u32, ModuleConfig)>::new();

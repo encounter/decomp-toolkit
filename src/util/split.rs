@@ -563,7 +563,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                 size: next_symbol_address - addr as u64,
                 size_known: true,
                 flags: ObjSymbolFlagSet(
-                    ObjSymbolFlags::Local | ObjSymbolFlags::ForceActive | ObjSymbolFlags::NoWrite,
+                    ObjSymbolFlags::Local | ObjSymbolFlags::Exported | ObjSymbolFlags::NoWrite,
                 ),
                 kind: match section.kind {
                     ObjSectionKind::Code => ObjSymbolKind::Function,
@@ -616,7 +616,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                         flags: ObjSymbolFlagSet(
                             ObjSymbolFlags::Global
                                 | ObjSymbolFlags::Hidden
-                                | ObjSymbolFlags::ForceActive
+                                | ObjSymbolFlags::Exported
                                 | ObjSymbolFlags::NoWrite,
                         ),
                         kind: match section.kind {

@@ -346,7 +346,7 @@ where P: AsRef<Path> {
     Ok(obj)
 }
 
-pub fn write_elf(obj: &ObjInfo, force_active: bool) -> Result<Vec<u8>> {
+pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     let mut out_data = Vec::new();
     let mut writer = object::write::elf::Writer::new(Endianness::Big, false, &mut out_data);
 
@@ -540,7 +540,7 @@ pub fn write_elf(obj: &ObjInfo, force_active: bool) -> Result<Vec<u8>> {
         out_symbols.push(OutSymbol { index, sym });
         symbol_map[symbol_index] = Some(index.0);
         if let Some(comment_data) = &mut comment_data {
-            CommentSym::from(symbol, force_active).to_writer_static(comment_data, Endian::Big)?;
+            CommentSym::from(symbol, export_all).to_writer_static(comment_data, Endian::Big)?;
         }
     }
 

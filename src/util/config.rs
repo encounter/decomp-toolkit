@@ -85,7 +85,7 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
             ObjSymbol { name, demangled_name, address: addr as u64, section, ..Default::default() };
         // TODO move somewhere common
         if symbol.name.starts_with("..") {
-            symbol.flags.0 |= ObjSymbolFlags::ForceActive;
+            symbol.flags.0 |= ObjSymbolFlags::Exported;
         }
         let attrs = captures["attrs"].split(' ');
         for attr in attrs {
@@ -128,7 +128,7 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                         symbol.flags.0 |= ObjSymbolFlags::Hidden;
                     }
                     "force_active" => {
-                        symbol.flags.0 |= ObjSymbolFlags::ForceActive;
+                        symbol.flags.0 |= ObjSymbolFlags::Exported;
                     }
                     "stripped" => {
                         symbol.flags.0 |= ObjSymbolFlags::Stripped;
@@ -146,6 +146,9 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                         );
                         let addr = SectionAddress::new(section.unwrap(), symbol.address as u32);
                         obj.blocked_ranges.insert(addr, addr.address + symbol.size as u32);
+                    }
+                    "noexport" => {
+                        symbol.flags.0 |= ObjSymbolFlags::NoExport;
                     }
                     _ => bail!("Unknown symbol attribute '{attr}'"),
                 }
@@ -280,6 +283,9 @@ where W: Write + ?Sized {
         if obj.blocked_ranges.contains_key(&SectionAddress::new(section, symbol.address as u32)) {
             write!(w, " noreloc")?;
         }
+    }
+    if symbol.flags.is_no_export() {
+        write!(w, " noexport")?;
     }
     writeln!(w)?;
     Ok(())

@@ -63,8 +63,7 @@ pub fn generate_ldscript(
 
     let mut force_active = force_active.to_vec();
     for symbol in obj.symbols.iter() {
-        if symbol.flags.is_force_active() && symbol.flags.is_global() && !symbol.flags.is_no_write()
-        {
+        if symbol.flags.is_exported() && symbol.flags.is_global() && !symbol.flags.is_no_write() {
             force_active.push(symbol.name.clone());
         }
     }
@@ -98,8 +97,7 @@ pub fn generate_ldscript_partial(
 
     let mut force_active = force_active.to_vec();
     for symbol in obj.symbols.iter() {
-        if symbol.flags.is_force_active() && symbol.flags.is_global() && !symbol.flags.is_no_write()
-        {
+        if symbol.flags.is_exported() && symbol.flags.is_global() && !symbol.flags.is_no_write() {
             force_active.push(symbol.name.clone());
         }
     }

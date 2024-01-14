@@ -34,7 +34,8 @@ flags! {
         Weak,
         Common,
         Hidden,
-        ForceActive,
+        /// Force symbol to be exported (force active)
+        Exported,
         /// Symbol isn't referenced by any relocations
         RelocationIgnore,
         /// Symbol won't be written to symbols file
@@ -42,6 +43,8 @@ flags! {
         /// Symbol was stripped from the original object,
         /// but is still useful for common BSS matching.
         Stripped,
+        /// Disable automatic export of symbol
+        NoExport,
     }
 }
 
@@ -78,7 +81,7 @@ impl ObjSymbolFlagSet {
     pub fn is_hidden(&self) -> bool { self.0.contains(ObjSymbolFlags::Hidden) }
 
     #[inline]
-    pub fn is_force_active(&self) -> bool { self.0.contains(ObjSymbolFlags::ForceActive) }
+    pub fn is_exported(&self) -> bool { self.0.contains(ObjSymbolFlags::Exported) }
 
     #[inline]
     pub fn is_relocation_ignore(&self) -> bool { self.0.contains(ObjSymbolFlags::RelocationIgnore) }
@@ -88,6 +91,9 @@ impl ObjSymbolFlagSet {
 
     #[inline]
     pub fn is_stripped(&self) -> bool { self.0.contains(ObjSymbolFlags::Stripped) }
+
+    #[inline]
+    pub fn is_no_export(&self) -> bool { self.0.contains(ObjSymbolFlags::NoExport) }
 
     #[inline]
     pub fn set_scope(&mut self, scope: ObjSymbolScope) {
@@ -113,9 +119,9 @@ impl ObjSymbolFlagSet {
     #[inline]
     pub fn set_force_active(&mut self, value: bool) {
         if value {
-            self.0 |= ObjSymbolFlags::ForceActive;
+            self.0 = (self.0 & !ObjSymbolFlags::NoExport) | ObjSymbolFlags::Exported;
         } else {
-            self.0 &= !ObjSymbolFlags::ForceActive;
+            self.0 &= !ObjSymbolFlags::Exported;
         }
     }
 
@@ -123,10 +129,11 @@ impl ObjSymbolFlagSet {
     #[inline]
     pub fn keep_flags(&self) -> FlagSet<ObjSymbolFlags> {
         self.0
-            & (ObjSymbolFlags::ForceActive
+            & (ObjSymbolFlags::Exported
                 | ObjSymbolFlags::NoWrite
                 | ObjSymbolFlags::RelocationIgnore
-                | ObjSymbolFlags::Stripped)
+                | ObjSymbolFlags::Stripped
+                | ObjSymbolFlags::NoExport)
     }
 }
 

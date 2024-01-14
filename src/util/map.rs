@@ -823,7 +823,7 @@ fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usi
     };
     // TODO move somewhere common
     if symbol_entry.name.starts_with("..") {
-        flags |= ObjSymbolFlags::ForceActive;
+        flags |= ObjSymbolFlags::Exported;
     }
     if symbol_entry.unused {
         flags |= ObjSymbolFlags::Stripped;

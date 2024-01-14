@@ -249,7 +249,7 @@ impl ToWriter for CommentSym {
 }
 
 impl CommentSym {
-    pub fn from(symbol: &ObjSymbol, force_active: bool) -> Self {
+    pub fn from(symbol: &ObjSymbol, export_all: bool) -> Self {
         let align = match symbol.align {
             Some(align) => align,
             None => {
@@ -277,8 +277,9 @@ impl CommentSym {
         }
         let mut active_flags = 0;
         if !symbol.flags.is_stripped()
-            && (symbol.flags.is_force_active()
-                || (force_active
+            && (symbol.flags.is_exported()
+                || (export_all
+                    && !symbol.flags.is_no_export()
                     && matches!(symbol.kind, ObjSymbolKind::Function | ObjSymbolKind::Object)))
         {
             active_flags |= 0x8;
