@@ -1353,7 +1353,9 @@ fn auto_unit_name(
     let name = sanitize_with_options(&symbol.name, &sanitise_file_name::Options {
         length_limit: 20,
         ..Default::default()
-    });
+    })
+    // Also replace $ to avoid issues with build.ninja
+    .replace('$', "_");
     let mut unit_name = format!("auto_{}_{}", name, section_name.trim_start_matches('.'));
     // Ensure the name is unique
     if unit_exists(&unit_name, obj, new_splits) {
