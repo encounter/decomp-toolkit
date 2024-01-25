@@ -178,6 +178,8 @@ pub fn is_auto_symbol(symbol: &ObjSymbol) -> bool {
     symbol.name.starts_with("lbl_")
         || symbol.name.starts_with("fn_")
         || symbol.name.starts_with("jumptable_")
+        || symbol.name.starts_with("gap_")
+        || symbol.name.starts_with("pad_")
 }
 
 fn write_if_unchanged<P, Cb>(path: P, cb: Cb, cached_file: Option<FileReadInfo>) -> Result<()>

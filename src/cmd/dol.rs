@@ -1654,6 +1654,9 @@ fn apply(args: ApplyArgs) -> Result<()> {
             if linked_scope != ObjSymbolScope::Unknown
                 && !is_globalized
                 && linked_scope != orig_sym.flags.scope()
+                // Don't overwrite unknown scope with global
+                && (linked_scope != ObjSymbolScope::Global
+                    || orig_sym.flags.scope() != ObjSymbolScope::Unknown)
             {
                 log::info!(
                     "Changing scope of {} (type {:?}) from {:?} to {:?}",
@@ -1683,6 +1686,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
     // Add symbols from the linked object that aren't in the original
     for linked_sym in linked_obj.symbols.iter() {
         if matches!(linked_sym.kind, ObjSymbolKind::Section)
+            || is_auto_symbol(linked_sym)
             || is_linker_generated_object(&linked_sym.name)
             // skip ABS for now
             || linked_sym.section.is_none()
