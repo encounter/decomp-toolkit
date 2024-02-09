@@ -5,7 +5,7 @@ use std::{
     path::PathBuf,
 };
 
-use anyhow::{anyhow, bail, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
 
@@ -23,6 +23,7 @@ pub struct Args {
 #[argp(subcommand)]
 enum SubCommand {
     Create(CreateArgs),
+    Extract(ExtractArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -37,9 +38,28 @@ pub struct CreateArgs {
     files: Vec<PathBuf>,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Extracts a static library.
+#[argp(subcommand, name = "extract")]
+pub struct ExtractArgs {
+    #[argp(positional)]
+    /// input files
+    files: Vec<PathBuf>,
+    #[argp(option, short = 'o')]
+    /// output directory
+    out: Option<PathBuf>,
+    #[argp(switch, short = 'q')]
+    /// quiet output
+    quiet: bool,
+    #[argp(switch, short = 'v')]
+    /// verbose output
+    verbose: bool,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Create(c_args) => create(c_args),
+        SubCommand::Extract(c_args) => extract(c_args),
     }
 }
 
@@ -85,5 +105,53 @@ fn create(args: CreateArgs) -> Result<()> {
         builder.append_file(path_str.as_bytes(), &mut file)?;
     }
     builder.into_inner()?.flush()?;
+    Ok(())
+}
+
+fn extract(args: ExtractArgs) -> Result<()> {
+    // Process response files (starting with '@')
+    let files = process_rsp(&args.files)?;
+
+    // Extract files
+    let mut num_files = 0;
+    for path in &files {
+        let mut out_dir = if let Some(out) = &args.out { out.clone() } else { PathBuf::new() };
+        // If there are multiple files, extract to separate directories
+        if files.len() > 1 {
+            out_dir
+                .push(path.with_extension("").file_name().ok_or_else(|| anyhow!("No file name"))?);
+        }
+        std::fs::create_dir_all(&out_dir)?;
+        if !args.quiet {
+            println!("Extracting {} to {}", path.display(), out_dir.display());
+        }
+
+        let file = map_file(path)?;
+        let mut archive = ar::Archive::new(file.as_slice());
+        while let Some(entry) = archive.next_entry() {
+            let mut entry =
+                entry.with_context(|| format!("Processing entry in {}", path.display()))?;
+            let file_name = std::str::from_utf8(entry.header().identifier())?;
+            if !args.quiet && args.verbose {
+                println!("\t{}", file_name);
+            }
+            let mut file_path = out_dir.clone();
+            for segment in file_name.split(&['/', '\\']) {
+                file_path.push(sanitise_file_name::sanitise(segment));
+            }
+            if let Some(parent) = file_path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+            let mut file = File::create(&file_path)
+                .with_context(|| format!("Failed to create file {}", file_path.display()))?;
+            std::io::copy(&mut entry, &mut file)?;
+            file.flush()?;
+
+            num_files += 1;
+        }
+    }
+    if !args.quiet {
+        println!("Extracted {} files", num_files);
+    }
     Ok(())
 }

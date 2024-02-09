@@ -20,6 +20,7 @@ project structure and build system that uses decomp-toolkit under the hood.
 - [Analyzer features](#analyzer-features)
 - [Commands](#commands)
   - [ar create](#ar-create)
+  - [ar extract](#ar-extract)
   - [demangle](#demangle)
   - [dol info](#dol-info)
   - [dol split](#dol-split)
@@ -274,6 +275,26 @@ $ dtk ar create out.a input_1.o input_2.o
 $ echo input_1.o >> rspfile
 $ echo input_2.o >> rspfile
 $ dtk ar create out.a @rspfile
+```
+
+### ar extract
+
+Extracts the contents of static library (.a) files.
+
+Accepts multiple files, glob patterns (e.g. `*.a`) and response files (e.g. `@rspfile`).
+
+Options:
+- `-o`, `--out <output-dir>`: Output directory. Defaults to the current directory.
+- `-v`, `--verbose`: Verbose output.
+- `-q`, `--quiet`: Suppresses all output except errors.
+
+```shell
+# Extracts to outdir
+$ dtk ar extract lib.a -o outdir
+
+# With multiple inputs, extracts to separate directories
+# Extracts to outdir/lib1, outdir/lib2
+$ dtk ar extract lib1.a lib2.a -o outdir
 ```
 
 ### demangle
