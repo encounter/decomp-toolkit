@@ -2555,8 +2555,6 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
             (AttributeKind::StmtList, AttributeValue::Data4(_)) => {
                 // TODO .line support
             }
-            
-            // the next two seem to be emitted when a static inline is the first function in the dwarf of the cu?
             (AttributeKind::Unknown800, AttributeValue::Data4(_)) => {
                 // TODO Unknown800 support
             }
