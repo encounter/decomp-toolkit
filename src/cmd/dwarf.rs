@@ -199,6 +199,9 @@ where
                     if let Some(producer) = unit.producer {
                         writeln!(w, "    Producer: {}", producer)?;
                     }
+                    if let Some(comp_dir) = unit.comp_dir {
+                        writeln!(w, "    Compile directory: {}", comp_dir)?;
+                    }
                     if let Some(language) = unit.language {
                         writeln!(w, "    Language: {}", language)?;
                     }
