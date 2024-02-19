@@ -794,6 +794,7 @@ impl Display for Language {
 pub struct CompileUnit {
     pub name: String,
     pub producer: Option<String>,
+    pub comp_dir: Option<String>,
     pub language: Option<Language>,
     pub start_address: Option<u32>,
     pub end_address: Option<u32>,
@@ -2536,6 +2537,7 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
 
     let mut name = None;
     let mut producer = None;
+    let mut comp_dir = None;
     let mut language = None;
     let mut start_address = None;
     let mut end_address = None;
@@ -2544,6 +2546,7 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
             (AttributeKind::Sibling, _) => {}
             (AttributeKind::Name, AttributeValue::String(s)) => name = Some(s.clone()),
             (AttributeKind::Producer, AttributeValue::String(s)) => producer = Some(s.clone()),
+            (AttributeKind::CompDir, AttributeValue::String(s)) => comp_dir = Some(s.clone()),
             (AttributeKind::Language, &AttributeValue::Data4(value)) => {
                 language = Some(Language::try_from_primitive(value)?)
             }
@@ -2552,6 +2555,14 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
             (AttributeKind::StmtList, AttributeValue::Data4(_)) => {
                 // TODO .line support
             }
+            
+            // the next two seem to be emitted when a static inline is the first function in the dwarf of the cu?
+            (AttributeKind::Unknown800, AttributeValue::Data4(_)) => {
+                // TODO Unknown800 support
+            }
+            (AttributeKind::Unknown801, AttributeValue::Data4(_)) => {
+                // TODO Unknown801 support
+            }
             _ => {
                 bail!("Unhandled CompileUnit attribute {:?}", attr);
             }
@@ -2559,7 +2570,7 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
     }
 
     let name = name.ok_or_else(|| anyhow!("CompileUnit without Name: {:?}", tag))?;
-    Ok(CompileUnit { name, producer, language, start_address, end_address })
+    Ok(CompileUnit { name, producer, comp_dir, language, start_address, end_address })
 }
 
 pub fn process_overlay_branch(tag: &Tag) -> Result<OverlayBranch> {
