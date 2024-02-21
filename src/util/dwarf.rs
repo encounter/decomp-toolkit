@@ -312,8 +312,8 @@ pub enum AttributeKind {
     MwLocalSpoffset = 0x2310 | (FormKind::Block4 as u16),
     MwMips16 = 0x2330 | (FormKind::String as u16),
     MwDwarf2Location = 0x2340 | (FormKind::Block2 as u16),
-    Unknown800 = 0x8000 | (FormKind::Data4 as u16),
-    Unknown801 = 0x8010 | (FormKind::Data4 as u16),
+    GccSfName = 0x8000 | (FormKind::Data4 as u16), // GccSfName extension (offset into .debug_sfnames)
+    GccSfInfo = 0x8010 | (FormKind::Data4 as u16), // GccSfInfo extension (offset into .debug_srcinfo)
     MwPrologueEnd = 0x8040 | (FormKind::Addr as u16),
     MwEpilogueStart = 0x8050 | (FormKind::Addr as u16),
 }
@@ -771,6 +771,8 @@ pub enum Language {
     Fortran90 = 0x8,
     Pascal83 = 0x9,
     Modula2 = 0xa,
+    // MWCC asm extension, emitted by PS2 MWCC asm_r5900_elf.dll
+    MwAsm = 0x8000,
 }
 
 impl Display for Language {
@@ -786,6 +788,7 @@ impl Display for Language {
             Language::Fortran90 => write!(f, "Fortran90"),
             Language::Pascal83 => write!(f, "Pascal83"),
             Language::Modula2 => write!(f, "Modula2"),
+            Language::MwAsm => write!(f, "MwAsm"),
         }
     }
 }
@@ -798,6 +801,8 @@ pub struct CompileUnit {
     pub language: Option<Language>,
     pub start_address: Option<u32>,
     pub end_address: Option<u32>,
+    pub gcc_srcfile_name_offset: Option<u32>,
+    pub gcc_srcinfo_offset: Option<u32>,
 }
 
 #[derive(Debug, Clone)]
@@ -2541,6 +2546,8 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
     let mut language = None;
     let mut start_address = None;
     let mut end_address = None;
+    let mut gcc_srcfile_name_offset = None;
+    let mut gcc_srcinfo_offset = None;
     for attr in &tag.attributes {
         match (attr.kind, &attr.value) {
             (AttributeKind::Sibling, _) => {}
@@ -2552,14 +2559,15 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
             }
             (AttributeKind::LowPc, &AttributeValue::Address(addr)) => start_address = Some(addr),
             (AttributeKind::HighPc, &AttributeValue::Address(addr)) => end_address = Some(addr),
-            (AttributeKind::StmtList, AttributeValue::Data4(_)) => {
+            (AttributeKind::StmtList, AttributeValue::Data4(_value)) => {
                 // TODO .line support
             }
-            (AttributeKind::Unknown800, AttributeValue::Data4(_)) => {
-                // TODO Unknown800 support
+
+            (AttributeKind::GccSfName, &AttributeValue::Data4(value)) => {
+                gcc_srcfile_name_offset = Some(value)
             }
-            (AttributeKind::Unknown801, AttributeValue::Data4(_)) => {
-                // TODO Unknown801 support
+            (AttributeKind::GccSfInfo, &AttributeValue::Data4(value)) => {
+                gcc_srcinfo_offset = Some(value)
             }
             _ => {
                 bail!("Unhandled CompileUnit attribute {:?}", attr);
@@ -2568,7 +2576,16 @@ pub fn process_compile_unit(tag: &Tag) -> Result<CompileUnit> {
     }
 
     let name = name.ok_or_else(|| anyhow!("CompileUnit without Name: {:?}", tag))?;
-    Ok(CompileUnit { name, producer, comp_dir, language, start_address, end_address })
+    Ok(CompileUnit {
+        name,
+        producer,
+        comp_dir,
+        language,
+        start_address,
+        end_address,
+        gcc_srcfile_name_offset,
+        gcc_srcinfo_offset,
+    })
 }
 
 pub fn process_overlay_branch(tag: &Tag) -> Result<OverlayBranch> {
@@ -2587,6 +2604,9 @@ pub fn process_overlay_branch(tag: &Tag) -> Result<OverlayBranch> {
             (AttributeKind::MwOverlayId, AttributeValue::Data4(value)) => id = Some(*value),
             (AttributeKind::LowPc, &AttributeValue::Address(addr)) => start_address = Some(addr),
             (AttributeKind::HighPc, &AttributeValue::Address(addr)) => end_address = Some(addr),
+            (AttributeKind::Name, AttributeValue::String(_s)) => {
+                // TODO
+            }
             _ => bail!("Unhandled OverlayBranch attribute {:?}", attr),
         }
     }

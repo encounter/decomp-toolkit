@@ -208,6 +208,16 @@ where
                     if let (Some(start), Some(end)) = (unit.start_address, unit.end_address) {
                         writeln!(w, "    Code range: {:#010X} -> {:#010X}", start, end)?;
                     }
+                    if let Some(gcc_srcfile_name_offset) = unit.gcc_srcfile_name_offset {
+                        writeln!(
+                            w,
+                            "    GCC Source File Name Offset: {:#010X}",
+                            gcc_srcfile_name_offset
+                        )?;
+                    }
+                    if let Some(gcc_srcinfo_offset) = unit.gcc_srcinfo_offset {
+                        writeln!(w, "    GCC Source Info Offset: {:#010X}", gcc_srcinfo_offset)?;
+                    }
                     writeln!(w, "*/")?;
 
                     let children = tag.children(&info.tags);
