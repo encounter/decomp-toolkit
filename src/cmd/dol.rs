@@ -1534,7 +1534,7 @@ fn diff(args: DiffArgs) -> Result<()> {
                     linked_sym.address,
                 );
             }
-            bail!("Code does not match.");
+            std::process::exit(1);
         }
     }
 
@@ -1575,7 +1575,7 @@ fn diff(args: DiffArgs) -> Result<()> {
             );
             log::error!("Original: {}", hex::encode_upper(orig_data));
             log::error!("Linked:   {}", hex::encode_upper(linked_data));
-            bail!("Data does not match.")
+            std::process::exit(1);
         }
     }
 
