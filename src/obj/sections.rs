@@ -28,7 +28,7 @@ pub struct ObjSection {
     /// REL files reference the original ELF section indices
     pub elf_index: usize,
     pub relocations: ObjRelocations,
-    pub original_address: u64,
+    pub virtual_address: Option<u64>,
     pub file_offset: u64,
     pub section_known: bool,
     pub splits: ObjSplits,

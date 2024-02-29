@@ -836,7 +836,8 @@ fn split_write_obj(
     }
 
     debug!("Splitting {} objects", module.obj.link_order.len());
-    let split_objs = split_obj(&module.obj)?;
+    let module_name = module.config.name().to_string();
+    let split_objs = split_obj(&module.obj, Some(module_name.as_str()))?;
 
     debug!("Writing object files");
     DirBuilder::new()
@@ -855,7 +856,7 @@ fn split_write_obj(
         module.obj.symbols.by_name("_prolog")?.map(|(_, s)| s.name.clone())
     };
     let mut out_config = OutputModule {
-        name: module.config.name().to_string(),
+        name: module_name,
         module_id,
         ldscript: out_dir.join("ldscript.lcf"),
         units: Vec::with_capacity(split_objs.len()),

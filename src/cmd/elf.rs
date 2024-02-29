@@ -8,6 +8,7 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use argp::FromArgs;
+use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
 use object::{
     elf,
     write::{Mangling, SectionId, SymbolId},
@@ -148,7 +149,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     match obj.kind {
         ObjKind::Executable => {
             log::info!("Splitting {} objects", obj.link_order.len());
-            let split_objs = split_obj(&obj)?;
+            let split_objs = split_obj(&obj, None)?;
 
             let asm_dir = args.out.join("asm");
             let include_dir = args.out.join("include");
@@ -183,7 +184,7 @@ fn split(args: SplitArgs) -> Result<()> {
 
     let mut file_map = HashMap::<String, Vec<u8>>::new();
 
-    let split_objs = split_obj(&obj)?;
+    let split_objs = split_obj(&obj, None)?;
     for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
         let out_obj = write_elf(split_obj, false)?;
         match file_map.entry(unit.name.clone()) {
@@ -593,6 +594,28 @@ fn info(args: InfoArgs) -> Result<()> {
                 data.len() - reader.position() as usize == 0,
                 ".comment section data not fully read"
             );
+        }
+    }
+
+    if let Some(split_meta_section) = in_file.section_by_name(SPLITMETA_SECTION) {
+        let data = split_meta_section.uncompressed_data()?;
+        if !data.is_empty() {
+            let meta =
+                SplitMeta::from_reader(&mut data.as_ref(), in_file.endianness(), in_file.is_64())
+                    .context("While reading .splitmeta section")?;
+            println!("\nSplit metadata (.splitmeta):");
+            if let Some(generator) = &meta.generator {
+                println!("\tGenerator: {}", generator);
+            }
+            if let Some(virtual_addresses) = &meta.virtual_addresses {
+                println!("\tVirtual addresses:");
+                println!("\t{: >10} | {: <10}", "Addr", "Symbol");
+                for (symbol, addr) in in_file.symbols().zip(virtual_addresses) {
+                    if symbol.is_definition() {
+                        println!("\t{: >10} | {: <10}", format!("{:#X}", addr), symbol.name()?);
+                    }
+                }
+            }
         }
     }
 

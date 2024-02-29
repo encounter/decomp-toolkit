@@ -89,7 +89,7 @@ where W: Write + ?Sized {
                         .or_else(|| vec.iter().find(|e| e.kind == SymbolEntryKind::Start))
                         .map(|e| e.index);
                     if target_symbol_idx.is_none() {
-                        let display_address = address as u64 + section.original_address;
+                        let display_address = address as u64 + section.virtual_address.unwrap_or(0);
                         let symbol_idx = symbols.len();
                         symbols.push(ObjSymbol {
                             name: format!(".L_{display_address:08X}"),
@@ -148,7 +148,7 @@ where W: Write + ?Sized {
                 .iter()
                 .any(|e| e.kind == SymbolEntryKind::Label || e.kind == SymbolEntryKind::Start)
             {
-                let display_address = address + target_section.original_address;
+                let display_address = address + target_section.virtual_address.unwrap_or(0);
                 let symbol_idx = symbols.len();
                 symbols.push(ObjSymbol {
                     name: format!(".L_{display_address:08X}"),
@@ -246,7 +246,7 @@ where
     for ins in disasm_iter(data, address) {
         let reloc = relocations.get(&ins.addr);
         let file_offset = section.file_offset + (ins.addr as u64 - section.address);
-        write_ins(w, symbols, ins, reloc, file_offset, section.original_address)?;
+        write_ins(w, symbols, ins, reloc, file_offset, section.virtual_address)?;
     }
     Ok(())
 }
@@ -257,7 +257,7 @@ fn write_ins<W>(
     mut ins: Ins,
     reloc: Option<&ObjReloc>,
     file_offset: u64,
-    section_address: u64,
+    section_vaddr: Option<u64>,
 ) -> Result<()>
 where
     W: Write + ?Sized,
@@ -265,7 +265,7 @@ where
     write!(
         w,
         "/* {:08X} {:08X}  {:02X} {:02X} {:02X} {:02X} */\t",
-        ins.addr as u64 + section_address,
+        ins.addr as u64 + section_vaddr.unwrap_or(0),
         file_offset,
         (ins.code >> 24) & 0xFF,
         (ins.code >> 16) & 0xFF,
@@ -466,7 +466,7 @@ where
                 let dbg_symbols = vec.iter().map(|e| &symbols[e.index]).collect_vec();
                 bail!(
                     "Unaligned symbol entry @ {:#010X}:\n\t{:?}",
-                    section.original_address as u32 + sym_addr,
+                    section.virtual_address.unwrap_or(0) as u32 + sym_addr,
                     dbg_symbols
                 );
             }
@@ -838,11 +838,12 @@ fn write_section_header<W>(
 where
     W: Write + ?Sized,
 {
+    let section_virtual_address = section.virtual_address.unwrap_or(0);
     writeln!(
         w,
         "\n# {:#010X} - {:#010X}",
-        start as u64 + section.original_address,
-        end as u64 + section.original_address
+        start as u64 + section_virtual_address,
+        end as u64 + section_virtual_address
     )?;
     match section.name.as_str() {
         ".text" if subsection == 0 => {

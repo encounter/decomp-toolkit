@@ -5,6 +5,7 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use itertools::Itertools;
+use objdiff_core::obj::split_meta::SplitMeta;
 use petgraph::{graph::NodeIndex, Graph};
 use sanitise_file_name::sanitize_with_options;
 use tracing_attributes::instrument;
@@ -882,7 +883,7 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
 
 /// Split an object into multiple relocatable objects.
 #[instrument(level = "debug", skip(obj))]
-pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
+pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo>> {
     let mut objects: Vec<ObjInfo> = vec![];
     let mut object_symbols: Vec<Vec<Option<usize>>> = vec![];
     let mut name_to_obj: HashMap<String, usize> = HashMap::new();
@@ -903,6 +904,12 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
         } else {
             split_obj.mw_comment = obj.mw_comment.clone();
         }
+        split_obj.split_meta = Some(SplitMeta {
+            generator: Some(format!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))),
+            module_name: module_name.map(str::to_string),
+            module_id: Some(obj.module_id),
+            virtual_addresses: None,
+        });
         objects.push(split_obj);
     }
 
@@ -1083,7 +1090,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                     align,
                     elf_index: out_section_idx + 1,
                     relocations: ObjRelocations::new(out_relocations)?,
-                    original_address: current_address.address as u64,
+                    virtual_address: Some(current_address.address as u64),
                     file_offset: section.file_offset
                         + (current_address.address as u64 - section.address),
                     section_known: true,
@@ -1148,7 +1155,7 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                             else {
                                 bail!(
                                     "Bad extabindex relocation @ {:#010X}",
-                                    reloc_address as u64 + section.original_address
+                                    reloc_address as u64 + section.virtual_address.unwrap_or(0)
                                 );
                             };
                             let target_section = &obj.sections.at_address(target_addr)?.1.name;
@@ -1158,9 +1165,9 @@ pub fn split_obj(obj: &ObjInfo) -> Result<Vec<ObjInfo>> {
                                 \tTarget object: {}:{:#010X} ({})\n\
                                 \tTarget symbol: {:#010X} ({})\n\
                                 This will cause the linker to crash.\n",
-                                reloc_address as u64 + section.original_address,
+                                reloc_address as u64 + section.virtual_address.unwrap_or(0),
                                 section.name,
-                                section.original_address,
+                                section.virtual_address.unwrap_or(0),
                                 out_obj.name,
                                 target_section,
                                 target_addr,

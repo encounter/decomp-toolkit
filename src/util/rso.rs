@@ -410,7 +410,7 @@ where R: Read + Seek + ?Sized {
             align: 0,
             elf_index: idx as usize,
             relocations: Default::default(),
-            original_address: 0,
+            virtual_address: None, // TODO option to set?
             file_offset: offset as u64,
             section_known: false,
             splits: Default::default(),

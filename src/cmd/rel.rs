@@ -485,7 +485,7 @@ fn merge(args: MergeArgs) -> Result<()> {
                 align: mod_section.align,
                 elf_index: mod_section.elf_index,
                 relocations: Default::default(),
-                original_address: mod_section.original_address,
+                virtual_address: mod_section.virtual_address,
                 file_offset: mod_section.file_offset,
                 section_known: mod_section.section_known,
                 splits: mod_section.splits.clone(),

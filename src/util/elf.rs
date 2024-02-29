@@ -9,6 +9,7 @@ use anyhow::{anyhow, bail, ensure, Context, Result};
 use cwdemangle::demangle;
 use flagset::Flags;
 use indexmap::IndexMap;
+use objdiff_core::obj::split_meta::{SplitMeta, SHT_SPLITMETA, SPLITMETA_SECTION};
 use object::{
     elf,
     elf::{SHF_ALLOC, SHF_EXECINSTR, SHF_WRITE, SHT_NOBITS, SHT_PROGBITS},
@@ -95,7 +96,7 @@ where P: AsRef<Path> {
             align: section.align(),
             elf_index: section.index().0,
             relocations: Default::default(),
-            original_address: 0, // TODO load from abs symbol
+            virtual_address: None, // Loaded from section symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
             section_known: true,
             splits: Default::default(),
@@ -122,6 +123,26 @@ where P: AsRef<Path> {
                 ".comment section data not fully read"
             );
             Some((header, comment_syms))
+        }
+    } else {
+        None
+    };
+
+    let split_meta = if let Some(split_meta_section) = obj_file.section_by_name(SPLITMETA_SECTION) {
+        let data = split_meta_section.uncompressed_data()?;
+        if data.is_empty() {
+            None
+        } else {
+            let mut reader = Cursor::new(&*data);
+            let metadata =
+                SplitMeta::from_reader(&mut reader, obj_file.endianness(), obj_file.is_64())
+                    .context("While reading .splitmeta section")?;
+            log::debug!("Loaded .splitmeta section");
+            ensure!(
+                data.len() - reader.position() as usize == 0,
+                ".splitmeta section data not fully read"
+            );
+            Some(metadata)
         }
     } else {
         None
@@ -209,6 +230,16 @@ where P: AsRef<Path> {
                 let section_index = symbol
                     .section_index()
                     .ok_or_else(|| anyhow!("Section symbol without section"))?;
+
+                // Resolve original address from split metadata
+                if let Some(addr) = split_meta
+                    .as_ref()
+                    .and_then(|m| m.virtual_addresses.as_ref())
+                    .and_then(|v| v.get(symbol.index().0).cloned())
+                {
+                    sections[section_index.0].virtual_address = Some(addr);
+                }
+
                 let section = obj_file.section_by_index(section_index)?;
                 let section_name = section.name()?.to_string();
                 match &mut boundary_state {
@@ -335,6 +366,7 @@ where P: AsRef<Path> {
     let mut obj = ObjInfo::new(kind, architecture, obj_name, symbols, sections);
     obj.entry = NonZeroU64::new(obj_file.entry()).map(|n| n.get());
     obj.mw_comment = mw_comment.map(|(header, _)| header);
+    obj.split_meta = split_meta;
     obj.sda2_base = sda2_base;
     obj.sda_base = sda_base;
     obj.stack_address = stack_address;
@@ -348,7 +380,7 @@ where P: AsRef<Path> {
 
 pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     let mut out_data = Vec::new();
-    let mut writer = object::write::elf::Writer::new(Endianness::Big, false, &mut out_data);
+    let mut writer = Writer::new(Endianness::Big, false, &mut out_data);
 
     struct OutSection {
         index: SectionIndex,
@@ -357,6 +389,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         rela_offset: usize,
         name: StringId,
         rela_name: Option<StringId>,
+        virtual_address: Option<u64>,
     }
     struct OutSymbol {
         #[allow(dead_code)]
@@ -376,6 +409,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             rela_offset: 0,
             name,
             rela_name: None,
+            virtual_address: section.virtual_address,
         });
     }
 
@@ -395,11 +429,12 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     writer.reserve_strtab_section_index();
     writer.reserve_shstrtab_section_index();
 
-    // Generate comment section
+    // Generate .comment section
     let mut comment_data = if let Some(mw_comment) = &obj.mw_comment {
-        let mut comment_data = Vec::<u8>::with_capacity(0x2C + obj.symbols.count() * 8);
+        // Reserve section
         let name = writer.add_section_name(".comment".as_bytes());
         let index = writer.reserve_section_index();
+        let out_section_idx = out_sections.len();
         out_sections.push(OutSection {
             index,
             rela_index: None,
@@ -407,12 +442,42 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             rela_offset: 0,
             name,
             rela_name: None,
+            virtual_address: None,
         });
+
+        // Generate .comment data
+        let mut comment_data = Vec::<u8>::with_capacity(0x2C + obj.symbols.count() * 8);
         mw_comment.to_writer_static(&mut comment_data, Endian::Big)?;
         // Null symbol
         CommentSym { align: 0, vis_flags: 0, active_flags: 0 }
             .to_writer_static(&mut comment_data, Endian::Big)?;
-        Some(comment_data)
+        Some((comment_data, out_section_idx))
+    } else {
+        None
+    };
+
+    // Generate .splitmeta section
+    let mut split_meta = if let Some(metadata) = &obj.split_meta {
+        // Reserve section
+        let name = writer.add_section_name(SPLITMETA_SECTION.as_bytes());
+        let index = writer.reserve_section_index();
+        let out_section_idx = out_sections.len();
+        out_sections.push(OutSection {
+            index,
+            rela_index: None,
+            offset: 0,
+            rela_offset: 0,
+            name,
+            rela_name: None,
+            virtual_address: None,
+        });
+
+        // Generate .splitmeta data
+        let mut out = metadata.clone();
+        out.virtual_addresses = Some(vec![
+            0, // Null symbol
+        ]);
+        Some((out, out_section_idx))
     } else {
         None
     };
@@ -449,9 +514,14 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
                 st_size: 0,
             },
         });
-        if let Some(comment_data) = &mut comment_data {
+        if let Some((comment_data, _)) = &mut comment_data {
             CommentSym { align: 1, vis_flags: 0, active_flags: 0 }
                 .to_writer_static(comment_data, Endian::Big)?;
+        }
+        if let Some(virtual_addresses) =
+            split_meta.as_mut().and_then(|(m, _)| m.virtual_addresses.as_mut())
+        {
+            virtual_addresses.push(0);
         }
         section_symbol_offset += 1;
     }
@@ -472,9 +542,14 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             };
             num_local = writer.symbol_count();
             out_symbols.push(OutSymbol { index, sym });
-            if let Some(comment_data) = &mut comment_data {
+            if let Some((comment_data, _)) = &mut comment_data {
                 CommentSym { align: section.align as u32, vis_flags: 0, active_flags: 0 }
                     .to_writer_static(comment_data, Endian::Big)?;
+            }
+            if let Some(virtual_addresses) =
+                split_meta.as_mut().and_then(|(m, _)| m.virtual_addresses.as_mut())
+            {
+                virtual_addresses.push(section.virtual_address.unwrap_or(0));
             }
         }
     }
@@ -495,7 +570,8 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             continue;
         }
 
-        let section_index = symbol.section.and_then(|idx| out_sections.get(idx)).map(|s| s.index);
+        let section = symbol.section.and_then(|idx| out_sections.get(idx));
+        let section_index = section.map(|s| s.index);
         let index = writer.reserve_symbol_index(section_index);
         let name_index = if symbol.name.is_empty() {
             None
@@ -539,8 +615,17 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         }
         out_symbols.push(OutSymbol { index, sym });
         symbol_map[symbol_index] = Some(index.0);
-        if let Some(comment_data) = &mut comment_data {
+        if let Some((comment_data, _)) = &mut comment_data {
             CommentSym::from(symbol, export_all).to_writer_static(comment_data, Endian::Big)?;
+        }
+        if let Some(virtual_addresses) =
+            split_meta.as_mut().and_then(|(m, _)| m.virtual_addresses.as_mut())
+        {
+            if let Some(section_vaddr) = section.and_then(|s| s.virtual_address) {
+                virtual_addresses.push(section_vaddr + symbol.address);
+            } else {
+                virtual_addresses.push(0);
+            }
         }
     }
 
@@ -576,10 +661,16 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     writer.reserve_strtab();
     writer.reserve_shstrtab();
 
-    // Reserve comment section
-    if let Some(comment_data) = &comment_data {
-        let out_section = out_sections.last_mut().unwrap();
+    // Reserve .comment section
+    if let Some((comment_data, idx)) = &comment_data {
+        let out_section = &mut out_sections[*idx];
         out_section.offset = writer.reserve(comment_data.len(), 32);
+    }
+
+    // Reserve .splitmeta section
+    if let Some((metadata, idx)) = &split_meta {
+        let out_section = &mut out_sections[*idx];
+        out_section.offset = writer.reserve(metadata.write_size(false), 32);
     }
 
     writer.reserve_section_headers();
@@ -688,11 +779,22 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     writer.write_shstrtab();
 
     // Write comment section
-    if let Some(comment_data) = &comment_data {
-        let out_section = out_sections.last().unwrap();
+    if let Some((comment_data, idx)) = &comment_data {
+        let out_section = &out_sections[*idx];
         writer.write_align(32);
         ensure!(writer.len() == out_section.offset);
         writer.write(comment_data);
+    }
+
+    // Write .splitmeta section
+    if let Some((metadata, idx)) = &split_meta {
+        let out_section = &out_sections[*idx];
+        writer.write_align(32);
+        ensure!(writer.len() == out_section.offset);
+        // object::write::elf::Writer doesn't implement std::io::Write...
+        let mut data = Vec::with_capacity(metadata.write_size(false));
+        metadata.to_writer(&mut data, object::BigEndian, false)?;
+        writer.write(&data);
     }
 
     writer.write_null_section_header();
@@ -737,9 +839,9 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     writer.write_strtab_section_header();
     writer.write_shstrtab_section_header();
 
-    // Write comment section header
-    if let Some(comment_data) = &comment_data {
-        let out_section = out_sections.last().unwrap();
+    // Write .comment section header
+    if let Some((comment_data, idx)) = &comment_data {
+        let out_section = &out_sections[*idx];
         writer.write_section_header(&SectionHeader {
             name: Some(out_section.name),
             sh_type: SHT_PROGBITS,
@@ -747,6 +849,23 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             sh_addr: 0,
             sh_offset: out_section.offset as u64,
             sh_size: comment_data.len() as u64,
+            sh_link: 0,
+            sh_info: 0,
+            sh_addralign: 1,
+            sh_entsize: 1,
+        });
+    }
+
+    // Write .splitmeta section header
+    if let Some((metadata, idx)) = &split_meta {
+        let out_section = &out_sections[*idx];
+        writer.write_section_header(&SectionHeader {
+            name: Some(out_section.name),
+            sh_type: SHT_SPLITMETA,
+            sh_flags: 0,
+            sh_addr: 0,
+            sh_offset: out_section.offset as u64,
+            sh_size: metadata.write_size(false) as u64,
             sh_link: 0,
             sh_info: 0,
             sh_addralign: 1,

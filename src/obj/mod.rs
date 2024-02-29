@@ -10,6 +10,7 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
+use objdiff_core::obj::split_meta::SplitMeta;
 pub use relocations::{ObjReloc, ObjRelocKind, ObjRelocations};
 pub use sections::{ObjSection, ObjSectionKind, ObjSections};
 pub use splits::{ObjSplit, ObjSplits};
@@ -55,6 +56,7 @@ pub struct ObjInfo {
     pub sections: ObjSections,
     pub entry: Option<u64>,
     pub mw_comment: Option<MWComment>,
+    pub split_meta: Option<SplitMeta>,
 
     // Linker generated
     pub sda2_base: Option<u32>,
@@ -94,6 +96,7 @@ impl ObjInfo {
             sections: ObjSections::new(kind, sections),
             entry: None,
             mw_comment: Default::default(),
+            split_meta: None,
             sda2_base: None,
             sda_base: None,
             stack_address: None,

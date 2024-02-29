@@ -100,7 +100,7 @@ enum SubCommand {
 // Duplicated from supports-color so we can check early.
 fn env_no_color() -> bool {
     match env::var("NO_COLOR").as_deref() {
-        Ok("0") | Err(_) => false,
+        Ok("") | Ok("0") | Err(_) => false,
         Ok(_) => true,
     }
 }
