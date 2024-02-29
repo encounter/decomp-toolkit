@@ -119,6 +119,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Check git tag against Cargo version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          set -eou
+          version=$(grep '^version' Cargo.toml | awk -F' = ' '{print $2}' | tr -d '"')
+          version="v$version"
+          tag='${{github.ref}}'
+          tag="${tag#refs/tags/}"
+          if [ "$tag" != "$version" ]; then
+            echo "::error::Git tag doesn't match the Cargo version! ($tag != $version)"
+            exit 1
+          fi
       - name: Install dependencies
         if: matrix.packages != ''
         run: |
