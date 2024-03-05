@@ -305,7 +305,7 @@ dependencies = [
 
 [[package]]
 name = "decomp-toolkit"
-version = "0.7.4"
+version = "0.7.5"
 dependencies = [
  "anyhow",
  "ar",
@@ -700,7 +700,7 @@ dependencies = [
 [[package]]
 name = "objdiff-core"
 version = "1.0.0"
-source = "git+https://github.com/encounter/objdiff?rev=5b9ac93c084bd0a9ae710e8c8195c4b0db939b8a#5b9ac93c084bd0a9ae710e8c8195c4b0db939b8a"
+source = "git+https://github.com/encounter/objdiff?rev=20e42a499a7af4bda4f8010c76bdf312df9bcd4c#20e42a499a7af4bda4f8010c76bdf312df9bcd4c"
 dependencies = [
  "anyhow",
  "byteorder",

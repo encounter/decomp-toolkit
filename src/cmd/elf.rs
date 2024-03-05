@@ -601,11 +601,17 @@ fn info(args: InfoArgs) -> Result<()> {
         let data = split_meta_section.uncompressed_data()?;
         if !data.is_empty() {
             let meta =
-                SplitMeta::from_reader(&mut data.as_ref(), in_file.endianness(), in_file.is_64())
-                    .context("While reading .splitmeta section")?;
-            println!("\nSplit metadata (.splitmeta):");
+                SplitMeta::from_section(split_meta_section, in_file.endianness(), in_file.is_64())
+                    .context("While reading .note.split section")?;
+            println!("\nSplit metadata (.note.split):");
             if let Some(generator) = &meta.generator {
                 println!("\tGenerator: {}", generator);
+            }
+            if let Some(module_name) = &meta.module_name {
+                println!("\tModule name: {}", module_name);
+            }
+            if let Some(module_id) = meta.module_id {
+                println!("\tModule ID: {}", module_id);
             }
             if let Some(virtual_addresses) = &meta.virtual_addresses {
                 println!("\tVirtual addresses:");

@@ -133,15 +133,13 @@ where P: AsRef<Path> {
         if data.is_empty() {
             None
         } else {
-            let mut reader = Cursor::new(&*data);
-            let metadata =
-                SplitMeta::from_reader(&mut reader, obj_file.endianness(), obj_file.is_64())
-                    .context("While reading .splitmeta section")?;
-            log::debug!("Loaded .splitmeta section");
-            ensure!(
-                data.len() - reader.position() as usize == 0,
-                ".splitmeta section data not fully read"
-            );
+            let metadata = SplitMeta::from_section(
+                split_meta_section,
+                obj_file.endianness(),
+                obj_file.is_64(),
+            )
+            .context("While reading .note.split section")?;
+            log::debug!("Loaded .note.split section");
             Some(metadata)
         }
     } else {
@@ -456,7 +454,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         None
     };
 
-    // Generate .splitmeta section
+    // Generate .note.split section
     let mut split_meta = if let Some(metadata) = &obj.split_meta {
         // Reserve section
         let name = writer.add_section_name(SPLITMETA_SECTION.as_bytes());
@@ -472,7 +470,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             virtual_address: None,
         });
 
-        // Generate .splitmeta data
+        // Generate .note.split data
         let mut out = metadata.clone();
         out.virtual_addresses = Some(vec![
             0, // Null symbol
@@ -667,7 +665,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         out_section.offset = writer.reserve(comment_data.len(), 32);
     }
 
-    // Reserve .splitmeta section
+    // Reserve .note.split section
     if let Some((metadata, idx)) = &split_meta {
         let out_section = &mut out_sections[*idx];
         out_section.offset = writer.reserve(metadata.write_size(false), 32);
@@ -786,7 +784,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         writer.write(comment_data);
     }
 
-    // Write .splitmeta section
+    // Write .note.split section
     if let Some((metadata, idx)) = &split_meta {
         let out_section = &out_sections[*idx];
         writer.write_align(32);
@@ -856,7 +854,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         });
     }
 
-    // Write .splitmeta section header
+    // Write .note.split section header
     if let Some((metadata, idx)) = &split_meta {
         let out_section = &out_sections[*idx];
         writer.write_section_header(&SectionHeader {
@@ -868,8 +866,8 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             sh_size: metadata.write_size(false) as u64,
             sh_link: 0,
             sh_info: 0,
-            sh_addralign: 1,
-            sh_entsize: 1,
+            sh_addralign: 4,
+            sh_entsize: 0,
         });
     }
 

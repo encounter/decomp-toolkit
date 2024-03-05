@@ -3,7 +3,7 @@ name = "decomp-toolkit"
 description = "Yet another GameCube/Wii decompilation toolkit."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.7.4"
+version = "0.7.5"
 edition = "2021"
 publish = false
 repository = "https://github.com/encounter/decomp-toolkit"
@@ -47,7 +47,8 @@ memmap2 = "0.9.0"
 multimap = "0.9.1"
 nintendo-lz = "0.1.3"
 num_enum = "0.7.1"
-objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "5b9ac93c084bd0a9ae710e8c8195c4b0db939b8a", features = ["ppc"] }
+objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "20e42a499a7af4bda4f8010c76bdf312df9bcd4c", features = ["ppc"] }
+#objdiff-core = { path = "../objdiff/objdiff-core", features = ["ppc"] }
 object = { version = "0.32.1", features = ["read_core", "std", "elf", "write_std"], default-features = false }
 once_cell = "1.18.0"
 owo-colors = { version = "3.5.0", features = ["supports-colors"] }
