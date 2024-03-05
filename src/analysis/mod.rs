@@ -6,7 +6,7 @@ use ppc750cl::Ins;
 use crate::{
     analysis::cfa::SectionAddress,
     array_ref,
-    obj::{ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind},
+    obj::{ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbolKind},
 };
 
 pub mod cfa;
@@ -144,7 +144,17 @@ fn get_jump_table_entries(
     function_end: Option<SectionAddress>,
 ) -> Result<(Vec<SectionAddress>, u32)> {
     let section = &obj.sections[addr.section];
-    if let Some(size) = size.map(|n| n.get()) {
+
+    // Check for an existing symbol with a known size, and use that if available.
+    // Allows overriding jump table size analysis.
+    let known_size = obj
+        .symbols
+        .kind_at_section_address(addr.section, addr.address, ObjSymbolKind::Object)
+        .ok()
+        .flatten()
+        .and_then(|(_, s)| if s.size_known { NonZeroU32::new(s.size as u32) } else { None });
+
+    if let Some(size) = known_size.or(size).map(|n| n.get()) {
         log::trace!(
             "Located jump table @ {:#010X} with entry count {} (from {:#010X})",
             addr,
