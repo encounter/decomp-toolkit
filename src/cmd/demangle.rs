@@ -12,10 +12,16 @@ pub struct Args {
     #[argp(switch)]
     /// disable replacing `(void)` with `()`
     keep_void: bool,
+    /// enable Metrowerks extensions
+    #[argp(switch)]
+    mw_extensions: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
-    let options = DemangleOptions { omit_empty_parameters: !args.keep_void };
+    let options = DemangleOptions {
+        omit_empty_parameters: !args.keep_void,
+        mw_extensions: args.mw_extensions,
+    };
     match demangle(args.symbol.as_str(), &options) {
         Some(symbol) => {
             println!("{symbol}");

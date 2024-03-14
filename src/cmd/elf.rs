@@ -12,8 +12,9 @@ use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
 use object::{
     elf,
     write::{Mangling, SectionId, SymbolId},
-    FileFlags, Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, SectionFlags,
-    SectionIndex, SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection,
+    FileFlags, Object, ObjectSection, ObjectSymbol, 
+    RelocationTarget, SectionFlags, SectionIndex, SectionKind, SymbolFlags, SymbolIndex,
+    SymbolKind, SymbolScope, SymbolSection,
 };
 
 use crate::{
@@ -374,24 +375,11 @@ fn fixup(args: FixupArgs) -> Result<()> {
                 }
             }
 
-            let kind = match reloc.kind() {
-                // This is a hack to avoid replacement with a section symbol
-                // See [`object::write::elf::object::elf_fixup_relocation`]
-                RelocationKind::Absolute => RelocationKind::Elf(if addr & 3 == 0 {
-                    elf::R_PPC_ADDR32
-                } else {
-                    elf::R_PPC_UADDR32
-                }),
-                other => other,
-            };
-
             out_file.add_relocation(section_id, object::write::Relocation {
                 offset: addr,
-                size: reloc.size(),
-                kind,
-                encoding: reloc.encoding(),
                 symbol: target_symbol_id,
                 addend,
+                flags: reloc.flags(),
             })?;
         }
     }

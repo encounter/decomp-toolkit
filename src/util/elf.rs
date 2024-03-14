@@ -18,7 +18,8 @@ use object::{
         StringId,
     },
     Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
-    RelocationKind, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection,
+    RelocationFlags,  RelocationTarget, SectionKind, Symbol, SymbolKind,
+    SymbolScope, SymbolSection,
 };
 
 use crate::{
@@ -930,19 +931,19 @@ fn to_obj_symbol(
     })
 }
 
-pub fn to_obj_reloc_kind(kind: RelocationKind) -> Result<ObjRelocKind> {
-    Ok(match kind {
-        RelocationKind::Absolute => ObjRelocKind::Absolute,
-        RelocationKind::Elf(kind) => match kind {
+pub fn to_obj_reloc_kind(flags: RelocationFlags) -> Result<ObjRelocKind> {
+    Ok(match flags {
+        RelocationFlags::Elf { r_type } => match r_type {
+            elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 => ObjRelocKind::Absolute,
             elf::R_PPC_ADDR16_LO => ObjRelocKind::PpcAddr16Lo,
             elf::R_PPC_ADDR16_HI => ObjRelocKind::PpcAddr16Hi,
             elf::R_PPC_ADDR16_HA => ObjRelocKind::PpcAddr16Ha,
             elf::R_PPC_REL24 => ObjRelocKind::PpcRel24,
             elf::R_PPC_REL14 => ObjRelocKind::PpcRel14,
             elf::R_PPC_EMB_SDA21 => ObjRelocKind::PpcEmbSda21,
-            _ => bail!("Unhandled ELF relocation type: {kind}"),
+            kind => bail!("Unhandled ELF relocation type: {kind}"),
         },
-        _ => bail!("Unhandled relocation type: {:?}", kind),
+        flags => bail!("Unhandled relocation type: {:?}", flags),
     })
 }
 
@@ -953,7 +954,7 @@ fn to_obj_reloc(
     address: u64,
     reloc: Relocation,
 ) -> Result<Option<ObjReloc>> {
-    let reloc_kind = to_obj_reloc_kind(reloc.kind())?;
+    let reloc_kind = to_obj_reloc_kind(reloc.flags())?;
     let symbol = match reloc.target() {
         RelocationTarget::Symbol(idx) => {
             obj_file.symbol_by_index(idx).context("Failed to locate relocation target symbol")?

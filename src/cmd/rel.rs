@@ -231,7 +231,7 @@ fn resolve_relocations(
                 target_section_index.0
             } as u8;
             relocations.push(RelReloc {
-                kind: to_obj_reloc_kind(reloc.kind())?,
+                kind: to_obj_reloc_kind(reloc.flags())?,
                 section: section_index,
                 address: address as u32,
                 module_id: target_module_id as u32,

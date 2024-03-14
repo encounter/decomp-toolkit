@@ -7,7 +7,10 @@ use std::{
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
-use object::{elf, Object, ObjectSection, ObjectSymbol, RelocationKind, RelocationTarget, Section};
+use object::{
+    elf, Object, ObjectSection, ObjectSymbol, RelocationFlags, RelocationTarget,
+    Section,
+};
 use syntect::{
     highlighting::{Color, HighlightIterator, HighlightState, Highlighter, Theme, ThemeSet},
     parsing::{ParseState, ScopeStack, SyntaxReference, SyntaxSet},
@@ -137,8 +140,8 @@ where
 
     // Apply relocations to data
     for (addr, reloc) in debug_section.relocations() {
-        match reloc.kind() {
-            RelocationKind::Absolute | RelocationKind::Elf(elf::R_PPC_UADDR32) => {
+        match reloc.flags() {
+            RelocationFlags::Elf { r_type: elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 } => {
                 let target = match reloc.target() {
                     RelocationTarget::Symbol(symbol_idx) => {
                         let symbol = obj_file.symbol_by_index(symbol_idx)?;
@@ -148,7 +151,7 @@ where
                 };
                 data[addr as usize..addr as usize + 4].copy_from_slice(&target.to_be_bytes());
             }
-            RelocationKind::Elf(elf::R_PPC_NONE) => {}
+            RelocationFlags::Elf { r_type: elf::R_PPC_NONE } => {}
             _ => bail!("Unhandled .debug relocation type {:?}", reloc.kind()),
         }
     }
