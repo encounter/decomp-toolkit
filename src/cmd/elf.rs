@@ -12,9 +12,8 @@ use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
 use object::{
     elf,
     write::{Mangling, SectionId, SymbolId},
-    FileFlags, Object, ObjectSection, ObjectSymbol, 
-    RelocationTarget, SectionFlags, SectionIndex, SectionKind, SymbolFlags, SymbolIndex,
-    SymbolKind, SymbolScope, SymbolSection,
+    FileFlags, Object, ObjectSection, ObjectSymbol, RelocationTarget, SectionFlags, SectionIndex,
+    SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection,
 };
 
 use crate::{

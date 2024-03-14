@@ -18,8 +18,7 @@ use object::{
         StringId,
     },
     Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
-    RelocationFlags,  RelocationTarget, SectionKind, Symbol, SymbolKind,
-    SymbolScope, SymbolSection,
+    RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection,
 };
 
 use crate::{

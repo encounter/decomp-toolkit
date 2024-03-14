@@ -8,8 +8,7 @@ use std::{
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
 use object::{
-    elf, Object, ObjectSection, ObjectSymbol, RelocationFlags, RelocationTarget,
-    Section,
+    elf, Object, ObjectSection, ObjectSymbol, RelocationFlags, RelocationTarget, Section,
 };
 use syntect::{
     highlighting::{Color, HighlightIterator, HighlightState, Highlighter, Theme, ThemeSet},
