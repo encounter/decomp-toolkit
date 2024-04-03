@@ -428,7 +428,7 @@ where P: AsRef<Path> {
     if path.as_ref().exists() {
         set_file_mtime(path, FileTime::now())
     } else {
-        match OpenOptions::new().create(true).write(true).open(path) {
+        match OpenOptions::new().create(true).truncate(true).write(true).open(path) {
             Ok(_) => Ok(()),
             Err(e) => Err(e),
         }

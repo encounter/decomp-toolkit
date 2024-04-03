@@ -391,11 +391,7 @@ impl<'parent> Iterator for Nodes<'parent> {
     type Item = Node;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let Some(state) = self.stack.pop() else {
-            return None;
-        };
-
-        match state {
+        match self.stack.pop()? {
             NodeState::Begin(name) => {
                 self.stack.push(NodeState::File(name.clone(), 0));
                 Some(Node::DirectoryBegin { name })
