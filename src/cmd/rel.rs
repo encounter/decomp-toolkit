@@ -295,7 +295,7 @@ fn make(args: MakeArgs) -> Result<()> {
     for (module_id, (module, path)) in modules.iter().enumerate() {
         let _span = info_span!("file", path = %path.display()).entered();
         for symbol in module.symbols() {
-            if symbol.is_definition() && symbol.scope() == object::SymbolScope::Dynamic {
+            if symbol.scope() == object::SymbolScope::Dynamic {
                 symbol_map.entry(symbol.name_bytes()?).or_insert((module_id, symbol.index()));
             }
         }
