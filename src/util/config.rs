@@ -182,6 +182,10 @@ pub fn is_auto_symbol(symbol: &ObjSymbol) -> bool {
         || symbol.name.starts_with("pad_")
 }
 
+pub fn is_auto_label(symbol: &ObjSymbol) -> bool { symbol.name.starts_with("lbl_") }
+
+pub fn is_auto_jump_table(symbol: &ObjSymbol) -> bool { symbol.name.starts_with("jumptable_") }
+
 fn write_if_unchanged<P, Cb>(path: P, cb: Cb, cached_file: Option<FileReadInfo>) -> Result<()>
 where
     P: AsRef<Path>,

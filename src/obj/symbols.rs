@@ -13,7 +13,11 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 use crate::{
     analysis::cfa::SectionAddress,
     obj::{ObjKind, ObjRelocKind},
-    util::{config::is_auto_symbol, nested::NestedVec, split::is_linker_generated_label},
+    util::{
+        config::{is_auto_jump_table, is_auto_label, is_auto_symbol},
+        nested::NestedVec,
+        split::is_linker_generated_label,
+    },
 };
 
 #[derive(Debug, Clone, Eq, PartialEq, Serialize, Deserialize, Default)]
@@ -242,7 +246,11 @@ impl ObjSymbols {
             bail!("ABS symbol in relocatable object: {:?}", in_symbol);
         };
         let target_symbol_idx = if let Some((symbol_idx, existing)) = opt {
-            let replace = replace || (is_auto_symbol(existing) && !is_auto_symbol(&in_symbol));
+            let replace = replace
+                // Replace auto symbols with known symbols
+                || (is_auto_symbol(existing) && !is_auto_symbol(&in_symbol))
+                // Replace lbl_ with jumptable_
+                || (is_auto_label(existing) && is_auto_jump_table(&in_symbol));
             let size =
                 if existing.size_known && in_symbol.size_known && existing.size != in_symbol.size {
                     // TODO fix this and restore to warning
