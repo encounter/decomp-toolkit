@@ -328,7 +328,7 @@ impl FunctionSlices {
                         function_end.or_else(|| self.end()),
                     )?;
                     log::debug!("-> size {}: {:?}", size, entries);
-                    if entries.contains(&next_address)
+                    if (entries.contains(&next_address) || self.blocks.contains_key(&next_address))
                         && !entries.iter().any(|&addr| {
                             self.is_known_function(known_functions, addr)
                                 .is_some_and(|fn_addr| fn_addr != function_start)

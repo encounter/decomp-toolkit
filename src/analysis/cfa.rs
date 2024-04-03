@@ -248,8 +248,12 @@ impl AnalyzerState {
         }
         if self.functions.iter().any(|(_, i)| i.is_unfinalized()) {
             log::error!("Failed to finalize functions:");
-            for (addr, _) in self.functions.iter().filter(|(_, i)| i.is_unfinalized()) {
-                log::error!("  {:#010X}", addr);
+            for (addr, info) in self.functions.iter().filter(|(_, i)| i.is_unfinalized()) {
+                log::error!(
+                    "  {:#010X}: blocks [{:?}]",
+                    addr,
+                    info.slices.as_ref().unwrap().possible_blocks.keys()
+                );
             }
             bail!("Failed to finalize functions");
         }
@@ -298,11 +302,15 @@ impl AnalyzerState {
                             &self.functions,
                             Some(vm),
                         )?;
+                        // Start at the beginning of the function again
+                        current = SectionAddress::new(addr.section, 0);
                     }
                     TailCallResult::Is => {
                         log::trace!("Finalized tail call @ {:#010X}", block);
                         slices.possible_blocks.remove(&block);
                         slices.function_references.insert(block);
+                        // Start at the beginning of the function again
+                        current = SectionAddress::new(addr.section, 0);
                     }
                     TailCallResult::Possible => {
                         if finalize {
