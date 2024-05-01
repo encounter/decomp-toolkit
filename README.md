@@ -22,6 +22,10 @@ project structure and build system that uses decomp-toolkit under the hood.
   - [ar create](#ar-create)
   - [ar extract](#ar-extract)
   - [demangle](#demangle)
+  - [disc info](#disc-info)
+  - [disc extract](#disc-extract)
+  - [disc convert](#disc-convert)
+  - [disc verify](#disc-verify)
   - [dol info](#dol-info)
   - [dol split](#dol-split)
   - [dol diff](#dol-diff)
@@ -165,6 +169,62 @@ Demangles CodeWarrior C++ symbols. A thin wrapper for [cwdemangle](https://githu
 ```shell
 $ dtk demangle 'BuildLight__9CGuiLightCFv'
 CGuiLight::BuildLight() const
+```
+
+### disc info
+
+_`disc` commands are wrappers around the [nod](https://github.com/encounter/nod-rs) library
+and its `nodtool` command line tool._
+
+Displays information about disc images.
+
+Supported disc image formats:
+
+- ISO (GCM)
+- WIA / RVZ
+- WBFS (+ NKit 2 lossless)
+- CISO (+ NKit 2 lossless)
+- NFS (Wii U VC)
+- GCZ
+
+```shell
+$ dtk disc info /path/to/game.iso
+```
+
+### disc extract
+
+Extracts the contents of disc images to a directory.
+
+See [disc info](#disc-info) for supported formats.
+
+```shell
+$ dtk disc extract /path/to/game.iso [outdir]
+```
+
+By default, only the main **data** partition is extracted.  
+Use the `-p`/`--partition` option to choose a different partition.  
+(Options: `all`, `data`, `update`, `channel`, or a partition index)
+
+### disc convert
+
+Converts any supported disc image to raw ISO (GCM).
+
+If the format is lossless, the output will be identical to the original disc image.
+
+See [disc info](#disc-info) for supported formats.
+
+```shell
+$ dtk disc convert /path/to/game.wia /path/to/game.iso
+```
+
+### disc verify
+
+Hashes the contents of a disc image and verifies it against a built-in [Redump](http://redump.org/) database.
+
+See [disc info](#disc-info) for supported formats.
+
+```shell
+$ dtk disc verify /path/to/game.iso
 ```
 
 ### dol info

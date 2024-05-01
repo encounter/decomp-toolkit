@@ -56,7 +56,7 @@ impl FromArgValue for LogLevel {
     }
 }
 
-#[derive(FromArgs, PartialEq, Debug)]
+#[derive(FromArgs, Debug)]
 /// Yet another GameCube/Wii decompilation toolkit.
 struct TopLevel {
     #[argp(subcommand)]
@@ -70,18 +70,20 @@ struct TopLevel {
     log_level: Option<LogLevel>,
     /// Print version information and exit.
     #[argp(switch, short = 'V')]
+    #[allow(dead_code)]
     version: bool,
     /// Disable color output. (env: NO_COLOR)
     #[argp(switch)]
     no_color: bool,
 }
 
-#[derive(FromArgs, PartialEq, Debug)]
+#[derive(FromArgs, Debug)]
 #[argp(subcommand)]
 enum SubCommand {
     Alf(cmd::alf::Args),
     Ar(cmd::ar::Args),
     Demangle(cmd::demangle::Args),
+    Disc(cmd::disc::Args),
     Dol(cmd::dol::Args),
     Dwarf(cmd::dwarf::Args),
     Elf(cmd::elf::Args),
@@ -155,6 +157,7 @@ fn main() {
         SubCommand::Alf(c_args) => cmd::alf::run(c_args),
         SubCommand::Ar(c_args) => cmd::ar::run(c_args),
         SubCommand::Demangle(c_args) => cmd::demangle::run(c_args),
+        SubCommand::Disc(c_args) => cmd::disc::run(c_args),
         SubCommand::Dol(c_args) => cmd::dol::run(c_args),
         SubCommand::Dwarf(c_args) => cmd::dwarf::run(c_args),
         SubCommand::Elf(c_args) => cmd::elf::run(c_args),

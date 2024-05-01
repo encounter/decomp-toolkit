@@ -44,6 +44,8 @@ memchr = "2.7.2"
 memmap2 = "0.9.4"
 multimap = "0.10.0"
 nintendo-lz = "0.1.3"
+nodtool = { git = "https://github.com/encounter/nod-rs", rev = "03b83484cb17f94408fa0ef8e50d94951464d1b2" }
+#nodtool = { path = "../nod-rs/nodtool" }
 num_enum = "0.7.2"
 objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "2c46286affd11fe37f620ba919a3e57c4b80ccdb", features = ["ppc"] }
 #objdiff-core = { path = "../objdiff/objdiff-core", features = ["ppc"] }
