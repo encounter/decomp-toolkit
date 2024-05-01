@@ -321,6 +321,8 @@ fn symbol_data_kind_to_str(kind: ObjDataKind) -> Option<&'static str> {
         ObjDataKind::String16 => Some("wstring"),
         ObjDataKind::StringTable => Some("string_table"),
         ObjDataKind::String16Table => Some("wstring_table"),
+        ObjDataKind::Int => Some("int"),
+        ObjDataKind::Short => Some("short"),
     }
 }
 
@@ -372,6 +374,8 @@ fn symbol_data_kind_from_str(s: &str) -> Option<ObjDataKind> {
         "wstring" => Some(ObjDataKind::String16),
         "string_table" => Some(ObjDataKind::StringTable),
         "wstring_table" => Some(ObjDataKind::String16Table),
+        "int" => Some(ObjDataKind::Int),
+        "short" => Some(ObjDataKind::Short),
         _ => None,
     }
 }

@@ -172,6 +172,8 @@ pub enum ObjDataKind {
     String16,
     StringTable,
     String16Table,
+    Int,
+    Short,
 }
 
 #[derive(Debug, Clone, Default, Eq, PartialEq)]

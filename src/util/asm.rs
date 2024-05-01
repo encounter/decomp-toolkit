@@ -704,8 +704,8 @@ where W: Write + ?Sized {
         _ => {}
     }
     let chunk_size = match data_kind {
-        ObjDataKind::Byte2 => 2,
-        ObjDataKind::Unknown | ObjDataKind::Byte4 | ObjDataKind::Float => 4,
+        ObjDataKind::Byte2 | ObjDataKind::Short => 2,
+        ObjDataKind::Unknown | ObjDataKind::Byte4 | ObjDataKind::Float | ObjDataKind::Int => 4,
         ObjDataKind::Byte | ObjDataKind::Byte8 | ObjDataKind::Double => 8,
         ObjDataKind::String
         | ObjDataKind::String16
@@ -740,9 +740,17 @@ where W: Write + ?Sized {
                         writeln!(w, "\t.float {data}")?;
                     }
                 }
+                4 if data_kind == ObjDataKind::Int => {
+                    let data = i32::from_be_bytes(chunk.try_into().unwrap());
+                    writeln!(w, "\t.int {data}")?;
+                }
                 4 => {
                     let data = u32::from_be_bytes(chunk.try_into().unwrap());
                     writeln!(w, "\t.4byte {data:#010X}")?;
+                }
+                2 if data_kind == ObjDataKind::Short => {
+                    let data = i16::from_be_bytes(chunk.try_into().unwrap());
+                    writeln!(w, "\t.short {data}")?;
                 }
                 2 => {
                     writeln!(w, "\t.2byte {:#06X}", u16::from_be_bytes(chunk.try_into().unwrap()))?;

@@ -19,8 +19,8 @@ pub fn detect_objects(obj: &mut ObjInfo) -> Result<()> {
             }
             let expected_size = match symbol.data_kind {
                 ObjDataKind::Byte => 1,
-                ObjDataKind::Byte2 => 2,
-                ObjDataKind::Byte4 | ObjDataKind::Float => 4,
+                ObjDataKind::Byte2 | ObjDataKind::Short => 2,
+                ObjDataKind::Byte4 | ObjDataKind::Float | ObjDataKind::Int => 4,
                 ObjDataKind::Byte8 | ObjDataKind::Double => 8,
                 _ => 0,
             };
