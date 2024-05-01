@@ -24,48 +24,47 @@ lto = "thin"
 strip = "debuginfo"
 
 [dependencies]
-anyhow = { version = "1.0.81", features = ["backtrace"] }
+anyhow = { version = "1.0.82", features = ["backtrace"] }
 ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_table" }
 argp = "0.3.0"
 base16ct = "0.2.0"
-base64 = "0.22.0"
+base64 = "0.22.1"
 cwdemangle = "1.0.0"
-dol = { git = "https://github.com/encounter/ppc750cl", rev = "4a2bbbc6f84dcb76255ab6f3595a8d4a0ce96618" }
 enable-ansi-support = "0.2.1"
 filetime = "0.2.23"
-fixedbitset = "0.5.0"
+fixedbitset = "0.5.7"
 flagset = { version = "0.4.5", features = ["serde"] }
-flate2 = "1.0.28"
+flate2 = "1.0.30"
 glob = "0.3.1"
 hex = "0.4.3"
 indent = "0.1.1"
-indexmap = "2.2.5"
+indexmap = "2.2.6"
 itertools = "0.12.1"
 log = "0.4.21"
-memchr = "2.7.1"
+memchr = "2.7.2"
 memmap2 = "0.9.4"
 multimap = "0.10.0"
 nintendo-lz = "0.1.3"
 num_enum = "0.7.2"
-objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "a5668b484b3db9e85d2aa8aeb84b37bff6077df6", features = ["ppc"] }
+objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "2c46286affd11fe37f620ba919a3e57c4b80ccdb", features = ["ppc"] }
 #objdiff-core = { path = "../objdiff/objdiff-core", features = ["ppc"] }
-object = { version = "0.34.0", features = ["read_core", "std", "elf", "write_std"], default-features = false }
+object = { version = "0.35.0", features = ["read_core", "std", "elf", "write_std"], default-features = false }
 once_cell = "1.19.0"
 orthrus-ncompress = "0.2.0"
 owo-colors = { version = "4.0.0", features = ["supports-colors"] }
 path-slash = "0.2.1"
 petgraph = { version = "0.6.4", default-features = false }
-ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "4a2bbbc6f84dcb76255ab6f3595a8d4a0ce96618" }
-rayon = "1.9.0"
-regex = "1.10.3"
+ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "6cbd7d888c7082c2c860f66cbb9848d633f753ed" }
+rayon = "1.10.0"
+regex = "1.10.4"
 rustc-hash = "1.1.0"
 sanitise-file-name = "1.0.0"
-serde = "1.0.197"
-serde_json = "1.0.114"
-serde_repr = "0.1.18"
-serde_yaml = "0.9.32"
+serde = "1.0.199"
+serde_json = "1.0.116"
+serde_repr = "0.1.19"
+serde_yaml = "0.9.34"
 sha-1 = "0.10.1"
-smallvec = "1.13.1"
+smallvec = "1.13.2"
 supports-color = "3.0.0"
 syntect = { version = "5.2.0", features = ["parsing", "regex-fancy", "dump-load"], default-features = false }
 tracing = "0.1.40"

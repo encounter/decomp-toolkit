@@ -19,7 +19,7 @@ pub mod tracker;
 pub mod vm;
 
 pub fn disassemble(section: &ObjSection, address: u32) -> Option<Ins> {
-    read_u32(section, address).map(|code| Ins::new(code, address))
+    read_u32(section, address).map(Ins::new)
 }
 
 pub fn read_u32(section: &ObjSection, address: u32) -> Option<u32> {

@@ -199,8 +199,8 @@ impl VM {
             }
             // add rD, rA, rB
             Opcode::Add => {
-                let left = self.gpr[ins.field_rA()].value;
-                let right = self.gpr[ins.field_rB()].value;
+                let left = self.gpr[ins.field_ra() as usize].value;
+                let right = self.gpr[ins.field_rb() as usize].value;
                 let value = match (left, right) {
                     (GprValue::Constant(left), GprValue::Constant(right)) => {
                         GprValue::Constant(left.wrapping_add(right))
@@ -215,20 +215,20 @@ impl VM {
                     ) => GprValue::Address(RelocationTarget::Address(right + left)),
                     _ => GprValue::Unknown,
                 };
-                self.gpr[ins.field_rD()].set_direct(value);
+                self.gpr[ins.field_rd() as usize].set_direct(value);
             }
             // addis rD, rA, SIMM
             Opcode::Addis => {
                 if let Some(target) =
                     relocation_target_for(obj, ins_addr, None /* TODO */).ok().flatten()
                 {
-                    debug_assert_eq!(ins.field_rA(), 0);
-                    self.gpr[ins.field_rD()].set_hi(GprValue::Address(target), ins_addr);
+                    debug_assert_eq!(ins.field_ra(), 0);
+                    self.gpr[ins.field_rd() as usize].set_hi(GprValue::Address(target), ins_addr);
                 } else {
-                    let left = if ins.field_rA() == 0 {
+                    let left = if ins.field_ra() == 0 {
                         GprValue::Constant(0)
                     } else {
-                        self.gpr[ins.field_rA()].value
+                        self.gpr[ins.field_ra() as usize].value
                     };
                     let value = match left {
                         GprValue::Constant(value) => {
@@ -236,11 +236,11 @@ impl VM {
                         }
                         _ => GprValue::Unknown,
                     };
-                    if ins.field_rA() == 0 {
+                    if ins.field_ra() == 0 {
                         // lis rD, SIMM
-                        self.gpr[ins.field_rD()].set_hi(value, ins_addr);
+                        self.gpr[ins.field_rd() as usize].set_hi(value, ins_addr);
                     } else {
-                        self.gpr[ins.field_rD()].set_direct(value);
+                        self.gpr[ins.field_rd() as usize].set_direct(value);
                     }
                 }
             }
@@ -251,16 +251,16 @@ impl VM {
                 if let Some(target) =
                     relocation_target_for(obj, ins_addr, None /* TODO */).ok().flatten()
                 {
-                    self.gpr[ins.field_rD()].set_lo(
+                    self.gpr[ins.field_rd() as usize].set_lo(
                         GprValue::Address(target),
                         ins_addr,
-                        self.gpr[ins.field_rA()],
+                        self.gpr[ins.field_ra() as usize],
                     );
                 } else {
-                    let left = if ins.field_rA() == 0 && ins.op == Opcode::Addi {
+                    let left = if ins.field_ra() == 0 && ins.op == Opcode::Addi {
                         GprValue::Constant(0)
                     } else {
-                        self.gpr[ins.field_rA()].value
+                        self.gpr[ins.field_ra() as usize].value
                     };
                     let value = match left {
                         GprValue::Constant(value) => {
@@ -271,19 +271,26 @@ impl VM {
                         ),
                         _ => GprValue::Unknown,
                     };
-                    if ins.field_rA() == 0 {
+                    if ins.field_ra() == 0 {
                         // li rD, SIMM
-                        self.gpr[ins.field_rD()].set_direct(value);
+                        self.gpr[ins.field_rd() as usize].set_direct(value);
                     } else {
-                        self.gpr[ins.field_rD()].set_lo(value, ins_addr, self.gpr[ins.field_rA()]);
+                        self.gpr[ins.field_rd() as usize].set_lo(
+                            value,
+                            ins_addr,
+                            self.gpr[ins.field_ra() as usize],
+                        );
                     }
                 }
             }
             // subf rD, rA, rB
             // subfc rD, rA, rB
             Opcode::Subf | Opcode::Subfc => {
-                self.gpr[ins.field_rD()].set_direct(
-                    match (self.gpr[ins.field_rA()].value, self.gpr[ins.field_rB()].value) {
+                self.gpr[ins.field_rd() as usize].set_direct(
+                    match (
+                        self.gpr[ins.field_ra() as usize].value,
+                        self.gpr[ins.field_rb() as usize].value,
+                    ) {
                         (GprValue::Constant(left), GprValue::Constant(right)) => {
                             GprValue::Constant((!left).wrapping_add(right).wrapping_add(1))
                         }
@@ -293,48 +300,54 @@ impl VM {
             }
             // subfic rD, rA, SIMM
             Opcode::Subfic => {
-                self.gpr[ins.field_rD()].set_direct(match self.gpr[ins.field_rA()].value {
-                    GprValue::Constant(value) => GprValue::Constant(
-                        (!value).wrapping_add(ins.field_simm() as u32).wrapping_add(1),
-                    ),
-                    _ => GprValue::Unknown,
-                });
+                self.gpr[ins.field_rd() as usize].set_direct(
+                    match self.gpr[ins.field_ra() as usize].value {
+                        GprValue::Constant(value) => GprValue::Constant(
+                            (!value).wrapping_add(ins.field_simm() as u32).wrapping_add(1),
+                        ),
+                        _ => GprValue::Unknown,
+                    },
+                );
             }
             // ori rA, rS, UIMM
             Opcode::Ori => {
                 if let Some(target) =
                     relocation_target_for(obj, ins_addr, None /* TODO */).ok().flatten()
                 {
-                    self.gpr[ins.field_rA()].set_lo(
+                    self.gpr[ins.field_ra() as usize].set_lo(
                         GprValue::Address(target),
                         ins_addr,
-                        self.gpr[ins.field_rS()],
+                        self.gpr[ins.field_rs() as usize],
                     );
                 } else {
-                    let value = match self.gpr[ins.field_rS()].value {
+                    let value = match self.gpr[ins.field_rs() as usize].value {
                         GprValue::Constant(value) => {
                             GprValue::Constant(value | ins.field_uimm() as u32)
                         }
                         _ => GprValue::Unknown,
                     };
-                    self.gpr[ins.field_rA()].set_lo(value, ins_addr, self.gpr[ins.field_rS()]);
+                    self.gpr[ins.field_ra() as usize].set_lo(
+                        value,
+                        ins_addr,
+                        self.gpr[ins.field_rs() as usize],
+                    );
                 }
             }
             // or rA, rS, rB
             Opcode::Or => {
-                if ins.field_rS() == ins.field_rB() {
+                if ins.field_rs() == ins.field_rb() {
                     // Register copy
-                    self.gpr[ins.field_rA()] = self.gpr[ins.field_rS()];
+                    self.gpr[ins.field_ra() as usize] = self.gpr[ins.field_rs() as usize];
                 } else {
-                    let left = self.gpr[ins.field_rS()].value;
-                    let right = self.gpr[ins.field_rB()].value;
+                    let left = self.gpr[ins.field_rs() as usize].value;
+                    let right = self.gpr[ins.field_rb() as usize].value;
                     let value = match (left, right) {
                         (GprValue::Constant(left), GprValue::Constant(right)) => {
                             GprValue::Constant(left | right)
                         }
                         _ => GprValue::Unknown,
                     };
-                    self.gpr[ins.field_rA()].set_direct(value);
+                    self.gpr[ins.field_ra() as usize].set_direct(value);
                 }
             }
             // cmp [crfD], [L], rA, rB
@@ -342,34 +355,34 @@ impl VM {
             // cmpl [crfD], [L], rA, rB
             // cmpli [crfD], [L], rA, UIMM
             Opcode::Cmp | Opcode::Cmpi | Opcode::Cmpl | Opcode::Cmpli => {
-                if ins.field_L() == 0 {
-                    let left_reg = ins.field_rA();
+                if ins.field_l() == 0 {
+                    let left_reg = ins.field_ra() as usize;
                     let left = self.gpr[left_reg].value;
                     let (right, signed) = match ins.op {
-                        Opcode::Cmp => (self.gpr[ins.field_rB()].value, true),
-                        Opcode::Cmpl => (self.gpr[ins.field_rB()].value, false),
+                        Opcode::Cmp => (self.gpr[ins.field_rb() as usize].value, true),
+                        Opcode::Cmpl => (self.gpr[ins.field_rb() as usize].value, false),
                         Opcode::Cmpi => (GprValue::Constant(ins.field_simm() as u32), true),
                         Opcode::Cmpli => (GprValue::Constant(ins.field_uimm() as u32), false),
                         _ => unreachable!(),
                     };
-                    let crf = ins.field_crfD();
-                    self.cr[crf] = Cr { signed, left, right };
-                    self.gpr[left_reg].value = GprValue::ComparisonResult(crf as u8);
+                    let crf = ins.field_crfd();
+                    self.cr[crf as usize] = Cr { signed, left, right };
+                    self.gpr[left_reg].value = GprValue::ComparisonResult(crf);
                 }
             }
             // rlwinm rA, rS, SH, MB, ME
             // rlwnm rA, rS, rB, MB, ME
             Opcode::Rlwinm | Opcode::Rlwnm => {
                 let value = if let Some(shift) = match ins.op {
-                    Opcode::Rlwinm => Some(ins.field_SH() as u32),
-                    Opcode::Rlwnm => match self.gpr[ins.field_rB()].value {
+                    Opcode::Rlwinm => Some(ins.field_sh() as u32),
+                    Opcode::Rlwnm => match self.gpr[ins.field_rb() as usize].value {
                         GprValue::Constant(value) => Some(value),
                         _ => None,
                     },
                     _ => unreachable!(),
                 } {
-                    let mask = mask_value(ins.field_MB() as u32, ins.field_ME() as u32);
-                    match self.gpr[ins.field_rS()].value {
+                    let mask = mask_value(ins.field_mb() as u32, ins.field_me() as u32);
+                    match self.gpr[ins.field_rs() as usize].value {
                         GprValue::Constant(value) => {
                             GprValue::Constant(value.rotate_left(shift) & mask)
                         }
@@ -383,7 +396,7 @@ impl VM {
                 } else {
                     GprValue::Unknown
                 };
-                self.gpr[ins.field_rA()].set_direct(value);
+                self.gpr[ins.field_ra() as usize].set_direct(value);
             }
             // b[l][a] target_addr
             // b[c][l][a] BO, BI, target_addr
@@ -391,7 +404,7 @@ impl VM {
             // b[c]lr[l] BO, BI
             Opcode::B | Opcode::Bc | Opcode::Bcctr | Opcode::Bclr => {
                 // HACK for `bla 0x60` in __OSDBJump
-                if ins.op == Opcode::B && ins.field_LK() && ins.field_AA() {
+                if ins.op == Opcode::B && ins.field_lk() && ins.field_aa() {
                     return StepResult::Jump(BranchTarget::Unknown);
                 }
 
@@ -409,7 +422,7 @@ impl VM {
                             GprValue::Address(target) => BranchTarget::Address(target),
                             GprValue::LoadIndexed { address, max_offset }
                             // FIXME: avoids treating bctrl indirect calls as jump tables
-                            if !ins.field_LK() => {
+                            if !ins.field_lk() => {
                                 BranchTarget::JumpTable { address, size: max_offset.and_then(|n| n.checked_add(4)) }
                             }
                             _ => BranchTarget::Unknown,
@@ -417,7 +430,7 @@ impl VM {
                     }
                     Opcode::Bclr => BranchTarget::Return,
                     _ => {
-                        let value = ins.branch_dest().unwrap();
+                        let value = ins.branch_dest(ins_addr.address).unwrap();
                         if let Some(target) = section_address_for(obj, ins_addr, value) {
                             BranchTarget::Address(target)
                         } else {
@@ -427,7 +440,7 @@ impl VM {
                 };
 
                 // If branching with link, use function call semantics
-                if ins.field_LK() {
+                if ins.field_lk() {
                     return StepResult::Branch(vec![
                         Branch {
                             target: BranchTarget::Address(RelocationTarget::Address(ins_addr + 4)),
@@ -439,7 +452,7 @@ impl VM {
                 }
 
                 // Branch always
-                if ins.op == Opcode::B || ins.field_BO() & 0b10100 == 0b10100 {
+                if ins.op == Opcode::B || ins.field_bo() & 0b10100 == 0b10100 {
                     return StepResult::Jump(branch_target);
                 }
 
@@ -452,19 +465,19 @@ impl VM {
                         vm: self.clone_all(),
                     },
                     // Branch taken
-                    Branch { target: branch_target, link: ins.field_LK(), vm: self.clone_all() },
+                    Branch { target: branch_target, link: ins.field_lk(), vm: self.clone_all() },
                 ];
 
                 // Use tracked CR to calculate new register values for branches
-                let crf = ins.field_BI() >> 2;
-                let crb = (ins.field_BI() & 3) as u8;
+                let crf = (ins.field_bi() >> 2) as usize;
+                let crb = ins.field_bi() & 3;
                 let (f_val, t_val) =
                     split_values_by_crb(crb, self.cr[crf].left, self.cr[crf].right);
-                if ins.field_BO() & 0b11110 == 0b00100 {
+                if ins.field_bo() & 0b11110 == 0b00100 {
                     // Branch if false
                     branches[0].vm.set_comparison_result(t_val, crf);
                     branches[1].vm.set_comparison_result(f_val, crf);
-                } else if ins.field_BO() & 0b11110 == 0b01100 {
+                } else if ins.field_bo() & 0b11110 == 0b01100 {
                     // Branch if true
                     branches[0].vm.set_comparison_result(f_val, crf);
                     branches[1].vm.set_comparison_result(t_val, crf);
@@ -474,8 +487,8 @@ impl VM {
             }
             // lwzx rD, rA, rB
             Opcode::Lwzx => {
-                let left = self.gpr[ins.field_rA()].address(obj, ins_addr);
-                let right = self.gpr[ins.field_rB()].value;
+                let left = self.gpr[ins.field_ra() as usize].address(obj, ins_addr);
+                let right = self.gpr[ins.field_rb() as usize].value;
                 let value = match (left, right) {
                     (Some(address), GprValue::Range { min: _, max, .. })
                         if /*min == 0 &&*/ max < u32::MAX - 4 && max & 3 == 0 =>
@@ -492,12 +505,12 @@ impl VM {
                     }
                     _ => GprValue::Unknown,
                 };
-                self.gpr[ins.field_rD()].set_direct(value);
+                self.gpr[ins.field_rd() as usize].set_direct(value);
             }
             // mtspr SPR, rS
             Opcode::Mtspr => match ins.field_spr() {
-                8 => self.lr = self.gpr[ins.field_rS()].value,
-                9 => self.ctr = self.gpr[ins.field_rS()].value,
+                8 => self.lr = self.gpr[ins.field_rs() as usize].value,
+                9 => self.ctr = self.gpr[ins.field_rs() as usize].value,
                 _ => {}
             },
             // mfspr rD, SPR
@@ -507,14 +520,14 @@ impl VM {
                     9 => self.ctr,
                     _ => GprValue::Unknown,
                 };
-                self.gpr[ins.field_rD()].set_direct(value);
+                self.gpr[ins.field_rd() as usize].set_direct(value);
             }
             // rfi
             Opcode::Rfi => {
                 return StepResult::Jump(BranchTarget::Unknown);
             }
             op if is_load_store_op(op) => {
-                let source = ins.field_rA();
+                let source = ins.field_ra() as usize;
                 let mut result = StepResult::Continue;
                 if let GprValue::Address(target) = self.gpr[source].value {
                     if is_update_op(op) {
@@ -549,13 +562,13 @@ impl VM {
                     self.gpr[source].set_direct(GprValue::Unknown);
                 }
                 if is_load_op(op) {
-                    self.gpr[ins.field_rD()].set_direct(GprValue::Unknown);
+                    self.gpr[ins.field_rd() as usize].set_direct(GprValue::Unknown);
                 }
                 return result;
             }
             _ => {
-                for field in ins.defs() {
-                    if let Some(Argument::GPR(GPR(reg))) = field.argument() {
+                for argument in ins.defs() {
+                    if let Argument::GPR(GPR(reg)) = argument {
                         self.gpr[reg as usize].set_direct(GprValue::Unknown);
                     }
                 }

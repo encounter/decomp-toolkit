@@ -219,8 +219,8 @@ impl Tracker {
                 match ins.op {
                     // addi rD, rA, SIMM
                     Opcode::Addi | Opcode::Addic | Opcode::Addic_ => {
-                        let source = ins.field_rA();
-                        let target = ins.field_rD();
+                        let source = ins.field_ra() as usize;
+                        let target = ins.field_rd() as usize;
                         if let Some(value) = self.gpr_address(obj, ins_addr, &vm.gpr[target].value)
                         {
                             if (source == 2
@@ -258,7 +258,7 @@ impl Tracker {
                     }
                     // ori rA, rS, UIMM
                     Opcode::Ori => {
-                        let target = ins.field_rA();
+                        let target = ins.field_ra() as usize;
                         if let Some(value) = self.gpr_address(obj, ins_addr, &vm.gpr[target].value)
                         {
                             if let (Some(hi_addr), Some(lo_addr)) =

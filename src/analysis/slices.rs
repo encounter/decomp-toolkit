@@ -1,4 +1,5 @@
 use std::{
+    borrow::Cow,
     collections::{btree_map, BTreeMap, BTreeSet},
     ops::Range,
 };
@@ -43,54 +44,64 @@ pub enum TailCallResult {
 
 type BlockRange = Range<SectionAddress>;
 
-#[inline(always)]
-fn next_ins(section: &ObjSection, ins: &Ins) -> Option<Ins> { disassemble(section, ins.addr + 4) }
-
 type InsCheck = dyn Fn(&Ins) -> bool;
 
 #[inline(always)]
 fn check_sequence(
     section: &ObjSection,
-    ins: &Ins,
+    addr: SectionAddress,
+    ins: Option<&Ins>,
     sequence: &[(&InsCheck, &InsCheck)],
 ) -> Result<bool> {
     let mut found = false;
 
     for &(first, second) in sequence {
-        if first(ins) {
-            if let Some(next) = next_ins(section, ins) {
-                if second(&next)
-                    // Also check the following instruction, in case the scheduler
-                    // put something in between.
-                    || (!next.is_branch() && matches!(next_ins(section, &next), Some(ins) if second(&ins)))
-                {
-                    found = true;
-                    break;
-                }
-            }
+        let Some(ins) =
+            ins.map(Cow::Borrowed).or_else(|| disassemble(section, addr.address).map(Cow::Owned))
+        else {
+            continue;
+        };
+        if !first(&ins) {
+            continue;
+        }
+        let Some(next) = disassemble(section, addr.address + 4) else {
+            continue;
+        };
+        if second(&next)
+            // Also check the following instruction, in case the scheduler
+            // put something in between.
+            || (!next.is_branch()
+                && matches!(disassemble(section, addr.address + 8), Some(ins) if second(&ins)))
+        {
+            found = true;
+            break;
         }
     }
 
     Ok(found)
 }
 
-fn check_prologue_sequence(section: &ObjSection, ins: &Ins) -> Result<bool> {
+fn check_prologue_sequence(
+    section: &ObjSection,
+    addr: SectionAddress,
+    ins: Option<&Ins>,
+) -> Result<bool> {
     #[inline(always)]
     fn is_mflr(ins: &Ins) -> bool {
         // mfspr r0, LR
-        ins.op == Opcode::Mfspr && ins.field_rD() == 0 && ins.field_spr() == 8
+        ins.op == Opcode::Mfspr && ins.field_rd() == 0 && ins.field_spr() == 8
     }
     #[inline(always)]
     fn is_stwu(ins: &Ins) -> bool {
         // stwu r1, d(r1)
-        ins.op == Opcode::Stwu && ins.field_rS() == 1 && ins.field_rA() == 1
+        ins.op == Opcode::Stwu && ins.field_rs() == 1 && ins.field_ra() == 1
     }
     #[inline(always)]
     fn is_stw(ins: &Ins) -> bool {
         // stw r0, d(r1)
-        ins.op == Opcode::Stw && ins.field_rS() == 0 && ins.field_rA() == 1
+        ins.op == Opcode::Stw && ins.field_rs() == 0 && ins.field_ra() == 1
     }
-    check_sequence(section, ins, &[(&is_stwu, &is_mflr), (&is_mflr, &is_stw)])
+    check_sequence(section, addr, ins, &[(&is_stwu, &is_mflr), (&is_mflr, &is_stw)])
 }
 
 impl FunctionSlices {
@@ -132,14 +143,14 @@ impl FunctionSlices {
         #[inline(always)]
         fn is_lwz(ins: &Ins) -> bool {
             // lwz r1, d(r)
-            ins.op == Opcode::Lwz && ins.field_rD() == 1
+            ins.op == Opcode::Lwz && ins.field_rd() == 1
         }
 
         if is_lwz(ins) {
             self.has_r1_load = true;
             return Ok(()); // Possibly instead of a prologue
         }
-        if check_prologue_sequence(section, ins)? {
+        if check_prologue_sequence(section, addr, Some(ins))? {
             if let Some(prologue) = self.prologue {
                 if prologue != addr && prologue != addr - 4 {
                     bail!("Found duplicate prologue: {:#010X} and {:#010X}", prologue, addr)
@@ -160,20 +171,20 @@ impl FunctionSlices {
         #[inline(always)]
         fn is_mtlr(ins: &Ins) -> bool {
             // mtspr LR, r0
-            ins.op == Opcode::Mtspr && ins.field_rS() == 0 && ins.field_spr() == 8
+            ins.op == Opcode::Mtspr && ins.field_rs() == 0 && ins.field_spr() == 8
         }
         #[inline(always)]
         fn is_addi(ins: &Ins) -> bool {
             // addi r1, r1, SIMM
-            ins.op == Opcode::Addi && ins.field_rD() == 1 && ins.field_rA() == 1
+            ins.op == Opcode::Addi && ins.field_rd() == 1 && ins.field_ra() == 1
         }
         #[inline(always)]
         fn is_or(ins: &Ins) -> bool {
             // or r1, rA, rB
-            ins.op == Opcode::Or && ins.field_rD() == 1
+            ins.op == Opcode::Or && ins.field_rd() == 1
         }
 
-        if check_sequence(section, ins, &[(&is_mtlr, &is_addi), (&is_or, &is_mtlr)])? {
+        if check_sequence(section, addr, Some(ins), &[(&is_mtlr, &is_addi), (&is_or, &is_mtlr)])? {
             if let Some(epilogue) = self.epilogue {
                 if epilogue != addr {
                     bail!("Found duplicate epilogue: {:#010X} and {:#010X}", epilogue, addr)
@@ -513,11 +524,12 @@ impl FunctionSlices {
                 {
                     // FIXME this is real bad
                     if !self.has_conditional_blr {
-                        if let Some(ins) = disassemble(section, end.address - 4) {
+                        let ins_addr = end - 4;
+                        if let Some(ins) = disassemble(section, ins_addr.address) {
                             if ins.op == Opcode::B {
                                 if let Some(RelocationTarget::Address(target)) = ins
-                                    .branch_dest()
-                                    .and_then(|addr| section_address_for(obj, end - 4, addr))
+                                    .branch_dest(ins_addr.address)
+                                    .and_then(|addr| section_address_for(obj, ins_addr, addr))
                                 {
                                     if self.function_references.contains(&target) {
                                         for branches in self.branches.values() {
@@ -617,8 +629,7 @@ impl FunctionSlices {
         if self.prologue.is_none() {
             let mut current_address = function_start;
             while current_address < addr {
-                let ins = disassemble(target_section, current_address.address).unwrap();
-                match check_prologue_sequence(target_section, &ins) {
+                match check_prologue_sequence(target_section, current_address, None) {
                     Ok(true) => {
                         log::debug!(
                             "Prologue discovered @ {}; known tail call: {}",
@@ -703,7 +714,7 @@ impl FunctionSlices {
 
 #[inline]
 fn is_conditional_blr(ins: &Ins) -> bool {
-    ins.op == Opcode::Bclr && ins.field_BO() & 0b10100 != 0b10100
+    ins.op == Opcode::Bclr && ins.field_bo() & 0b10100 != 0b10100
 }
 
 #[inline]

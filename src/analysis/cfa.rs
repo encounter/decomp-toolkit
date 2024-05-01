@@ -499,12 +499,12 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
     executor.push(entry_addr, VM::new(), false);
     let result = executor.run(
         obj,
-        |ExecCbData { executor, vm, result, ins_addr: _, section: _, ins, block_start: _ }| {
+        |ExecCbData { executor, vm, result, ins_addr, section: _, ins: _, block_start: _ }| {
             match result {
                 StepResult::Continue | StepResult::LoadStore { .. } => {
                     return Ok(ExecCbResult::Continue);
                 }
-                StepResult::Illegal => bail!("Illegal instruction @ {:#010X}", ins.addr),
+                StepResult::Illegal => bail!("Illegal instruction @ {}", ins_addr),
                 StepResult::Jump(target) => {
                     if let BranchTarget::Address(RelocationTarget::Address(addr)) = target {
                         return Ok(ExecCbResult::Jump(addr));
@@ -558,10 +558,10 @@ pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
     executor.push(entry_addr, VM::new(), false);
     executor.run(
         obj,
-        |ExecCbData { executor: _, vm, result, ins_addr: _, section: _, ins, block_start: _ }| {
+        |ExecCbData { executor: _, vm, result, ins_addr, section: _, ins: _, block_start: _ }| {
             match result {
                 StepResult::Continue | StepResult::LoadStore { .. } => Ok(ExecCbResult::Continue),
-                StepResult::Illegal => bail!("Illegal instruction @ {:#010X}", ins.addr),
+                StepResult::Illegal => bail!("Illegal instruction @ {}", ins_addr),
                 StepResult::Jump(_target) => Ok(ExecCbResult::End(())),
                 StepResult::Branch(branches) => {
                     for branch in branches {
