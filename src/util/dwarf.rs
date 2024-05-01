@@ -1,7 +1,6 @@
 use std::{
     cmp::max,
     collections::BTreeMap,
-    convert::TryFrom,
     fmt::{Display, Formatter, Write},
     io::{BufRead, Cursor, Seek, SeekFrom},
     num::NonZeroU32,

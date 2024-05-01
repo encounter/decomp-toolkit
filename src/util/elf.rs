@@ -186,7 +186,7 @@ where P: AsRef<Path> {
                     continue;
                 }
                 if kind == ObjKind::Relocatable {
-                    obj_name = file_name.clone();
+                    obj_name.clone_from(&file_name);
                 }
                 let sections = match section_starts.entry(file_name.clone()) {
                     indexmap::map::Entry::Occupied(_) => {
@@ -197,7 +197,7 @@ where P: AsRef<Path> {
                         *index += 1;
                         let new_name = format!("{}_{}", file_name, index);
                         // log::info!("Renaming {} to {}", file_name, new_name);
-                        file_name = new_name.clone();
+                        file_name.clone_from(&new_name);
                         match section_starts.entry(new_name.clone()) {
                             indexmap::map::Entry::Occupied(_) => {
                                 bail!("Duplicate filename '{}'", new_name)

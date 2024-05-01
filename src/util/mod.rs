@@ -12,6 +12,7 @@ pub mod elf;
 pub mod file;
 pub mod lcf;
 pub mod map;
+pub mod ncompress;
 pub mod nested;
 pub mod rarc;
 pub mod reader;
@@ -20,7 +21,6 @@ pub mod rso;
 pub mod signatures;
 pub mod split;
 pub mod take_seek;
-pub mod yaz0;
 
 #[inline]
 pub const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
@@ -73,4 +73,27 @@ impl<'a, B> ToCow<'a, B> for B
 where B: ToOwned + ?Sized
 {
     fn to_cow(&'a self) -> Cow<'a, B> { Cow::Borrowed(self) }
+}
+
+pub enum Bytes<'a> {
+    Borrowed(&'a [u8]),
+    Owned(Box<[u8]>),
+}
+
+impl<'a> Bytes<'a> {
+    pub fn into_owned(self) -> Box<[u8]> {
+        match self {
+            Bytes::Borrowed(s) => Box::from(s),
+            Bytes::Owned(b) => b,
+        }
+    }
+}
+
+impl<'a> AsRef<[u8]> for Bytes<'a> {
+    fn as_ref(&self) -> &[u8] {
+        match self {
+            Bytes::Borrowed(s) => s,
+            Bytes::Owned(b) => b,
+        }
+    }
 }

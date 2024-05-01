@@ -478,7 +478,7 @@ impl StateMachine {
                         return false;
                     }
                     if !e.unused {
-                        last_unit = e.unit.clone();
+                        last_unit.clone_from(&e.unit);
                     }
                     true
                 });

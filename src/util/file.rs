@@ -1,5 +1,4 @@
 use std::{
-    borrow::Cow,
     ffi::OsStr,
     fs::{DirBuilder, File, OpenOptions},
     io::{BufRead, BufReader, BufWriter, Cursor, Read, Seek, SeekFrom},
@@ -16,12 +15,11 @@ use xxhash_rust::xxh3::xxh3_64;
 use crate::{
     array_ref,
     util::{
+        ncompress::{decompress_yay0, decompress_yaz0, YAY0_MAGIC, YAZ0_MAGIC},
         rarc,
         rarc::{Node, RARC_MAGIC},
         take_seek::{TakeSeek, TakeSeekExt},
-        yaz0,
-        yaz0::YAZ0_MAGIC,
-        IntoCow, ToCow,
+        Bytes,
     },
 };
 
@@ -78,24 +76,36 @@ where P: AsRef<Path> {
     let mmap = unsafe { MmapOptions::new().map(&file) }
         .with_context(|| format!("Failed to mmap file: '{}'", base_path.display()))?;
     let (offset, len) = if let Some(sub_path) = sub_path {
-        let mut reader = Cursor::new(&*mmap);
         if sub_path.as_os_str() == OsStr::new("nlzss") {
             return Ok(FileEntry::Buffer(
-                nintendo_lz::decompress(&mut reader).map_err(|e| {
-                    anyhow!("Failed to decompress '{}' with NLZSS: {}", path.as_ref().display(), e)
-                })?,
+                nintendo_lz::decompress(&mut mmap.as_ref())
+                    .map_err(|e| {
+                        anyhow!(
+                            "Failed to decompress '{}' with NLZSS: {}",
+                            path.as_ref().display(),
+                            e
+                        )
+                    })?
+                    .into_boxed_slice(),
                 mtime,
             ));
         } else if sub_path.as_os_str() == OsStr::new("yaz0") {
             return Ok(FileEntry::Buffer(
-                yaz0::decompress_file(&mut reader).with_context(|| {
+                decompress_yaz0(mmap.as_ref()).with_context(|| {
                     format!("Failed to decompress '{}' with Yaz0", path.as_ref().display())
+                })?,
+                mtime,
+            ));
+        } else if sub_path.as_os_str() == OsStr::new("yay0") {
+            return Ok(FileEntry::Buffer(
+                decompress_yay0(mmap.as_ref()).with_context(|| {
+                    format!("Failed to decompress '{}' with Yay0", path.as_ref().display())
                 })?,
                 mtime,
             ));
         }
 
-        let rarc = rarc::RarcReader::new(&mut reader)
+        let rarc = rarc::RarcReader::new(&mut Cursor::new(mmap.as_ref()))
             .with_context(|| format!("Failed to open '{}' as RARC archive", base_path.display()))?;
         rarc.find_file(&sub_path)?.map(|(o, s)| (o, s as u64)).ok_or_else(|| {
             anyhow!("File '{}' not found in '{}'", sub_path.display(), base_path.display())
@@ -106,15 +116,41 @@ where P: AsRef<Path> {
     let map = MappedFile { mmap, mtime, offset, len };
     let buf = map.as_slice();
     // Auto-detect compression if there's a magic number.
-    if buf.len() > 4 && buf[0..4] == YAZ0_MAGIC {
-        return Ok(FileEntry::Buffer(
-            yaz0::decompress_file(&mut map.as_reader()).with_context(|| {
-                format!("Failed to decompress '{}' with Yaz0", path.as_ref().display())
-            })?,
-            mtime,
-        ));
+    if buf.len() > 4 {
+        match *array_ref!(buf, 0, 4) {
+            YAZ0_MAGIC => {
+                return Ok(FileEntry::Buffer(
+                    decompress_yaz0(buf).with_context(|| {
+                        format!("Failed to decompress '{}' with Yaz0", path.as_ref().display())
+                    })?,
+                    mtime,
+                ));
+            }
+            YAY0_MAGIC => {
+                return Ok(FileEntry::Buffer(
+                    decompress_yay0(buf).with_context(|| {
+                        format!("Failed to decompress '{}' with Yay0", path.as_ref().display())
+                    })?,
+                    mtime,
+                ));
+            }
+            _ => {}
+        }
     }
     Ok(FileEntry::MappedFile(map))
+}
+
+/// Opens a memory mapped file without decompression or archive handling.
+pub fn map_file_basic<P>(path: P) -> Result<FileEntry>
+where P: AsRef<Path> {
+    let path = path.as_ref();
+    let file =
+        File::open(path).with_context(|| format!("Failed to open file '{}'", path.display()))?;
+    let mtime = FileTime::from_last_modification_time(&file.metadata()?);
+    let mmap = unsafe { MmapOptions::new().map(&file) }
+        .with_context(|| format!("Failed to mmap file: '{}'", path.display()))?;
+    let len = mmap.len() as u64;
+    Ok(FileEntry::MappedFile(MappedFile { mmap, mtime, offset: 0, len }))
 }
 
 pub type OpenedFile = TakeSeek<File>;
@@ -254,7 +290,7 @@ impl RarcIterator {
 }
 
 impl Iterator for RarcIterator {
-    type Item = Result<(PathBuf, Vec<u8>)>;
+    type Item = Result<(PathBuf, Box<[u8]>)>;
 
     fn next(&mut self) -> Option<Self::Item> {
         if self.index >= self.paths.len() {
@@ -275,7 +311,7 @@ impl Iterator for RarcIterator {
 /// A file entry, either a memory mapped file or an owned buffer.
 pub enum FileEntry {
     MappedFile(MappedFile),
-    Buffer(Vec<u8>, FileTime),
+    Buffer(Box<[u8]>, FileTime),
 }
 
 impl FileEntry {
@@ -283,14 +319,14 @@ impl FileEntry {
     pub fn as_reader(&self) -> Cursor<&[u8]> {
         match self {
             Self::MappedFile(file) => file.as_reader(),
-            Self::Buffer(slice, _) => Cursor::new(slice.as_slice()),
+            Self::Buffer(slice, _) => Cursor::new(slice),
         }
     }
 
     pub fn as_slice(&self) -> &[u8] {
         match self {
             Self::MappedFile(file) => file.as_slice(),
-            Self::Buffer(slice, _) => slice.as_slice(),
+            Self::Buffer(slice, _) => slice,
         }
     }
 
@@ -388,6 +424,7 @@ impl FileIterator {
 
         match *array_ref!(buf, 0, 4) {
             YAZ0_MAGIC => self.handle_yaz0(file, path),
+            YAY0_MAGIC => self.handle_yay0(file, path),
             RARC_MAGIC => self.handle_rarc(file, path),
             _ => Some(Ok((path, FileEntry::MappedFile(file)))),
         }
@@ -398,7 +435,18 @@ impl FileIterator {
         file: MappedFile,
         path: PathBuf,
     ) -> Option<Result<(PathBuf, FileEntry)>> {
-        Some(match yaz0::decompress_file(&mut file.as_reader()) {
+        Some(match decompress_yaz0(file.as_slice()) {
+            Ok(buf) => Ok((path, FileEntry::Buffer(buf, file.mtime))),
+            Err(e) => Err(e),
+        })
+    }
+
+    fn handle_yay0(
+        &mut self,
+        file: MappedFile,
+        path: PathBuf,
+    ) -> Option<Result<(PathBuf, FileEntry)>> {
+        Some(match decompress_yay0(file.as_slice()) {
             Ok(buf) => Ok((path, FileEntry::Buffer(buf, file.mtime))),
             Err(e) => Err(e),
         })
@@ -435,31 +483,15 @@ where P: AsRef<Path> {
     }
 }
 
-pub fn decompress_if_needed(buf: &[u8]) -> Result<Cow<[u8]>> {
-    Ok(if buf.len() > 4 && buf[0..4] == YAZ0_MAGIC {
-        yaz0::decompress_file(&mut Cursor::new(buf))?.into_cow()
-    } else {
-        buf.to_cow()
-    })
-}
-
-pub fn decompress_reader<R>(reader: &mut R) -> Result<Vec<u8>>
-where R: Read + Seek + ?Sized {
-    let mut magic = [0u8; 4];
-    if reader.read_exact(&mut magic).is_err() {
-        reader.seek(SeekFrom::Start(0))?;
-        let mut buf = vec![];
-        reader.read_to_end(&mut buf)?;
-        return Ok(buf);
+pub fn decompress_if_needed(buf: &[u8]) -> Result<Bytes> {
+    if buf.len() > 4 {
+        match *array_ref!(buf, 0, 4) {
+            YAZ0_MAGIC => return decompress_yaz0(buf).map(Bytes::Owned),
+            YAY0_MAGIC => return decompress_yay0(buf).map(Bytes::Owned),
+            _ => {}
+        }
     }
-    Ok(if magic == YAZ0_MAGIC {
-        reader.seek(SeekFrom::Start(0))?;
-        yaz0::decompress_file(reader)?
-    } else {
-        let mut buf = magic.to_vec();
-        reader.read_to_end(&mut buf)?;
-        buf
-    })
+    Ok(Bytes::Borrowed(buf))
 }
 
 pub fn verify_hash(buf: &[u8], expected_str: &str) -> Result<()> {

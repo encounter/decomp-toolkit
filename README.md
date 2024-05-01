@@ -39,7 +39,10 @@ project structure and build system that uses decomp-toolkit under the hood.
   - [nlzss decompress](#nlzss-decompress)
   - [rarc list](#rarc-list)
   - [rarc extract](#rarc-extract)
+  - [yay0 decompress](#yay0-decompress)
+  - [yay0 compress](#yay0-compress)
   - [yaz0 decompress](#yaz0-decompress)
+  - [yaz0 compress](#yaz0-compress)
 
 ## Goals
 
@@ -341,6 +344,26 @@ Extracts the contents of an RARC archive.
 $ dtk rarc extract input.arc -o output_dir
 ```
 
+### yay0 decompress
+
+Decompresses Yay0-compressed files.
+
+```shell
+$ dtk yay0 decompress input.bin.yay0 -o output.bin
+# or, for batch processing
+$ dtk yay0 decompress rels/*.yay0 -o rels
+```
+
+### yay0 compress
+
+Compresses files using Yay0 compression.
+
+```shell
+$ dtk yay0 compress input.bin -o output.bin.yay0
+# or, for batch processing
+$ dtk yay0 compress rels/* -o rels
+```
+
 ### yaz0 decompress
 
 Decompresses Yaz0-compressed files.
@@ -349,4 +372,14 @@ Decompresses Yaz0-compressed files.
 $ dtk yaz0 decompress input.bin.yaz0 -o output.bin
 # or, for batch processing
 $ dtk yaz0 decompress rels/*.yaz0 -o rels
+```
+
+### yaz0 compress
+
+Compresses files using Yaz0 compression.
+
+```shell
+$ dtk yaz0 compress input.bin -o output.bin.yaz0
+# or, for batch processing
+$ dtk yaz0 compress rels/* -o rels
 ```

@@ -46,7 +46,10 @@ use crate::{
         dep::DepFile,
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{buf_reader, buf_writer, map_file, touch, verify_hash, FileIterator, FileReadInfo},
+        file::{
+            buf_reader, buf_writer, map_file, map_file_basic, touch, verify_hash, FileIterator,
+            FileReadInfo,
+        },
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         rel::{process_rel, process_rel_header, update_rel_section_alignment},
@@ -156,7 +159,7 @@ mod path_slash_serde {
     use std::path::PathBuf;
 
     use path_slash::PathBufExt as _;
-    use serde::{self, Deserialize, Deserializer, Serializer};
+    use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn serialize<S>(path: &PathBuf, s: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
@@ -174,7 +177,7 @@ mod path_slash_serde_option {
     use std::path::PathBuf;
 
     use path_slash::PathBufExt as _;
-    use serde::{self, Deserialize, Deserializer, Serializer};
+    use serde::{Deserialize, Deserializer, Serializer};
 
     pub fn serialize<S>(path: &Option<PathBuf>, s: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
@@ -938,7 +941,7 @@ fn split_write_obj(
 
 fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
     if path.is_file() {
-        let old_file = map_file(path)?;
+        let old_file = map_file_basic(path)?;
         // If the file is the same size, check if the contents are the same
         // Avoid writing if unchanged, since it will update the file's mtime
         if old_file.len() == contents.len() as u64
@@ -1639,7 +1642,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
                     orig_sym.kind,
                     linked_sym.name
                 );
-                updated_sym.name = linked_sym.name.clone();
+                updated_sym.name.clone_from(&linked_sym.name);
             }
             if linked_sym.size != orig_sym.size {
                 log::info!(

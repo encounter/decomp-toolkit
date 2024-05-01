@@ -1,4 +1,4 @@
-use std::{env, ffi::OsStr, path::PathBuf, process::exit, str::FromStr};
+use std::{env, ffi::OsStr, fmt::Display, path::PathBuf, process::exit, str::FromStr};
 
 use anyhow::Error;
 use argp::{FromArgValue, FromArgs};
@@ -37,16 +37,15 @@ impl FromStr for LogLevel {
     }
 }
 
-impl ToString for LogLevel {
-    fn to_string(&self) -> String {
-        match self {
+impl Display for LogLevel {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
             LogLevel::Error => "error",
             LogLevel::Warn => "warn",
             LogLevel::Info => "info",
             LogLevel::Debug => "debug",
             LogLevel::Trace => "trace",
-        }
-        .to_string()
+        })
     }
 }
 
@@ -94,6 +93,7 @@ enum SubCommand {
     Rel(cmd::rel::Args),
     Rso(cmd::rso::Args),
     Shasum(cmd::shasum::Args),
+    Yay0(cmd::yay0::Args),
     Yaz0(cmd::yaz0::Args),
 }
 
@@ -166,6 +166,7 @@ fn main() {
         SubCommand::Rel(c_args) => cmd::rel::run(c_args),
         SubCommand::Rso(c_args) => cmd::rso::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
+        SubCommand::Yay0(c_args) => cmd::yay0::run(c_args),
         SubCommand::Yaz0(c_args) => cmd::yaz0::run(c_args),
     });
     if let Err(e) = result {

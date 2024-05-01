@@ -270,7 +270,7 @@ impl ObjInfo {
                         existing.end,
                         split.unit
                     );
-                    existing.unit = split.unit.clone();
+                    existing.unit.clone_from(&split.unit);
                 }
             }
             self.add_split(section_index, new_start, ObjSplit {

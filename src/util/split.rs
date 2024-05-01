@@ -902,7 +902,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                 split_obj.mw_comment = Some(MWComment::new(comment_version)?);
             }
         } else {
-            split_obj.mw_comment = obj.mw_comment.clone();
+            split_obj.mw_comment.clone_from(&obj.mw_comment);
         }
         split_obj.split_meta = Some(SplitMeta {
             generator: Some(format!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))),
@@ -1187,7 +1187,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
         for (globalize_idx, new_name) in &globalize_symbols {
             if let Some(symbol_idx) = symbol_map[*globalize_idx] {
                 let mut symbol = obj.symbols[symbol_idx].clone();
-                symbol.name = new_name.clone();
+                symbol.name.clone_from(new_name);
                 if symbol.flags.is_local() {
                     log::debug!("Globalizing {} in {}", symbol.name, obj.name);
                     symbol.flags.set_scope(ObjSymbolScope::Global);

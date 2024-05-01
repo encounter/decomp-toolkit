@@ -5,13 +5,13 @@ use argp::FromArgs;
 
 use crate::util::{
     file::{map_file_basic, process_rsp},
-    ncompress::{compress_yaz0, decompress_yaz0},
+    ncompress::{compress_yay0, decompress_yay0},
     IntoCow, ToCow,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
-/// Commands for processing YAZ0-compressed files.
-#[argp(subcommand, name = "yaz0")]
+/// Commands for processing YAY0-compressed files.
+#[argp(subcommand, name = "yay0")]
 pub struct Args {
     #[argp(subcommand)]
     command: SubCommand,
@@ -25,7 +25,7 @@ enum SubCommand {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Compresses files using YAZ0.
+/// Compresses files using YAY0.
 #[argp(subcommand, name = "compress")]
 pub struct CompressArgs {
     #[argp(positional)]
@@ -38,11 +38,11 @@ pub struct CompressArgs {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Decompresses YAZ0-compressed files.
+/// Decompresses YAY0-compressed files.
 #[argp(subcommand, name = "decompress")]
 pub struct DecompressArgs {
     #[argp(positional)]
-    /// YAZ0-compressed files
+    /// YAY0-compressed files
     files: Vec<PathBuf>,
     #[argp(option, short = 'o')]
     /// Output file (or directory, if multiple files are specified).
@@ -63,7 +63,7 @@ fn compress(args: CompressArgs) -> Result<()> {
     for path in files {
         let data = {
             let file = map_file_basic(&path)?;
-            compress_yaz0(file.as_slice())
+            compress_yay0(file.as_slice())
         };
         let out_path = if let Some(output) = &args.output {
             if single_file {
@@ -86,8 +86,8 @@ fn decompress(args: DecompressArgs) -> Result<()> {
     for path in files {
         let data = {
             let file = map_file_basic(&path)?;
-            decompress_yaz0(file.as_slice())
-                .with_context(|| format!("Failed to decompress '{}' using Yaz0", path.display()))?
+            decompress_yay0(file.as_slice())
+                .with_context(|| format!("Failed to decompress '{}' using Yay0", path.display()))?
         };
         let out_path = if let Some(output) = &args.output {
             if single_file {
