@@ -2,13 +2,7 @@ SECTIONS
 {
     GROUP:
     {
-        .init   :{}
-        .text   :{}
-        .ctors  :{}
-        .dtors  :{}
-        .rodata :{}
-        .data   :{ *(.data) *(extabindex) *(extab) }
-        .bss    :{}
+        $SECTIONS
     }
 }
 

@@ -15,6 +15,7 @@ use crate::{
     },
     util::{
         alf::{AlfFile, AlfSymbol, ALF_MAGIC},
+        align_up,
         reader::{skip_bytes, Endian, FromReader},
     },
 };
@@ -553,6 +554,26 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         // Assume the original ELF section index is +1
         // ELF files start with a NULL section
         section.elf_index = idx + 1;
+    }
+
+    // Guess section alignment
+    let mut last_section_end = sections.first().map_or(0, |s| s.address as u32);
+    for section in &mut sections {
+        let section_start = section.address as u32;
+        let mut align = 4;
+        while align_up(last_section_end, align) < section_start {
+            align = (align + 1).next_power_of_two();
+        }
+        if align_up(last_section_end, align) != section_start {
+            bail!(
+                "Couldn't determine alignment for section '{}' ({:#010X} -> {:#010X})",
+                section.name,
+                last_section_end,
+                section_start
+            );
+        }
+        last_section_end = section_start + section.size as u32;
+        section.align = align as u64;
     }
 
     // Create object

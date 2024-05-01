@@ -30,7 +30,7 @@ use crate::{
     cmd::dol::{ModuleConfig, ProjectConfig},
     obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol},
     util::{
-        config::{is_auto_symbol, read_splits_sections, SectionDef},
+        config::is_auto_symbol,
         dol::process_dol,
         elf::{to_obj_reloc_kind, write_elf},
         file::{buf_reader, buf_writer, map_file, process_rsp, verify_hash, FileIterator},
@@ -170,12 +170,7 @@ fn load_rel(module_config: &ModuleConfig) -> Result<RelInfo> {
     let mut reader = file.as_reader();
     let header = process_rel_header(&mut reader)?;
     let sections = process_rel_sections(&mut reader, &header)?;
-    let section_defs = if let Some(splits_path) = &module_config.splits {
-        read_splits_sections(splits_path)?
-    } else {
-        None
-    };
-    Ok((header, sections, section_defs))
+    Ok((header, sections))
 }
 
 fn resolve_relocations(
@@ -191,12 +186,11 @@ fn resolve_relocations(
         if !matches!(section.name(), Ok(name) if PERMITTED_SECTIONS.contains(&name)) {
             continue;
         }
-        let section_index =
-            if let Some((_, sections, _)) = existing_headers.get(&(module_id as u32)) {
-                match_section_index(module, section.index(), sections)?
-            } else {
-                section.index().0
-            } as u8;
+        let section_index = if let Some((_, sections)) = existing_headers.get(&(module_id as u32)) {
+            match_section_index(module, section.index(), sections)?
+        } else {
+            section.index().0
+        } as u8;
         for (address, reloc) in section.relocations() {
             let reloc_target = match reloc.target() {
                 RelocationTarget::Symbol(idx) => {
@@ -223,7 +217,7 @@ fn resolve_relocations(
                 (module_id, reloc_target)
             };
             let target_section_index = target_symbol.section_index().unwrap();
-            let target_section = if let Some((_, sections, _)) =
+            let target_section = if let Some((_, sections)) =
                 existing_headers.get(&(target_module_id as u32))
             {
                 match_section_index(&modules[target_module_id].0, target_section_index, sections)?
@@ -246,7 +240,7 @@ fn resolve_relocations(
     Ok(resolved)
 }
 
-type RelInfo = (RelHeader, Vec<RelSectionHeader>, Option<Vec<SectionDef>>);
+type RelInfo = (RelHeader, Vec<RelSectionHeader>);
 
 fn make(args: MakeArgs) -> Result<()> {
     let total = Instant::now();
@@ -347,17 +341,13 @@ fn make(args: MakeArgs) -> Result<()> {
             quiet: args.no_warn,
             section_align: None,
         };
-        if let Some((header, _, section_defs)) = existing_headers.get(&(module_id as u32)) {
+        if let Some((header, _)) = existing_headers.get(&(module_id as u32)) {
             info.version = header.version;
             info.name_offset = Some(header.name_offset);
             info.name_size = Some(header.name_size);
             info.align = header.align;
             info.bss_align = header.bss_align;
             info.section_count = Some(header.num_sections as usize);
-            info.section_align = section_defs
-                .as_ref()
-                .map(|defs| defs.iter().map(|def| def.align).collect())
-                .unwrap_or_default();
         }
         let rel_path = path.with_extension("rel");
         let mut w = buf_writer(&rel_path)?;
