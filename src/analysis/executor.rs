@@ -62,7 +62,7 @@ pub struct ExecCbData<'a> {
     pub result: StepResult,
     pub ins_addr: SectionAddress,
     pub section: &'a ObjSection,
-    pub ins: &'a Ins,
+    pub ins: Ins,
     pub block_start: SectionAddress,
 }
 
@@ -109,14 +109,14 @@ impl Executor {
                     Some(ins) => ins,
                     None => return Ok(None),
                 };
-                let result = state.vm.step(obj, state.address, &ins);
+                let result = state.vm.step(obj, state.address, ins);
                 match cb(ExecCbData {
                     executor: self,
                     vm: &mut state.vm,
                     result,
                     ins_addr: state.address,
                     section,
-                    ins: &ins,
+                    ins,
                     block_start,
                 })? {
                     ExecCbResult::Continue => {

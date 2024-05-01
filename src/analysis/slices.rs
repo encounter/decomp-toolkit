@@ -1,5 +1,4 @@
 use std::{
-    borrow::Cow,
     collections::{btree_map, BTreeMap, BTreeSet},
     ops::Range,
 };
@@ -44,34 +43,31 @@ pub enum TailCallResult {
 
 type BlockRange = Range<SectionAddress>;
 
-type InsCheck = dyn Fn(&Ins) -> bool;
+type InsCheck = dyn Fn(Ins) -> bool;
 
 #[inline(always)]
 fn check_sequence(
     section: &ObjSection,
     addr: SectionAddress,
-    ins: Option<&Ins>,
+    ins: Option<Ins>,
     sequence: &[(&InsCheck, &InsCheck)],
 ) -> Result<bool> {
     let mut found = false;
-
     for &(first, second) in sequence {
-        let Some(ins) =
-            ins.map(Cow::Borrowed).or_else(|| disassemble(section, addr.address).map(Cow::Owned))
-        else {
+        let Some(ins) = ins.or_else(|| disassemble(section, addr.address)) else {
             continue;
         };
-        if !first(&ins) {
+        if !first(ins) {
             continue;
         }
         let Some(next) = disassemble(section, addr.address + 4) else {
             continue;
         };
-        if second(&next)
+        if second(next)
             // Also check the following instruction, in case the scheduler
             // put something in between.
             || (!next.is_branch()
-                && matches!(disassemble(section, addr.address + 8), Some(ins) if second(&ins)))
+                && matches!(disassemble(section, addr.address + 8), Some(ins) if second(ins)))
         {
             found = true;
             break;
@@ -84,20 +80,20 @@ fn check_sequence(
 fn check_prologue_sequence(
     section: &ObjSection,
     addr: SectionAddress,
-    ins: Option<&Ins>,
+    ins: Option<Ins>,
 ) -> Result<bool> {
     #[inline(always)]
-    fn is_mflr(ins: &Ins) -> bool {
+    fn is_mflr(ins: Ins) -> bool {
         // mfspr r0, LR
         ins.op == Opcode::Mfspr && ins.field_rd() == 0 && ins.field_spr() == 8
     }
     #[inline(always)]
-    fn is_stwu(ins: &Ins) -> bool {
+    fn is_stwu(ins: Ins) -> bool {
         // stwu r1, d(r1)
         ins.op == Opcode::Stwu && ins.field_rs() == 1 && ins.field_ra() == 1
     }
     #[inline(always)]
-    fn is_stw(ins: &Ins) -> bool {
+    fn is_stw(ins: Ins) -> bool {
         // stw r0, d(r1)
         ins.op == Opcode::Stw && ins.field_rs() == 0 && ins.field_ra() == 1
     }
@@ -138,10 +134,10 @@ impl FunctionSlices {
         &mut self,
         section: &ObjSection,
         addr: SectionAddress,
-        ins: &Ins,
+        ins: Ins,
     ) -> Result<()> {
         #[inline(always)]
-        fn is_lwz(ins: &Ins) -> bool {
+        fn is_lwz(ins: Ins) -> bool {
             // lwz r1, d(r)
             ins.op == Opcode::Lwz && ins.field_rd() == 1
         }
@@ -166,20 +162,20 @@ impl FunctionSlices {
         &mut self,
         section: &ObjSection,
         addr: SectionAddress,
-        ins: &Ins,
+        ins: Ins,
     ) -> Result<()> {
         #[inline(always)]
-        fn is_mtlr(ins: &Ins) -> bool {
+        fn is_mtlr(ins: Ins) -> bool {
             // mtspr LR, r0
             ins.op == Opcode::Mtspr && ins.field_rs() == 0 && ins.field_spr() == 8
         }
         #[inline(always)]
-        fn is_addi(ins: &Ins) -> bool {
+        fn is_addi(ins: Ins) -> bool {
             // addi r1, r1, SIMM
             ins.op == Opcode::Addi && ins.field_rd() == 1 && ins.field_ra() == 1
         }
         #[inline(always)]
-        fn is_or(ins: &Ins) -> bool {
+        fn is_or(ins: Ins) -> bool {
             // or r1, rA, rB
             ins.op == Opcode::Or && ins.field_rd() == 1
         }
@@ -454,7 +450,7 @@ impl FunctionSlices {
                     // Skip nops
                     match disassemble(&obj.sections[end.section], end.address) {
                         Some(ins) => {
-                            if !is_nop(&ins) {
+                            if !is_nop(ins) {
                                 break;
                             }
                         }
@@ -560,7 +556,7 @@ impl FunctionSlices {
 
                     // Some functions with rfi also include a trailing nop
                     if self.has_rfi
-                        && matches!(disassemble(section, end.address), Some(ins) if is_nop(&ins))
+                        && matches!(disassemble(section, end.address), Some(ins) if is_nop(ins))
                         && !known_functions.contains_key(&end)
                     {
                         log::trace!("Found trailing nop @ {:#010X}, merging with function", end);
@@ -713,12 +709,12 @@ impl FunctionSlices {
 }
 
 #[inline]
-fn is_conditional_blr(ins: &Ins) -> bool {
+fn is_conditional_blr(ins: Ins) -> bool {
     ins.op == Opcode::Bclr && ins.field_bo() & 0b10100 != 0b10100
 }
 
 #[inline]
-fn is_nop(ins: &Ins) -> bool {
+fn is_nop(ins: Ins) -> bool {
     // ori r0, r0, 0
     ins.code == 0x60000000
 }

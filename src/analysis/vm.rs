@@ -192,7 +192,7 @@ impl VM {
     #[inline]
     pub fn clone_all(&self) -> Box<Self> { Box::new(self.clone()) }
 
-    pub fn step(&mut self, obj: &ObjInfo, ins_addr: SectionAddress, ins: &Ins) -> StepResult {
+    pub fn step(&mut self, obj: &ObjInfo, ins_addr: SectionAddress, ins: Ins) -> StepResult {
         match ins.op {
             Opcode::Illegal => {
                 return StepResult::Illegal;
