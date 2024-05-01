@@ -209,7 +209,7 @@ where W: Write + ?Sized {
                     )?;
                 }
                 ObjSectionKind::Bss => {
-                    write_bss(w, &symbols, entries, current_address, section_end)?;
+                    write_bss(w, &symbols, entries, section, current_address, section_end)?;
                 }
             }
 
@@ -219,7 +219,7 @@ where W: Write + ?Sized {
                     if entry.kind != SymbolEntryKind::End {
                         continue;
                     }
-                    write_symbol_entry(w, &symbols, entry)?;
+                    write_symbol_entry(w, &symbols, entry, section)?;
                 }
             }
 
@@ -359,8 +359,15 @@ where W: Write + ?Sized {
     Ok(())
 }
 
-fn write_symbol_entry<W>(w: &mut W, symbols: &[ObjSymbol], entry: &SymbolEntry) -> Result<()>
-where W: Write + ?Sized {
+fn write_symbol_entry<W>(
+    w: &mut W,
+    symbols: &[ObjSymbol],
+    entry: &SymbolEntry,
+    section: &ObjSection,
+) -> Result<()>
+where
+    W: Write + ?Sized,
+{
     let symbol = &symbols[entry.index];
 
     // Skip writing certain symbols
@@ -398,6 +405,11 @@ where W: Write + ?Sized {
             if symbol.kind != ObjSymbolKind::Unknown {
                 writeln!(w)?;
             }
+            write!(w, "# {}:{:#X}", section.name, symbol.address)?;
+            if let Some(section_address) = section.virtual_address {
+                write!(w, " | {:#X}", section_address + symbol.address)?;
+            }
+            writeln!(w, " | size: {:#X}", symbol.size)?;
             if let Some(name) = &symbol.demangled_name {
                 writeln!(w, "# {name}")?;
             }
@@ -456,7 +468,7 @@ where
                     if entry.kind == SymbolEntryKind::End && begin {
                         continue;
                     }
-                    write_symbol_entry(w, symbols, entry)?;
+                    write_symbol_entry(w, symbols, entry, section)?;
                 }
                 current_symbol_kind = find_symbol_kind(current_symbol_kind, symbols, vec)?;
                 current_data_kind = find_data_kind(current_data_kind, symbols, vec)
@@ -790,6 +802,7 @@ fn write_bss<W>(
     w: &mut W,
     symbols: &[ObjSymbol],
     entries: &BTreeMap<u32, Vec<SymbolEntry>>,
+    section: &ObjSection,
     start: u32,
     end: u32,
 ) -> Result<()>
@@ -811,7 +824,7 @@ where
                     if entry.kind == SymbolEntryKind::End && begin {
                         continue;
                     }
-                    write_symbol_entry(w, symbols, entry)?;
+                    write_symbol_entry(w, symbols, entry, section)?;
                 }
                 entry = entry_iter.next();
             }
@@ -841,9 +854,10 @@ where
     let section_virtual_address = section.virtual_address.unwrap_or(0);
     writeln!(
         w,
-        "\n# {:#010X} - {:#010X}",
+        "\n# {:#010X}..{:#010X} | size: {:#X}",
         start as u64 + section_virtual_address,
-        end as u64 + section_virtual_address
+        end as u64 + section_virtual_address,
+        end - start
     )?;
     match section.name.as_str() {
         ".text" if subsection == 0 => {
