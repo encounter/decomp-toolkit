@@ -680,6 +680,7 @@ where R: BufRead + ?Sized {
                     skip,
                 }),
             ) => {
+                ensure!(end >= start, "Invalid split range {:#X}..{:#X}", start, end);
                 let (section_index, _) = match obj.sections.by_name(&name)? {
                     Some(v) => Ok(v),
                     None => {
