@@ -583,15 +583,24 @@ pub fn best_match_for_reloc(
     }
     symbols.sort_by_key(|&(_, symbol)| {
         let mut rank = match symbol.kind {
-            ObjSymbolKind::Function | ObjSymbolKind::Object => match reloc_kind {
-                ObjRelocKind::PpcAddr16Hi
-                | ObjRelocKind::PpcAddr16Ha
-                | ObjRelocKind::PpcAddr16Lo => 1,
-                ObjRelocKind::Absolute
-                | ObjRelocKind::PpcRel24
-                | ObjRelocKind::PpcRel14
-                | ObjRelocKind::PpcEmbSda21 => 2,
-            },
+            ObjSymbolKind::Function | ObjSymbolKind::Object => {
+                // HACK: These are generally not referenced directly, so reduce their rank
+                if matches!(
+                    symbol.name.as_str(),
+                    "__save_gpr" | "__restore_gpr" | "__save_fpr" | "__restore_fpr"
+                ) {
+                    return 0;
+                }
+                match reloc_kind {
+                    ObjRelocKind::PpcAddr16Hi
+                    | ObjRelocKind::PpcAddr16Ha
+                    | ObjRelocKind::PpcAddr16Lo => 1,
+                    ObjRelocKind::Absolute
+                    | ObjRelocKind::PpcRel24
+                    | ObjRelocKind::PpcRel14
+                    | ObjRelocKind::PpcEmbSda21 => 2,
+                }
+            }
             // Label
             ObjSymbolKind::Unknown => match reloc_kind {
                 ObjRelocKind::PpcAddr16Hi
