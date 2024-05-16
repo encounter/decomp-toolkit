@@ -491,7 +491,7 @@ where R: BufRead + Seek + ?Sized {
         if position >= len {
             break;
         }
-        let tags = read_tags(reader, e, include_erased, false)?;
+        let tags = read_tags(reader, e, e, include_erased, false)?;
         for tag in tags {
             info.tags.insert(tag.key, tag);
         }
@@ -531,7 +531,8 @@ where R: BufRead + Seek + ?Sized {
 
 fn read_tags<R>(
     reader: &mut R,
-    e: Endian,
+    data_endian: Endian,
+    addr_endian: Endian,
     include_erased: bool,
     is_erased: bool,
 ) -> Result<Vec<Tag>>
@@ -540,7 +541,7 @@ where
 {
     let mut tags = Vec::new();
     let position = reader.stream_position()?;
-    let size = u32::from_reader(reader, e)?;
+    let size = u32::from_reader(reader, data_endian)?;
     if size < 8 {
         // Null entry
         if size > 4 {
@@ -556,7 +557,7 @@ where
         return Ok(tags);
     }
 
-    let tag_num = u16::from_reader(reader, e)?;
+    let tag_num = u16::from_reader(reader, data_endian)?;
     let tag = TagKind::try_from(tag_num).context("Unknown DWARF tag type")?;
     if tag == TagKind::Padding {
         if include_erased {
@@ -569,7 +570,7 @@ where
             let mut attributes = Vec::new();
             let mut is_function = false;
             while reader.stream_position()? < position + size as u64 {
-                // peek next two bytes
+                // Peek next two bytes
                 let mut buf = [0u8; 2];
                 reader.read_exact(&mut buf)?;
                 let attr_tag = u16::from_reader(&mut Cursor::new(&buf), Endian::Little)?;
@@ -579,7 +580,7 @@ where
                     break;
                 }
 
-                let attr = read_attribute(reader, Endian::Little)?;
+                let attr = read_attribute(reader, Endian::Little, addr_endian)?;
                 if attr.kind == AttributeKind::HighPc {
                     is_function = true;
                 }
@@ -596,7 +597,7 @@ where
 
             // Read the rest of the tags
             while reader.stream_position()? < position + size as u64 {
-                for tag in read_tags(reader, Endian::Little, include_erased, true)? {
+                for tag in read_tags(reader, Endian::Little, addr_endian, include_erased, true)? {
                     tags.push(tag);
                 }
             }
@@ -606,7 +607,7 @@ where
     } else {
         let mut attributes = Vec::new();
         while reader.stream_position()? < position + size as u64 {
-            attributes.push(read_attribute(reader, e)?);
+            attributes.push(read_attribute(reader, data_endian, addr_endian)?);
         }
         tags.push(Tag {
             key: position as u32,
@@ -634,29 +635,35 @@ where R: BufRead + ?Sized {
     Ok(str)
 }
 
-fn read_attribute<R>(reader: &mut R, e: Endian) -> Result<Attribute>
-where R: BufRead + Seek + ?Sized {
-    let attr_type = u16::from_reader(reader, e)?;
+fn read_attribute<R>(
+    reader: &mut R,
+    data_endian: Endian,
+    addr_endian: Endian,
+) -> Result<Attribute>
+where
+    R: BufRead + Seek + ?Sized,
+{
+    let attr_type = u16::from_reader(reader, data_endian)?;
     let attr = AttributeKind::try_from(attr_type).context("Unknown DWARF attribute type")?;
     let form = FormKind::try_from(attr_type & FORM_MASK).context("Unknown DWARF form type")?;
     let value = match form {
-        FormKind::Addr => AttributeValue::Address(u32::from_reader(reader, Endian::Big)?),
-        FormKind::Ref => AttributeValue::Reference(u32::from_reader(reader, Endian::Big)?),
+        FormKind::Addr => AttributeValue::Address(u32::from_reader(reader, addr_endian)?),
+        FormKind::Ref => AttributeValue::Reference(u32::from_reader(reader, addr_endian)?),
         FormKind::Block2 => {
-            let size = u16::from_reader(reader, e)?;
+            let size = u16::from_reader(reader, data_endian)?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
             AttributeValue::Block(data)
         }
         FormKind::Block4 => {
-            let size = u32::from_reader(reader, e)?;
+            let size = u32::from_reader(reader, data_endian)?;
             let mut data = vec![0u8; size as usize];
             reader.read_exact(&mut data)?;
             AttributeValue::Block(data)
         }
-        FormKind::Data2 => AttributeValue::Data2(u16::from_reader(reader, e)?),
-        FormKind::Data4 => AttributeValue::Data4(u32::from_reader(reader, e)?),
-        FormKind::Data8 => AttributeValue::Data8(u64::from_reader(reader, e)?),
+        FormKind::Data2 => AttributeValue::Data2(u16::from_reader(reader, data_endian)?),
+        FormKind::Data4 => AttributeValue::Data4(u32::from_reader(reader, data_endian)?),
+        FormKind::Data8 => AttributeValue::Data8(u64::from_reader(reader, data_endian)?),
         FormKind::String => AttributeValue::String(read_string(reader)?),
     };
     Ok(Attribute { kind: attr, value })
@@ -2019,9 +2026,9 @@ fn process_array_tag(info: &DwarfInfo, tag: &Tag) -> Result<ArrayType> {
             (AttributeKind::Sibling, _) => {}
             (AttributeKind::SubscrData, AttributeValue::Block(data)) => {
                 subscr_data =
-                    Some(process_array_subscript_data(data, info.e).with_context(|| {
-                        format!("Failed to process SubscrData for tag: {:?}", tag)
-                    })?)
+                    Some(process_array_subscript_data(data, info.e, tag.is_erased).with_context(
+                        || format!("Failed to process SubscrData for tag: {:?}", tag),
+                    )?)
             }
             (AttributeKind::Ordering, val) => match val {
                 AttributeValue::Data2(d2) => {
@@ -2047,7 +2054,11 @@ fn process_array_tag(info: &DwarfInfo, tag: &Tag) -> Result<ArrayType> {
     Ok(ArrayType { element_type: Box::from(element_type), dimensions })
 }
 
-fn process_array_subscript_data(data: &[u8], e: Endian) -> Result<(Type, Vec<ArrayDimension>)> {
+fn process_array_subscript_data(
+    data: &[u8],
+    e: Endian,
+    is_erased: bool,
+) -> Result<(Type, Vec<ArrayDimension>)> {
     let mut element_type = None;
     let mut dimensions = Vec::new();
     let mut data = data;
@@ -2087,7 +2098,9 @@ fn process_array_subscript_data(data: &[u8], e: Endian) -> Result<(Type, Vec<Arr
             }
             SubscriptFormat::ElementType => {
                 let mut cursor = Cursor::new(data);
-                let type_attr = read_attribute(&mut cursor, e)?;
+                // TODO: is this the right endianness to use for erased tags?
+                let type_attr =
+                    read_attribute(&mut cursor, if is_erased { Endian::Little } else { e }, e)?;
                 element_type = Some(process_type(&type_attr, e)?);
                 data = &data[cursor.position() as usize..];
             }
