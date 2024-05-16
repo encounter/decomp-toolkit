@@ -1,6 +1,7 @@
 use std::{
     collections::{btree_map, BTreeMap},
     io::{stdout, Cursor, Read, Write},
+    ops::Bound::{Excluded, Unbounded},
     path::PathBuf,
     str::from_utf8,
 };
@@ -50,6 +51,10 @@ pub struct DumpArgs {
     #[argp(switch)]
     /// Disable color output.
     no_color: bool,
+    #[argp(switch)]
+    /// Attempt to reconstruct tags that have been removed by the linker, e.g.
+    /// tags from unused functions or functions that have been inlined away.
+    include_erased: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -97,15 +102,15 @@ fn dump(args: DumpArgs) -> Result<()> {
                 let name = name.rsplit_once('/').map(|(_, b)| b).unwrap_or(&name);
                 let file_path = out_path.join(format!("{}.txt", name));
                 let mut file = buf_writer(file_path)?;
-                dump_debug_section(&mut file, &obj_file, debug_section)?;
+                dump_debug_section(&args, &mut file, &obj_file, debug_section)?;
                 file.flush()?;
             } else if args.no_color {
                 println!("\n// File {}:", name);
-                dump_debug_section(&mut stdout(), &obj_file, debug_section)?;
+                dump_debug_section(&args, &mut stdout(), &obj_file, debug_section)?;
             } else {
                 let mut writer = HighlightWriter::new(syntax_set.clone(), syntax.clone(), theme);
                 writeln!(writer, "\n// File {}:", name)?;
-                dump_debug_section(&mut writer, &obj_file, debug_section)?;
+                dump_debug_section(&args, &mut writer, &obj_file, debug_section)?;
             }
         }
     } else {
@@ -115,19 +120,20 @@ fn dump(args: DumpArgs) -> Result<()> {
             .ok_or_else(|| anyhow!("Failed to locate .debug section"))?;
         if let Some(out_path) = &args.out {
             let mut file = buf_writer(out_path)?;
-            dump_debug_section(&mut file, &obj_file, debug_section)?;
+            dump_debug_section(&args, &mut file, &obj_file, debug_section)?;
             file.flush()?;
         } else if args.no_color {
-            dump_debug_section(&mut stdout(), &obj_file, debug_section)?;
+            dump_debug_section(&args, &mut stdout(), &obj_file, debug_section)?;
         } else {
             let mut writer = HighlightWriter::new(syntax_set, syntax, theme);
-            dump_debug_section(&mut writer, &obj_file, debug_section)?;
+            dump_debug_section(&args, &mut writer, &obj_file, debug_section)?;
         }
     }
     Ok(())
 }
 
 fn dump_debug_section<W>(
+    args: &DumpArgs,
     w: &mut W,
     obj_file: &object::File<'_>,
     debug_section: Section,
@@ -156,7 +162,7 @@ where
     }
 
     let mut reader = Cursor::new(&*data);
-    let info = read_debug_section(&mut reader, obj_file.endianness().into())?;
+    let info = read_debug_section(&mut reader, obj_file.endianness().into(), args.include_erased)?;
 
     for (&addr, tag) in &info.tags {
         log::debug!("{}: {:?}", addr, tag);
@@ -222,41 +228,54 @@ where
                     }
                     writeln!(w, "*/")?;
 
-                    let children = tag.children(&info.tags);
+                    let mut children = tag.children(&info.tags);
+
+                    // merge in erased tags
+                    let range = match tag.next_sibling(&info.tags) {
+                        Some(next) => (Excluded(tag.key), Excluded(next.key)),
+                        None => (Excluded(tag.key), Unbounded),
+                    };
+                    for (_, child) in info.tags.range(range) {
+                        if child.is_erased_root {
+                            children.push(child);
+                        }
+                    }
+                    children.sort_by_key(|x| x.key);
+
                     let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
                     for child in children {
                         let tag_type = match process_cu_tag(&info, child) {
                             Ok(tag_type) => tag_type,
                             Err(e) => {
                                 log::error!(
-                                    "Failed to process tag {} (unit {}): {}",
+                                    "Failed to process tag {:X} (unit {}): {}",
                                     child.key,
                                     unit.name,
                                     e
                                 );
                                 writeln!(
                                     w,
-                                    "// ERROR: Failed to process tag {} ({:?})",
+                                    "// ERROR: Failed to process tag {:X} ({:?})",
                                     child.key, child.kind
                                 )?;
                                 continue;
                             }
                         };
-                        if should_skip_tag(&tag_type) {
+                        if should_skip_tag(&tag_type, child.is_erased) {
                             continue;
                         }
-                        match tag_type_string(&info, &typedefs, &tag_type) {
+                        match tag_type_string(&info, &typedefs, &tag_type, child.is_erased) {
                             Ok(s) => writeln!(w, "{}", s)?,
                             Err(e) => {
                                 log::error!(
-                                    "Failed to emit tag {} (unit {}): {}",
+                                    "Failed to emit tag {:X} (unit {}): {}",
                                     child.key,
                                     unit.name,
                                     e
                                 );
                                 writeln!(
                                     w,
-                                    "// ERROR: Failed to emit tag {} ({:?})",
+                                    "// ERROR: Failed to emit tag {:X} ({:?})",
                                     child.key, child.kind
                                 )?;
                                 continue;
