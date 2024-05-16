@@ -478,9 +478,7 @@ impl Tag {
 }
 
 pub fn read_debug_section<R>(reader: &mut R, e: Endian, include_erased: bool) -> Result<DwarfInfo>
-where
-    R: BufRead + Seek + ?Sized,
-{
+where R: BufRead + Seek + ?Sized {
     let len = {
         let old_pos = reader.stream_position()?;
         let len = reader.seek(SeekFrom::End(0))?;
@@ -504,9 +502,7 @@ where
 
 #[allow(unused)]
 pub fn read_aranges_section<R>(reader: &mut R, e: Endian) -> Result<()>
-where
-    R: BufRead + Seek + ?Sized,
-{
+where R: BufRead + Seek + ?Sized {
     let len = {
         let old_pos = reader.stream_position()?;
         let len = reader.seek(SeekFrom::End(0))?;
@@ -534,7 +530,12 @@ where
     Ok(())
 }
 
-fn read_tags<R>(reader: &mut R, e: Endian, include_erased: bool, is_erased: bool) -> Result<Vec<Tag>>
+fn read_tags<R>(
+    reader: &mut R,
+    e: Endian,
+    include_erased: bool,
+    is_erased: bool,
+) -> Result<Vec<Tag>>
 where
     R: BufRead + Seek + ?Sized,
 {
@@ -621,9 +622,7 @@ where
 
 // TODO Shift-JIS?
 fn read_string<R>(reader: &mut R) -> Result<String>
-where
-    R: BufRead + ?Sized,
-{
+where R: BufRead + ?Sized {
     let mut str = String::new();
     let mut buf = [0u8; 1];
     loop {
@@ -637,9 +636,7 @@ where
 }
 
 fn read_attribute<R>(reader: &mut R, e: Endian) -> Result<Attribute>
-where
-    R: BufRead + Seek + ?Sized,
-{
+where R: BufRead + Seek + ?Sized {
     let attr_type = u16::from_reader(reader, e)?;
     let attr = AttributeKind::try_from(attr_type).context("Unknown DWARF attribute type")?;
     let form = FormKind::try_from(attr_type & FORM_MASK).context("Unknown DWARF form type")?;
@@ -1436,11 +1433,7 @@ pub fn subroutine_def_string(
                 continue;
             }
             let variable = process_variable_tag(info, tag)?;
-            writeln!(
-                out,
-                "    // -> {}",
-                variable_string(info, typedefs, &variable, false)?
-            )?;
+            writeln!(out, "    // -> {}", variable_string(info, typedefs, &variable, false)?)?;
         }
     }
 
