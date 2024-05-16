@@ -471,8 +471,7 @@ impl Tag {
     /// Returns the next tag sequentially, if any (skipping erased tags)
     pub fn next_tag<'a>(&self, tags: &'a TagMap, include_erased: bool) -> Option<&'a Tag> {
         tags.range(self.key + 1..)
-            .filter(|(_, tag)| include_erased || !tag.is_erased)
-            .next()
+            .find(|(_, tag)| include_erased || !tag.is_erased)
             .map(|(_, tag)| tag)
     }
 }
