@@ -236,7 +236,7 @@ where
                         None => (Excluded(tag.key), Unbounded),
                     };
                     for (_, child) in info.tags.range(range) {
-                        if child.has_erased_parent {
+                        if child.is_erased_root {
                             children.push(child);
                         }
                     }

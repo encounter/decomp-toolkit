@@ -354,8 +354,8 @@ pub struct Attribute {
 pub struct Tag {
     pub key: u32,
     pub kind: TagKind,
-    pub is_erased: bool,
-    pub has_erased_parent: bool,
+    pub is_erased: bool,      // Tag was deleted but has been reconstructed
+    pub is_erased_root: bool, // Tag is erased and is the root of a tree of erased tags
     pub attributes: Vec<Attribute>,
 }
 
@@ -551,7 +551,7 @@ where
             key: position as u32,
             kind: TagKind::Padding,
             is_erased,
-            has_erased_parent: false,
+            is_erased_root: false,
             attributes: Vec::new(),
         });
         return Ok(tags);
@@ -591,7 +591,7 @@ where
                 key: position as u32,
                 kind,
                 is_erased: true,
-                has_erased_parent: true,
+                is_erased_root: true,
                 attributes,
             });
 
@@ -613,7 +613,7 @@ where
             key: position as u32,
             kind: tag,
             is_erased,
-            has_erased_parent: false,
+            is_erased_root: false,
             attributes,
         });
     }
