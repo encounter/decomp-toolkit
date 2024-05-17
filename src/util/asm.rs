@@ -297,7 +297,7 @@ where
         write!(w, "{}", sins.mnemonic)?;
 
         let mut writing_offset = false;
-        for (i, arg) in sins.args.iter().enumerate() {
+        for (i, arg) in sins.args_iter().enumerate() {
             if !writing_offset {
                 if i == 0 {
                     write!(w, " ")?;
