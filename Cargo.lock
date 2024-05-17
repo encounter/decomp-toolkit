@@ -336,7 +336,7 @@ checksum = "c2e06f9bce634a3c898eb1e5cb949ff63133cbb218af93cc9b38b31d6f3ea285"
 
 [[package]]
 name = "decomp-toolkit"
-version = "0.8.0"
+version = "0.8.1"
 dependencies = [
  "anyhow",
  "ar",
@@ -856,7 +856,7 @@ checksum = "830b246a0e5f20af87141b25c173cd1b609bd7779a4617d6ec582abaf90870f3"
 [[package]]
 name = "objdiff-core"
 version = "1.0.0"
-source = "git+https://github.com/encounter/objdiff?rev=2c46286affd11fe37f620ba919a3e57c4b80ccdb#2c46286affd11fe37f620ba919a3e57c4b80ccdb"
+source = "git+https://github.com/encounter/objdiff?rev=8b36fa4fc657d9edf767797af9d394bb32898711#8b36fa4fc657d9edf767797af9d394bb32898711"
 dependencies = [
  "anyhow",
  "byteorder",
