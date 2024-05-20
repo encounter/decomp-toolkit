@@ -13,6 +13,7 @@ use std::{
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
+use cwdemangle::demangle;
 use itertools::Itertools;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -40,8 +41,8 @@ use crate::{
         bin2c::bin2c,
         comment::MWComment,
         config::{
-            apply_splits_file, apply_symbols_file, is_auto_symbol, write_splits_file,
-            write_symbols_file,
+            apply_splits_file, apply_symbols_file, is_auto_symbol, signed_hex_serde,
+            write_splits_file, write_symbols_file, SectionAddressRef,
         },
         dep::DepFile,
         dol::process_dol,
@@ -236,7 +237,27 @@ pub struct ProjectConfig {
     pub export_all: bool,
 }
 
-#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+impl Default for ProjectConfig {
+    fn default() -> Self {
+        Self {
+            base: Default::default(),
+            selfile: None,
+            selfile_hash: None,
+            mw_comment_version: None,
+            quick_analysis: false,
+            modules: vec![],
+            detect_objects: true,
+            detect_strings: true,
+            write_asm: true,
+            common_start: None,
+            symbols_known: false,
+            fill_gaps: true,
+            export_all: true,
+        }
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct ModuleConfig {
     /// Object name. If not specified, the file name without extension will be used.
     #[serde(skip_serializing_if = "is_default")]
@@ -261,6 +282,10 @@ pub struct ModuleConfig {
     pub links: Option<Vec<String>>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub extract: Vec<ExtractConfig>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub block_relocations: Vec<BlockRelocationConfig>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub add_relocations: Vec<AddRelocationConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -275,6 +300,36 @@ pub struct ExtractConfig {
     /// Path is relative to `out_dir/include`.
     #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "Option::is_none")]
     pub header: Option<PathBuf>,
+}
+
+/// A relocation that should be blocked.
+/// Only one of `source` or `target` should be specified.
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct BlockRelocationConfig {
+    /// Match by the address of the relocation.
+    /// Format: `section:address`, e.g. `.text:0x80001234`.
+    pub source: Option<SectionAddressRef>,
+    /// Match by the address of the relocation target.
+    /// Format: `section:address`, e.g. `.text:0x80001234`.
+    pub target: Option<SectionAddressRef>,
+    /// An optional end address for the (exclusive) range.
+    /// Format: `section:address`, e.g. `.text:0x80001234`.
+    pub end: Option<SectionAddressRef>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct AddRelocationConfig {
+    /// The address of the relocation to add.
+    /// Format: `section:address`, e.g. `.text:0x80001234`.
+    pub source: SectionAddressRef,
+    /// The relocation type to add.
+    #[serde(rename = "type")]
+    pub kind: ObjRelocKind,
+    /// The target symbol name.
+    pub target: String,
+    /// The addend for the relocation. (optional)
+    #[serde(with = "signed_hex_serde", default, skip_serializing_if = "is_default")]
+    pub addend: i64,
 }
 
 impl ModuleConfig {
@@ -763,6 +818,9 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
         None
     };
 
+    // Apply block relocations from config
+    apply_block_relocations(&mut obj, &config.base.block_relocations)?;
+
     if !config.symbols_known {
         // TODO move before symbols?
         debug!("Performing signature analysis");
@@ -792,6 +850,9 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
 
     // Create _ctors and _dtors symbols if missing
     update_ctors_dtors(&mut obj)?;
+
+    // Apply additional relocations from config
+    apply_add_relocations(&mut obj, &config.base.add_relocations)?;
 
     Ok(AnalyzeResult { obj, dep, symbols_cache, splits_cache })
 }
@@ -988,6 +1049,9 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
         None
     };
 
+    // Apply block relocations from config
+    apply_block_relocations(&mut module_obj, &module_config.block_relocations)?;
+
     if !config.symbols_known {
         debug!("Analyzing module {}", module_obj.module_id);
         if !config.quick_analysis {
@@ -1006,6 +1070,9 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
 
     // Determine REL section alignment
     update_rel_section_alignment(&mut module_obj, &header)?;
+
+    // Apply additional relocations from config
+    apply_add_relocations(&mut module_obj, &module_config.add_relocations)?;
 
     Ok(AnalyzeResult { obj: module_obj, dep, symbols_cache, splits_cache })
 }
@@ -1750,33 +1817,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
 }
 
 fn config(args: ConfigArgs) -> Result<()> {
-    let mut config = ProjectConfig {
-        base: ModuleConfig {
-            name: None,
-            object: Default::default(),
-            hash: None,
-            splits: None,
-            symbols: None,
-            map: None,
-            force_active: vec![],
-            ldscript_template: None,
-            links: None,
-            extract: vec![],
-        },
-        selfile: None,
-        selfile_hash: None,
-        mw_comment_version: None,
-        quick_analysis: false,
-        modules: vec![],
-        detect_objects: true,
-        detect_strings: true,
-        write_asm: true,
-        common_start: None,
-        symbols_known: false,
-        fill_gaps: true,
-        export_all: true,
-    };
-
+    let mut config = ProjectConfig::default();
     let mut modules = Vec::<(u32, ModuleConfig)>::new();
     for result in FileIterator::new(&args.objects)? {
         let (path, entry) = result?;
@@ -1790,16 +1831,9 @@ fn config(args: ConfigArgs) -> Result<()> {
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rel")) => {
                 let header = process_rel_header(&mut entry.as_reader())?;
                 modules.push((header.module_id, ModuleConfig {
-                    name: None,
                     object: path,
                     hash: Some(file_sha1_string(&mut entry.as_reader())?),
-                    splits: None,
-                    symbols: None,
-                    map: None,
-                    force_active: vec![],
-                    ldscript_template: None,
-                    links: None,
-                    extract: vec![],
+                    ..Default::default()
                 }));
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("sel")) => {
@@ -1808,16 +1842,9 @@ fn config(args: ConfigArgs) -> Result<()> {
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rso")) => {
                 config.modules.push(ModuleConfig {
-                    name: None,
                     object: path,
                     hash: Some(file_sha1_string(&mut entry.as_reader())?),
-                    splits: None,
-                    symbols: None,
-                    map: None,
-                    force_active: vec![],
-                    ldscript_template: None,
-                    links: None,
-                    extract: vec![],
+                    ..Default::default()
                 });
             }
             _ => bail!("Unknown file extension: '{}'", path.display()),
@@ -1832,5 +1859,58 @@ fn config(args: ConfigArgs) -> Result<()> {
     let mut out = buf_writer(&args.out_file)?;
     serde_yaml::to_writer(&mut out, &config)?;
     out.flush()?;
+    Ok(())
+}
+
+/// Applies the blocked relocation ranges from module config `blocked_relocations`
+fn apply_block_relocations(
+    obj: &mut ObjInfo,
+    block_relocations: &[BlockRelocationConfig],
+) -> Result<()> {
+    for reloc in block_relocations {
+        let end = reloc.end.as_ref().map(|end| end.resolve(obj)).transpose()?;
+        match (&reloc.source, &reloc.target) {
+            (Some(_), Some(_)) => {
+                bail!("Cannot specify both source and target for blocked relocation");
+            }
+            (Some(source), None) => {
+                let start = source.resolve(obj)?;
+                obj.blocked_relocation_sources.insert(start, end.unwrap_or(start + 1));
+            }
+            (None, Some(target)) => {
+                let start = target.resolve(obj)?;
+                obj.blocked_relocation_targets.insert(start, end.unwrap_or(start + 1));
+            }
+            (None, None) => {
+                bail!("Blocked relocation must specify either source or target");
+            }
+        }
+    }
+    Ok(())
+}
+
+/// Applies the relocations from module config `add_relocations`.
+fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig]) -> Result<()> {
+    for reloc in relocations {
+        let SectionAddress { section, address } = reloc.source.resolve(obj)?;
+        let (target_symbol, _) = match obj.symbols.by_name(&reloc.target)? {
+            Some(v) => v,
+            None => {
+                // Assume external symbol
+                let symbol_index = obj.symbols.add_direct(ObjSymbol {
+                    name: reloc.target.clone(),
+                    demangled_name: demangle(&reloc.target, &Default::default()),
+                    ..Default::default()
+                })?;
+                (symbol_index, &obj.symbols[symbol_index])
+            }
+        };
+        obj.sections[section].relocations.replace(address, ObjReloc {
+            kind: reloc.kind,
+            target_symbol,
+            addend: reloc.addend,
+            module: None,
+        });
+    }
     Ok(())
 }

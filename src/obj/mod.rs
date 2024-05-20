@@ -1,3 +1,4 @@
+mod addresses;
 mod relocations;
 mod sections;
 mod splits;
@@ -21,6 +22,7 @@ pub use symbols::{
 
 use crate::{
     analysis::cfa::SectionAddress,
+    obj::addresses::AddressRanges,
     util::{comment::MWComment, rel::RelReloc},
 };
 
@@ -69,7 +71,8 @@ pub struct ObjInfo {
 
     // Extracted
     pub link_order: Vec<ObjUnit>,
-    pub blocked_ranges: BTreeMap<SectionAddress, u32>, // start -> end
+    pub blocked_relocation_sources: AddressRanges,
+    pub blocked_relocation_targets: AddressRanges,
 
     // From .ctors, .dtors and extab
     pub known_functions: BTreeMap<SectionAddress, Option<u32>>,
@@ -105,7 +108,8 @@ impl ObjInfo {
             arena_lo: None,
             arena_hi: None,
             link_order: vec![],
-            blocked_ranges: Default::default(),
+            blocked_relocation_sources: Default::default(),
+            blocked_relocation_targets: Default::default(),
             known_functions: Default::default(),
             module_id: 0,
             unresolved_relocations: vec![],

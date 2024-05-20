@@ -26,9 +26,9 @@ use crate::{
     },
 };
 
-fn parse_hex(s: &str) -> Result<u32, ParseIntError> {
-    if s.starts_with("0x") {
-        u32::from_str_radix(s.trim_start_matches("0x"), 16)
+pub fn parse_u32(s: &str) -> Result<u32, ParseIntError> {
+    if let Some(s) = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")) {
+        u32::from_str_radix(s, 16)
     } else {
         s.parse::<u32>()
     }
@@ -65,7 +65,7 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
 
     if let Some(captures) = SYMBOL_LINE.captures(line) {
         let name = captures["name"].to_string();
-        let addr = parse_hex(&captures["addr"])?;
+        let addr = parse_u32(&captures["addr"])?;
         let section_name = captures["section"].to_string();
         let section = if section_name == "ABS" {
             None
@@ -96,7 +96,7 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                             .ok_or_else(|| anyhow!("Unknown symbol type '{}'", value))?;
                     }
                     "size" => {
-                        symbol.size = parse_hex(value)? as u64;
+                        symbol.size = parse_u32(value)? as u64;
                         symbol.size_known = true;
                     }
                     "scope" => {
@@ -104,21 +104,21 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                             .ok_or_else(|| anyhow!("Unknown symbol scope '{}'", value))?;
                     }
                     "align" => {
-                        symbol.align = Some(parse_hex(value)?);
+                        symbol.align = Some(parse_u32(value)?);
                     }
                     "data" => {
                         symbol.data_kind = symbol_data_kind_from_str(value)
                             .ok_or_else(|| anyhow!("Unknown symbol data type '{}'", value))?;
                     }
                     "hash" => {
-                        let hash = parse_hex(value)?;
+                        let hash = parse_u32(value)?;
                         symbol.name_hash = Some(hash);
                         if symbol.demangled_name_hash.is_none() {
                             symbol.demangled_name_hash = Some(hash);
                         }
                     }
                     "dhash" => {
-                        symbol.demangled_name_hash = Some(parse_hex(value)?);
+                        symbol.demangled_name_hash = Some(parse_u32(value)?);
                     }
                     _ => bail!("Unknown symbol attribute '{name}'"),
                 }
@@ -145,7 +145,8 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
                             symbol.name
                         );
                         let addr = SectionAddress::new(section.unwrap(), symbol.address as u32);
-                        obj.blocked_ranges.insert(addr, addr.address + symbol.size as u32);
+                        obj.blocked_relocation_sources.insert(addr, addr + symbol.size as u32);
+                        symbol.flags.0 |= ObjSymbolFlags::NoReloc;
                     }
                     "noexport" => {
                         symbol.flags.0 |= ObjSymbolFlags::NoExport;
@@ -285,10 +286,8 @@ where W: Write + ?Sized {
     if symbol.flags.is_stripped() {
         write!(w, " stripped")?;
     }
-    if let Some(section) = symbol.section {
-        if obj.blocked_ranges.contains_key(&SectionAddress::new(section, symbol.address as u32)) {
-            write!(w, " noreloc")?;
-        }
+    if symbol.flags.is_no_reloc() {
+        write!(w, " noreloc")?;
     }
     if symbol.flags.is_no_export() {
         write!(w, " noexport")?;
@@ -547,7 +546,7 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
                         );
                     }
                     "align" => {
-                        section.align = Some(parse_hex(value)?);
+                        section.align = Some(parse_u32(value)?);
                     }
                     _ => bail!("Unknown section attribute '{attr}'"),
                 }
@@ -574,9 +573,9 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
     for attr in captures["attrs"].split(' ').filter(|&s| !s.is_empty()) {
         if let Some((attr, value)) = attr.split_once(':') {
             match attr {
-                "start" => start = Some(parse_hex(value)?),
-                "end" => end = Some(parse_hex(value)?),
-                "align" => section.align = Some(parse_hex(value)?),
+                "start" => start = Some(parse_u32(value)?),
+                "end" => end = Some(parse_u32(value)?),
+                "align" => section.align = Some(parse_u32(value)?),
                 "rename" => section.rename = Some(value.to_string()),
                 _ => bail!("Unknown split attribute '{attr}'"),
             }
@@ -756,5 +755,133 @@ where P: AsRef<Path> {
         Ok(None)
     } else {
         Ok(Some(sections))
+    }
+}
+
+pub mod signed_hex_serde {
+    use serde::{Deserializer, Serializer};
+
+    pub fn serialize<S>(value: &i64, serializer: S) -> Result<S::Ok, S::Error>
+    where S: Serializer {
+        if *value < 0 {
+            serializer.serialize_str(&format!("-{:#X}", -value))
+        } else {
+            serializer.serialize_str(&format!("{:#X}", value))
+        }
+    }
+
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<i64, D::Error>
+    where D: Deserializer<'de> {
+        struct SignedHexVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for SignedHexVisitor {
+            type Value = i64;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a signed hexadecimal number")
+            }
+
+            fn visit_i64<E>(self, v: i64) -> Result<Self::Value, E>
+            where E: serde::de::Error {
+                Ok(v)
+            }
+
+            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
+            where E: serde::de::Error {
+                v.try_into().map_err(serde::de::Error::custom)
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<i64, E>
+            where E: serde::de::Error {
+                if let Some(s) = value.strip_prefix("-0x").or_else(|| value.strip_prefix("-0X")) {
+                    i64::from_str_radix(s, 16).map(|v| -v).map_err(serde::de::Error::custom)
+                } else if let Some(s) =
+                    value.strip_prefix("0x").or_else(|| value.strip_prefix("0X"))
+                {
+                    i64::from_str_radix(s, 16).map_err(serde::de::Error::custom)
+                } else {
+                    value.parse::<i64>().map_err(serde::de::Error::custom)
+                }
+            }
+        }
+
+        deserializer.deserialize_any(SignedHexVisitor)
+    }
+}
+
+/// A reference to a section and address within that section.
+/// For executable objects, section can be omitted and the address is treated as absolute.
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct SectionAddressRef {
+    pub section: Option<String>,
+    pub address: u32,
+}
+
+impl SectionAddressRef {
+    pub fn new(section: Option<String>, address: u32) -> Self { Self { section, address } }
+
+    pub fn resolve(&self, obj: &ObjInfo) -> Result<SectionAddress> {
+        let (section_index, section) = if let Some(section) = &self.section {
+            obj.sections
+                .by_name(section)?
+                .ok_or_else(|| anyhow!("Section {} not found", section))?
+        } else if obj.kind == ObjKind::Executable {
+            obj.sections.at_address(self.address)?
+        } else {
+            bail!("Section required for relocatable object address reference: {:#X}", self.address)
+        };
+        ensure!(
+            section.contains(self.address),
+            "Address {:#X} not in section {} ({:#X}..{:#X})",
+            self.address,
+            section.name,
+            section.address,
+            section.address + section.size,
+        );
+        Ok(SectionAddress::new(section_index, self.address))
+    }
+}
+
+impl<'de> serde::Deserialize<'de> for SectionAddressRef {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where D: serde::Deserializer<'de> {
+        struct SectionAddressRefVisitor;
+
+        impl<'de> serde::de::Visitor<'de> for SectionAddressRefVisitor {
+            type Value = SectionAddressRef;
+
+            fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
+                formatter.write_str("a section address reference")
+            }
+
+            fn visit_u64<E>(self, v: u64) -> Result<Self::Value, E>
+            where E: serde::de::Error {
+                Ok(SectionAddressRef::new(None, v.try_into().map_err(serde::de::Error::custom)?))
+            }
+
+            fn visit_str<E>(self, value: &str) -> Result<Self::Value, E>
+            where E: serde::de::Error {
+                let mut parts = value.splitn(2, ':');
+                let section = parts.next().map(|s| s.to_string());
+                let address = parts.next().ok_or_else(|| {
+                    serde::de::Error::invalid_value(serde::de::Unexpected::Str(value), &self)
+                })?;
+                let address = parse_u32(address).map_err(serde::de::Error::custom)?;
+                Ok(SectionAddressRef::new(section, address))
+            }
+        }
+
+        deserializer.deserialize_any(SectionAddressRefVisitor)
+    }
+}
+
+impl serde::Serialize for SectionAddressRef {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::Serializer {
+        if let Some(section) = &self.section {
+            serializer.serialize_str(&format!("{}:{:#X}", section, self.address))
+        } else {
+            serializer.serialize_str(&format!("{:#X}", self.address))
+        }
     }
 }

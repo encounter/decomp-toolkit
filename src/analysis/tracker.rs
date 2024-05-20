@@ -283,7 +283,7 @@ impl Tracker {
                 Ok(ExecCbResult::Continue)
             }
             StepResult::LoadStore { address, source, source_reg } => {
-                if self.is_valid_section_address(obj, ins_addr) {
+                if !obj.blocked_relocation_sources.contains(ins_addr) {
                     if (source_reg == 2
                         && matches!(self.sda2_base, Some(v) if source.value == GprValue::Constant(v)))
                         || (source_reg == 13
@@ -503,28 +503,12 @@ impl Tracker {
         Ok(())
     }
 
-    fn is_valid_section_address(&self, obj: &ObjInfo, from: SectionAddress) -> bool {
-        if let Some((&start, &end)) = obj.blocked_ranges.range(..=from).next_back() {
-            if from.section == start.section && from.address >= start.address && from.address < end
-            {
-                return false;
-            }
-        }
-        true
-    }
-
     fn is_valid_address(
         &self,
         obj: &ObjInfo,
         from: SectionAddress,
         addr: u32,
     ) -> Option<SectionAddress> {
-        if let Some((&start, &end)) = obj.blocked_ranges.range(..=from).next_back() {
-            if from.section == start.section && from.address >= start.address && from.address < end
-            {
-                return None;
-            }
-        }
         // Check for an existing relocation
         if cfg!(debug_assertions) {
             let relocation_target = relocation_target_for(obj, from, None).ok().flatten();
@@ -537,33 +521,42 @@ impl Tracker {
         if obj.kind == ObjKind::Relocatable {
             return None;
         }
-        if self.known_relocations.contains(&from) {
-            let section_index =
-                obj.sections.at_address(addr).ok().map(|(idx, _)| idx).unwrap_or(usize::MAX);
-            return Some(SectionAddress::new(section_index, addr));
+        // Check blocked relocation sources
+        if obj.blocked_relocation_sources.contains(from) {
+            return None;
         }
-        if self.stack_address == Some(addr)
-            || self.stack_end == Some(addr)
-            || self.db_stack_addr == Some(addr)
-            || self.arena_lo == Some(addr)
-            || self.arena_hi == Some(addr)
-            || self.sda2_base == Some(addr)
-            || self.sda_base == Some(addr)
-        {
-            let section_index =
-                obj.sections.at_address(addr).ok().map(|(idx, _)| idx).unwrap_or(usize::MAX);
-            return Some(SectionAddress::new(section_index, addr));
-        }
-        // if addr > 0x80000000 && addr < 0x80003100 {
-        //     return true;
-        // }
+        // Find the section containing the address
         if let Ok((section_index, section)) = obj.sections.at_address(addr) {
             // References to code sections will never be unaligned
-            if section.kind != ObjSectionKind::Code || addr & 3 == 0 {
-                return Some(SectionAddress::new(section_index, addr));
+            if section.kind == ObjSectionKind::Code && addr & 3 != 0 {
+                return None;
             }
+            let section_address = SectionAddress::new(section_index, addr);
+            // Check blocked relocation targets
+            if obj.blocked_relocation_targets.contains(section_address) {
+                return None;
+            }
+            // It's valid
+            Some(section_address)
+        } else {
+            // Check known relocations (function signature matching)
+            if self.known_relocations.contains(&from) {
+                return Some(SectionAddress::new(usize::MAX, addr));
+            }
+            // Check special symbols
+            if self.stack_address == Some(addr)
+                || self.stack_end == Some(addr)
+                || self.db_stack_addr == Some(addr)
+                || self.arena_lo == Some(addr)
+                || self.arena_hi == Some(addr)
+                || self.sda2_base == Some(addr)
+                || self.sda_base == Some(addr)
+            {
+                return Some(SectionAddress::new(usize::MAX, addr));
+            }
+            // Not valid
+            None
         }
-        None
     }
 
     fn special_symbol(

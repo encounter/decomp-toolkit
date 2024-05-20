@@ -49,6 +49,8 @@ flags! {
         Stripped,
         /// Disable automatic export of symbol
         NoExport,
+        /// Symbol does not contain any relocations
+        NoReloc,
     }
 }
 
@@ -100,6 +102,9 @@ impl ObjSymbolFlagSet {
     pub fn is_no_export(&self) -> bool { self.0.contains(ObjSymbolFlags::NoExport) }
 
     #[inline]
+    pub fn is_no_reloc(&self) -> bool { self.0.contains(ObjSymbolFlags::NoReloc) }
+
+    #[inline]
     pub fn set_scope(&mut self, scope: ObjSymbolScope) {
         match scope {
             ObjSymbolScope::Unknown => {
@@ -137,7 +142,8 @@ impl ObjSymbolFlagSet {
                 | ObjSymbolFlags::NoWrite
                 | ObjSymbolFlags::RelocationIgnore
                 | ObjSymbolFlags::Stripped
-                | ObjSymbolFlags::NoExport)
+                | ObjSymbolFlags::NoExport
+                | ObjSymbolFlags::NoReloc)
     }
 }
 

@@ -10,7 +10,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::obj::SymbolIndex;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjRelocKind {
     Absolute,
     PpcAddr16Hi,
@@ -19,6 +19,39 @@ pub enum ObjRelocKind {
     PpcRel24,
     PpcRel14,
     PpcEmbSda21,
+}
+
+impl Serialize for ObjRelocKind {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where S: serde::Serializer {
+        serializer.serialize_str(match self {
+            ObjRelocKind::Absolute => "abs",
+            ObjRelocKind::PpcAddr16Hi => "hi",
+            ObjRelocKind::PpcAddr16Ha => "ha",
+            ObjRelocKind::PpcAddr16Lo => "l",
+            ObjRelocKind::PpcRel24 => "rel24",
+            ObjRelocKind::PpcRel14 => "rel14",
+            ObjRelocKind::PpcEmbSda21 => "sda21",
+        })
+    }
+}
+
+impl<'de> Deserialize<'de> for ObjRelocKind {
+    fn deserialize<D>(deserializer: D) -> Result<ObjRelocKind, D::Error>
+    where D: serde::Deserializer<'de> {
+        match String::deserialize(deserializer)?.as_str() {
+            "Absolute" | "abs" => Ok(ObjRelocKind::Absolute),
+            "PpcAddr16Hi" | "hi" => Ok(ObjRelocKind::PpcAddr16Hi),
+            "PpcAddr16Ha" | "ha" => Ok(ObjRelocKind::PpcAddr16Ha),
+            "PpcAddr16Lo" | "l" => Ok(ObjRelocKind::PpcAddr16Lo),
+            "PpcRel24" | "rel24" => Ok(ObjRelocKind::PpcRel24),
+            "PpcRel14" | "rel14" => Ok(ObjRelocKind::PpcRel14),
+            "PpcEmbSda21" | "sda21" => Ok(ObjRelocKind::PpcEmbSda21),
+            s => Err(serde::de::Error::unknown_variant(s, &[
+                "abs", "hi", "ha", "l", "rel24", "rel14", "sda21",
+            ])),
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
