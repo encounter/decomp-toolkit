@@ -774,6 +774,7 @@ where
             .and_then(|v| v.get(permitted_section_idx))
             .cloned()
             .unwrap_or(section.align() as u32)
+            .max(1)
     }
 
     let mut align = file

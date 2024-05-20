@@ -64,7 +64,7 @@ pub fn generate_ldscript_partial(
     template: Option<&str>,
     force_active: &[String],
 ) -> Result<String> {
-    let section_defs = obj
+    let mut section_defs = obj
         .sections
         .iter()
         .map(|(_, s)| {
@@ -72,6 +72,12 @@ pub fn generate_ldscript_partial(
             format!("{} ALIGN({:#X}):{{{}}}", s.name, s.align, inner)
         })
         .join("\n        ");
+
+    // Some RELs have no entry point (`.text` was stripped) so mwld requires at least an empty
+    // `.init` section to be present in the linker script, for some reason.
+    if obj.entry.is_none() {
+        section_defs = format!(".init :{{}}\n        {}", section_defs);
+    }
 
     let mut force_files = Vec::with_capacity(obj.link_order.len());
     for unit in &obj.link_order {
