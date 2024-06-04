@@ -697,7 +697,7 @@ pub struct BitData {
 
 #[derive(Debug, Clone)]
 pub struct StructureMember {
-    pub name: String,
+    pub name: Option<String>,
     pub kind: Type,
     pub offset: u32,
     pub bit: Option<BitData>,
@@ -732,7 +732,7 @@ pub struct StructureBase {
     pub name: Option<String>,
     pub base_type: Type,
     pub offset: u32,
-    pub visibility: Visibility,
+    pub visibility: Option<Visibility>,
     pub virtual_base: bool,
 }
 
@@ -780,17 +780,11 @@ pub struct SubroutineLabel {
 #[derive(Debug, Clone)]
 pub struct SubroutineBlock {
     pub name: Option<String>,
-    pub start_address: u32,
-    pub end_address: u32,
+    pub start_address: Option<u32>,
+    pub end_address: Option<u32>,
     pub variables: Vec<SubroutineVariable>,
     pub blocks: Vec<SubroutineBlock>,
-}
-
-#[derive(Debug, Clone)]
-pub struct SubroutineInline {
-    pub specification: u32,
-    pub start_address: u32,
-    pub end_address: u32,
+    pub inlines: Vec<SubroutineType>,
 }
 
 #[derive(Debug, Clone)]
@@ -805,10 +799,11 @@ pub struct SubroutineType {
     pub member_of: Option<u32>,
     pub variables: Vec<SubroutineVariable>,
     pub inline: bool,
+    pub virtual_: bool,
     pub local: bool,
     pub labels: Vec<SubroutineLabel>,
     pub blocks: Vec<SubroutineBlock>,
-    pub inlines: Vec<SubroutineInline>,
+    pub inlines: Vec<SubroutineType>,
     pub start_address: Option<u32>,
     pub end_address: Option<u32>,
 }
@@ -1349,6 +1344,9 @@ pub fn subroutine_def_string(
     if t.inline {
         out.push_str("inline ");
     }
+    if t.virtual_ {
+        out.push_str("virtual ");
+    }
     out.push_str(&rt.prefix);
     out.push(' ');
 
@@ -1461,18 +1459,8 @@ pub fn subroutine_def_string(
     if !t.inlines.is_empty() {
         writeln!(out, "\n    // Inlines")?;
         for inline in &t.inlines {
-            let spec_tag = info
-                .tags
-                .get(&inline.specification)
-                .ok_or_else(|| anyhow!("Failed to locate inline tag {}", inline.specification))?;
-            let subroutine = process_subroutine_tag(info, spec_tag)?;
-            writeln!(
-                out,
-                "    // -> {} ({:#X} - {:#X})",
-                subroutine_type_string(info, typedefs, &subroutine)?,
-                inline.start_address,
-                inline.end_address,
-            )?;
+            let inline_str = subroutine_def_string(info, typedefs, inline, is_erased)?;
+            out.push_str(&indent_all_by(4, inline_str));
         }
     }
 
@@ -1491,7 +1479,10 @@ fn subroutine_block_string(
     } else {
         out.push_str("/* anonymous block */ ");
     }
-    writeln!(out, "{{\n    // Range: {:#X} -> {:#X}", block.start_address, block.end_address)?;
+    out.push_str("{\n");
+    if let (Some(start), Some(end)) = (block.start_address, block.end_address) {
+        writeln!(out, "    // Range: {:#X} -> {:#X}", start, end)?;
+    }
     let mut var_out = String::new();
     for variable in &block.variables {
         let ts = type_string(info, typedefs, &variable.kind, true)?;
@@ -1508,6 +1499,13 @@ fn subroutine_block_string(
         writeln!(var_out)?;
     }
     write!(out, "{}", indent_all_by(4, var_out))?;
+    if !block.inlines.is_empty() {
+        writeln!(out, "\n    // Inlines")?;
+        for inline in &block.inlines {
+            let inline_str = subroutine_def_string(info, typedefs, inline, false)?;
+            out.push_str(&indent_all_by(4, inline_str));
+        }
+    }
     for block in &block.blocks {
         let block_str = subroutine_block_string(info, typedefs, block)?;
         out.push_str(&indent_all_by(4, block_str));
@@ -1649,9 +1647,10 @@ pub fn struct_def_string(
             out.push_str(", ");
         }
         match base.visibility {
-            Visibility::Private => out.push_str("private "),
-            Visibility::Protected => out.push_str("protected "),
-            Visibility::Public => out.push_str("public "),
+            Some(Visibility::Private) => out.push_str("private "),
+            Some(Visibility::Protected) => out.push_str("protected "),
+            Some(Visibility::Public) => out.push_str("public "),
+            None => {}
         }
         if base.virtual_base {
             out.push_str("virtual ");
@@ -1720,7 +1719,11 @@ pub fn struct_def_string(
         }
         let mut var_out = String::new();
         let ts = type_string(info, typedefs, &member.kind, true)?;
-        write!(var_out, "{} {}{}", ts.prefix, member.name, ts.suffix)?;
+        if let Some(name) = &member.name {
+            write!(var_out, "{} {}{}", ts.prefix, name, ts.suffix)?;
+        } else {
+            write!(var_out, "{}{}", ts.prefix, ts.suffix)?;
+        }
         if let Some(bit) = &member.bit {
             write!(var_out, " : {}", bit.bit_size)?;
         }
@@ -1774,7 +1777,11 @@ pub fn union_def_string(info: &DwarfInfo, typedefs: &TypedefMap, t: &UnionType) 
     let mut var_out = String::new();
     for member in t.members.iter() {
         let ts = type_string(info, typedefs, &member.kind, true)?;
-        write!(var_out, "{} {}{};", ts.prefix, member.name, ts.suffix)?;
+        if let Some(name) = &member.name {
+            write!(var_out, "{} {}{};", ts.prefix, name, ts.suffix)?;
+        } else {
+            write!(var_out, "{}{};", ts.prefix, ts.suffix)?;
+        }
         let size = if let Some(size) = member.byte_size { size } else { member.kind.size(info)? };
         write!(var_out, " // offset {:#X}, size {:#X}", member.offset, size)?;
         writeln!(var_out)?;
@@ -1888,8 +1895,6 @@ fn process_inheritance_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureBase>
 
     let base_type = base_type.ok_or_else(|| anyhow!("Inheritance without base type: {:?}", tag))?;
     let offset = offset.ok_or_else(|| anyhow!("Inheritance without offset: {:?}", tag))?;
-    let visibility =
-        visibility.ok_or_else(|| anyhow!("Inheritance without visibility: {:?}", tag))?;
     Ok(StructureBase { name, base_type, offset, visibility, virtual_base })
 }
 
@@ -1936,8 +1941,7 @@ fn process_structure_member_tag(info: &DwarfInfo, tag: &Tag) -> Result<Structure
         bail!("Unhandled Member child {:?}", child.kind);
     }
 
-    let name = name.ok_or_else(|| anyhow!("Member without name: {:?}", tag))?;
-    let member_type = member_type.ok_or_else(|| anyhow!("Member without type: {:?}", tag))?;
+    let kind = member_type.ok_or_else(|| anyhow!("Member without type: {:?}", tag))?;
     let offset = offset.ok_or_else(|| anyhow!("Member without offset: {:?}", tag))?;
     let bit = match (bit_size, bit_offset) {
         (Some(bit_size), Some(bit_offset)) => Some(BitData { bit_size, bit_offset }),
@@ -1945,14 +1949,7 @@ fn process_structure_member_tag(info: &DwarfInfo, tag: &Tag) -> Result<Structure
         _ => bail!("Mismatched bit attributes in Member: {tag:?}"),
     };
     let visibility = visibility.unwrap_or(Visibility::Public);
-    Ok(StructureMember {
-        name: name.clone(),
-        kind: member_type,
-        offset,
-        bit,
-        visibility,
-        byte_size,
-    })
+    Ok(StructureMember { name, kind, offset, bit, visibility, byte_size })
 }
 
 fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
@@ -1989,6 +1986,9 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
                 // info!("Structure {:?} Typedef: {:?}", name, child);
             }
             TagKind::Subroutine | TagKind::GlobalSubroutine => {
+                // TODO
+            }
+            TagKind::GlobalVariable => {
                 // TODO
             }
             TagKind::StructureType
@@ -2130,6 +2130,9 @@ fn process_enumeration_tag(info: &DwarfInfo, tag: &Tag) -> Result<EnumerationTyp
                     members.push(EnumerationMember { name, value });
                 }
             }
+            (AttributeKind::Member, &AttributeValue::Reference(_key)) => {
+                // Pointer to parent structure, ignore
+            }
             _ => {
                 bail!("Unhandled EnumerationType attribute {:?}", attr);
             }
@@ -2174,7 +2177,8 @@ fn process_union_tag(info: &DwarfInfo, tag: &Tag) -> Result<UnionType> {
             | TagKind::UnionType
             | TagKind::ClassType
             | TagKind::SubroutineType
-            | TagKind::PtrToMemberType => {
+            | TagKind::PtrToMemberType
+            | TagKind::Typedef => {
                 // Variable type, ignore
             }
             kind => bail!("Unhandled UnionType child {:?}", kind),
@@ -2189,7 +2193,10 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     ensure!(
         matches!(
             tag.kind,
-            TagKind::SubroutineType | TagKind::GlobalSubroutine | TagKind::Subroutine
+            TagKind::SubroutineType
+                | TagKind::GlobalSubroutine
+                | TagKind::Subroutine
+                | TagKind::InlinedSubroutine
         ),
         "{:?} is not a Subroutine tag",
         tag.kind
@@ -2206,6 +2213,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut inline = false;
     let mut start_address = None;
     let mut end_address = None;
+    let mut virtual_ = false;
     for attr in &tag.attributes {
         match (attr.kind, &attr.value) {
             (AttributeKind::Sibling, _) => {}
@@ -2271,6 +2279,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                 // Restore register
             }
             (AttributeKind::Inline, _) => inline = true,
+            (AttributeKind::Virtual, _) => virtual_ = true,
             (AttributeKind::Specification, &AttributeValue::Reference(key)) => {
                 let spec_tag = info
                     .tags
@@ -2287,6 +2296,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                 references.extend(spec.references);
                 member_of = member_of.or(spec.member_of);
                 inline = inline || spec.inline;
+                virtual_ = virtual_ || spec.virtual_;
             }
             _ => {
                 bail!("Unhandled SubroutineType attribute {:?}", attr);
@@ -2299,7 +2309,6 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut blocks = Vec::new();
     let mut inlines = Vec::new();
     for child in tag.children(&info.tags) {
-        ensure!(!var_args, "{:?} after UnspecifiedParameters", child.kind);
         match child.kind {
             TagKind::FormalParameter => {
                 parameters.push(process_subroutine_parameter_tag(info, child)?)
@@ -2310,17 +2319,20 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                 // TODO GlobalVariable refs?
             }
             TagKind::Label => labels.push(process_subroutine_label_tag(info, child)?),
-            TagKind::LexicalBlock => blocks.push(process_subroutine_block_tag(info, child)?),
-            TagKind::InlinedSubroutine => {
-                inlines.push(process_inlined_subroutine_tag(info, child)?)
+            TagKind::LexicalBlock => {
+                if let Some(block) = process_subroutine_block_tag(info, child)? {
+                    blocks.push(block);
+                }
             }
+            TagKind::InlinedSubroutine => inlines.push(process_subroutine_tag(info, child)?),
             TagKind::StructureType
             | TagKind::ArrayType
             | TagKind::EnumerationType
             | TagKind::UnionType
             | TagKind::ClassType
             | TagKind::SubroutineType
-            | TagKind::PtrToMemberType => {
+            | TagKind::PtrToMemberType
+            | TagKind::Typedef => {
                 // Variable type, ignore
             }
             kind => bail!("Unhandled SubroutineType child {:?}", kind),
@@ -2341,6 +2353,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         member_of,
         variables,
         inline,
+        virtual_,
         local,
         labels,
         blocks,
@@ -2373,7 +2386,7 @@ fn process_subroutine_label_tag(info: &DwarfInfo, tag: &Tag) -> Result<Subroutin
     Ok(SubroutineLabel { name, address })
 }
 
-fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineBlock> {
+fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<SubroutineBlock>> {
     ensure!(tag.kind == TagKind::LexicalBlock, "{:?} is not a LexicalBlock tag", tag.kind);
 
     let mut name = None;
@@ -2391,13 +2404,21 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Subroutin
 
     let mut variables = Vec::new();
     let mut blocks = Vec::new();
+    let mut inlines = Vec::new();
     for child in tag.children(&info.tags) {
         match child.kind {
             TagKind::LocalVariable => variables.push(process_local_variable_tag(info, child)?),
             TagKind::GlobalVariable => {
                 // TODO GlobalVariable refs?
             }
-            TagKind::LexicalBlock => blocks.push(process_subroutine_block_tag(info, child)?),
+            TagKind::LexicalBlock => {
+                if let Some(block) = process_subroutine_block_tag(info, child)? {
+                    blocks.push(block);
+                }
+            }
+            TagKind::InlinedSubroutine => {
+                inlines.push(process_subroutine_tag(info, child)?);
+            }
             TagKind::StructureType
             | TagKind::ArrayType
             | TagKind::EnumerationType
@@ -2411,51 +2432,7 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Subroutin
         }
     }
 
-    let start_address =
-        start_address.ok_or_else(|| anyhow!("LexicalBlock without start address: {:?}", tag))?;
-    let end_address =
-        end_address.ok_or_else(|| anyhow!("LexicalBlock without end address: {:?}", tag))?;
-    Ok(SubroutineBlock { name, start_address, end_address, variables, blocks })
-}
-
-fn process_inlined_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineInline> {
-    ensure!(
-        tag.kind == TagKind::InlinedSubroutine,
-        "{:?} is not an InlinedSubroutine tag",
-        tag.kind
-    );
-
-    let mut specification = None;
-    let mut start_address = None;
-    let mut end_address = None;
-    for attr in &tag.attributes {
-        match (attr.kind, &attr.value) {
-            (AttributeKind::Sibling, _) => {}
-            (AttributeKind::Specification, &AttributeValue::Reference(key)) => {
-                specification = Some(key)
-            }
-            (AttributeKind::LowPc, &AttributeValue::Address(addr)) => start_address = Some(addr),
-            (AttributeKind::HighPc, &AttributeValue::Address(addr)) => end_address = Some(addr),
-            _ => bail!("Unhandled InlinedSubroutine attribute {:?}", attr),
-        }
-    }
-
-    for child in tag.children(&info.tags) {
-        match child.kind {
-            TagKind::GlobalVariable => {
-                // TODO GlobalVariable refs?
-            }
-            kind => bail!("Unhandled InlinedSubroutine child {:?}", kind),
-        }
-    }
-
-    let specification = specification
-        .ok_or_else(|| anyhow!("InlinedSubroutine without specification: {:?}", tag))?;
-    let start_address = start_address
-        .ok_or_else(|| anyhow!("InlinedSubroutine without start address: {:?}", tag))?;
-    let end_address =
-        end_address.ok_or_else(|| anyhow!("InlinedSubroutine without end address: {:?}", tag))?;
-    Ok(SubroutineInline { specification, start_address, end_address })
+    Ok(Some(SubroutineBlock { name, start_address, end_address, variables, blocks, inlines }))
 }
 
 fn process_subroutine_parameter_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineParameter> {
@@ -2476,14 +2453,20 @@ fn process_subroutine_parameter_tag(info: &DwarfInfo, tag: &Tag) -> Result<Subro
                 _,
             ) => kind = Some(process_type(attr, info.e)?),
             (AttributeKind::Location, AttributeValue::Block(block)) => {
-                location = Some(process_variable_location(
-                    block,
-                    if tag.is_erased { Endian::Little } else { info.e },
-                )?)
+                if !block.is_empty() {
+                    location = Some(process_variable_location(
+                        block,
+                        if tag.is_erased { Endian::Little } else { info.e },
+                    )?);
+                }
             }
             (AttributeKind::MwDwarf2Location, AttributeValue::Block(_block)) => {
                 // TODO?
                 // info!("MwDwarf2Location: {:?} in {:?}", block, tag);
+            }
+            (AttributeKind::ConstValueBlock2 | AttributeKind::ConstValueBlock4, _) => {
+                // TODO?
+                // info!("ConstValueBlock: {:?} in {:?}", block, tag);
             }
             (AttributeKind::Specification, &AttributeValue::Reference(key)) => {
                 let spec_tag = info
@@ -2868,6 +2851,9 @@ fn process_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<VariableTag> {
             ) => kind = Some(process_type(attr, info.e)?),
             (AttributeKind::Location, AttributeValue::Block(block)) => {
                 address = Some(process_address(block, info.e)?)
+            }
+            (AttributeKind::Member, &AttributeValue::Reference(_key)) => {
+                // Pointer to parent structure, ignore
             }
             _ => {
                 bail!("Unhandled Variable attribute {:?}", attr);
