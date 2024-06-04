@@ -727,41 +727,8 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         }
         writer.write_align_relocation();
         ensure!(writer.len() == out_section.rela_offset);
-        for (reloc_address, reloc) in section.relocations.iter() {
-            let mut r_offset = reloc_address as u64;
-            let r_type = match reloc.kind {
-                ObjRelocKind::Absolute => {
-                    if r_offset & 3 == 0 {
-                        elf::R_PPC_ADDR32
-                    } else {
-                        elf::R_PPC_UADDR32
-                    }
-                }
-                ObjRelocKind::PpcAddr16Hi => {
-                    r_offset = (r_offset & !3) + 2;
-                    elf::R_PPC_ADDR16_HI
-                }
-                ObjRelocKind::PpcAddr16Ha => {
-                    r_offset = (r_offset & !3) + 2;
-                    elf::R_PPC_ADDR16_HA
-                }
-                ObjRelocKind::PpcAddr16Lo => {
-                    r_offset = (r_offset & !3) + 2;
-                    elf::R_PPC_ADDR16_LO
-                }
-                ObjRelocKind::PpcRel24 => {
-                    r_offset &= !3;
-                    elf::R_PPC_REL24
-                }
-                ObjRelocKind::PpcRel14 => {
-                    r_offset &= !3;
-                    elf::R_PPC_REL14
-                }
-                ObjRelocKind::PpcEmbSda21 => {
-                    r_offset &= !3;
-                    elf::R_PPC_EMB_SDA21
-                }
-            };
+        for (addr, reloc) in section.relocations.iter() {
+            let (r_offset, r_type) = reloc.to_elf(addr);
             let r_sym = symbol_map[reloc.target_symbol]
                 .ok_or_else(|| anyhow!("Relocation against stripped symbol"))?;
             writer.write_relocation(true, &Rel { r_offset, r_sym, r_type, r_addend: reloc.addend });

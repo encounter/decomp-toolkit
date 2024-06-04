@@ -3,13 +3,13 @@ name = "decomp-toolkit"
 description = "Yet another GameCube/Wii decompilation toolkit."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.8.3"
+version = "0.9.0"
 edition = "2021"
 publish = false
 repository = "https://github.com/encounter/decomp-toolkit"
 readme = "README.md"
 categories = ["command-line-utilities"]
-rust-version = "1.70.0"
+rust-version = "1.73.0"
 
 [[bin]]
 name = "dtk"
@@ -29,6 +29,7 @@ ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_tab
 argp = "0.3.0"
 base16ct = "0.2.0"
 base64 = "0.22.1"
+crossterm = "0.27.0"
 cwdemangle = "1.0.0"
 enable-ansi-support = "0.2.1"
 filetime = "0.2.23"
@@ -47,7 +48,7 @@ nintendo-lz = "0.1.3"
 nodtool = { git = "https://github.com/encounter/nod-rs", rev = "03b83484cb17f94408fa0ef8e50d94951464d1b2" }
 #nodtool = { path = "../nod-rs/nodtool" }
 num_enum = "0.7.2"
-objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "8b36fa4fc657d9edf767797af9d394bb32898711", features = ["ppc"] }
+objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "a5a6a3928e392d5af5d92826e73b77e074b8788c", features = ["ppc"] }
 #objdiff-core = { path = "../objdiff/objdiff-core", features = ["ppc"] }
 object = { version = "0.35.0", features = ["read_core", "std", "elf", "write_std"], default-features = false }
 once_cell = "1.19.0"

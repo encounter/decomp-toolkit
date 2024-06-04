@@ -6,6 +6,7 @@ pub mod bin2c;
 pub mod comment;
 pub mod config;
 pub mod dep;
+pub mod diff;
 pub mod dol;
 pub mod dwarf;
 pub mod elf;

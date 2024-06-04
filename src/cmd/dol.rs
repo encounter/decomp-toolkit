@@ -45,6 +45,7 @@ use crate::{
             write_splits_file, write_symbols_file, SectionAddressRef,
         },
         dep::DepFile,
+        diff::{calc_diff_ranges, print_diff, process_code},
         dol::process_dol,
         elf::{process_elf, write_elf},
         file::{
@@ -1503,6 +1504,31 @@ where P: AsRef<Path> {
     Ok(())
 }
 
+/// Check if two symbols' names match, allowing for differences in compiler-generated names,
+/// like @1234 and @5678, or init$1234 and init$5678.
+fn symbol_name_fuzzy_eq(a: &ObjSymbol, b: &ObjSymbol) -> bool {
+    if a.name == b.name {
+        return true;
+    }
+    // Match e.g. @1234 and @5678
+    if a.name.starts_with('@') && b.name.starts_with('@') {
+        if let (Ok(_), Ok(_)) = (a.name[1..].parse::<u32>(), b.name[1..].parse::<u32>()) {
+            return true;
+        }
+    }
+    // Match e.g. init$1234 and init$5678
+    if let (Some(a_dollar), Some(b_dollar)) = (a.name.rfind('$'), b.name.rfind('$')) {
+        if a.name[..a_dollar] == b.name[..b_dollar] {
+            if let (Ok(_), Ok(_)) =
+                (a.name[a_dollar + 1..].parse::<u32>(), b.name[b_dollar + 1..].parse::<u32>())
+            {
+                return true;
+            }
+        }
+    }
+    false
+}
+
 fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
     let mut config_file = buf_reader(&args.config)?;
@@ -1545,7 +1571,7 @@ fn diff(args: DiffArgs) -> Result<()> {
             });
         let mut found = false;
         if let Some((_, linked_sym)) = linked_sym {
-            if linked_sym.name.starts_with(&orig_sym.name) {
+            if symbol_name_fuzzy_eq(linked_sym, orig_sym) {
                 if linked_sym.size != orig_sym.size &&
                     // TODO validate common symbol sizes
                     // (need to account for inflation bug)
@@ -1643,8 +1669,37 @@ fn diff(args: DiffArgs) -> Result<()> {
                 orig_sym.size,
                 orig_sym.address
             );
-            log::error!("Original: {}", hex::encode_upper(orig_data));
-            log::error!("Linked:   {}", hex::encode_upper(linked_data));
+
+            // Disassemble and print the diff using objdiff-core if it's a function
+            let mut handled = false;
+            if orig_sym.kind == ObjSymbolKind::Function
+                && orig_section.kind == ObjSectionKind::Code
+                && linked_sym.kind == ObjSymbolKind::Function
+                && linked_section.kind == ObjSectionKind::Code
+            {
+                let config = objdiff_core::diff::DiffObjConfig::default();
+                let orig_code = process_code(&obj, orig_sym, orig_section, &config)?;
+                let linked_code = process_code(&linked_obj, linked_sym, linked_section, &config)?;
+                let (left_diff, right_diff) = objdiff_core::diff::code::diff_code(
+                    &orig_code,
+                    &linked_code,
+                    objdiff_core::obj::SymbolRef::default(),
+                    objdiff_core::obj::SymbolRef::default(),
+                    &config,
+                )?;
+                let ranges = calc_diff_ranges(&left_diff.instructions, &right_diff.instructions, 3);
+                // objdiff may miss relocation differences, so fall back to printing the data diff
+                // if we don't have any instruction ranges to print
+                if !ranges.is_empty() {
+                    print_diff(&left_diff, &right_diff, &ranges)?;
+                    handled = true;
+                }
+            }
+            if !handled {
+                log::error!("Original: {}", hex::encode_upper(orig_data));
+                log::error!("Linked:   {}", hex::encode_upper(linked_data));
+            }
+
             std::process::exit(1);
         }
     }
