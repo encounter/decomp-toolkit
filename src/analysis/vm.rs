@@ -257,7 +257,8 @@ impl VM {
                         self.gpr[ins.field_ra() as usize],
                     );
                 } else {
-                    let left = if ins.field_ra() == 0 && ins.op == Opcode::Addi {
+                    let load_zero = ins.field_ra() == 0 && ins.op == Opcode::Addi;
+                    let left = if load_zero {
                         GprValue::Constant(0)
                     } else {
                         self.gpr[ins.field_ra() as usize].value
@@ -271,7 +272,7 @@ impl VM {
                         ),
                         _ => GprValue::Unknown,
                     };
-                    if ins.field_ra() == 0 {
+                    if load_zero {
                         // li rD, SIMM
                         self.gpr[ins.field_rd() as usize].set_direct(value);
                     } else {
