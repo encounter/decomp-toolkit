@@ -947,11 +947,10 @@ fn split_write_obj(
         let (_, symbol) = module
             .obj
             .symbols
-            .by_name(&extract.symbol)?
+            .by_ref(&module.obj.sections, &extract.symbol)?
             .with_context(|| format!("Failed to locate symbol '{}'", extract.symbol))?;
-        let section_index = symbol
-            .section
-            .with_context(|| format!("Symbol '{}' has no section", extract.symbol))?;
+        let section_index =
+            symbol.section.with_context(|| format!("Symbol '{}' has no section", symbol.name))?;
         let section = &module.obj.sections[section_index];
         let data = section.symbol_data(symbol)?;
 
@@ -1893,7 +1892,7 @@ fn apply_block_relocations(
 fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig]) -> Result<()> {
     for reloc in relocations {
         let SectionAddress { section, address } = reloc.source.resolve(obj)?;
-        let (target_symbol, _) = match obj.symbols.by_name(&reloc.target)? {
+        let (target_symbol, _) = match obj.symbols.by_ref(&obj.sections, &reloc.target)? {
             Some(v) => v,
             None => {
                 // Assume external symbol

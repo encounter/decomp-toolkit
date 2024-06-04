@@ -12,9 +12,9 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::{
     analysis::cfa::SectionAddress,
-    obj::{ObjKind, ObjRelocKind},
+    obj::{ObjKind, ObjRelocKind, ObjSections},
     util::{
-        config::{is_auto_jump_table, is_auto_label, is_auto_symbol},
+        config::{is_auto_jump_table, is_auto_label, is_auto_symbol, parse_u32},
         nested::NestedVec,
         split::is_linker_generated_label,
     },
@@ -475,6 +475,40 @@ impl ObjSymbols {
             }
         }
         Ok(result)
+    }
+
+    /// Locate a symbol by name, with optional reference attributes. Example:
+    /// `symbol_name!.data:0x1234` will find the symbol named `symbol_name`
+    /// in the `.data` section at address `0x1234`.
+    pub fn by_ref<'a>(
+        &'a self,
+        sections: &ObjSections,
+        symbol_ref: &str,
+    ) -> Result<Option<(SymbolIndex, &'a ObjSymbol)>> {
+        if let Some((name, rest)) = symbol_ref.split_once('!') {
+            let (section_index, address) = if let Some((section_name, rest)) = rest.split_once(':')
+            {
+                let section_index = sections
+                    .by_name(section_name)?
+                    .map(|(idx, _)| idx)
+                    .ok_or_else(|| anyhow!("Section not found: {}", section_name))?;
+                (Some(section_index), parse_u32(rest)?)
+            } else {
+                (None, parse_u32(rest)?)
+            };
+            let mut out = None;
+            for (index, symbol) in self.for_name(name) {
+                if (section_index.is_none() || symbol.section == section_index)
+                    && symbol.address == address as u64
+                {
+                    ensure!(out.is_none(), "Multiple symbols matched {}", symbol_ref);
+                    out = Some((index, symbol));
+                }
+            }
+            Ok(out)
+        } else {
+            self.by_name(symbol_ref)
+        }
     }
 
     pub fn by_kind(
