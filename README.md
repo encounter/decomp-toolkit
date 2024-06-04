@@ -43,6 +43,8 @@ project structure and build system that uses decomp-toolkit under the hood.
   - [nlzss decompress](#nlzss-decompress)
   - [rarc list](#rarc-list)
   - [rarc extract](#rarc-extract)
+  - [u8 list](#u8-list)
+  - [u8 extract](#u8-extract)
   - [yay0 decompress](#yay0-decompress)
   - [yay0 compress](#yay0-compress)
   - [yaz0 decompress](#yaz0-decompress)
@@ -390,7 +392,7 @@ $ dtk nlzss decompress rels/*.lz -o rels
 
 ### rarc list
 
-Lists the contents of an RARC archive.
+Lists the contents of an RARC (older .arc) archive.
 
 ```shell
 $ dtk rarc list input.arc
@@ -398,10 +400,26 @@ $ dtk rarc list input.arc
 
 ### rarc extract
 
-Extracts the contents of an RARC archive.
+Extracts the contents of an RARC (older .arc) archive.
 
 ```shell
 $ dtk rarc extract input.arc -o output_dir
+```
+
+### u8 list
+
+Extracts the contents of a U8 (newer .arc) archive.
+
+```shell
+$ dtk u8 list input.arc
+```
+
+### u8 extract
+
+Extracts the contents of a U8 (newer .arc) archive.
+
+```shell
+$ dtk u8 extract input.arc -o output_dir
 ```
 
 ### yay0 decompress

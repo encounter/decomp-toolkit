@@ -5,10 +5,11 @@ use std::{
     path::{Component, Path, PathBuf},
 };
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use filetime::{set_file_mtime, FileTime};
 use memmap2::{Mmap, MmapOptions};
 use path_slash::PathBufExt;
+use rarc::RarcReader;
 use sha1::{Digest, Sha1};
 use xxhash_rust::xxh3::xxh3_64;
 
@@ -19,6 +20,7 @@ use crate::{
         rarc,
         rarc::{Node, RARC_MAGIC},
         take_seek::{TakeSeek, TakeSeekExt},
+        u8_arc::{U8View, U8_MAGIC},
         Bytes,
     },
 };
@@ -105,11 +107,28 @@ where P: AsRef<Path> {
             ));
         }
 
-        let rarc = rarc::RarcReader::new(&mut Cursor::new(mmap.as_ref()))
-            .with_context(|| format!("Failed to open '{}' as RARC archive", base_path.display()))?;
-        rarc.find_file(&sub_path)?.map(|(o, s)| (o, s as u64)).ok_or_else(|| {
-            anyhow!("File '{}' not found in '{}'", sub_path.display(), base_path.display())
-        })?
+        let buf = mmap.as_ref();
+        match *array_ref!(buf, 0, 4) {
+            RARC_MAGIC => {
+                let rarc = RarcReader::new(&mut Cursor::new(mmap.as_ref())).with_context(|| {
+                    format!("Failed to open '{}' as RARC archive", base_path.display())
+                })?;
+                let (offset, size) = rarc.find_file(&sub_path)?.ok_or_else(|| {
+                    anyhow!("File '{}' not found in '{}'", sub_path.display(), base_path.display())
+                })?;
+                (offset, size as u64)
+            }
+            U8_MAGIC => {
+                let arc = U8View::new(buf).map_err(|e| {
+                    anyhow!("Failed to open '{}' as U8 archive: {}", base_path.display(), e)
+                })?;
+                let (_, node) = arc.find(sub_path.to_slash_lossy().as_ref()).ok_or_else(|| {
+                    anyhow!("File '{}' not found in '{}'", sub_path.display(), base_path.display())
+                })?;
+                (node.offset() as u64, node.length() as u64)
+            }
+            _ => bail!("Couldn't detect archive type for '{}'", path.as_ref().display()),
+        }
     } else {
         (0, mmap.len() as u64)
     };
@@ -162,7 +181,7 @@ where P: AsRef<Path> {
     let mut file = File::open(&base_path)
         .with_context(|| format!("Failed to open file '{}'", base_path.display()))?;
     let (offset, size) = if let Some(sub_path) = sub_path {
-        let rarc = rarc::RarcReader::new(&mut BufReader::new(&file))
+        let rarc = RarcReader::new(&mut BufReader::new(&file))
             .with_context(|| format!("Failed to read RARC '{}'", base_path.display()))?;
         rarc.find_file(&sub_path)?.map(|(o, s)| (o, s as u64)).ok_or_else(|| {
             anyhow!("File '{}' not found in '{}'", sub_path.display(), base_path.display())
@@ -261,12 +280,12 @@ struct RarcIterator {
 
 impl RarcIterator {
     pub fn new(file: MappedFile, base_path: &Path) -> Result<Self> {
-        let reader = rarc::RarcReader::new(&mut file.as_reader())?;
+        let reader = RarcReader::new(&mut file.as_reader())?;
         let paths = Self::collect_paths(&reader, base_path);
         Ok(Self { file, base_path: base_path.to_owned(), paths, index: 0 })
     }
 
-    fn collect_paths(reader: &rarc::RarcReader, base_path: &Path) -> Vec<(PathBuf, u64, u32)> {
+    fn collect_paths(reader: &RarcReader, base_path: &Path) -> Vec<(PathBuf, u64, u32)> {
         let mut current_path = PathBuf::new();
         let mut paths = vec![];
         for node in reader.nodes() {

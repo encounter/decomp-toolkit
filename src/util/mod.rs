@@ -22,6 +22,7 @@ pub mod rso;
 pub mod signatures;
 pub mod split;
 pub mod take_seek;
+pub mod u8_arc;
 
 #[inline]
 pub const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }
@@ -48,6 +49,14 @@ macro_rules! array_ref_mut {
         }
         to_array_mut(&mut $slice[$offset..$offset + $size])
     }};
+}
+
+/// Compile-time assertion.
+#[macro_export]
+macro_rules! static_assert {
+    ($condition:expr) => {
+        const _: () = core::assert!($condition);
+    };
 }
 
 pub trait IntoCow<'a, B>

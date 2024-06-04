@@ -72,3 +72,4 @@ tracing = "0.1.40"
 tracing-attributes = "0.1.27"
 tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
 xxhash-rust = { version = "0.8.10", features = ["xxh3"] }
+zerocopy = { version = "0.7.34", features = ["derive"] }

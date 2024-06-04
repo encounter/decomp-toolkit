@@ -95,6 +95,7 @@ enum SubCommand {
     Rel(cmd::rel::Args),
     Rso(cmd::rso::Args),
     Shasum(cmd::shasum::Args),
+    U8(cmd::u8_arc::Args),
     Yay0(cmd::yay0::Args),
     Yaz0(cmd::yaz0::Args),
 }
@@ -169,6 +170,7 @@ fn main() {
         SubCommand::Rel(c_args) => cmd::rel::run(c_args),
         SubCommand::Rso(c_args) => cmd::rso::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
+        SubCommand::U8(c_args) => cmd::u8_arc::run(c_args),
         SubCommand::Yay0(c_args) => cmd::yay0::run(c_args),
         SubCommand::Yaz0(c_args) => cmd::yaz0::run(c_args),
     });

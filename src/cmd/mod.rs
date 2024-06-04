@@ -13,5 +13,6 @@ pub mod rarc;
 pub mod rel;
 pub mod rso;
 pub mod shasum;
+pub mod u8_arc;
 pub mod yay0;
 pub mod yaz0;

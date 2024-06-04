@@ -42,6 +42,9 @@ pub struct ExtractArgs {
     #[argp(option, short = 'o')]
     /// output directory
     output: Option<PathBuf>,
+    #[argp(switch, short = 'q')]
+    /// quiet output
+    quiet: bool,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -95,8 +98,19 @@ fn extract(args: ExtractArgs) -> Result<()> {
                     &file.as_slice()[offset as usize..offset as usize + size as usize],
                 )?;
                 let file_path = current_path.join(&name.name);
-                let output_path =
-                    args.output.as_ref().map(|p| p.join(&file_path)).unwrap_or_else(|| file_path);
+                let output_path = args
+                    .output
+                    .as_ref()
+                    .map(|p| p.join(&file_path))
+                    .unwrap_or_else(|| file_path.clone());
+                if !args.quiet {
+                    println!(
+                        "Extracting {} to {} ({} bytes)",
+                        file_path.display(),
+                        output_path.display(),
+                        size
+                    );
+                }
                 if let Some(parent) = output_path.parent() {
                     DirBuilder::new().recursive(true).create(parent)?;
                 }
