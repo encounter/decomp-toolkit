@@ -15,7 +15,7 @@ use crate::{
         vm::{section_address_for, BranchTarget, GprValue, StepResult, VM},
         RelocationTarget,
     },
-    obj::{ObjInfo, ObjKind, ObjSection},
+    obj::{ObjInfo, ObjKind, ObjSection, ObjSymbolKind},
 };
 
 #[derive(Debug, Default, Clone)]
@@ -375,7 +375,24 @@ impl FunctionSlices {
                                 }
                             }
                             if branch.link {
-                                self.function_references.insert(addr);
+                                // See if any existing functions contain this address,
+                                // since this could be a label inside a larger function.
+                                let last_function = obj
+                                    .symbols
+                                    .for_section_range(addr.section, ..addr.address)
+                                    .rfind(|(_, symbol)| symbol.kind == ObjSymbolKind::Function);
+                                match last_function {
+                                    Some((_, symbol))
+                                        if symbol.address + symbol.size > addr.address as u64 =>
+                                    {
+                                        // Set the function reference to the start of the function
+                                        self.function_references.insert(SectionAddress::new(
+                                            addr.section,
+                                            symbol.address as u32,
+                                        ))
+                                    }
+                                    _ => self.function_references.insert(addr),
+                                };
                             } else {
                                 out_branches.push(addr);
                                 if self.add_block_start(addr) {
