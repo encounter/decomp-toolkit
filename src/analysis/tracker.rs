@@ -650,6 +650,12 @@ impl Tracker {
                 // Skip external relocations, they already exist
                 continue;
             };
+            if obj.blocked_relocation_sources.contains(addr)
+                || obj.blocked_relocation_targets.contains(target)
+            {
+                // Skip blocked relocations
+                continue;
+            }
             if obj.kind == ObjKind::Relocatable {
                 // Sanity check: relocatable objects already have relocations,
                 // did our analyzer find one that isn't real?
@@ -658,8 +664,8 @@ impl Tracker {
                     // We _do_ want to rebuild missing R_PPC_REL24 relocations
                     && !matches!(reloc_kind, ObjRelocKind::PpcRel24)
                 {
-                    bail!(
-                        "Found invalid relocation {} {:#?} (target {}) in relocatable object",
+                    log::warn!(
+                        "Found invalid relocation {} {:?} (target {}) in relocatable object",
                         addr,
                         reloc,
                         target
