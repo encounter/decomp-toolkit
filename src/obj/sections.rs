@@ -51,7 +51,9 @@ impl ObjSections {
         self.sections.iter_mut().enumerate()
     }
 
-    pub fn count(&self) -> usize { self.sections.len() }
+    pub fn len(&self) -> usize { self.sections.len() }
+
+    pub fn is_empty(&self) -> bool { self.sections.is_empty() }
 
     pub fn next_section_index(&self) -> usize { self.sections.len() }
 

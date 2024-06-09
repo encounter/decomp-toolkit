@@ -396,7 +396,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     }
 
     writer.reserve_null_section_index();
-    let mut out_sections: Vec<OutSection> = Vec::with_capacity(obj.sections.count());
+    let mut out_sections: Vec<OutSection> = Vec::with_capacity(obj.sections.len());
     for (_, section) in obj.sections.iter() {
         let name = writer.add_section_name(section.name.as_bytes());
         let index = writer.reserve_section_index();
@@ -411,7 +411,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         });
     }
 
-    let mut rela_names: Vec<String> = vec![Default::default(); obj.sections.count()];
+    let mut rela_names: Vec<String> = vec![Default::default(); obj.sections.len()];
     for (((_, section), out_section), rela_name) in
         obj.sections.iter().zip(&mut out_sections).zip(&mut rela_names)
     {
@@ -630,7 +630,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     writer.reserve_file_header();
 
     if obj.kind == ObjKind::Executable {
-        writer.reserve_program_headers(obj.sections.count() as u32);
+        writer.reserve_program_headers(obj.sections.len() as u32);
     }
 
     for ((_, section), out_section) in obj.sections.iter().zip(&mut out_sections) {

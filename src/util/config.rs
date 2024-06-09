@@ -652,7 +652,7 @@ where R: BufRead + ?Sized {
                         "Section out of bounds: {} (index {}), object has {} sections",
                         name,
                         index,
-                        obj.sections.count()
+                        obj.sections.len()
                     );
                 };
                 if obj_section.rename(name.clone()).is_err() {

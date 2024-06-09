@@ -710,7 +710,7 @@ fn trim_split_alignment(obj: &mut ObjInfo) -> Result<()> {
 
 /// Trim splits if they contain linker generated symbols.
 fn trim_linker_generated_symbols(obj: &mut ObjInfo) -> Result<()> {
-    for section_index in 0..obj.sections.count() {
+    for section_index in 0..obj.sections.len() {
         let section_end = end_for_section(obj, section_index)?;
         let section = &mut obj.sections[section_index];
         if section.address as u32 + section.size as u32 == section_end.address {

@@ -18,7 +18,7 @@ struct VisitedAddresses {
 
 impl VisitedAddresses {
     pub fn new(obj: &ObjInfo) -> Self {
-        let mut inner = Vec::with_capacity(obj.sections.count());
+        let mut inner = Vec::with_capacity(obj.sections.len());
         for (_, section) in obj.sections.iter() {
             if section.kind == ObjSectionKind::Code {
                 let size = (section.size / 4) as usize;
