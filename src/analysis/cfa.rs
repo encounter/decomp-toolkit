@@ -115,7 +115,7 @@ pub struct AnalyzerState {
     pub sda_bases: Option<(u32, u32)>,
     pub functions: BTreeMap<SectionAddress, FunctionInfo>,
     pub jump_tables: BTreeMap<SectionAddress, u32>,
-    pub known_symbols: BTreeMap<SectionAddress, ObjSymbol>,
+    pub known_symbols: BTreeMap<SectionAddress, Vec<ObjSymbol>>,
     pub known_sections: BTreeMap<usize, String>,
 }
 
@@ -196,8 +196,39 @@ impl AnalyzerState {
                 false,
             )?;
         }
-        for (&_addr, symbol) in &self.known_symbols {
-            obj.add_symbol(symbol.clone(), true)?;
+        for (&_addr, symbols) in &self.known_symbols {
+            for symbol in symbols {
+                // Remove overlapping symbols
+                if symbol.size > 0 {
+                    let end = symbol.address + symbol.size;
+                    let overlapping = obj
+                        .symbols
+                        .for_section_range(
+                            symbol.section.unwrap(),
+                            symbol.address as u32 + 1..end as u32,
+                        )
+                        .filter(|(_, s)| s.kind == symbol.kind)
+                        .map(|(a, _)| a)
+                        .collect_vec();
+                    for index in overlapping {
+                        let existing = &obj.symbols[index];
+                        let symbol = ObjSymbol {
+                            name: format!("__DELETED_{}", existing.name),
+                            kind: ObjSymbolKind::Unknown,
+                            size: 0,
+                            flags: ObjSymbolFlagSet(
+                                ObjSymbolFlags::RelocationIgnore
+                                    | ObjSymbolFlags::NoWrite
+                                    | ObjSymbolFlags::NoExport
+                                    | ObjSymbolFlags::Stripped,
+                            ),
+                            ..existing.clone()
+                        };
+                        obj.symbols.replace(index, symbol)?;
+                    }
+                }
+                obj.add_symbol(symbol.clone(), true)?;
+            }
         }
         Ok(())
     }

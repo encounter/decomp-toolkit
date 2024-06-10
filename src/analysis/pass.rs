@@ -35,7 +35,7 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
                 && data[TRK_TABLE_HEADER.as_bytes().len()] == 0
             {
                 log::debug!("Found gTRKInterruptVectorTable @ {:#010X}", start);
-                state.known_symbols.insert(start, ObjSymbol {
+                state.known_symbols.entry(start).or_default().push(ObjSymbol {
                     name: "gTRKInterruptVectorTable".to_string(),
                     address: start.address as u64,
                     section: Some(start.section),
@@ -44,7 +44,7 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
                     ..Default::default()
                 });
                 let end = start + TRK_TABLE_SIZE;
-                state.known_symbols.insert(end, ObjSymbol {
+                state.known_symbols.entry(end).or_default().push(ObjSymbol {
                     name: "gTRKInterruptVectorTableEnd".to_string(),
                     address: end.address as u64,
                     section: Some(start.section),
@@ -63,42 +63,45 @@ impl AnalysisPass for FindTRKInterruptVectorTable {
 
 pub struct FindSaveRestSleds {}
 
-const SLEDS: [([u8; 8], &str, &str); 4] = [
-    ([0xd9, 0xcb, 0xff, 0x70, 0xd9, 0xeb, 0xff, 0x78], "__save_fpr", "_savefpr_"),
-    ([0xc9, 0xcb, 0xff, 0x70, 0xc9, 0xeb, 0xff, 0x78], "__restore_fpr", "_restfpr_"),
-    ([0x91, 0xcb, 0xff, 0xb8, 0x91, 0xeb, 0xff, 0xbc], "__save_gpr", "_savegpr_"),
-    ([0x81, 0xcb, 0xff, 0xb8, 0x81, 0xeb, 0xff, 0xbc], "__restore_gpr", "_restgpr_"),
+#[allow(clippy::type_complexity)]
+const SLEDS: [([u8; 8], &str, &str, u32, u32, u32); 6] = [
+    ([0xd9, 0xcb, 0xff, 0x70, 0xd9, 0xeb, 0xff, 0x78], "__save_fpr", "_savefpr_", 14, 32, 4),
+    ([0xc9, 0xcb, 0xff, 0x70, 0xc9, 0xeb, 0xff, 0x78], "__restore_fpr", "_restfpr_", 14, 32, 4),
+    ([0x91, 0xcb, 0xff, 0xb8, 0x91, 0xeb, 0xff, 0xbc], "__save_gpr", "_savegpr_", 14, 32, 4),
+    ([0x81, 0xcb, 0xff, 0xb8, 0x81, 0xeb, 0xff, 0xbc], "__restore_gpr", "_restgpr_", 14, 32, 4),
+    ([0x39, 0x80, 0xff, 0x40, 0x7e, 0x8c, 0x01, 0xce], "_savevr", "_savev", 20, 32, 8),
+    ([0x39, 0x80, 0xff, 0x40, 0x7e, 0x8c, 0x00, 0xce], "_restorevr", "_restv", 20, 32, 8),
 ];
 
 // Runtime.PPCEABI.H.a runtime.c
 impl AnalysisPass for FindSaveRestSleds {
     fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
-        const SLED_SIZE: usize = 19 * 4; // registers 14-31 + blr
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            for (needle, func, label) in &SLEDS {
-                let Some(pos) = memmem::find(&section.data, needle) else {
+            for (needle, func, label, reg_start, reg_end, step_size) in SLEDS {
+                let Some(pos) = memmem::find(&section.data, &needle) else {
                     continue;
                 };
                 let start = SectionAddress::new(section_index, section.address as u32 + pos as u32);
                 log::debug!("Found {} @ {:#010X}", func, start);
+                let sled_size = (reg_end - reg_start) * step_size + 4 /* blr */;
                 state.functions.insert(start, FunctionInfo {
                     analyzed: false,
-                    end: Some(start + SLED_SIZE as u32),
+                    end: Some(start + sled_size),
                     slices: None,
                 });
-                state.known_symbols.insert(start, ObjSymbol {
+                state.known_symbols.entry(start).or_default().push(ObjSymbol {
                     name: func.to_string(),
                     address: start.address as u64,
                     section: Some(start.section),
-                    size: SLED_SIZE as u64,
+                    size: sled_size as u64,
                     size_known: true,
                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                     kind: ObjSymbolKind::Function,
                     ..Default::default()
                 });
-                for i in 14..=31 {
-                    let addr = start + (i - 14) * 4;
-                    state.known_symbols.insert(addr, ObjSymbol {
+                for i in reg_start..reg_end {
+                    let addr = start + (i - reg_start) * step_size;
+                    state.known_symbols.entry(addr).or_default().push(ObjSymbol {
                         name: format!("{}{}", label, i),
                         address: addr.address as u64,
                         section: Some(start.section),
@@ -185,8 +188,9 @@ impl AnalysisPass for FindRelCtorsDtors {
             possible_sections[1].0
         );
         let ctors_section_index = possible_sections[0].0;
+        let ctors_address = SectionAddress::new(ctors_section_index, 0);
         state.known_sections.insert(ctors_section_index, ".ctors".to_string());
-        state.known_symbols.insert(SectionAddress::new(ctors_section_index, 0), ObjSymbol {
+        state.known_symbols.entry(ctors_address).or_default().push(ObjSymbol {
             name: "_ctors".to_string(),
             section: Some(ctors_section_index),
             size_known: true,
@@ -195,8 +199,9 @@ impl AnalysisPass for FindRelCtorsDtors {
         });
 
         let dtors_section_index = possible_sections[1].0;
+        let dtors_address = SectionAddress::new(dtors_section_index, 0);
         state.known_sections.insert(dtors_section_index, ".dtors".to_string());
-        state.known_symbols.insert(SectionAddress::new(dtors_section_index, 0), ObjSymbol {
+        state.known_symbols.entry(dtors_address).or_default().push(ObjSymbol {
             name: "_dtors".to_string(),
             section: Some(dtors_section_index),
             size_known: true,

@@ -1056,6 +1056,7 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
         debug!("Analyzing module {}", module_obj.module_id);
         if !config.quick_analysis {
             let mut state = AnalyzerState::default();
+            FindSaveRestSleds::execute(&mut state, &module_obj)?;
             state.detect_functions(&module_obj)?;
             FindRelCtorsDtors::execute(&mut state, &module_obj)?;
             FindRelRodataData::execute(&mut state, &module_obj)?;

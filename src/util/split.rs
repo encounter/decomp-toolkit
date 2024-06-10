@@ -365,6 +365,7 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                 let symbols = obj
                     .symbols
                     .for_section_range(section_index, current_address.address..split_start.address)
+                    .filter(|&(_, s)| !s.flags.is_stripped())
                     .collect_vec();
                 let mut existing_symbols = HashSet::new();
                 for &(_, symbol) in &symbols {
