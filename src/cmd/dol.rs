@@ -677,7 +677,9 @@ fn create_relocations(
         };
 
         let (target_section_index, _target_section) = if rel_reloc.module_id == 0 {
-            target_obj.sections.at_address(rel_reloc.addend)?
+            target_obj.sections.at_address(rel_reloc.addend).map_err(|_| {
+                anyhow!("Failed to locate DOL section at {:#010X}", rel_reloc.addend)
+            })?
         } else {
             target_obj.sections.get_elf_index(rel_reloc.target_section as usize).ok_or_else(
                 || {
@@ -1217,11 +1219,13 @@ fn split(args: SplitArgs) -> Result<()> {
         let module_names = modules.keys().cloned().collect_vec();
 
         // Create any missing symbols (referenced from other modules) and set FORCEACTIVE
-        update_symbols(&mut dol.obj, &modules.values().collect::<Vec<_>>(), !config.symbols_known)?;
+        update_symbols(&mut dol.obj, &modules.values().collect::<Vec<_>>(), !config.symbols_known)
+            .with_context(|| format!("Updating symbols for module {}", dol.config.name()))?;
         for module_name in &module_names {
             let mut module = modules.remove(module_name).unwrap();
             let links = get_links(&module, &modules)?;
-            update_symbols(&mut module.obj, &links, !config.symbols_known)?;
+            update_symbols(&mut module.obj, &links, !config.symbols_known)
+                .with_context(|| format!("Updating symbols for module {}", module.config.name()))?;
             modules.insert(module_name.clone(), module);
         }
 
@@ -1229,7 +1233,9 @@ fn split(args: SplitArgs) -> Result<()> {
         for module_name in &module_names {
             let mut module = modules.remove(module_name).unwrap();
             let links = get_links_map(&module, &modules)?;
-            create_relocations(&mut module.obj, &links, &dol.obj)?;
+            create_relocations(&mut module.obj, &links, &dol.obj).with_context(|| {
+                format!("Creating relocations for module {}", module.config.name())
+            })?;
             modules.insert(module_name.clone(), module);
         }
 
@@ -1237,7 +1243,9 @@ fn split(args: SplitArgs) -> Result<()> {
         for module_name in &module_names {
             let mut module = modules.remove(module_name).unwrap();
             let links = get_links_map(&module, &modules)?;
-            resolve_external_relocations(&mut module.obj, &links, Some(&dol.obj))?;
+            resolve_external_relocations(&mut module.obj, &links, Some(&dol.obj)).with_context(
+                || format!("Resolving external relocations for module {}", module.config.name()),
+            )?;
             modules.insert(module_name.clone(), module);
         }
     }
