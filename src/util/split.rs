@@ -591,16 +591,31 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
             .for_section(section_index)
             .filter(|(_, s)| s.size_known && s.size > 0)
             .peekable();
-        while let (Some((_, symbol)), Some(&(_, next_symbol))) = (iter.next(), iter.peek()) {
+        while let Some((_, symbol)) = iter.next() {
             // Common BSS is allowed to have gaps and overlaps to accurately match the common BSS inflation bug
             if matches!(common_bss, Some((idx, addr)) if
                 section_index == idx && symbol.address as u32 >= addr)
             {
                 continue;
             }
-            let aligned_end =
-                align_up((symbol.address + symbol.size) as u32, next_symbol.align.unwrap_or(1));
-            match aligned_end.cmp(&(next_symbol.address as u32)) {
+            let (next_name, next_address, next_end, next_align) =
+                if let Some(&(_, next_symbol)) = iter.peek() {
+                    (
+                        next_symbol.name.as_str(),
+                        next_symbol.address,
+                        next_symbol.address + next_symbol.size,
+                        next_symbol.align.unwrap_or(1),
+                    )
+                } else {
+                    (
+                        section.name.as_str(),
+                        section.address + section.size,
+                        section.address + section.size,
+                        1,
+                    )
+                };
+            let aligned_end = align_up((symbol.address + symbol.size) as u32, next_align);
+            match aligned_end.cmp(&(next_address as u32)) {
                 Ordering::Less => {
                     let symbol_name = format!(
                         "gap_{:02}_{:08X}_{}",
@@ -613,7 +628,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                         name: symbol_name,
                         address: aligned_end as u64,
                         section: Some(section_index),
-                        size: next_symbol.address - aligned_end as u64,
+                        size: next_address - aligned_end as u64,
                         size_known: true,
                         flags: ObjSymbolFlagSet(
                             ObjSymbolFlags::Global
@@ -637,10 +652,10 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                         symbol.name,
                         symbol.address,
                         symbol.address + symbol.size,
-                        next_symbol.name,
-                        next_symbol.address,
-                        next_symbol.address + next_symbol.size,
-                        next_symbol.align.unwrap_or(1)
+                        next_name,
+                        next_address,
+                        next_end,
+                        next_align
                     );
                 }
             }
