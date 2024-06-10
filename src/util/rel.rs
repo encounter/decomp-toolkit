@@ -849,6 +849,8 @@ where
         offset = (offset + align) & !align;
         offset += section.size() as u32;
     }
+    // Align to 4 after section data
+    offset = (offset + 3) & !3;
 
     fn do_relocation_layout(
         relocations: &[RelReloc],
@@ -1013,16 +1015,16 @@ where
         }
     }
     ensure!(w.stream_position()? as u32 == section_data_offset);
+    fn calculate_padding(position: u64, align: u64) -> u64 {
+        let align = align - 1;
+        ((position + align) & !align) - position
+    }
     for (idx, section) in file
         .sections()
         .filter(is_permitted_section)
         .enumerate()
         .filter(|(_, s)| should_write_section(s))
     {
-        fn calculate_padding(position: u64, align: u64) -> u64 {
-            let align = align - 1;
-            ((position + align) & !align) - position
-        }
         let position = w.stream_position()?;
         let align = section_align(idx, &section, info);
         w.write_all(&vec![0u8; calculate_padding(position, align as u64) as usize])?;
@@ -1037,6 +1039,11 @@ where
             section_data = data.into_cow();
         }
         w.write_all(&section_data)?;
+    }
+    // Align to 4 after section data
+    {
+        let position = w.stream_position()?;
+        w.write_all(&vec![0u8; calculate_padding(position, 4) as usize])?;
     }
     if !relocations.is_empty() {
         if info.version < 3 {
