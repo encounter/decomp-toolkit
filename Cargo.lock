@@ -972,9 +972,9 @@ dependencies = [
 
 [[package]]
 name = "orthrus-ncompress"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "770b9c12ef43e3204d9c5e4e77ed5fcd48a08a104b6ba17a3a10a0dc975deb07"
+checksum = "d2640cb31ca7922ee276a079c0fc593e0a8003967fe4d815e153a585ba05d3c1"
 dependencies = [
  "orthrus-core",
  "snafu",
