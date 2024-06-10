@@ -962,6 +962,9 @@ where
                 &mut offset,
             )?;
         }
+    } else if info.version >= 3 {
+        // If we don't have relocations, still set fix_size.
+        header.fix_size = Some(offset);
     }
 
     for symbol in file.symbols().filter(|s| s.is_definition()) {
