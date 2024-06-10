@@ -688,6 +688,10 @@ pub struct RelWriteInfo {
     pub quiet: bool,
     /// Override individual section alignment in the file.
     pub section_align: Option<Vec<u32>>,
+    /// Override individual section executable status in the file.
+    /// This is used to match empty sections: mwld will emit them with
+    /// NULL type, but the original REL may have them marked executable.
+    pub section_exec: Option<Vec<bool>>,
 }
 
 pub const PERMITTED_SECTIONS: [&str; 7] =
@@ -1006,12 +1010,12 @@ where
                 offset = current_data_offset;
                 current_data_offset += section.size() as u32;
             }
-            RelSectionHeader::new(
-                offset,
-                section.size() as u32,
-                section.kind() == object::SectionKind::Text,
-            )
-            .to_writer(w, Endian::Big)?;
+            let exec = info
+                .section_exec
+                .as_ref()
+                .and_then(|m| m.get(section_index as usize).copied())
+                .unwrap_or(section.kind() == object::SectionKind::Text);
+            RelSectionHeader::new(offset, section.size() as u32, exec).to_writer(w, Endian::Big)?;
             permitted_section_idx += 1;
         } else {
             RelSectionHeader::new(0, 0, false).to_writer(w, Endian::Big)?;

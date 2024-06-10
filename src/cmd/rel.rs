@@ -346,8 +346,11 @@ fn make(args: MakeArgs) -> Result<()> {
             section_count: None,
             quiet: args.no_warn,
             section_align: None,
+            section_exec: None,
         };
-        if let Some((header, _, section_defs)) = existing_headers.get(&(module_id as u32)) {
+        if let Some((header, section_headers, section_defs)) =
+            existing_headers.get(&(module_id as u32))
+        {
             info.version = header.version;
             info.name_offset = Some(header.name_offset);
             info.name_size = Some(header.name_size);
@@ -358,6 +361,7 @@ fn make(args: MakeArgs) -> Result<()> {
                 .as_ref()
                 .map(|defs| defs.iter().map(|def| def.align).collect())
                 .unwrap_or_default();
+            info.section_exec = Some(section_headers.iter().map(|s| s.exec()).collect());
         }
         let rel_path = path.with_extension("rel");
         let mut w = buf_writer(&rel_path)?;
