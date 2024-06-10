@@ -348,12 +348,15 @@ impl Tracker {
                 }
                 Ok(ExecCbResult::Continue)
             }
-            StepResult::Illegal => bail!(
-                "Illegal instruction hit @ {:#010X} (function {:#010X}-{:#010X})",
-                ins_addr,
-                function_start,
-                function_end
-            ),
+            StepResult::Illegal => {
+                log::debug!(
+                    "Illegal instruction hit @ {:#010X} (function {:#010X}-{:#010X})",
+                    ins_addr,
+                    function_start,
+                    function_end
+                );
+                Ok(ExecCbResult::Continue)
+            }
             StepResult::Jump(target) => match target {
                 BranchTarget::Unknown
                 | BranchTarget::Return

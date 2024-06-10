@@ -266,8 +266,13 @@ impl FunctionSlices {
                 }
             }
             StepResult::Illegal => {
-                log::debug!("Illegal instruction @ {:#010X}", ins_addr);
-                Ok(ExecCbResult::End(false))
+                if ins.code == 0 {
+                    log::debug!("Hit zeroed padding @ {:#010X}", ins_addr);
+                    Ok(ExecCbResult::End(false))
+                } else {
+                    log::debug!("Illegal instruction @ {:#010X}", ins_addr);
+                    Ok(ExecCbResult::Continue)
+                }
             }
             StepResult::Jump(target) => match target {
                 BranchTarget::Unknown
