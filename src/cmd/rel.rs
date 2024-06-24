@@ -178,12 +178,18 @@ fn load_rel(module_config: &ModuleConfig) -> Result<RelInfo> {
     Ok((header, sections, section_defs))
 }
 
+struct LoadedModule<'a> {
+    module_id: u32,
+    file: File<'a>,
+    path: PathBuf,
+}
+
 fn resolve_relocations(
     module: &File,
     existing_headers: &BTreeMap<u32, RelInfo>,
-    module_id: usize,
-    symbol_map: &FxHashMap<&[u8], (usize, SymbolIndex)>,
-    modules: &[(File, PathBuf)],
+    module_id: u32,
+    symbol_map: &FxHashMap<&[u8], (u32, SymbolIndex)>,
+    modules: &[LoadedModule],
     relocations: &mut Vec<RelReloc>,
 ) -> Result<usize> {
     let mut resolved = 0usize;
@@ -191,12 +197,11 @@ fn resolve_relocations(
         if !matches!(section.name(), Ok(name) if PERMITTED_SECTIONS.contains(&name)) {
             continue;
         }
-        let section_index =
-            if let Some((_, sections, _)) = existing_headers.get(&(module_id as u32)) {
-                match_section_index(module, section.index(), sections)?
-            } else {
-                section.index().0
-            } as u8;
+        let section_index = if let Some((_, sections, _)) = existing_headers.get(&module_id) {
+            match_section_index(module, section.index(), sections)?
+        } else {
+            section.index().0
+        } as u8;
         for (address, reloc) in section.relocations() {
             let reloc_target = match reloc.target() {
                 RelocationTarget::Symbol(idx) => {
@@ -211,7 +216,8 @@ fn resolve_relocations(
                 symbol_map
                     .get(reloc_target.name_bytes()?)
                     .map(|&(module_id, symbol_idx)| {
-                        (module_id, modules[module_id].0.symbol_by_index(symbol_idx).unwrap())
+                        let module = modules.iter().find(|m| m.module_id == module_id).unwrap();
+                        (module_id, module.file.symbol_by_index(symbol_idx).unwrap())
                     })
                     .ok_or_else(|| {
                         anyhow!(
@@ -223,18 +229,18 @@ fn resolve_relocations(
                 (module_id, reloc_target)
             };
             let target_section_index = target_symbol.section_index().unwrap();
-            let target_section = if let Some((_, sections, _)) =
-                existing_headers.get(&(target_module_id as u32))
-            {
-                match_section_index(&modules[target_module_id].0, target_section_index, sections)?
-            } else {
-                target_section_index.0
-            } as u8;
+            let target_section =
+                if let Some((_, sections, _)) = existing_headers.get(&target_module_id) {
+                    let module = modules.iter().find(|m| m.module_id == module_id).unwrap();
+                    match_section_index(&module.file, target_section_index, sections)?
+                } else {
+                    target_section_index.0
+                } as u8;
             relocations.push(RelReloc {
                 kind: to_obj_reloc_kind(reloc.flags())?,
                 section: section_index,
                 address: address as u32,
-                module_id: target_module_id as u32,
+                module_id: target_module_id,
                 target_section,
                 addend: (target_symbol.address() as i64 + reloc.addend()) as u32,
                 // Extra
@@ -253,16 +259,19 @@ fn make(args: MakeArgs) -> Result<()> {
 
     // Load existing REL headers (if specified)
     let mut existing_headers = BTreeMap::<u32, RelInfo>::new();
+    let mut name_to_module_id = FxHashMap::<String, u32>::default();
     if let Some(config_path) = &args.config {
         let config: ProjectConfig = serde_yaml::from_reader(&mut buf_reader(config_path)?)?;
         for module_config in &config.modules {
-            if !args.names.is_empty() && !args.names.iter().any(|n| n == &module_config.name()) {
+            let module_name = module_config.name();
+            if !args.names.is_empty() && !args.names.iter().any(|n| n == &module_name) {
                 continue;
             }
-            let _span = info_span!("module", name = %module_config.name()).entered();
+            let _span = info_span!("module", name = %module_name).entered();
             let info = load_rel(module_config).with_context(|| {
                 format!("While loading REL '{}'", module_config.object.display())
             })?;
+            name_to_module_id.insert(module_name.to_string(), info.0.module_id);
             match existing_headers.entry(info.0.module_id) {
                 btree_map::Entry::Vacant(e) => e.insert(info),
                 btree_map::Entry::Occupied(_) => {
@@ -281,22 +290,33 @@ fn make(args: MakeArgs) -> Result<()> {
     let files = paths.iter().map(map_file).collect::<Result<Vec<_>>>()?;
     let modules = files
         .par_iter()
+        .enumerate()
         .zip(&paths)
-        .map(|(file, path)| {
+        .map(|((idx, file), path)| {
+            // Fetch module ID by module name, if specified, to support non-sequential module IDs
+            // Otherwise, use sequential module IDs starting with the DOL as 0 (default behavior)
+            let module_id = args
+                .names
+                .get(idx)
+                .and_then(|n| name_to_module_id.get(n))
+                .copied()
+                .unwrap_or(idx as u32);
             load_obj(file.as_slice())
-                .map(|o| (o, path.clone()))
+                .map(|o| LoadedModule { module_id, file: o, path: path.clone() })
                 .with_context(|| format!("Failed to load '{}'", path.display()))
         })
         .collect::<Result<Vec<_>>>()?;
 
     // Create symbol map
     let start = Instant::now();
-    let mut symbol_map = FxHashMap::<&[u8], (usize, SymbolIndex)>::default();
-    for (module_id, (module, path)) in modules.iter().enumerate() {
-        let _span = info_span!("file", path = %path.display()).entered();
-        for symbol in module.symbols() {
+    let mut symbol_map = FxHashMap::<&[u8], (u32, SymbolIndex)>::default();
+    for module_info in modules.iter() {
+        let _span = info_span!("file", path = %module_info.path.display()).entered();
+        for symbol in module_info.file.symbols() {
             if symbol.scope() == object::SymbolScope::Dynamic {
-                symbol_map.entry(symbol.name_bytes()?).or_insert((module_id, symbol.index()));
+                symbol_map
+                    .entry(symbol.name_bytes()?)
+                    .or_insert((module_info.module_id, symbol.index()));
             }
         }
     }
@@ -305,19 +325,19 @@ fn make(args: MakeArgs) -> Result<()> {
     let mut resolved = 0usize;
     let mut relocations = Vec::<Vec<RelReloc>>::with_capacity(modules.len() - 1);
     relocations.resize_with(modules.len() - 1, Vec::new);
-    for ((module_id, (module, path)), relocations) in
-        modules.iter().enumerate().skip(1).zip(&mut relocations)
-    {
-        let _span = info_span!("file", path = %path.display()).entered();
+    for (module_info, relocations) in modules.iter().skip(1).zip(&mut relocations) {
+        let _span = info_span!("file", path = %module_info.path.display()).entered();
         resolved += resolve_relocations(
-            module,
+            &module_info.file,
             &existing_headers,
-            module_id,
+            module_info.module_id,
             &symbol_map,
             &modules,
             relocations,
         )
-        .with_context(|| format!("While resolving relocations in '{}'", path.display()))?;
+        .with_context(|| {
+            format!("While resolving relocations in '{}'", module_info.path.display())
+        })?;
     }
 
     if !args.quiet {
@@ -332,12 +352,10 @@ fn make(args: MakeArgs) -> Result<()> {
 
     // Write RELs
     let start = Instant::now();
-    for ((module_id, (module, path)), relocations) in
-        modules.iter().enumerate().skip(1).zip(relocations)
-    {
-        let _span = info_span!("file", path = %path.display()).entered();
+    for (module_info, relocations) in modules.iter().skip(1).zip(relocations) {
+        let _span = info_span!("file", path = %module_info.path.display()).entered();
         let mut info = RelWriteInfo {
-            module_id: module_id as u32,
+            module_id: module_info.module_id,
             version: 3,
             name_offset: None,
             name_size: None,
@@ -349,7 +367,7 @@ fn make(args: MakeArgs) -> Result<()> {
             section_exec: None,
         };
         if let Some((header, section_headers, section_defs)) =
-            existing_headers.get(&(module_id as u32))
+            existing_headers.get(&module_info.module_id)
         {
             info.version = header.version;
             info.name_offset = Some(header.name_offset);
@@ -363,9 +381,9 @@ fn make(args: MakeArgs) -> Result<()> {
                 .unwrap_or_default();
             info.section_exec = Some(section_headers.iter().map(|s| s.exec()).collect());
         }
-        let rel_path = path.with_extension("rel");
+        let rel_path = module_info.path.with_extension("rel");
         let mut w = buf_writer(&rel_path)?;
-        write_rel(&mut w, &info, module, relocations)
+        write_rel(&mut w, &info, &module_info.file, relocations)
             .with_context(|| format!("Failed to write '{}'", rel_path.display()))?;
         w.flush()?;
     }
