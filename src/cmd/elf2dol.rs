@@ -19,6 +19,9 @@ pub struct Args {
     #[argp(positional)]
     /// path to output DOL
     dol_file: PathBuf,
+    /// sections (by name) to ignore
+    #[argp(option, long = "ignore")]
+    deny_sections: Vec<String>,
 }
 
 #[derive(Debug, Clone, Default)]
@@ -61,9 +64,11 @@ pub fn run(args: Args) -> Result<()> {
     out.seek(SeekFrom::Start(offset as u64))?;
 
     // Text sections
-    for section in
-        obj_file.sections().filter(|s| section_kind(s) == SectionKind::Text && is_alloc(s.flags()))
-    {
+    for section in obj_file.sections().filter(|s| {
+        section_kind(s) == SectionKind::Text
+            && is_alloc(s.flags())
+            && is_name_allowed(s, &args.deny_sections)
+    }) {
         log::debug!("Processing text section '{}'", section.name().unwrap_or("[error]"));
         let address = section.address() as u32;
         let size = align32(section.size() as u32);
@@ -79,9 +84,11 @@ pub fn run(args: Args) -> Result<()> {
     }
 
     // Data sections
-    for section in
-        obj_file.sections().filter(|s| section_kind(s) == SectionKind::Data && is_alloc(s.flags()))
-    {
+    for section in obj_file.sections().filter(|s| {
+        section_kind(s) == SectionKind::Data
+            && is_alloc(s.flags())
+            && is_name_allowed(s, &args.deny_sections)
+    }) {
         log::debug!("Processing data section '{}'", section.name().unwrap_or("[error]"));
         let address = section.address() as u32;
         let size = align32(section.size() as u32);
@@ -97,10 +104,11 @@ pub fn run(args: Args) -> Result<()> {
     }
 
     // BSS sections
-    for section in obj_file
-        .sections()
-        .filter(|s| section_kind(s) == SectionKind::UninitializedData && is_alloc(s.flags()))
-    {
+    for section in obj_file.sections().filter(|s| {
+        section_kind(s) == SectionKind::UninitializedData
+            && is_alloc(s.flags())
+            && is_name_allowed(s, &args.deny_sections)
+    }) {
         let address = section.address() as u32;
         let size = section.size() as u32;
         if header.bss_address == 0 {
@@ -183,4 +191,9 @@ fn section_kind(section: &object::Section) -> SectionKind {
 #[inline]
 fn is_alloc(flags: object::SectionFlags) -> bool {
     matches!(flags, object::SectionFlags::Elf { sh_flags } if sh_flags & object::elf::SHF_ALLOC as u64 != 0)
+}
+
+#[inline]
+fn is_name_allowed(s: &object::Section, denied: &[String]) -> bool {
+    !denied.contains(&s.name().unwrap_or("[error]").to_string())
 }

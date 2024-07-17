@@ -321,6 +321,8 @@ Creates a DOL file from the provided ELF file.
 
 ```shell
 $ dtk elf2dol input.elf output.dol
+# or, to ignore certain sections
+$ dtk elf2dol input.elf output.dol --ignore debug_section1 --ignore debug_section2
 ```
 
 ### map
