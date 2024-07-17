@@ -597,18 +597,26 @@ pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
                 StepResult::Branch(branches) => {
                     for branch in branches {
                         if branch.link {
-                            // ProDG bug? Registers are supposed to start at r3
+                            // Some ProDG crt0.s versions use the wrong registers, some don't
                             if let (
                                 GprValue::Constant(addr),
                                 GprValue::Constant(value),
                                 GprValue::Constant(size),
-                            ) = (vm.gpr_value(4), vm.gpr_value(5), vm.gpr_value(6))
-                            {
+                            ) = {
+                                if vm.gpr_value(4) == GprValue::Constant(0) {
+                                    (vm.gpr_value(3), vm.gpr_value(4), vm.gpr_value(5))
+                                } else {
+                                    (vm.gpr_value(4), vm.gpr_value(5), vm.gpr_value(6))
+                                }
+                            } {
                                 if value == 0 && size > 0 {
                                     bss_sections.push((addr, size));
                                 }
                             }
                         }
+                    }
+                    if bss_sections.len() >= 2 {
+                        return Ok(ExecCbResult::End(()));
                     }
                     Ok(ExecCbResult::Continue)
                 }
