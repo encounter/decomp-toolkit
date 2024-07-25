@@ -34,11 +34,23 @@ pub const DOL_SECTION_NAMES: [Option<&str>; 14] = [
     Some(".sbss2"),
     None, // s_zero2
 ];
+
+pub const RSO_SECTION_NAMES: [&str; 7] = [ 
+    ".init", 
+    ".text", 
+    ".ctors", 
+    ".dtors",
+    ".rodata",
+    ".data",
+    ".bss" 
+];
+
 /// extabindex section index.
 pub const DOL_SECTION_ETI: u32 = 241;
 /// ABS symbol section index.
 pub const DOL_SECTION_ABS: u32 = 65521;
 
+#[derive(Default)]
 pub struct RsoHeader {
     // Pointer to the next module, forming a linked list. Always 0, filled in at runtime.
     // pub next: u32,
@@ -99,6 +111,15 @@ pub struct RsoHeader {
     pub import_table_size: u32,
     /// Absolute offset of the string table containing import symbol names.
     pub import_table_name_offset: u32,
+}
+
+impl RsoHeader {
+    pub fn new() -> Self {
+        Self {
+            version: 1,
+            ..Default::default()
+        }
+    }
 }
 
 impl FromReader for RsoHeader {
@@ -205,13 +226,46 @@ impl FromReader for RsoHeader {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+impl ToWriter for RsoHeader {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        (0u64).to_writer(writer, e)?; // next and prev
+        self.num_sections.to_writer(writer, e)?;
+        self.section_info_offset.to_writer(writer, e)?;
+        self.name_offset.to_writer(writer, e)?;
+        self.name_size.to_writer(writer, e)?;
+        self.version.to_writer(writer, e)?;
+        self.bss_size.to_writer(writer, e)?;
+        self.prolog_section.to_writer(writer, e)?;
+        self.epilog_section.to_writer(writer, e)?;
+        self.unresolved_section.to_writer(writer, e)?;
+        (0u8).to_writer(writer, e)?; // bss_section
+        self.prolog_offset.to_writer(writer, e)?;
+        self.epilog_offset.to_writer(writer, e)?;
+        self.unresolved_offset.to_writer(writer, e)?;
+        self.internal_rel_offset.to_writer(writer, e)?;
+        self.internal_rel_size.to_writer(writer, e)?;
+        self.external_rel_offset.to_writer(writer, e)?;
+        self.external_rel_size.to_writer(writer, e)?;
+        self.export_table_offset.to_writer(writer, e)?;
+        self.export_table_size.to_writer(writer, e)?;
+        self.export_table_name_offset.to_writer(writer, e)?;
+        self.import_table_offset.to_writer(writer, e)?;
+        self.import_table_size.to_writer(writer, e)?;
+        self.import_table_name_offset.to_writer(writer, e)?;
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { Self::STATIC_SIZE }
+}
+
+#[derive(Copy, Clone, Debug, Default)]
 pub struct RsoSectionHeader {
     /// Absolute offset of the section.
     /// The lowest bit is set if the section is executable.
-    offset_and_flags: u32,
+    pub offset_and_flags: u32,
     /// Size of the section.
-    size: u32,
+    pub size: u32,
 }
 
 impl FromReader for RsoSectionHeader {
@@ -255,17 +309,17 @@ impl RsoSectionHeader {
     pub fn exec(&self) -> bool { self.offset_and_flags & 1 != 0 }
 }
 
-struct RsoRelocation {
+pub struct RsoRelocation {
     /// Absolute offset of this relocation (relative to the start of the RSO file).
-    offset: u32,
+    pub offset: u32,
     /// For internal relocations, this is the section index of the symbol being patched to.
     /// For external relocations, this is the index of the symbol within the import symbol table.
     /// The lowest 8 bits are the relocation type.
-    id_and_type: u32,
+    pub id_and_type: u32,
     /// For internal relocations, this is the section-relative offset of the target symbol.
     /// For external relocations, this is unused and always 0 (the offset is calculated using the
     /// import symbol table).
-    target_offset: u32,
+    pub target_offset: u32,
 }
 
 impl FromReader for RsoRelocation {
@@ -315,22 +369,23 @@ impl RsoRelocation {
 }
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq)]
-enum RsoSymbolKind {
+pub enum RsoSymbolKind {
     Import,
     Export,
 }
 
-struct RsoSymbol {
+#[derive(Debug)]
+pub struct RsoSymbol {
     /// Relative offset into the name table pointed to in the header,
     /// which points to the name of this symbol.
-    name_offset: u32,
+    pub name_offset: u32,
     /// The section-relative offset to the symbol. This is always 0 for imports.
-    offset: u32,
+    pub offset: u32,
     /// For exports, index of the section that contains this symbol.
-    /// For imports, appears to be an offset?
-    section_index: u32,
+    /// For imports, offset of the first relocation that use this symbol
+    pub section_index: u32,
     /// A hash of the symbol name. Only present for exports.
-    hash: Option<u32>,
+    pub hash: Option<u32>,
 }
 
 impl FromReader for RsoSymbol {
@@ -360,7 +415,8 @@ impl ToWriter for RsoSymbol {
         self.offset.to_writer(writer, e)?;
         self.section_index.to_writer(writer, e)?;
         if let Some(hash) = self.hash {
-            hash.to_writer(writer, e)?;
+            // Since the nature of the value is not numeric, we must preserve the order of the bytes
+            writer.write_all(&hash.to_ne_bytes())?;
         }
         Ok(())
     }
@@ -524,7 +580,7 @@ where R: Read + Seek + ?Sized {
     Ok(obj)
 }
 
-fn symbol_hash(s: &str) -> u32 {
+pub fn symbol_hash(s: &str) -> u32 {
     s.bytes().fold(0u32, |hash, c| {
         let mut m = (hash << 4).wrapping_add(c as u32);
         let n = m & 0xF0000000;

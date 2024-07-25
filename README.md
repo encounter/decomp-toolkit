@@ -39,6 +39,7 @@ project structure and build system that uses decomp-toolkit under the hood.
   - [rel info](#rel-info)
   - [rel merge](#rel-merge)
   - [rso info](#rso-info)
+  - [rso make](#rso-make)
   - [shasum](#shasum)
   - [nlzss decompress](#nlzss-decompress)
   - [rarc list](#rarc-list)
@@ -368,6 +369,22 @@ Prints information about an RSO file.
 
 ```shell
 $ dtk rso info input.rso
+```
+
+### rso make
+
+> [!WARNING]  
+> This command only support creating rso file (no sel file).
+
+Convert a relocatable elf into a rso file
+
+Options:
+- `-o`, `--output <File>`: Output rso file.
+- `-m`, `--module-name <Name>`: Module name (or path). Default: input name
+- `-e`, `--export <File>`: Path of file containing the symbols allowed to be exported (Divided by `\n`). Default `None`, means no symbol would be exported
+
+```shell
+$ dtk rso make input.elf -o input.rso
 ```
 
 ### shasum
