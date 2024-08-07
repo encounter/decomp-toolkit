@@ -35,15 +35,8 @@ pub const DOL_SECTION_NAMES: [Option<&str>; 14] = [
     None, // s_zero2
 ];
 
-pub const RSO_SECTION_NAMES: [&str; 7] = [ 
-    ".init", 
-    ".text", 
-    ".ctors", 
-    ".dtors",
-    ".rodata",
-    ".data",
-    ".bss" 
-];
+pub const RSO_SECTION_NAMES: [&str; 7] =
+    [".init", ".text", ".ctors", ".dtors", ".rodata", ".data", ".bss"];
 
 /// extabindex section index.
 pub const DOL_SECTION_ETI: u32 = 241;
@@ -114,12 +107,7 @@ pub struct RsoHeader {
 }
 
 impl RsoHeader {
-    pub fn new() -> Self {
-        Self {
-            version: 1,
-            ..Default::default()
-        }
-    }
+    pub fn new() -> Self { Self { version: 1, ..Default::default() } }
 }
 
 impl FromReader for RsoHeader {

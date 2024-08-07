@@ -45,7 +45,7 @@ pub struct InfoArgs {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Make RSO file from ELF.
+/// Creates an RSO from an ELF.
 #[argp(subcommand, name = "make")]
 pub struct MakeArgs {
     #[argp(positional, arg_name = "ELF File")]
@@ -61,7 +61,7 @@ pub struct MakeArgs {
     module_name: Option<String>,
 
     #[argp(option, short = 'e', arg_name = "File")]
-    /// Path of file containing the symbols allowed to be exported (Divided by `\n`)
+    /// file containing exported symbol names (newline separated)
     export: Option<PathBuf>,
 }
 
@@ -124,7 +124,7 @@ fn make_sel<P: AsRef<Path>>(
     _module_name: &str,
     _symbols_to_export: Vec<String>,
 ) -> Result<()> {
-    bail!("Making SEL file is not supported at the momment");
+    bail!("Creating SEL files is not supported yet.");
 }
 
 fn make_rso<P: AsRef<Path>>(
@@ -253,7 +253,7 @@ fn make_rso<P: AsRef<Path>>(
         };
 
         let symbol_name = match symbol.name() {
-            std::result::Result::Ok(n) => {
+            Ok(n) => {
                 if n.is_empty() {
                     continue;
                 }
@@ -335,9 +335,7 @@ fn make_rso<P: AsRef<Path>>(
                 _ => continue,
             };
 
-            let std::result::Result::Ok(reloc_target_symbol) =
-                file.symbol_by_index(reloc_target_symbol_idx)
-            else {
+            let Ok(reloc_target_symbol) = file.symbol_by_index(reloc_target_symbol_idx) else {
                 bail!(
                     "Failed to find relocation `{:08X}` symbol ({})",
                     reloc_addr,

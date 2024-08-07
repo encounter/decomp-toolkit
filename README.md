@@ -374,14 +374,14 @@ $ dtk rso info input.rso
 ### rso make
 
 > [!WARNING]  
-> This command only support creating rso file (no sel file).
+> This command does not yet support creating SEL files.
 
-Convert a relocatable elf into a rso file
+Creates an RSO file from a relocatable ELF file.
 
 Options:
-- `-o`, `--output <File>`: Output rso file.
+- `-o`, `--output <File>`: Output RSO file.
 - `-m`, `--module-name <Name>`: Module name (or path). Default: input name
-- `-e`, `--export <File>`: Path of file containing the symbols allowed to be exported (Divided by `\n`). Default `None`, means no symbol would be exported
+- `-e`, `--export <File>`: File containing exported symbol names. (Newline separated)
 
 ```shell
 $ dtk rso make input.elf -o input.rso
