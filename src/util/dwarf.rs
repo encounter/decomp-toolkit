@@ -274,6 +274,7 @@ pub enum AttributeKind {
     Prototyped = 0x0270 | (FormKind::String as u16),
     Public = 0x0280 | (FormKind::String as u16),
     PureVirtual = 0x0290 | (FormKind::String as u16),
+    PureVirtualBlock2 = 0x0290 | (FormKind::Block2 as u16),
     ReturnAddr = 0x02a0 | (FormKind::Block2 as u16),
     Specification = 0x02b0 | (FormKind::Ref as u16),
     StartScope = 0x02c0 | (FormKind::Data4 as u16),
@@ -283,6 +284,7 @@ pub enum AttributeKind {
     UpperBoundData4 = 0x02f0 | (FormKind::Data4 as u16),
     UpperBoundData8 = 0x02f0 | (FormKind::Data8 as u16),
     Virtual = 0x0300 | (FormKind::String as u16),
+    VirtualBlock2 = 0x0300 | (FormKind::Block2 as u16),
     LoUser = 0x2000,
     HiUser = 0x3ff0,
     // User types
