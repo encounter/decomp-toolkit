@@ -12,7 +12,7 @@ use indexmap::IndexMap;
 use objdiff_core::obj::split_meta::{SplitMeta, SHT_SPLITMETA, SPLITMETA_SECTION};
 use object::{
     elf,
-    elf::{SHF_ALLOC, SHF_EXECINSTR, SHF_WRITE, SHT_NOBITS, SHT_PROGBITS},
+    elf::{SHF_ALLOC, SHF_EXECINSTR, SHF_WRITE, SHT_LOUSER, SHT_NOBITS, SHT_PROGBITS},
     write::{
         elf::{ProgramHeader, Rel, SectionHeader, SectionIndex, SymbolIndex, Writer},
         StringId,
@@ -33,6 +33,8 @@ use crate::{
         reader::{Endian, FromReader, ToWriter},
     },
 };
+
+pub const SHT_MWCATS: u32 = SHT_LOUSER + 0x4A2A82C2;
 
 enum BoundaryState {
     /// Looking for a file symbol, any section symbols are queued
@@ -456,7 +458,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     };
 
     // Generate .note.split section
-    let mut split_meta = if let Some(metadata) = &obj.split_meta {
+    let mut split_meta = if let (Some(metadata), Some(_)) = (&obj.split_meta, &obj.mw_comment) {
         // Reserve section
         let name = writer.add_section_name(SPLITMETA_SECTION.as_bytes());
         let index = writer.reserve_section_index();
@@ -825,9 +827,16 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     // Write .note.split section header
     if let Some((metadata, idx)) = &split_meta {
         let out_section = &out_sections[*idx];
+        let mut sh_type = SHT_SPLITMETA;
+        if matches!(&obj.mw_comment, Some(comment) if comment.version < 14) {
+            // Prior to mwld GC 3.0a3, the linker doesn't support ELF .note sections
+            // properly. With GC 2.7, it crashes if the section type is SHT_NOTE.
+            // Use the same section type as .mwcats.* so the linker ignores it.
+            sh_type = SHT_MWCATS;
+        }
         writer.write_section_header(&SectionHeader {
             name: Some(out_section.name),
-            sh_type: SHT_SPLITMETA,
+            sh_type,
             sh_flags: 0,
             sh_addr: 0,
             sh_offset: out_section.offset as u64,
