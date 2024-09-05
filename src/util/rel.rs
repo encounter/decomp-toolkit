@@ -853,8 +853,10 @@ where
         offset = (offset + align) & !align;
         offset += section.size() as u32;
     }
-    // Align to 4 after section data
-    offset = (offset + 3) & !3;
+    if info.version >= 3 {
+        // Align to 4 after section data
+        offset = (offset + 3) & !3;
+    }
 
     fn do_relocation_layout(
         relocations: &[RelReloc],
@@ -1047,8 +1049,8 @@ where
         }
         w.write_all(&section_data)?;
     }
-    // Align to 4 after section data
-    {
+    if info.version >= 3 {
+        // Align to 4 after section data
         let position = w.stream_position()?;
         w.write_all(&vec![0u8; calculate_padding(position, 4) as usize])?;
     }
