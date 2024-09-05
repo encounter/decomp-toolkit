@@ -189,6 +189,7 @@ Supported disc image formats:
 - CISO (+ NKit 2 lossless)
 - NFS (Wii U VC)
 - GCZ
+- TGC
 
 ```shell
 $ dtk disc info /path/to/game.iso

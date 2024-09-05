@@ -292,9 +292,9 @@ dependencies = [
 
 [[package]]
 name = "crc32fast"
-version = "1.4.0"
+version = "1.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3855a8a784b474f333699ef2bbca9db2c4a1f6d9088a90a2d25b1eb53111eaa"
+checksum = "a97769d94ddab943e4510d138150169a2758b5ef3eb191a9ee688de3e23ef7b3"
 dependencies = [
  "cfg-if",
 ]
@@ -367,7 +367,7 @@ checksum = "c2e06f9bce634a3c898eb1e5cb949ff63133cbb218af93cc9b38b31d6f3ea285"
 
 [[package]]
 name = "decomp-toolkit"
-version = "0.9.4"
+version = "0.9.5"
 dependencies = [
  "anyhow",
  "ar",
@@ -819,7 +819,8 @@ dependencies = [
 [[package]]
 name = "nod"
 version = "1.2.0"
-source = "git+https://github.com/encounter/nod-rs?rev=03b83484cb17f94408fa0ef8e50d94951464d1b2#03b83484cb17f94408fa0ef8e50d94951464d1b2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b03dca97c868300cc78d2b429d280a9cc9ce15aee36db9b127a5d4cc30023408"
 dependencies = [
  "adler",
  "aes",
@@ -843,7 +844,8 @@ dependencies = [
 [[package]]
 name = "nodtool"
 version = "1.2.0"
-source = "git+https://github.com/encounter/nod-rs?rev=03b83484cb17f94408fa0ef8e50d94951464d1b2#03b83484cb17f94408fa0ef8e50d94951464d1b2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e8a1d2c0bf25cc6af681b585090f5630c2822ea00a8f7644f2c6372eec4769d"
 dependencies = [
  "argp",
  "base16ct",
@@ -866,6 +868,7 @@ dependencies = [
  "tracing-subscriber",
  "xxhash-rust",
  "zerocopy",
+ "zstd",
 ]
 
 [[package]]

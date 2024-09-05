@@ -3,7 +3,7 @@ name = "decomp-toolkit"
 description = "Yet another GameCube/Wii decompilation toolkit."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.9.4"
+version = "0.9.5"
 edition = "2021"
 publish = false
 repository = "https://github.com/encounter/decomp-toolkit"
@@ -45,7 +45,7 @@ memchr = "2.7.2"
 memmap2 = "0.9.4"
 multimap = "0.10.0"
 nintendo-lz = "0.1.3"
-nodtool = { git = "https://github.com/encounter/nod-rs", rev = "03b83484cb17f94408fa0ef8e50d94951464d1b2" }
+nodtool = "1.2.0"
 #nodtool = { path = "../nod-rs/nodtool" }
 num_enum = "0.7.2"
 objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "a5a6a3928e392d5af5d92826e73b77e074b8788c", features = ["ppc"] }
