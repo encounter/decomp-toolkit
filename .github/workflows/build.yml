@@ -89,47 +89,38 @@ jobs:
             target: x86_64-unknown-linux-musl
             name: linux-x86_64
             build: zigbuild
-            features: default
           - platform: ubuntu-latest
             target: i686-unknown-linux-musl
             name: linux-i686
             build: zigbuild
-            features: default
           - platform: ubuntu-latest
             target: aarch64-unknown-linux-musl
             name: linux-aarch64
             build: zigbuild
-            features: default
           - platform: ubuntu-latest
             target: armv7-unknown-linux-musleabi
             name: linux-armv7l
             build: zigbuild
-            features: default
           - platform: windows-latest
             target: i686-pc-windows-msvc
             name: windows-x86
             build: build
-            features: default
           - platform: windows-latest
             target: x86_64-pc-windows-msvc
             name: windows-x86_64
             build: build
-            features: default
           - platform: windows-latest
             target: aarch64-pc-windows-msvc
             name: windows-arm64
             build: build
-            features: default
           - platform: macos-latest
             target: x86_64-apple-darwin
             name: macos-x86_64
             build: build
-            features: default
           - platform: macos-latest
             target: aarch64-apple-darwin
             name: macos-arm64
             build: build
-            features: default
       fail-fast: false
     runs-on: ${{ matrix.platform }}
     steps:
@@ -150,7 +141,7 @@ jobs:
       - name: Cargo build
         run: >
           cargo ${{ matrix.build }} --profile ${{ env.BUILD_PROFILE }} --target ${{ matrix.target }} 
-          --bin ${{ env.CARGO_BIN_NAME }} --features ${{ matrix.features }}
+          --bin ${{ env.CARGO_BIN_NAME }}
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
