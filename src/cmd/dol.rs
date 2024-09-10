@@ -1521,9 +1521,7 @@ fn symbol_name_fuzzy_eq(a: &ObjSymbol, b: &ObjSymbol) -> bool {
     }
     // Match e.g. @1234 and @5678
     if a.name.starts_with('@') && b.name.starts_with('@') {
-        if let (Ok(_), Ok(_)) = (a.name[1..].parse::<u32>(), b.name[1..].parse::<u32>()) {
-            return true;
-        }
+        return true;
     }
     // Match e.g. init$1234 and init$5678
     if let (Some(a_dollar), Some(b_dollar)) = (a.name.rfind('$'), b.name.rfind('$')) {
