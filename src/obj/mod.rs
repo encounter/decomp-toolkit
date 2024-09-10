@@ -13,7 +13,7 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Result};
 use objdiff_core::obj::split_meta::SplitMeta;
 pub use relocations::{ObjReloc, ObjRelocKind, ObjRelocations};
-pub use sections::{ObjSection, ObjSectionKind, ObjSections};
+pub use sections::{ObjSection, ObjSectionKind, ObjSections, section_kind_for_section};
 pub use splits::{ObjSplit, ObjSplits};
 pub use symbols::{
     best_match_for_reloc, ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,

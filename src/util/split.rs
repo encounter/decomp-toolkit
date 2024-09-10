@@ -758,26 +758,32 @@ fn trim_linker_generated_symbols(obj: &mut ObjInfo) -> Result<()> {
 pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bool) -> Result<()> {
     // Create splits for extab and extabindex entries
     if let Some((section_index, section)) = obj.sections.by_name("extabindex")? {
-        let start = SectionAddress::new(section_index, section.address as u32);
-        split_extabindex(obj, start)?;
+        if !section.data.is_empty() {
+            let start = SectionAddress::new(section_index, section.address as u32);
+            split_extabindex(obj, start)?;
+        }
     }
 
     // Create splits for .ctors entries
     if let Some((section_index, section)) = obj.sections.by_name(".ctors")? {
-        let start = SectionAddress::new(section_index, section.address as u32);
-        let end = start + (section.size as u32 - 4);
-        split_ctors_dtors(obj, start, end)?;
+        if !section.data.is_empty() {
+            let start = SectionAddress::new(section_index, section.address as u32);
+            let end = start + (section.size as u32 - 4);
+            split_ctors_dtors(obj, start, end)?;
+        }
     }
 
     // Create splits for .dtors entries
     if let Some((section_index, section)) = obj.sections.by_name(".dtors")? {
-        let mut start = SectionAddress::new(section_index, section.address as u32);
-        let end = start + (section.size as u32 - 4);
-        if obj.kind == ObjKind::Executable {
-            // Skip __destroy_global_chain_reference
-            start += 4;
+        if !section.data.is_empty() {
+            let mut start = SectionAddress::new(section_index, section.address as u32);
+            let end = start + (section.size as u32 - 4);
+            if obj.kind == ObjKind::Executable {
+                // Skip __destroy_global_chain_reference
+                start += 4;
+            }
+            split_ctors_dtors(obj, start, end)?;
         }
-        split_ctors_dtors(obj, start, end)?;
     }
 
     // Remove linker generated symbols from splits
@@ -1352,6 +1358,9 @@ pub fn end_for_section(obj: &ObjInfo, section_index: usize) -> Result<SectionAdd
         .get(section_index)
         .ok_or_else(|| anyhow!("Invalid section index: {}", section_index))?;
     let mut section_end = (section.address + section.size) as u32;
+    if section.data.is_empty() {
+        return Ok(SectionAddress::new(section_index, section_end));
+    }
     // .ctors and .dtors end with a linker-generated null pointer,
     // adjust section size appropriately
     if matches!(section.name.as_str(), ".ctors" | ".dtors")

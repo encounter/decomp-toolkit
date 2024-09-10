@@ -1,12 +1,15 @@
-use std::path::PathBuf;
+use std::{fs::DirBuilder, path::PathBuf};
 
 use anyhow::{bail, ensure, Result};
 use argp::FromArgs;
 use cwdemangle::{demangle, DemangleOptions};
+use tracing::error;
 
 use crate::util::{
+    config::{write_splits_file, write_symbols_file},
     file::map_file,
-    map::{process_map, SymbolEntry, SymbolRef},
+    map::{create_obj, process_map, SymbolEntry, SymbolRef},
+    split::update_splits,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -22,6 +25,7 @@ pub struct Args {
 enum SubCommand {
     Entries(EntriesArgs),
     Symbol(SymbolArgs),
+    Config(ConfigArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -48,10 +52,23 @@ pub struct SymbolArgs {
     symbol: String,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Generates project configuration files from a map. (symbols.txt, splits.txt)
+#[argp(subcommand, name = "config")]
+pub struct ConfigArgs {
+    #[argp(positional)]
+    /// path to input map
+    map_file: PathBuf,
+    #[argp(positional)]
+    /// output directory for symbols.txt and splits.txt
+    out_dir: PathBuf,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Entries(c_args) => entries(c_args),
         SubCommand::Symbol(c_args) => symbol(c_args),
+        SubCommand::Config(c_args) => config(c_args),
     }
 }
 
@@ -158,5 +175,20 @@ fn symbol(args: SymbolArgs) -> Result<()> {
         }
     }
     println!("\n");
+    Ok(())
+}
+
+fn config(args: ConfigArgs) -> Result<()> {
+    let file = map_file(&args.map_file)?;
+    log::info!("Processing map...");
+    let entries = process_map(&mut file.as_reader(), None, None)?;
+    let mut obj = create_obj(&entries)?;
+    if let Err(e) = update_splits(&mut obj, None, false) {
+        error!("Failed to update splits: {}", e)
+    }
+    DirBuilder::new().recursive(true).create(&args.out_dir)?;
+    write_symbols_file(args.out_dir.join("symbols.txt"), &obj, None)?;
+    write_splits_file(args.out_dir.join("splits.txt"), &obj, false, None)?;
+    log::info!("Done!");
     Ok(())
 }
