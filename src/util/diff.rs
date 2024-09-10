@@ -1,4 +1,5 @@
 //! This includes helpers to convert between decomp-toolkit types and objdiff-core types.
+//!
 //! Eventually it'd be nice to share [ObjInfo] and related types between decomp-toolkit and
 //! objdiff-core to avoid this conversion.
 use std::{
