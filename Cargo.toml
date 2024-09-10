@@ -3,7 +3,7 @@ name = "decomp-toolkit"
 description = "Yet another GameCube/Wii decompilation toolkit."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
-version = "0.9.6"
+version = "0.9.7"
 edition = "2021"
 publish = false
 repository = "https://github.com/encounter/decomp-toolkit"
@@ -20,56 +20,57 @@ panic = "abort"
 
 [profile.release-lto]
 inherits = "release"
-lto = "thin"
+lto = "fat"
 strip = "debuginfo"
+codegen-units = 1
 
 [dependencies]
-anyhow = { version = "1.0.82", features = ["backtrace"] }
+anyhow = { version = "1.0", features = ["backtrace"] }
 ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_table" }
-argp = "0.3.0"
-base16ct = "0.2.0"
-base64 = "0.22.1"
-crossterm = "0.27.0"
-cwdemangle = "1.0.0"
-enable-ansi-support = "0.2.1"
-filetime = "0.2.23"
-fixedbitset = "0.5.7"
-flagset = { version = "0.4.5", features = ["serde"] }
-glob = "0.3.1"
-hex = "0.4.3"
-indent = "0.1.1"
-indexmap = "2.2.6"
-itertools = "0.12.1"
-log = "0.4.21"
-memchr = "2.7.2"
-memmap2 = "0.9.4"
-multimap = "0.10.0"
-nintendo-lz = "0.1.3"
-nodtool = "1.2.0"
+argp = "0.3"
+base16ct = "0.2"
+base64 = "0.22"
+crossterm = "0.28"
+cwdemangle = "1.0"
+enable-ansi-support = "0.2"
+filetime = "0.2"
+fixedbitset = "0.5"
+flagset = { version = "0.4", features = ["serde"] }
+glob = "0.3"
+hex = "0.4"
+indent = "0.1"
+indexmap = "2.5"
+itertools = "0.13"
+log = "0.4"
+memchr = "2.7"
+memmap2 = "0.9"
+multimap = "0.10"
+nintendo-lz = "0.1"
+nodtool = "1.2"
 #nodtool = { path = "../nod-rs/nodtool" }
-num_enum = "0.7.2"
-objdiff-core = { git = "https://github.com/encounter/objdiff", rev = "a5a6a3928e392d5af5d92826e73b77e074b8788c", features = ["ppc"] }
+num_enum = "0.7"
+objdiff-core = { version = "2.0", features = ["ppc"] }
 #objdiff-core = { path = "../objdiff/objdiff-core", features = ["ppc"] }
-object = { version = "0.35.0", features = ["read_core", "std", "elf", "write_std"], default-features = false }
-once_cell = "1.19.0"
-orthrus-ncompress = "0.2.1"
-owo-colors = { version = "4.0.0", features = ["supports-colors"] }
-path-slash = "0.2.1"
-petgraph = { version = "0.6.4", default-features = false }
-ppc750cl = { git = "https://github.com/encounter/ppc750cl", rev = "6cbd7d888c7082c2c860f66cbb9848d633f753ed" }
-rayon = "1.10.0"
-regex = "1.10.4"
-rustc-hash = "1.1.0"
-sanitise-file-name = "1.0.0"
-serde = "1.0.199"
-serde_json = "1.0.116"
-serde_repr = "0.1.19"
-serde_yaml = "0.9.34"
-sha-1 = "0.10.1"
-supports-color = "3.0.0"
-syntect = { version = "5.2.0", features = ["parsing", "regex-fancy", "dump-load"], default-features = false }
-tracing = "0.1.40"
-tracing-attributes = "0.1.27"
-tracing-subscriber = { version = "0.3.18", features = ["env-filter"] }
-xxhash-rust = { version = "0.8.10", features = ["xxh3"] }
-zerocopy = { version = "0.7.34", features = ["derive"] }
+object = { version = "0.36", features = ["read_core", "std", "elf", "write_std"], default-features = false }
+once_cell = "1.19"
+orthrus-ncompress = "0.2"
+owo-colors = { version = "4.0", features = ["supports-colors"] }
+path-slash = "0.2"
+petgraph = { version = "0.6", default-features = false }
+ppc750cl = "0.3"
+rayon = "1.10"
+regex = "1.10"
+rustc-hash = "2.0"
+sanitise-file-name = "1.0"
+serde = "1.0"
+serde_json = "1.0"
+serde_repr = "0.1"
+serde_yaml = "0.9"
+sha-1 = "0.10"
+supports-color = "3.0"
+syntect = { version = "5.2", features = ["parsing", "regex-fancy", "dump-load"], default-features = false }
+tracing = "0.1"
+tracing-attributes = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+xxhash-rust = { version = "0.8", features = ["xxh3"] }
+zerocopy = { version = "0.7", features = ["derive"] }

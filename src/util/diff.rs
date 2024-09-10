@@ -28,7 +28,7 @@ pub fn process_code(
     section: &ObjSection,
     config: &DiffObjConfig,
 ) -> Result<ProcessCodeResult> {
-    let arch = objdiff_core::arch::ppc::ObjArchPpc {};
+    let arch = objdiff_core::arch::ppc::ObjArchPpc { extab: None };
     let orig_relocs = section
         .relocations
         .range(symbol.address as u32..symbol.address as u32 + symbol.size as u32)
@@ -224,8 +224,11 @@ fn print_line(ins_diff: &ObjInsDiff, base_addr: u64) -> Vec<Span> {
                     base_color = COLOR_ROTATION[diff.idx % COLOR_ROTATION.len()]
                 }
             }
-            DiffText::BranchDest(addr) => {
+            DiffText::BranchDest(addr, diff) => {
                 label_text = format!("{addr:x}");
+                if let Some(diff) = diff {
+                    base_color = COLOR_ROTATION[diff.idx % COLOR_ROTATION.len()]
+                }
             }
             DiffText::Symbol(sym) => {
                 let name = sym.demangled_name.as_ref().unwrap_or(&sym.name);
@@ -297,6 +300,7 @@ fn to_objdiff_symbol(
         flags,
         addend,
         virtual_address: None,
+        original_index: None,
     }
 }
 

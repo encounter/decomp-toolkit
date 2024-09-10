@@ -299,7 +299,7 @@ where P: AsRef<Path> {
         }
 
         // Generate symbols
-        if matches!(symbol.kind(), SymbolKind::Null | SymbolKind::File)
+        if matches!(symbol.kind(), SymbolKind::File)
             || matches!(symbol.section_index(), Some(idx) if section_indexes[idx.0].is_none())
         {
             symbol_indexes.push(None);

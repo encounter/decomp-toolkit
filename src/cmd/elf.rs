@@ -308,7 +308,7 @@ fn fixup(args: FixupArgs) -> Result<()> {
     let mut addr_to_sym: BTreeMap<SectionId, BTreeMap<u32, SymbolId>> = BTreeMap::new();
     for symbol in in_file.symbols() {
         // Skip section and file symbols, we wrote them above
-        if matches!(symbol.kind(), SymbolKind::Section | SymbolKind::File | SymbolKind::Null) {
+        if matches!(symbol.kind(), SymbolKind::Section | SymbolKind::File) {
             symbol_ids.push(None);
             continue;
         }
