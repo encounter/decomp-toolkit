@@ -70,7 +70,7 @@ where P: AsRef<Path> {
     let mut sda2_base: Option<u32> = None;
 
     let mut sections: Vec<ObjSection> = vec![];
-    let mut section_indexes: Vec<Option<usize>> = vec![];
+    let mut section_indexes: Vec<Option<usize>> = vec![None /* ELF null section */];
     for section in obj_file.sections() {
         if section.size() == 0 {
             section_indexes.push(None);
@@ -115,6 +115,7 @@ where P: AsRef<Path> {
                 .context("While reading .comment section")?;
             log::debug!("Loaded .comment section header {:?}", header);
             let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
+            CommentSym::from_reader(&mut reader, Endian::Big)?; // ELF null symbol
             for symbol in obj_file.symbols() {
                 let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
                 log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
@@ -149,7 +150,7 @@ where P: AsRef<Path> {
     };
 
     let mut symbols: Vec<ObjSymbol> = vec![];
-    let mut symbol_indexes: Vec<Option<usize>> = vec![];
+    let mut symbol_indexes: Vec<Option<usize>> = vec![None /* ELF null symbol */];
     let mut section_starts = IndexMap::<String, Vec<(u64, String)>>::new();
     let mut name_to_index = HashMap::<String, usize>::new(); // for resolving duplicate names
     let mut boundary_state = BoundaryState::LookForFile(Default::default());

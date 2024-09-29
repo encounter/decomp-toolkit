@@ -281,7 +281,7 @@ fn fixup(args: FixupArgs) -> Result<()> {
     }
 
     // Write section symbols & sections
-    let mut section_ids: Vec<Option<SectionId>> = vec![];
+    let mut section_ids: Vec<Option<SectionId>> = vec![None /* ELF null section */];
     for section in in_file.sections() {
         // Skip empty sections or metadata sections
         if section.size() == 0 || section.kind() == SectionKind::Metadata {
@@ -304,7 +304,7 @@ fn fixup(args: FixupArgs) -> Result<()> {
     }
 
     // Write symbols
-    let mut symbol_ids: Vec<Option<SymbolId>> = vec![];
+    let mut symbol_ids: Vec<Option<SymbolId>> = vec![None /* ELF null symbol */];
     let mut addr_to_sym: BTreeMap<SectionId, BTreeMap<u32, SymbolId>> = BTreeMap::new();
     for symbol in in_file.symbols() {
         // Skip section and file symbols, we wrote them above
@@ -488,7 +488,7 @@ fn info(args: InfoArgs) -> Result<()> {
         "{: >15} | {: <10} | {: <10} | {: <10} | {: <10}",
         "Name", "Type", "Size", "File Off", "Index"
     );
-    for section in in_file.sections().skip(1) {
+    for section in in_file.sections() {
         let kind_str = match section.kind() {
             SectionKind::Text => "code".to_cow(),
             SectionKind::Data => "data".to_cow(),
@@ -565,6 +565,7 @@ fn info(args: InfoArgs) -> Result<()> {
             );
             println!("\tUnsafe global reg vars: {}", header.unsafe_global_reg_vars);
             println!("\n{: >10} | {: <6} | {: <6} | {: <10}", "Align", "Vis", "Active", "Symbol");
+            CommentSym::from_reader(&mut reader, Endian::Big)?; // ELF null symbol
             for symbol in in_file.symbols() {
                 let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
                 if symbol.is_definition() {
@@ -603,7 +604,7 @@ fn info(args: InfoArgs) -> Result<()> {
             if let Some(virtual_addresses) = &meta.virtual_addresses {
                 println!("\tVirtual addresses:");
                 println!("\t{: >10} | {: <10}", "Addr", "Symbol");
-                for (symbol, addr) in in_file.symbols().zip(virtual_addresses) {
+                for (symbol, addr) in in_file.symbols().zip(virtual_addresses.iter().skip(1)) {
                     if symbol.is_definition() {
                         println!("\t{: >10} | {: <10}", format!("{:#X}", addr), symbol.name()?);
                     }

@@ -194,13 +194,15 @@ fn make_rso<P: AsRef<Path>>(
     {
         // Write Sections Info Table (Blank)
         let blank_section = RsoSectionHeader::default();
-        for _ in file.sections() {
+        // Include ELF null section
+        for _ in 0..file.sections().count() + 1 {
             header.num_sections += 1;
             blank_section.to_writer(&mut out, Endian::Big)?;
         }
     }
 
-    let mut rso_sections: Vec<RsoSectionHeader> = vec![];
+    let mut rso_sections: Vec<RsoSectionHeader> =
+        vec![RsoSectionHeader::default() /* ELF null section */];
     for section in file.sections() {
         let is_valid_section =
             section.name().is_ok_and(|n| RSO_SECTION_NAMES.iter().any(|&s| s == n));
