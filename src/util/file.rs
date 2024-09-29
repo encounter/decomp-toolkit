@@ -426,7 +426,7 @@ impl FileIterator {
         self.index += 1;
         match map_file(&path) {
             Ok(FileEntry::MappedFile(map)) => self.handle_file(map, path),
-            Ok(FileEntry::Buffer(_, _)) => todo!(),
+            Ok(entry) => Some(Ok((path, entry))),
             Err(err) => Some(Err(err)),
         }
     }
