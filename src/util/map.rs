@@ -11,6 +11,7 @@ use std::{
 use anyhow::{anyhow, bail, Error, Result};
 use cwdemangle::{demangle, DemangleOptions};
 use flagset::FlagSet;
+use indexmap::IndexMap;
 use itertools::Itertools;
 use multimap::MultiMap;
 use once_cell::sync::Lazy;
@@ -128,7 +129,7 @@ pub struct MapInfo {
     pub unit_references: MultiMap<SymbolRef, String>,
     pub sections: Vec<SectionInfo>,
     pub link_map_symbols: HashMap<SymbolRef, SymbolEntry>,
-    pub section_symbols: HashMap<String, BTreeMap<u32, Vec<SymbolEntry>>>,
+    pub section_symbols: IndexMap<String, BTreeMap<u32, Vec<SymbolEntry>>>,
     pub section_units: HashMap<String, Vec<(u32, String)>>,
     // For common BSS inflation correction
     pub common_bss_start: Option<u32>,
@@ -723,13 +724,51 @@ where
 {
     let file = map_file(&path)?;
     let info = process_map(&mut file.as_reader(), common_bss_start, mw_comment_version)?;
-    apply_map(&info, obj)
+    apply_map(info, obj)
 }
 
-pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
+const DEFAULT_REL_SECTIONS: &[&str] =
+    &[".init", ".text", ".ctors", ".dtors", ".rodata", ".data", ".bss"];
+
+fn normalize_section_name(name: &str) -> &str {
+    match name {
+        ".extabindex" => "extabindex",
+        ".extab" => "extab",
+        _ => name,
+    }
+}
+
+pub fn apply_map(mut result: MapInfo, obj: &mut ObjInfo) -> Result<()> {
+    if result.sections.is_empty() && obj.kind == ObjKind::Executable {
+        log::warn!("Memory map section missing, attempting to recreate");
+        for (section_name, symbol_map) in &result.section_symbols {
+            let mut address = u32::MAX;
+            let mut size = 0;
+            for symbol_entry in symbol_map.values().flatten() {
+                if symbol_entry.address < address {
+                    address = symbol_entry.address;
+                }
+                if symbol_entry.address + symbol_entry.size > address + size {
+                    size = symbol_entry.address + symbol_entry.size - address;
+                }
+            }
+            log::info!("Recreated section {} @ {:#010X} ({:#X})", section_name, address, size);
+            result.sections.push(SectionInfo {
+                name: normalize_section_name(section_name).to_string(),
+                address,
+                size,
+                file_offset: 0,
+            });
+        }
+    }
+
     for (section_index, section) in obj.sections.iter_mut() {
         let opt = if obj.kind == ObjKind::Executable {
-            result.sections.iter().find(|s| s.address == section.address as u32)
+            result.sections.iter().find(|s| {
+                // Slightly fuzzy match for postprocess/broken maps (TP, SMG)
+                s.address >= section.address as u32
+                    && (s.address + s.size) <= (section.address + section.size) as u32
+            })
         } else {
             result.sections.iter().filter(|s| s.size > 0).nth(section_index)
         };
@@ -754,17 +793,61 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
             section.rename(info.name.clone())?;
         } else {
             log::warn!("Section {} @ {:#010X} not found in map", section.name, section.address);
+            if obj.kind == ObjKind::Relocatable {
+                let new_name = match section.kind {
+                    ObjSectionKind::Code => {
+                        if section.elf_index == 0 {
+                            ".init"
+                        } else {
+                            ".text"
+                        }
+                    }
+                    ObjSectionKind::Data | ObjSectionKind::ReadOnlyData => {
+                        if section.elf_index == 4 {
+                            if result
+                                .section_symbols
+                                .get(".rodata")
+                                .map_or(false, |m| !m.is_empty())
+                            {
+                                ".rodata"
+                            } else {
+                                ".data"
+                            }
+                        } else if let Some(section_name) =
+                            DEFAULT_REL_SECTIONS.get(section.elf_index)
+                        {
+                            section_name
+                        } else {
+                            ".data"
+                        }
+                    }
+                    ObjSectionKind::Bss => ".bss",
+                };
+                log::warn!("Defaulting to {}", new_name);
+                section.rename(new_name.to_string())?;
+            }
         }
+    }
+
+    // If every symbol the map has alignment 4, it's likely bogus
+    let bogus_alignment =
+        result.section_symbols.values().flatten().flat_map(|(_, m)| m).all(|s| s.align == Some(4));
+    if bogus_alignment {
+        log::warn!("Bogus alignment detected, ignoring");
     }
 
     // Add section symbols
     for (section_name, symbol_map) in &result.section_symbols {
+        if section_name == ".dead" {
+            continue;
+        }
+        let section_name = normalize_section_name(section_name);
         let (section_index, _) = obj
             .sections
             .by_name(section_name)?
             .ok_or_else(|| anyhow!("Failed to locate section {section_name} from map"))?;
         for symbol_entry in symbol_map.values().flatten() {
-            add_symbol(obj, symbol_entry, Some(section_index))?;
+            add_symbol(obj, symbol_entry, Some(section_index), bogus_alignment)?;
         }
     }
 
@@ -776,6 +859,10 @@ pub fn apply_map(result: &MapInfo, obj: &mut ObjInfo) -> Result<()> {
 
     // Add splits
     for (section_name, unit_order) in &result.section_units {
+        if section_name == ".dead" {
+            continue;
+        }
+        let section_name = normalize_section_name(section_name);
         let (_, section) = obj
             .sections
             .iter_mut()
@@ -865,6 +952,13 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
         unresolved_relocations: vec![],
     };
 
+    // If every symbol the map has alignment 4, it's likely bogus
+    let bogus_alignment =
+        result.section_symbols.values().flatten().flat_map(|(_, m)| m).all(|s| s.align == Some(4));
+    if bogus_alignment {
+        log::warn!("Bogus alignment detected, ignoring");
+    }
+
     // Add section symbols
     for (section_name, symbol_map) in &result.section_symbols {
         let (section_index, _) = obj
@@ -872,7 +966,7 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
             .by_name(section_name)?
             .ok_or_else(|| anyhow!("Failed to locate section {section_name} from map"))?;
         for symbol_entry in symbol_map.values().flatten() {
-            add_symbol(&mut obj, symbol_entry, Some(section_index))?;
+            add_symbol(&mut obj, symbol_entry, Some(section_index), bogus_alignment)?;
         }
     }
 
@@ -917,7 +1011,12 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
     Ok(obj)
 }
 
-fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usize>) -> Result<()> {
+fn add_symbol(
+    obj: &mut ObjInfo,
+    symbol_entry: &SymbolEntry,
+    section: Option<usize>,
+    ignore_alignment: bool,
+) -> Result<()> {
     let demangled_name = demangle(&symbol_entry.name, &DemangleOptions::default());
     let mut flags: FlagSet<ObjSymbolFlags> = match symbol_entry.visibility {
         SymbolVisibility::Unknown => Default::default(),
@@ -947,7 +1046,7 @@ fn add_symbol(obj: &mut ObjInfo, symbol_entry: &SymbolEntry, section: Option<usi
                 SymbolKind::Section => ObjSymbolKind::Section,
                 SymbolKind::NoType => ObjSymbolKind::Unknown,
             },
-            align: symbol_entry.align,
+            align: if ignore_alignment { None } else { symbol_entry.align },
             ..Default::default()
         },
         true,
