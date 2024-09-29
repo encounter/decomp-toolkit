@@ -97,10 +97,6 @@ jobs:
             target: aarch64-unknown-linux-musl
             name: linux-aarch64
             build: zigbuild
-          - platform: ubuntu-latest
-            target: armv7-unknown-linux-musleabi
-            name: linux-armv7l
-            build: zigbuild
           - platform: windows-latest
             target: i686-pc-windows-msvc
             name: windows-x86

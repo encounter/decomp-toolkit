@@ -291,6 +291,7 @@ fn to_objdiff_symbol(
     if symbol.flags.is_hidden() {
         flags.0 |= objdiff_core::obj::ObjSymbolFlags::Hidden;
     }
+    let bytes = section.and_then(|s| s.symbol_data(symbol).ok()).map_or(vec![], |d| d.to_vec());
     objdiff_core::obj::ObjSymbol {
         name: symbol.name.clone(),
         demangled_name: symbol.demangled_name.clone(),
@@ -302,6 +303,7 @@ fn to_objdiff_symbol(
         addend,
         virtual_address: None,
         original_index: None,
+        bytes,
     }
 }
 

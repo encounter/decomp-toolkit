@@ -13,6 +13,12 @@ pub mod cmd;
 pub mod obj;
 pub mod util;
 
+// musl's allocator is very slow, so use mimalloc when targeting musl.
+// Otherwise, use the system allocator to avoid extra code size.
+#[cfg(target_env = "musl")]
+#[global_allocator]
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 #[derive(Debug, Eq, PartialEq, Copy, Clone)]
 enum LogLevel {
     Error,
