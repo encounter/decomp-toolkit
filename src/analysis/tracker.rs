@@ -4,7 +4,7 @@ use std::{
 };
 
 use anyhow::{bail, Result};
-use cwextab::{decode_extab, ExceptionTableData};
+use cwextab::decode_extab;
 use ppc750cl::Opcode;
 use tracing::{debug_span, info_span};
 use tracing_attributes::instrument;
@@ -160,11 +160,9 @@ impl Tracker {
         let relocs = &self.relocations;
         for (_, symbol) in obj.symbols.for_section(section_index) {
             let extab_name = &symbol.name;
-            let extab_section_offset: u32 = (symbol.address - section.address) as u32;
-            let extab_section_end_offset: u32 = extab_section_offset + symbol.size as u32;
             let extab_start_addr: u32 = symbol.address as u32;
             let extab_end_addr: u32 = extab_start_addr + symbol.size as u32;
-            let Ok(extab_data) = section.data_range(extab_section_offset, extab_section_end_offset) else {
+            let Ok(extab_data) = section.data_range(extab_start_addr, extab_end_addr) else {
                 log::warn!("Failed to get extab data for symbol {}", extab_name);
                 continue;
             };
@@ -179,22 +177,20 @@ impl Tracker {
                     return Ok(());
                 }
             };
-            let mut decoded_reloc_target_addrs: Vec<u32> = vec![];
             let mut decoded_reloc_addrs: Vec<u32> = vec![];
             for reloc in data.relocations {
-                decoded_reloc_target_addrs.push(reloc.address);
-                decoded_reloc_addrs.push(extab_start_addr + reloc.offset);
+                let reloc_addr = extab_start_addr + reloc.offset;
+                decoded_reloc_addrs.push(reloc_addr);
             }
 
             for (&address, reloc) in relocs {
                 let Some((_, target)) = reloc.kind_and_address() else {
                     continue;
                 };
-                if address.address >= extab_start_addr && address.address < extab_end_addr {
-                    if !decoded_reloc_addrs.contains(&address.address) || !decoded_reloc_target_addrs.contains(&target.address) {
-                        log::debug!("Rejecting invalid extab relocation @ {} -> {}", address, target);
-                        to_reject.push(address);
-                    }
+                if address.address >= extab_start_addr && address.address < extab_end_addr
+                && !decoded_reloc_addrs.contains(&address.address) {
+                    log::debug!("Rejecting invalid extab relocation @ {} -> {}", address, target);
+                    to_reject.push(address);
                 }
             }
         }

@@ -395,9 +395,9 @@ dependencies = [
 
 [[package]]
 name = "cwextab"
-version = "1.0.1"
+version = "1.0.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a116d883de4f49be4db14f737ec573433798fcea9841594a530f8018d48f303"
+checksum = "e5aa7f13cc2fcb2bcfd3abc51bdbbf8f1fb729a69ed8c05ecbaa1a42197d1842"
 dependencies = [
  "thiserror",
 ]
@@ -413,7 +413,7 @@ dependencies = [
  "base64",
  "crossterm",
  "cwdemangle",
- "cwextab 1.0.1",
+ "cwextab 1.0.2",
  "enable-ansi-support",
  "filetime",
  "fixedbitset 0.5.7",
