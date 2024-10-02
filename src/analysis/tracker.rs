@@ -157,7 +157,9 @@ impl Tracker {
             // No extab section found, return
             return Ok(());
         };
-        let relocs = &self.relocations;
+        let mut decoded_reloc_addrs: BTreeSet<u32> = BTreeSet::new();
+
+        // Decode each exception table, and collect all of the relocations from the decoded data for each
         for (_, symbol) in obj.symbols.for_section(section_index) {
             let extab_name = &symbol.name;
             let extab_start_addr: u32 = symbol.address as u32;
@@ -172,28 +174,28 @@ impl Tracker {
                     log::warn!(
                         "Exception table decoding failed for symbol {}, reason: {}",
                         extab_name,
-                        e.to_string()
+                        e
                     );
-                    return Ok(());
+                    continue;
                 }
             };
-            let mut decoded_reloc_addrs: Vec<u32> = vec![];
+
             for reloc in data.relocations {
                 let reloc_addr = extab_start_addr + reloc.offset;
-                decoded_reloc_addrs.push(reloc_addr);
+                decoded_reloc_addrs.insert(reloc_addr);
             }
+        }
 
-            for (&address, reloc) in relocs {
-                let Some((_, target)) = reloc.kind_and_address() else {
-                    continue;
-                };
-                if address.address >= extab_start_addr
-                    && address.address < extab_end_addr
-                    && !decoded_reloc_addrs.contains(&address.address)
-                {
-                    log::debug!("Rejecting invalid extab relocation @ {} -> {}", address, target);
-                    to_reject.push(address);
-                }
+        let section_start_addr = SectionAddress::new(section_index, section.address as u32);
+        let section_end_addr = section_start_addr + (section.size as u32);
+
+        // Check all the extab relocations against the list of relocations from the decoded tables. Any
+        // relocations that aren't in the list are invalid, and are removed (if a table fails to decode,
+        // however, its relocations are all removed).
+        for (&address, _) in self.relocations.range(section_start_addr..section_end_addr) {
+            if !decoded_reloc_addrs.contains(&address.address) {
+                log::debug!("Rejecting invalid extab relocation @ {}", address);
+                to_reject.push(address);
             }
         }
 
