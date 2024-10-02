@@ -187,8 +187,10 @@ impl Tracker {
                 let Some((_, target)) = reloc.kind_and_address() else {
                     continue;
                 };
-                if address.address >= extab_start_addr && address.address < extab_end_addr
-                && !decoded_reloc_addrs.contains(&address.address) {
+                if address.address >= extab_start_addr
+                    && address.address < extab_end_addr
+                    && !decoded_reloc_addrs.contains(&address.address)
+                {
                     log::debug!("Rejecting invalid extab relocation @ {} -> {}", address, target);
                     to_reject.push(address);
                 }
