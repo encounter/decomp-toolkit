@@ -4,6 +4,7 @@ use std::{
 };
 
 use anyhow::{bail, Result};
+use cwextab::{decode_extab, ExceptionTableData};
 use ppc750cl::Opcode;
 use tracing::{debug_span, info_span};
 use tracing_attributes::instrument;
@@ -120,6 +121,7 @@ impl Tracker {
                 self.process_data(obj, section_index, section)?;
             }
         }
+        self.check_extab_relocations(obj)?;
         self.reject_invalid_relocations(obj)?;
         Ok(())
     }
@@ -141,6 +143,62 @@ impl Tracker {
                 to_reject.push(address);
             }
         }
+        for address in to_reject {
+            self.relocations.remove(&address);
+        }
+        Ok(())
+    }
+
+    /// Check all of the extab relocations, and reject any invalid ones by checking against the decoded table data
+    /// of each table.
+    fn check_extab_relocations(&mut self, obj: &ObjInfo) -> Result<()> {
+        let mut to_reject = vec![];
+        let Some((section_index, section)) = obj.sections.by_name("extab")? else {
+            // No extab section found, return
+            return Ok(());
+        };
+        let relocs = &self.relocations;
+        for (_, symbol) in obj.symbols.for_section(section_index) {
+            let extab_name = &symbol.name;
+            let extab_section_offset: u32 = (symbol.address - section.address) as u32;
+            let extab_section_end_offset: u32 = extab_section_offset + symbol.size as u32;
+            let extab_start_addr: u32 = symbol.address as u32;
+            let extab_end_addr: u32 = extab_start_addr + symbol.size as u32;
+            let Ok(extab_data) = section.data_range(extab_section_offset, extab_section_end_offset) else {
+                log::warn!("Failed to get extab data for symbol {}", extab_name);
+                continue;
+            };
+            let data = match decode_extab(extab_data) {
+                Ok(decoded_data) => decoded_data,
+                Err(e) => {
+                    log::warn!(
+                        "Exception table decoding failed for symbol {}, reason: {}",
+                        extab_name,
+                        e.to_string()
+                    );
+                    return Ok(());
+                }
+            };
+            let mut decoded_reloc_target_addrs: Vec<u32> = vec![];
+            let mut decoded_reloc_addrs: Vec<u32> = vec![];
+            for reloc in data.relocations {
+                decoded_reloc_target_addrs.push(reloc.address);
+                decoded_reloc_addrs.push(extab_start_addr + reloc.offset);
+            }
+
+            for (&address, reloc) in relocs {
+                let Some((_, target)) = reloc.kind_and_address() else {
+                    continue;
+                };
+                if address.address >= extab_start_addr && address.address < extab_end_addr {
+                    if !decoded_reloc_addrs.contains(&address.address) || !decoded_reloc_target_addrs.contains(&target.address) {
+                        log::debug!("Rejecting invalid extab relocation @ {} -> {}", address, target);
+                        to_reject.push(address);
+                    }
+                }
+            }
+        }
+
         for address in to_reject {
             self.relocations.remove(&address);
         }

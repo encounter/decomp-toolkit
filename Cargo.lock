@@ -394,6 +394,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "cwextab"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9a116d883de4f49be4db14f737ec573433798fcea9841594a530f8018d48f303"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "decomp-toolkit"
 version = "1.0.0"
 dependencies = [
@@ -404,6 +413,7 @@ dependencies = [
  "base64",
  "crossterm",
  "cwdemangle",
+ "cwextab 1.0.1",
  "enable-ansi-support",
  "filetime",
  "fixedbitset 0.5.7",
@@ -1018,7 +1028,7 @@ dependencies = [
  "anyhow",
  "byteorder",
  "cwdemangle",
- "cwextab",
+ "cwextab 0.3.1",
  "filetime",
  "flagset",
  "log",
