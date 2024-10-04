@@ -432,7 +432,35 @@ where
         write_symbol_name(w, &symbol.name)?;
         writeln!(w)?;
     }
+
+    if entry.kind == SymbolEntryKind::Start && section.name == "extab" {
+        writeln!(w, "/*")?;
+        match parse_extab(symbols, entry, section) {
+            Ok(s) => {
+                for line in s.trim_end().lines() {
+                    writeln!(w, " * {}", line)?;
+                }
+            }
+            Err(e) => {
+                log::warn!("Failed to decode extab entry {}: {}", symbol.name, e);
+                writeln!(w, " * Failed to decode extab entry: {}", e)?;
+            }
+        }
+        writeln!(w, " */")?;
+    }
     Ok(())
+}
+
+fn parse_extab(symbols: &[ObjSymbol], entry: &SymbolEntry, section: &ObjSection) -> Result<String> {
+    let symbol = &symbols[entry.index];
+    let data = section.symbol_data(symbol)?;
+    let decoded = cwextab::decode_extab(data)?;
+    let function_names = section
+        .relocations
+        .range(symbol.address as u32..(symbol.address + symbol.size) as u32)
+        .map(|(_, reloc)| symbols[reloc.target_symbol].name.clone())
+        .collect_vec();
+    decoded.to_string(function_names).ok_or_else(|| anyhow!("Failed to print extab entry"))
 }
 
 #[allow(clippy::too_many_arguments)]
