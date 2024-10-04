@@ -1,6 +1,6 @@
 use std::{
     fs::File,
-    io::{stdout, BufRead, BufReader, Read, Write},
+    io::{stdout, BufRead, Read, Write},
     path::{Path, PathBuf},
 };
 
@@ -10,7 +10,10 @@ use owo_colors::{OwoColorize, Stream};
 use path_slash::PathExt;
 use sha1::{Digest, Sha1};
 
-use crate::util::file::{buf_writer, open_file, process_rsp, touch};
+use crate::{
+    util::file::{buf_writer, process_rsp, touch},
+    vfs::open_path,
+};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Print or check SHA1 (160-bit) checksums.
@@ -36,8 +39,8 @@ const DEFAULT_BUF_SIZE: usize = 8192;
 pub fn run(args: Args) -> Result<()> {
     if args.check {
         for path in process_rsp(&args.files)? {
-            let file = open_file(&path)?;
-            check(&args, &mut BufReader::new(file))?;
+            let mut file = open_path(&path, false)?;
+            check(&args, file.as_mut())?;
         }
         if let Some(out_path) = &args.output {
             touch(out_path)
@@ -53,8 +56,8 @@ pub fn run(args: Args) -> Result<()> {
                 Box::new(stdout())
             };
         for path in process_rsp(&args.files)? {
-            let mut file = open_file(&path)?;
-            hash(w.as_mut(), &mut file, &path)?
+            let mut file = open_path(&path, false)?;
+            hash(w.as_mut(), file.as_mut(), &path)?
         }
     }
     Ok(())

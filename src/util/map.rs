@@ -23,9 +23,9 @@ use crate::{
         ObjSections, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
         ObjSymbols, ObjUnit,
     },
-    util::{file::map_file, nested::NestedVec},
+    util::nested::NestedVec,
+    vfs::open_path,
 };
-
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum SymbolKind {
     Function,
@@ -722,8 +722,8 @@ pub fn apply_map_file<P>(
 where
     P: AsRef<Path>,
 {
-    let file = map_file(&path)?;
-    let info = process_map(&mut file.as_reader(), common_bss_start, mw_comment_version)?;
+    let mut file = open_path(path.as_ref(), true)?;
+    let info = process_map(file.as_mut(), common_bss_start, mw_comment_version)?;
     apply_map(info, obj)
 }
 

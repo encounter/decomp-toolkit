@@ -43,7 +43,7 @@ dependencies = [
  "cfg-if",
  "once_cell",
  "version_check",
- "zerocopy",
+ "zerocopy 0.7.35",
 ]
 
 [[package]]
@@ -414,6 +414,7 @@ dependencies = [
  "crossterm",
  "cwdemangle",
  "cwextab 1.0.2",
+ "dyn-clone",
  "enable-ansi-support",
  "filetime",
  "fixedbitset 0.5.7",
@@ -454,7 +455,7 @@ dependencies = [
  "tracing-attributes",
  "tracing-subscriber",
  "xxhash-rust",
- "zerocopy",
+ "zerocopy 0.7.35",
 ]
 
 [[package]]
@@ -919,9 +920,9 @@ dependencies = [
 
 [[package]]
 name = "nod"
-version = "1.3.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "69a1349ff4dfc0757d9b0537c6f7ef777ed414c183db59ae1e5faec4c998b8f1"
+checksum = "75b9bd092c2ebed932654aa6de256e39d2156ce8c87ace31191f8086f6d22f02"
 dependencies = [
  "adler",
  "aes",
@@ -938,15 +939,15 @@ dependencies = [
  "rayon",
  "sha1",
  "thiserror",
- "zerocopy",
+ "zerocopy 0.8.0",
  "zstd",
 ]
 
 [[package]]
 name = "nodtool"
-version = "1.3.0"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "93f97653db7343722bc0a13001dfc9ec83491246dcf113ee5aa2fdefd0f37447"
+checksum = "598b0c24bb98d0094d37e8dc8d83bb600d857c9e42a475806ac1667ec52afbb3"
 dependencies = [
  "argp",
  "base16ct",
@@ -969,7 +970,7 @@ dependencies = [
  "tracing-attributes",
  "tracing-subscriber",
  "xxhash-rust",
- "zerocopy",
+ "zerocopy 0.8.0",
  "zstd",
 ]
 
@@ -2160,7 +2161,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b9b4fd18abc82b8136838da5d50bae7bdea537c574d8dc1a34ed098d6c166f0"
 dependencies = [
  "byteorder",
- "zerocopy-derive",
+ "zerocopy-derive 0.7.35",
+]
+
+[[package]]
+name = "zerocopy"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "df7885ffcb82507a0f213c593e77c5f13d12cb96588d4e835ad7e9423ba034db"
+dependencies = [
+ "zerocopy-derive 0.8.0",
 ]
 
 [[package]]
@@ -2168,6 +2178,17 @@ name = "zerocopy-derive"
 version = "0.7.35"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fa4f8080344d4671fb4e831a13ad1e68092748387dfc4f55e356242fae12ce3e"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.79",
+]
+
+[[package]]
+name = "zerocopy-derive"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "930ad75608219e8ffdb8962a5433cb2b30064c7ccb564d3b76c2963390b1e435"
 dependencies = [
  "proc-macro2",
  "quote",

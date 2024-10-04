@@ -4,9 +4,12 @@ use anyhow::{anyhow, Context, Result};
 use argp::FromArgs;
 use itertools::Itertools;
 
-use crate::util::{
-    file::{decompress_if_needed, map_file},
-    u8_arc::{U8Node, U8View},
+use crate::{
+    util::{
+        file::decompress_if_needed,
+        u8_arc::{U8Node, U8View},
+    },
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -56,8 +59,8 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn list(args: ListArgs) -> Result<()> {
-    let file = map_file(&args.file)?;
-    let view = U8View::new(file.as_slice())
+    let mut file = open_path(&args.file, true)?;
+    let view = U8View::new(file.map()?)
         .map_err(|e| anyhow!("Failed to open U8 file '{}': {}", args.file.display(), e))?;
     visit_files(&view, |_, node, path| {
         println!("{}: {} bytes, offset {:#X}", path, node.length(), node.offset());
@@ -66,15 +69,15 @@ fn list(args: ListArgs) -> Result<()> {
 }
 
 fn extract(args: ExtractArgs) -> Result<()> {
-    let file = map_file(&args.file)?;
-    let view = U8View::new(file.as_slice())
+    let mut file = open_path(&args.file, true)?;
+    let data = file.map()?;
+    let view = U8View::new(data)
         .map_err(|e| anyhow!("Failed to open U8 file '{}': {}", args.file.display(), e))?;
     visit_files(&view, |_, node, path| {
         let offset = node.offset();
         let size = node.length();
-        let file_data = decompress_if_needed(
-            &file.as_slice()[offset as usize..offset as usize + size as usize],
-        )?;
+        let file_data =
+            decompress_if_needed(&data[offset as usize..offset as usize + size as usize])?;
         let output_path = args
             .output
             .as_ref()
@@ -94,7 +97,7 @@ fn extract(args: ExtractArgs) -> Result<()> {
 
 fn visit_files(
     view: &U8View,
-    mut visitor: impl FnMut(usize, &U8Node, String) -> Result<()>,
+    mut visitor: impl FnMut(usize, U8Node, String) -> Result<()>,
 ) -> Result<()> {
     let mut path_segments = Vec::<(Cow<str>, usize)>::new();
     for (idx, node, name) in view.iter() {

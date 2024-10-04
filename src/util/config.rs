@@ -21,9 +21,10 @@ use crate::{
         ObjSymbolFlags, ObjSymbolKind, ObjUnit,
     },
     util::{
-        file::{buf_writer, map_file, FileReadInfo},
+        file::{buf_writer, FileReadInfo},
         split::default_section_align,
     },
+    vfs::open_path,
 };
 
 pub fn parse_u32(s: &str) -> Result<u32, ParseIntError> {
@@ -46,10 +47,11 @@ pub fn parse_i32(s: &str) -> Result<i32, ParseIntError> {
 
 pub fn apply_symbols_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileReadInfo>>
 where P: AsRef<Path> {
-    Ok(if path.as_ref().is_file() {
-        let file = map_file(path)?;
-        let cached = FileReadInfo::new(&file)?;
-        for result in file.as_reader().lines() {
+    let path = path.as_ref();
+    Ok(if path.is_file() {
+        let mut file = open_path(path, true)?;
+        let cached = FileReadInfo::new(file.as_mut())?;
+        for result in file.lines() {
             let line = match result {
                 Ok(line) => line,
                 Err(e) => bail!("Failed to process symbols file: {e:?}"),
@@ -206,8 +208,8 @@ where
         // Check file mtime
         let path = path.as_ref();
         let new_mtime = fs::metadata(path).ok().map(|m| FileTime::from_last_modification_time(&m));
-        if let Some(new_mtime) = new_mtime {
-            if new_mtime != cached_file.mtime {
+        if let (Some(new_mtime), Some(old_mtime)) = (new_mtime, cached_file.mtime) {
+            if new_mtime != old_mtime {
                 // File changed, don't write
                 warn!(path = %path.display(), "File changed since read, not updating");
                 return Ok(());
@@ -625,10 +627,11 @@ enum SplitState {
 
 pub fn apply_splits_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileReadInfo>>
 where P: AsRef<Path> {
-    Ok(if path.as_ref().is_file() {
-        let file = map_file(path)?;
-        let cached = FileReadInfo::new(&file)?;
-        apply_splits(&mut file.as_reader(), obj)?;
+    let path = path.as_ref();
+    Ok(if path.is_file() {
+        let mut file = open_path(path, true)?;
+        let cached = FileReadInfo::new(file.as_mut())?;
+        apply_splits(file.as_mut(), obj)?;
         Some(cached)
     } else {
         None
@@ -737,14 +740,14 @@ where R: BufRead + ?Sized {
 
 pub fn read_splits_sections<P>(path: P) -> Result<Option<Vec<SectionDef>>>
 where P: AsRef<Path> {
-    if !path.as_ref().is_file() {
+    let path = path.as_ref();
+    if !path.is_file() {
         return Ok(None);
     }
-    let file = map_file(path)?;
-    let r = file.as_reader();
+    let file = open_path(path, true)?;
     let mut sections = Vec::new();
     let mut state = SplitState::None;
-    for result in r.lines() {
+    for result in file.lines() {
         let line = match result {
             Ok(line) => line,
             Err(e) => return Err(e.into()),

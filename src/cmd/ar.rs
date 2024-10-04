@@ -9,7 +9,10 @@ use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
 
-use crate::util::file::{buf_writer, map_file, map_file_basic, process_rsp};
+use crate::{
+    util::file::{buf_writer, process_rsp},
+    vfs::open_path,
+};
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing static libraries.
@@ -80,8 +83,8 @@ fn create(args: CreateArgs) -> Result<()> {
             Entry::Vacant(e) => e.insert(Vec::new()),
             Entry::Occupied(_) => bail!("Duplicate file name '{path_str}'"),
         };
-        let file = map_file_basic(path)?;
-        let obj = object::File::parse(file.as_slice())?;
+        let mut file = open_path(path, false)?;
+        let obj = object::File::parse(file.map()?)?;
         for symbol in obj.symbols() {
             if symbol.scope() == SymbolScope::Dynamic {
                 entries.push(symbol.name_bytes()?.to_vec());
@@ -126,8 +129,8 @@ fn extract(args: ExtractArgs) -> Result<()> {
             println!("Extracting {} to {}", path.display(), out_dir.display());
         }
 
-        let file = map_file(path)?;
-        let mut archive = ar::Archive::new(file.as_slice());
+        let mut file = open_path(path, false)?;
+        let mut archive = ar::Archive::new(file.map()?);
         while let Some(entry) = archive.next_entry() {
             let mut entry =
                 entry.with_context(|| format!("Processing entry in {}", path.display()))?;

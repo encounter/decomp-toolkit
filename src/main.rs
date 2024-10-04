@@ -12,6 +12,7 @@ pub mod argp_version;
 pub mod cmd;
 pub mod obj;
 pub mod util;
+pub mod vfs;
 
 // musl's allocator is very slow, so use mimalloc when targeting musl.
 // Otherwise, use the system allocator to avoid extra code size.
@@ -102,6 +103,7 @@ enum SubCommand {
     Rso(cmd::rso::Args),
     Shasum(cmd::shasum::Args),
     U8(cmd::u8_arc::Args),
+    Vfs(cmd::vfs::Args),
     Yay0(cmd::yay0::Args),
     Yaz0(cmd::yaz0::Args),
 }
@@ -177,6 +179,7 @@ fn main() {
         SubCommand::Rso(c_args) => cmd::rso::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
         SubCommand::U8(c_args) => cmd::u8_arc::run(c_args),
+        SubCommand::Vfs(c_args) => cmd::vfs::run(c_args),
         SubCommand::Yay0(c_args) => cmd::yay0::run(c_args),
         SubCommand::Yaz0(c_args) => cmd::yaz0::run(c_args),
     });

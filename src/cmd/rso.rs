@@ -11,13 +11,16 @@ use object::{
     SymbolIndex, SymbolKind, SymbolSection,
 };
 
-use crate::util::{
-    file::{buf_reader, buf_writer, map_file},
-    reader::{Endian, ToWriter},
-    rso::{
-        process_rso, symbol_hash, RsoHeader, RsoRelocation, RsoSectionHeader, RsoSymbol,
-        RSO_SECTION_NAMES,
+use crate::{
+    util::{
+        file::buf_writer,
+        reader::{Endian, ToWriter},
+        rso::{
+            process_rso, symbol_hash, RsoHeader, RsoRelocation, RsoSectionHeader, RsoSymbol,
+            RSO_SECTION_NAMES,
+        },
     },
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -74,8 +77,8 @@ pub fn run(args: Args) -> Result<()> {
 
 fn info(args: InfoArgs) -> Result<()> {
     let rso = {
-        let file = map_file(args.rso_file)?;
-        let obj = process_rso(&mut file.as_reader())?;
+        let mut file = open_path(&args.rso_file, true)?;
+        let obj = process_rso(file.as_mut())?;
         #[allow(clippy::let_and_return)]
         obj
     };
@@ -84,8 +87,8 @@ fn info(args: InfoArgs) -> Result<()> {
 }
 
 fn make(args: MakeArgs) -> Result<()> {
-    let file = map_file(&args.input)?;
-    let obj_file = object::read::File::parse(file.as_slice())?;
+    let mut file = open_path(&args.input, true)?;
+    let obj_file = object::read::File::parse(file.map()?)?;
     match obj_file.architecture() {
         Architecture::PowerPc => {}
         arch => bail!("Unexpected architecture: {arch:?}"),
@@ -97,9 +100,9 @@ fn make(args: MakeArgs) -> Result<()> {
         None => args.input.display().to_string(),
     };
 
-    let symbols_to_export = match args.export {
+    let symbols_to_export = match &args.export {
         Some(export_file_path) => {
-            let export_file_reader = buf_reader(export_file_path)?;
+            let export_file_reader = open_path(export_file_path, true)?;
             export_file_reader.lines().map_while(Result::ok).collect()
         }
         None => vec![],

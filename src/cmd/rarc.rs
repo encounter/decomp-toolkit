@@ -1,11 +1,11 @@
-use std::{fs, fs::DirBuilder, path::PathBuf};
+use std::path::PathBuf;
 
-use anyhow::{Context, Result};
+use anyhow::{anyhow, Result};
 use argp::FromArgs;
 
-use crate::util::{
-    file::{decompress_if_needed, map_file},
-    rarc::{Node, RarcReader},
+use crate::{
+    util::rarc::{RarcNodeKind, RarcView},
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -55,71 +55,42 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn list(args: ListArgs) -> Result<()> {
-    let file = map_file(&args.file)?;
-    let rarc = RarcReader::new(&mut file.as_reader())
-        .with_context(|| format!("Failed to process RARC file '{}'", args.file.display()))?;
-
-    let mut current_path = PathBuf::new();
-    for node in rarc.nodes() {
-        match node {
-            Node::DirectoryBegin { name } => {
-                current_path.push(name.name);
-            }
-            Node::DirectoryEnd { name: _ } => {
-                current_path.pop();
-            }
-            Node::File { name, offset, size } => {
-                let path = current_path.join(name.name);
-                println!("{}: {} bytes, offset {:#X}", path.display(), size, offset);
-            }
-            Node::CurrentDirectory => {}
-            Node::ParentDirectory => {}
-        }
-    }
+    let mut file = open_path(&args.file, true)?;
+    let view = RarcView::new(file.map()?).map_err(|e| anyhow!(e))?;
+    test(&view, "")?;
+    test(&view, "/")?;
+    test(&view, "//")?;
+    test(&view, "/rels")?;
+    test(&view, "/rels/")?;
+    test(&view, "/rels/amem")?;
+    test(&view, "/rels/amem/")?;
+    test(&view, "/rels/mmem")?;
+    test(&view, "/rels/mmem/../mmem")?;
+    test(&view, "/rels/amem/d_a_am.rel")?;
+    test(&view, "//amem/d_a_am.rel")?;
+    test(&view, "amem/d_a_am.rel")?;
+    test(&view, "amem/d_a_am.rel/")?;
+    test(&view, "mmem/d_a_obj_pirateship.rel")?;
+    test(&view, "mmem//d_a_obj_pirateship.rel")?;
+    test(&view, "mmem/da_obj_pirateship.rel")?;
     Ok(())
 }
 
-fn extract(args: ExtractArgs) -> Result<()> {
-    let file = map_file(&args.file)?;
-    let rarc = RarcReader::new(&mut file.as_reader())
-        .with_context(|| format!("Failed to process RARC file '{}'", args.file.display()))?;
-
-    let mut current_path = PathBuf::new();
-    for node in rarc.nodes() {
-        match node {
-            Node::DirectoryBegin { name } => {
-                current_path.push(name.name);
-            }
-            Node::DirectoryEnd { name: _ } => {
-                current_path.pop();
-            }
-            Node::File { name, offset, size } => {
-                let file_data = decompress_if_needed(
-                    &file.as_slice()[offset as usize..offset as usize + size as usize],
-                )?;
-                let file_path = current_path.join(&name.name);
-                let output_path = args
-                    .output
-                    .as_ref()
-                    .map(|p| p.join(&file_path))
-                    .unwrap_or_else(|| file_path.clone());
-                if !args.quiet {
-                    println!(
-                        "Extracting {} to {} ({} bytes)",
-                        file_path.display(),
-                        output_path.display(),
-                        size
-                    );
-                }
-                if let Some(parent) = output_path.parent() {
-                    DirBuilder::new().recursive(true).create(parent)?;
-                }
-                fs::write(&output_path, file_data)
-                    .with_context(|| format!("Failed to write file '{}'", output_path.display()))?;
-            }
-            Node::CurrentDirectory => {}
-            Node::ParentDirectory => {}
-        }
-    }
+fn test(view: &RarcView, path: &str) -> Result<()> {
+    let option = view.find(path);
+    let data = if let Some(RarcNodeKind::File(_, node)) = option {
+        view.get_data(node).map_err(|e| anyhow!(e))?
+    } else {
+        &[]
+    };
+    let vec = data.iter().cloned().take(4).collect::<Vec<_>>();
+    println!("{:?}: {:?} (len: {:?})", path, option, vec.as_slice());
+    // if let Some(RarcNodeKind::Directory(_, dir)) = option {
+    //     for node in view.children(dir) {
+    //         println!("Child: {:?} ({:?})", node, view.get_string(node.name_offset()));
+    //     }
+    // }
     Ok(())
 }
+
+fn extract(_args: ExtractArgs) -> Result<()> { todo!() }

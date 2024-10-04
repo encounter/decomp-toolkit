@@ -16,12 +16,15 @@ use syntect::{
     parsing::{ParseState, ScopeStack, SyntaxReference, SyntaxSet},
 };
 
-use crate::util::{
-    dwarf::{
-        process_compile_unit, process_cu_tag, process_overlay_branch, read_debug_section,
-        should_skip_tag, tag_type_string, AttributeKind, TagKind,
+use crate::{
+    util::{
+        dwarf::{
+            process_compile_unit, process_cu_tag, process_overlay_branch, read_debug_section,
+            should_skip_tag, tag_type_string, AttributeKind, TagKind,
+        },
+        file::buf_writer,
     },
-    file::{buf_writer, map_file},
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -73,8 +76,8 @@ fn dump(args: DumpArgs) -> Result<()> {
     let theme = theme_set.themes.get("Solarized (dark)").context("Failed to load theme")?;
     let syntax = syntax_set.find_syntax_by_name("C++").context("Failed to find syntax")?.clone();
 
-    let file = map_file(&args.in_file)?;
-    let buf = file.as_slice();
+    let mut file = open_path(&args.in_file, true)?;
+    let buf = file.map()?;
     if buf.starts_with(b"!<arch>\n") {
         let mut archive = ar::Archive::new(buf);
         while let Some(result) = archive.next_entry() {

@@ -5,11 +5,13 @@ use argp::FromArgs;
 use cwdemangle::{demangle, DemangleOptions};
 use tracing::error;
 
-use crate::util::{
-    config::{write_splits_file, write_symbols_file},
-    file::map_file,
-    map::{create_obj, process_map, SymbolEntry, SymbolRef},
-    split::update_splits,
+use crate::{
+    util::{
+        config::{write_splits_file, write_symbols_file},
+        map::{create_obj, process_map, SymbolEntry, SymbolRef},
+        split::update_splits,
+    },
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -73,8 +75,8 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn entries(args: EntriesArgs) -> Result<()> {
-    let file = map_file(&args.map_file)?;
-    let entries = process_map(&mut file.as_reader(), None, None)?;
+    let mut file = open_path(&args.map_file, true)?;
+    let entries = process_map(file.as_mut(), None, None)?;
     match entries.unit_entries.get_vec(&args.unit) {
         Some(vec) => {
             println!("Entries for {}:", args.unit);
@@ -104,9 +106,9 @@ fn entries(args: EntriesArgs) -> Result<()> {
 }
 
 fn symbol(args: SymbolArgs) -> Result<()> {
-    let file = map_file(&args.map_file)?;
+    let mut file = open_path(&args.map_file, true)?;
     log::info!("Processing map...");
-    let entries = process_map(&mut file.as_reader(), None, None)?;
+    let entries = process_map(file.as_mut(), None, None)?;
     log::info!("Done!");
     let mut opt_ref: Option<(String, SymbolEntry)> = None;
 
@@ -179,9 +181,9 @@ fn symbol(args: SymbolArgs) -> Result<()> {
 }
 
 fn config(args: ConfigArgs) -> Result<()> {
-    let file = map_file(&args.map_file)?;
+    let mut file = open_path(&args.map_file, true)?;
     log::info!("Processing map...");
-    let entries = process_map(&mut file.as_reader(), None, None)?;
+    let entries = process_map(file.as_mut(), None, None)?;
     let mut obj = create_obj(&entries)?;
     if let Err(e) = update_splits(&mut obj, None, false) {
         error!("Failed to update splits: {}", e)

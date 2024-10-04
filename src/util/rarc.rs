@@ -1,425 +1,292 @@
-// Source: https://github.com/Julgodis/picori/blob/650da9f4fe6050b39b80d5360416591c748058d5/src/rarc.rs
-// License: MIT
-// Modified to use `std::io::Cursor<&[u8]>` and project's FromReader trait
-use std::{
-    collections::HashMap,
-    fmt::Display,
-    hash::{Hash, Hasher},
-    io,
-    io::{Read, Seek, SeekFrom},
-    path::{Component, Path, PathBuf},
-};
+use std::{borrow::Cow, ffi::CStr};
 
-use anyhow::{anyhow, bail, ensure, Result};
+use zerocopy::{big_endian::*, AsBytes, FromBytes, FromZeroes};
 
-use crate::util::{
-    file::read_c_string,
-    reader::{struct_size, Endian, FromReader},
-};
-
-#[derive(Debug, Clone)]
-pub struct NamedHash {
-    pub name: String,
-    pub hash: u16,
-}
-
-impl Display for NamedHash {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.name)
-    }
-}
-
-impl Hash for NamedHash {
-    fn hash<H>(&self, state: &mut H)
-    where H: Hasher {
-        self.hash.hash(state);
-    }
-}
-
-impl PartialEq for NamedHash {
-    fn eq(&self, other: &Self) -> bool {
-        if self.hash == other.hash {
-            self.name == other.name
-        } else {
-            false
-        }
-    }
-}
-
-impl Eq for NamedHash {}
-
-#[derive(Debug, Clone)]
-enum RarcDirectory {
-    File {
-        /// Name of the file.
-        name: NamedHash,
-        /// Offset of the file in the RARC file. This offset is relative to the start of the RARC file.
-        offset: u64,
-        /// Size of the file.
-        size: u32,
-    },
-    Folder {
-        /// Name of the folder.
-        name: NamedHash,
-    },
-    CurrentFolder,
-    ParentFolder,
-}
-
-#[derive(Debug, Clone)]
-struct RarcNode {
-    /// Index of first directory.
-    pub index: u32,
-    /// Number of directories.
-    pub count: u32,
-}
-
-pub struct RarcReader {
-    directories: Vec<RarcDirectory>,
-    nodes: HashMap<NamedHash, RarcNode>,
-    root_node: NamedHash,
-}
+use crate::static_assert;
 
 pub const RARC_MAGIC: [u8; 4] = *b"RARC";
 
-struct RarcHeader {
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[repr(C, align(4))]
+pub struct RarcHeader {
+    /// Magic identifier. (Always "RARC")
     magic: [u8; 4],
-    _file_length: u32,
-    header_length: u32,
-    file_offset: u32,
-    _file_length_2: u32,
-    _unk0: u32,
-    _unk1: u32,
-    _unk2: u32,
-    node_count: u32,
-    node_offset: u32,
-    directory_count: u32,
-    directory_offset: u32,
-    string_table_length: u32,
-    string_table_offset: u32,
-    _file_count: u16,
-    _unk3: u16,
-    _unk4: u32,
+    /// Length of the RARC file.
+    file_len: U32,
+    /// Length of the header. (Always 32)
+    header_len: U32,
+    /// Start of the file data, relative to the end of the file header.
+    data_offset: U32,
+    /// Length of the file data.
+    data_len: U32,
+    _unk1: U32,
+    _unk2: U32,
+    _unk3: U32,
 }
 
-impl FromReader for RarcHeader {
-    type Args = ();
+static_assert!(size_of::<RarcHeader>() == 0x20);
 
-    const STATIC_SIZE: usize = struct_size([
-        4,                // magic
-        u32::STATIC_SIZE, // file_length
-        u32::STATIC_SIZE, // header_length
-        u32::STATIC_SIZE, // file_offset
-        u32::STATIC_SIZE, // file_length
-        u32::STATIC_SIZE, // unk0
-        u32::STATIC_SIZE, // unk1
-        u32::STATIC_SIZE, // unk2
-        u32::STATIC_SIZE, // node_count
-        u32::STATIC_SIZE, // node_offset
-        u32::STATIC_SIZE, // directory_count
-        u32::STATIC_SIZE, // directory_offset
-        u32::STATIC_SIZE, // string_table_length
-        u32::STATIC_SIZE, // string_table_offset
-        u16::STATIC_SIZE, // file_count
-        u16::STATIC_SIZE, // unk3
-        u32::STATIC_SIZE, // unk4
-    ]);
+impl RarcHeader {
+    /// Length of the RARC file.
+    pub fn file_len(&self) -> u32 { self.file_len.get() }
 
-    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
-    where R: Read + Seek + ?Sized {
-        let header = Self {
-            magic: <[u8; 4]>::from_reader(reader, e)?,
-            _file_length: u32::from_reader(reader, e)?,
-            header_length: u32::from_reader(reader, e)?,
-            file_offset: u32::from_reader(reader, e)?,
-            _file_length_2: u32::from_reader(reader, e)?,
-            _unk0: u32::from_reader(reader, e)?,
-            _unk1: u32::from_reader(reader, e)?,
-            _unk2: u32::from_reader(reader, e)?,
-            node_count: u32::from_reader(reader, e)?,
-            node_offset: u32::from_reader(reader, e)?,
-            directory_count: u32::from_reader(reader, e)?,
-            directory_offset: u32::from_reader(reader, e)?,
-            string_table_length: u32::from_reader(reader, e)?,
-            string_table_offset: u32::from_reader(reader, e)?,
-            _file_count: u16::from_reader(reader, e)?,
-            _unk3: u16::from_reader(reader, e)?,
-            _unk4: u32::from_reader(reader, e)?,
+    /// Length of the header.
+    pub fn header_len(&self) -> u32 { self.header_len.get() }
+
+    /// Start of the file data, relative to the end of the file header.
+    pub fn data_offset(&self) -> u32 { self.data_offset.get() }
+
+    /// Length of the file data.
+    pub fn data_len(&self) -> u32 { self.data_len.get() }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[repr(C, align(4))]
+struct RarcInfo {
+    /// Number of directories in the directory table.
+    directory_count: U32,
+    /// Offset to the start of the directory table, relative to the end of the file header.
+    directory_offset: U32,
+    /// Number of nodes in the node table.
+    node_count: U32,
+    /// Offset to the start of the node table, relative to the end of the file header.
+    node_offset: U32,
+    /// Length of the string table.
+    string_table_len: U32,
+    /// Offset to the start of the string table, relative to the end of the file header.
+    string_table_offset: U32,
+    /// Number of files in the node table.
+    _file_count: U16,
+    _unk4: U16,
+    _unk5: U32,
+}
+
+static_assert!(size_of::<RarcInfo>() == 0x20);
+
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[repr(C, align(4))]
+pub struct RarcNode {
+    /// Index of the node. (0xFFFF for directories)
+    index: U16,
+    /// Hash of the node name.
+    name_hash: U16,
+    /// Unknown. (0x200 for folders, 0x1100 for files)
+    _unk0: U16,
+    /// Offset in the string table to the node name.
+    name_offset: U16,
+    /// Files: Offset in the data to the file data.
+    /// Directories: Index of the directory in the directory table.
+    data_offset: U32,
+    /// Files: Length of the data.
+    /// Directories: Unknown. Always 16.
+    data_length: U32,
+    _unk1: U32,
+}
+
+static_assert!(size_of::<RarcNode>() == 0x14);
+
+impl RarcNode {
+    /// Whether the node is a file.
+    pub fn is_file(&self) -> bool { self.index.get() != 0xFFFF }
+
+    /// Whether the node is a directory.
+    pub fn is_dir(&self) -> bool { self.index.get() == 0xFFFF }
+
+    /// Offset in the string table to the node name.
+    pub fn name_offset(&self) -> u32 { self.name_offset.get() as u32 }
+
+    /// Files: Offset in the data to the file data.
+    /// Directories: Index of the directory in the directory table.
+    pub fn data_offset(&self) -> u32 { self.data_offset.get() }
+
+    /// Files: Length of the data.
+    /// Directories: Unknown. Always 16.
+    pub fn data_length(&self) -> u32 { self.data_length.get() }
+}
+
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[repr(C, align(4))]
+pub struct RarcDirectory {
+    /// Identifier of the directory.
+    identifier: [u8; 4],
+    /// Offset in the string table to the directory name.
+    name_offset: U32,
+    /// Hash of the directory name.
+    name_hash: U16,
+    /// Number of nodes in the directory.
+    count: U16,
+    /// Index of the first node in the directory.
+    index: U32,
+}
+
+static_assert!(size_of::<RarcDirectory>() == 0x10);
+
+impl RarcDirectory {
+    /// Offset in the string table to the directory name.
+    pub fn name_offset(&self) -> u32 { self.name_offset.get() }
+
+    /// Index of the first node in the directory.
+    pub fn node_index(&self) -> u32 { self.index.get() }
+
+    /// Number of nodes in the directory.
+    pub fn node_count(&self) -> u16 { self.count.get() }
+}
+
+/// A view into a RARC archive.
+pub struct RarcView<'a> {
+    /// The RARC archive header.
+    pub header: &'a RarcHeader,
+    /// The directories in the RARC archive.
+    pub directories: &'a [RarcDirectory],
+    /// The nodes in the RARC archive.
+    pub nodes: &'a [RarcNode],
+    /// The string table containing all file and directory names.
+    pub string_table: &'a [u8],
+    /// The file data.
+    pub data: &'a [u8],
+}
+
+impl<'a> RarcView<'a> {
+    /// Create a new RARC view from a buffer.
+    pub fn new(buf: &'a [u8]) -> Result<Self, &'static str> {
+        let Some(header) = RarcHeader::ref_from_prefix(buf) else {
+            return Err("Buffer not large enough for RARC header");
         };
         if header.magic != RARC_MAGIC {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!("invalid RARC magic: {:?}", header.magic),
-            ));
+            return Err("RARC magic mismatch");
         }
-        if header.node_count >= 0x10000 {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!("invalid node count: {}", header.node_count),
-            ));
+        if header.header_len.get() as usize != size_of::<RarcHeader>() {
+            return Err("RARC header size mismatch");
         }
-        if header.directory_count >= 0x10000 {
-            return Err(io::Error::new(
-                io::ErrorKind::InvalidData,
-                format!("invalid directory count: {}", header.directory_count),
-            ));
+
+        // All offsets are relative to the _end_ of the header, so we can
+        // just trim the header from the buffer and use the offsets as is.
+        let buf = &buf[size_of::<RarcHeader>()..];
+        let Some(info) = RarcInfo::ref_from_prefix(buf) else {
+            return Err("Buffer not large enough for RARC info");
+        };
+
+        let directory_table_offset = info.directory_offset.get() as usize;
+        let directory_table_size = info.directory_count.get() as usize * size_of::<RarcDirectory>();
+        let directories_buf = buf
+            .get(directory_table_offset..directory_table_offset + directory_table_size)
+            .ok_or("RARC directory table out of bounds")?;
+        let directories =
+            RarcDirectory::slice_from(directories_buf).ok_or("RARC directory table not aligned")?;
+        if directories.is_empty() || directories[0].identifier != *b"ROOT" {
+            return Err("RARC root directory not found");
         }
-        Ok(header)
+
+        let node_table_offset = info.node_offset.get() as usize;
+        let node_table_size = info.node_count.get() as usize * size_of::<RarcNode>();
+        let nodes_buf = buf
+            .get(node_table_offset..node_table_offset + node_table_size)
+            .ok_or("RARC node table out of bounds")?;
+        let nodes = RarcNode::slice_from(nodes_buf).ok_or("RARC node table not aligned")?;
+
+        let string_table_offset = info.string_table_offset.get() as usize;
+        let string_table_size = info.string_table_len.get() as usize;
+        let string_table = buf
+            .get(string_table_offset..string_table_offset + string_table_size)
+            .ok_or("RARC string table out of bounds")?;
+
+        let data_offset = header.data_offset.get() as usize;
+        let data_size = header.data_len.get() as usize;
+        let data =
+            buf.get(data_offset..data_offset + data_size).ok_or("RARC file data out of bounds")?;
+
+        Ok(Self { header, directories, nodes, string_table, data })
     }
-}
 
-struct RarcFileNode {
-    index: u16,
-    name_hash: u16,
-    _unk0: u16, // 0x200 for folders, 0x1100 for files
-    name_offset: u16,
-    data_offset: u32,
-    data_length: u32,
-    _unk1: u32,
-}
-
-impl FromReader for RarcFileNode {
-    type Args = ();
-
-    const STATIC_SIZE: usize = struct_size([
-        u16::STATIC_SIZE, // index
-        u16::STATIC_SIZE, // name_hash
-        u16::STATIC_SIZE, // unk0
-        u16::STATIC_SIZE, // name_offset
-        u32::STATIC_SIZE, // data_offset
-        u32::STATIC_SIZE, // data_length
-        u32::STATIC_SIZE, // unk1
-    ]);
-
-    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
-    where R: Read + Seek + ?Sized {
-        Ok(Self {
-            index: u16::from_reader(reader, e)?,
-            name_hash: u16::from_reader(reader, e)?,
-            _unk0: u16::from_reader(reader, e)?,
-            name_offset: u16::from_reader(reader, e)?,
-            data_offset: u32::from_reader(reader, e)?,
-            data_length: u32::from_reader(reader, e)?,
-            _unk1: u32::from_reader(reader, e)?,
-        })
+    /// Get a string from the string table at the given offset.
+    pub fn get_string(&self, offset: u32) -> Result<Cow<str>, String> {
+        let name_buf = self.string_table.get(offset as usize..).ok_or_else(|| {
+            format!(
+                "RARC: name offset {} out of bounds (string table size: {})",
+                offset,
+                self.string_table.len()
+            )
+        })?;
+        let c_string = CStr::from_bytes_until_nul(name_buf)
+            .map_err(|_| format!("RARC: name at offset {} not null-terminated", offset))?;
+        Ok(c_string.to_string_lossy())
     }
-}
 
-struct RarcDirectoryNode {
-    _identifier: u32,
-    name_offset: u32,
-    name_hash: u16,
-    count: u16,
-    index: u32,
-}
-
-impl FromReader for RarcDirectoryNode {
-    type Args = ();
-
-    const STATIC_SIZE: usize = struct_size([
-        u32::STATIC_SIZE, // identifier
-        u32::STATIC_SIZE, // name_offset
-        u16::STATIC_SIZE, // name_hash
-        u16::STATIC_SIZE, // count
-        u32::STATIC_SIZE, // index
-    ]);
-
-    fn from_reader_args<R>(reader: &mut R, e: Endian, _args: Self::Args) -> io::Result<Self>
-    where R: Read + Seek + ?Sized {
-        Ok(Self {
-            _identifier: u32::from_reader(reader, e)?,
-            name_offset: u32::from_reader(reader, e)?,
-            name_hash: u16::from_reader(reader, e)?,
-            count: u16::from_reader(reader, e)?,
-            index: u32::from_reader(reader, e)?,
-        })
+    /// Get the data for a file node.
+    pub fn get_data(&self, node: RarcNode) -> Result<&[u8], &'static str> {
+        if node.is_dir() {
+            return Err("Cannot get data for a directory node");
+        }
+        let offset = node.data_offset.get() as usize;
+        let size = node.data_length.get() as usize;
+        self.data.get(offset..offset + size).ok_or("RARC file data out of bounds")
     }
-}
 
-impl RarcReader {
-    /// Creates a new RARC reader.
-    pub fn new<R>(reader: &mut R) -> Result<Self>
-    where R: Read + Seek + ?Sized {
-        let base = reader.stream_position()?;
-        let header = RarcHeader::from_reader(reader, Endian::Big)?;
+    /// Finds a particular file or directory by path.
+    pub fn find(&self, path: &str) -> Option<RarcNodeKind> {
+        let mut split = path.split('/');
+        let mut current = next_non_empty(&mut split);
 
-        let base = base + header.header_length as u64;
-        let directory_base = base + header.directory_offset as u64;
-        let data_base = base + header.file_offset as u64;
-        let mut directories = Vec::with_capacity(header.directory_count as usize);
-        for i in 0..header.directory_count {
-            reader.seek(SeekFrom::Start(directory_base + 20 * i as u64))?;
-            let node = RarcFileNode::from_reader(reader, Endian::Big)?;
-
-            let name = {
-                let offset = header.string_table_offset as u64;
-                let offset = offset + node.name_offset as u64;
-                ensure!(
-                    (node.name_offset as u32) < header.string_table_length,
-                    "invalid string table offset"
-                );
-                read_c_string(reader, base + offset)
-            }?;
-
-            if node.index == 0xFFFF {
-                if name == "." {
-                    directories.push(RarcDirectory::CurrentFolder);
-                } else if name == ".." {
-                    directories.push(RarcDirectory::ParentFolder);
-                } else {
-                    directories.push(RarcDirectory::Folder {
-                        name: NamedHash { name, hash: node.name_hash },
-                    });
-                }
-            } else {
-                directories.push(RarcDirectory::File {
-                    name: NamedHash { name, hash: node.name_hash },
-                    offset: data_base + node.data_offset as u64,
-                    size: node.data_length,
-                });
+        let mut dir_idx = 0;
+        let mut dir = self.directories[dir_idx];
+        // Allow matching the root directory by name optionally
+        if let Ok(root_name) = self.get_string(dir.name_offset()) {
+            if root_name.eq_ignore_ascii_case(current) {
+                current = next_non_empty(&mut split);
             }
         }
-
-        let node_base = base + header.node_offset as u64;
-        let mut root_node: Option<NamedHash> = None;
-        let mut nodes = HashMap::with_capacity(header.node_count as usize);
-        for i in 0..header.node_count {
-            reader.seek(SeekFrom::Start(node_base + 16 * i as u64))?;
-            let node = RarcDirectoryNode::from_reader(reader, Endian::Big)?;
-
-            ensure!(node.index < header.directory_count, "first directory index out of bounds");
-
-            let last_index = node.index.checked_add(node.count as u32);
-            ensure!(
-                last_index.is_some() && last_index.unwrap() <= header.directory_count,
-                "last directory index out of bounds"
-            );
-
-            let name = {
-                let offset = header.string_table_offset as u64;
-                let offset = offset + node.name_offset as u64;
-                ensure!(
-                    node.name_offset < header.string_table_length,
-                    "invalid string table offset"
-                );
-                read_c_string(reader, base + offset)
-            }?;
-
-            // FIXME: this assumes that the root node is the first node in the list
-            if root_node.is_none() {
-                root_node = Some(NamedHash { name: name.clone(), hash: node.name_hash });
-            }
-
-            let name = NamedHash { name, hash: node.name_hash };
-            nodes.insert(name.clone(), RarcNode { index: node.index, count: node.count as u32 });
+        if current.is_empty() {
+            return Some(RarcNodeKind::Directory(dir_idx, dir));
         }
 
-        if let Some(root_node) = root_node {
-            Ok(Self { directories, nodes, root_node })
-        } else {
-            Err(anyhow!("no root node"))
-        }
-    }
-
-    /// Get a iterator over the nodes in the RARC file.
-    pub fn nodes(&self) -> Nodes<'_> {
-        let root_node = self.root_node.clone();
-        Nodes { parent: self, stack: vec![NodeState::Begin(root_node)] }
-    }
-
-    /// Find a file in the RARC file.
-    pub fn find_file<P>(&self, path: P) -> Result<Option<(u64, u32)>>
-    where P: AsRef<Path> {
-        let mut cmp_path = PathBuf::new();
-        for component in path.as_ref().components() {
-            match component {
-                Component::Normal(name) => cmp_path.push(name.to_ascii_lowercase()),
-                Component::RootDir => {}
-                component => bail!("Invalid path component: {:?}", component),
-            }
-        }
-
-        let mut current_path = PathBuf::new();
-        for node in self.nodes() {
-            match node {
-                Node::DirectoryBegin { name } => {
-                    current_path.push(name.name.to_ascii_lowercase());
-                }
-                Node::DirectoryEnd { name: _ } => {
-                    current_path.pop();
-                }
-                Node::File { name, offset, size } => {
-                    if current_path.join(name.name.to_ascii_lowercase()) == cmp_path {
-                        return Ok(Some((offset, size)));
-                    }
-                }
-                Node::CurrentDirectory => {}
-                Node::ParentDirectory => {}
-            }
-        }
-        Ok(None)
-    }
-}
-
-/// A node in an RARC file.
-pub enum Node {
-    /// A directory that has been entered.
-    DirectoryBegin { name: NamedHash },
-    /// A directory that has been exited.
-    DirectoryEnd { name: NamedHash },
-    /// A file in the current directory.
-    File { name: NamedHash, offset: u64, size: u32 },
-    /// The current directory. This is equivalent to ".".
-    CurrentDirectory,
-    /// The parent directory. This is equivalent to "..".
-    ParentDirectory,
-}
-
-enum NodeState {
-    Begin(NamedHash),
-    End(NamedHash),
-    File(NamedHash, u32),
-}
-
-/// An iterator over the nodes in an RARC file.
-pub struct Nodes<'parent> {
-    parent: &'parent RarcReader,
-    stack: Vec<NodeState>,
-}
-
-impl<'parent> Iterator for Nodes<'parent> {
-    type Item = Node;
-
-    fn next(&mut self) -> Option<Self::Item> {
-        match self.stack.pop()? {
-            NodeState::Begin(name) => {
-                self.stack.push(NodeState::File(name.clone(), 0));
-                Some(Node::DirectoryBegin { name })
-            }
-            NodeState::End(name) => Some(Node::DirectoryEnd { name }),
-            NodeState::File(name, index) => {
-                if let Some(node) = self.parent.nodes.get(&name) {
-                    if index + 1 >= node.count {
-                        self.stack.push(NodeState::End(name.clone()));
+        let mut idx = dir.index.get() as usize;
+        while idx < dir.index.get() as usize + dir.count.get() as usize {
+            let node = self.nodes.get(idx).copied()?;
+            let Ok(name) = self.get_string(node.name_offset()) else {
+                idx += 1;
+                continue;
+            };
+            if name.eq_ignore_ascii_case(current) {
+                current = next_non_empty(&mut split);
+                if node.is_dir() {
+                    dir_idx = node.data_offset.get() as usize;
+                    dir = self.directories.get(dir_idx).cloned()?;
+                    idx = dir.index.get() as usize;
+                    if current.is_empty() {
+                        return Some(RarcNodeKind::Directory(dir_idx, dir));
                     } else {
-                        self.stack.push(NodeState::File(name.clone(), index + 1));
-                    }
-                    let directory = &self.parent.directories[(node.index + index) as usize];
-                    match directory {
-                        RarcDirectory::CurrentFolder => Some(Node::CurrentDirectory),
-                        RarcDirectory::ParentFolder => Some(Node::ParentDirectory),
-                        RarcDirectory::Folder { name } => {
-                            self.stack.push(NodeState::Begin(name.clone()));
-                            self.next()
-                        }
-                        RarcDirectory::File { name, offset, size } => {
-                            Some(Node::File { name: name.clone(), offset: *offset, size: *size })
-                        }
+                        continue;
                     }
                 } else {
-                    None
+                    return Some(RarcNodeKind::File(idx, node));
                 }
             }
+            idx += 1;
+        }
+
+        None
+    }
+
+    /// Get the children of a directory.
+    pub fn children(&self, dir: RarcDirectory) -> &[RarcNode] {
+        let start = dir.node_index() as usize;
+        let end = start + dir.node_count() as usize;
+        self.nodes.get(start..end).unwrap_or(&[])
+    }
+}
+
+#[derive(Debug)]
+pub enum RarcNodeKind {
+    File(usize, RarcNode),
+    Directory(usize, RarcDirectory),
+}
+
+fn next_non_empty<'a>(iter: &mut impl Iterator<Item = &'a str>) -> &'a str {
+    loop {
+        match iter.next() {
+            Some("") => continue,
+            Some(next) => break next,
+            None => break "",
         }
     }
 }

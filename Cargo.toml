@@ -9,7 +9,7 @@ publish = false
 repository = "https://github.com/encounter/decomp-toolkit"
 readme = "README.md"
 categories = ["command-line-utilities"]
-rust-version = "1.73.0"
+rust-version = "1.80.0"
 
 [[bin]]
 name = "dtk"
@@ -33,6 +33,7 @@ base64 = "0.22"
 crossterm = "0.28"
 cwdemangle = "1.0"
 cwextab = "1.0.2"
+dyn-clone = "1.0"
 enable-ansi-support = "0.2"
 filetime = "0.2"
 fixedbitset = "0.5"
@@ -47,7 +48,7 @@ memchr = "2.7"
 memmap2 = "0.9"
 multimap = "0.10"
 nintendo-lz = "0.1"
-nodtool = "1.3"
+nodtool = "1.4"
 #nodtool = { path = "../nod-rs/nodtool" }
 num_enum = "0.7"
 objdiff-core = { version = "2.1", features = ["ppc"] }

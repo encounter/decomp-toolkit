@@ -1,7 +1,7 @@
 use std::{
     collections::{btree_map, BTreeMap},
     fs,
-    io::Write,
+    io::{Cursor, Write},
     path::PathBuf,
     time::Instant,
 };
@@ -27,13 +27,13 @@ use crate::{
         tracker::Tracker,
     },
     array_ref_mut,
-    cmd::dol::{ModuleConfig, ProjectConfig},
+    cmd::dol::{find_object_base, ModuleConfig, ObjectBase, ProjectConfig},
     obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol},
     util::{
         config::{is_auto_symbol, read_splits_sections, SectionDef},
         dol::process_dol,
         elf::{to_obj_reloc_kind, write_elf},
-        file::{buf_reader, buf_writer, map_file, process_rsp, verify_hash, FileIterator},
+        file::{buf_writer, process_rsp, verify_hash, FileIterator},
         nested::NestedMap,
         rel::{
             print_relocations, process_rel, process_rel_header, process_rel_sections, write_rel,
@@ -41,6 +41,7 @@ use crate::{
         },
         IntoCow, ToCow,
     },
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -162,12 +163,13 @@ fn match_section_index(
     //     })
 }
 
-fn load_rel(module_config: &ModuleConfig) -> Result<RelInfo> {
-    let file = map_file(&module_config.object)?;
+fn load_rel(module_config: &ModuleConfig, object_base: &ObjectBase) -> Result<RelInfo> {
+    let mut file = object_base.open(&module_config.object)?;
+    let data = file.map()?;
     if let Some(hash_str) = &module_config.hash {
-        verify_hash(file.as_slice(), hash_str)?;
+        verify_hash(data, hash_str)?;
     }
-    let mut reader = file.as_reader();
+    let mut reader = Cursor::new(data);
     let header = process_rel_header(&mut reader)?;
     let sections = process_rel_sections(&mut reader, &header)?;
     let section_defs = if let Some(splits_path) = &module_config.splits {
@@ -261,15 +263,19 @@ fn make(args: MakeArgs) -> Result<()> {
     let mut existing_headers = BTreeMap::<u32, RelInfo>::new();
     let mut name_to_module_id = FxHashMap::<String, u32>::default();
     if let Some(config_path) = &args.config {
-        let config: ProjectConfig = serde_yaml::from_reader(&mut buf_reader(config_path)?)?;
+        let config: ProjectConfig = {
+            let mut file = open_path(config_path, true)?;
+            serde_yaml::from_reader(file.as_mut())?
+        };
+        let object_base = find_object_base(&config)?;
         for module_config in &config.modules {
             let module_name = module_config.name();
             if !args.names.is_empty() && !args.names.iter().any(|n| n == &module_name) {
                 continue;
             }
             let _span = info_span!("module", name = %module_name).entered();
-            let info = load_rel(module_config).with_context(|| {
-                format!("While loading REL '{}'", module_config.object.display())
+            let info = load_rel(module_config, &object_base).with_context(|| {
+                format!("While loading REL '{}'", object_base.join(&module_config.object).display())
             })?;
             name_to_module_id.insert(module_name.to_string(), info.0.module_id);
             match existing_headers.entry(info.0.module_id) {
@@ -287,9 +293,9 @@ fn make(args: MakeArgs) -> Result<()> {
     }
 
     // Load all modules
-    let files = paths.iter().map(map_file).collect::<Result<Vec<_>>>()?;
+    let mut files = paths.iter().map(|p| open_path(p, true)).collect::<Result<Vec<_>>>()?;
     let modules = files
-        .par_iter()
+        .par_iter_mut()
         .enumerate()
         .zip(&paths)
         .map(|((idx, file), path)| {
@@ -301,7 +307,7 @@ fn make(args: MakeArgs) -> Result<()> {
                 .and_then(|n| name_to_module_id.get(n))
                 .copied()
                 .unwrap_or(idx as u32);
-            load_obj(file.as_slice())
+            load_obj(file.map()?)
                 .map(|o| LoadedModule { module_id, file: o, path: path.clone() })
                 .with_context(|| format!("Failed to load '{}'", path.display()))
         })
@@ -399,8 +405,8 @@ fn make(args: MakeArgs) -> Result<()> {
 }
 
 fn info(args: InfoArgs) -> Result<()> {
-    let file = map_file(args.rel_file)?;
-    let (header, mut module_obj) = process_rel(&mut file.as_reader(), "")?;
+    let mut file = open_path(&args.rel_file, true)?;
+    let (header, mut module_obj) = process_rel(file.as_mut(), "")?;
 
     let mut state = AnalyzerState::default();
     state.detect_functions(&module_obj)?;
@@ -458,7 +464,7 @@ fn info(args: InfoArgs) -> Result<()> {
     if args.relocations {
         println!("\nRelocations:");
         println!("    [Source] section:address RelocType -> [Target] module:section:address");
-        print_relocations(&mut file.as_reader(), &header)?;
+        print_relocations(file.as_mut(), &header)?;
     }
     Ok(())
 }
@@ -469,9 +475,9 @@ const fn align32(x: u32) -> u32 { (x + 31) & !31 }
 fn merge(args: MergeArgs) -> Result<()> {
     log::info!("Loading {}", args.dol_file.display());
     let mut obj = {
-        let file = map_file(&args.dol_file)?;
+        let mut file = open_path(&args.dol_file, true)?;
         let name = args.dol_file.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
-        process_dol(file.as_slice(), name.as_ref())?
+        process_dol(file.map()?, name.as_ref())?
     };
 
     log::info!("Performing signature analysis");
@@ -481,10 +487,10 @@ fn merge(args: MergeArgs) -> Result<()> {
     let mut processed = 0;
     let mut module_map = BTreeMap::<u32, ObjInfo>::new();
     for result in FileIterator::new(&args.rel_files)? {
-        let (path, entry) = result?;
+        let (path, mut entry) = result?;
         log::info!("Loading {}", path.display());
         let name = path.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
-        let (_, obj) = process_rel(&mut entry.as_reader(), name.as_ref())?;
+        let (_, obj) = process_rel(&mut entry, name.as_ref())?;
         match module_map.entry(obj.module_id) {
             btree_map::Entry::Vacant(e) => e.insert(obj),
             btree_map::Entry::Occupied(_) => bail!("Duplicate module ID {}", obj.module_id),

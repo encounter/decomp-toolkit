@@ -32,7 +32,7 @@ pub enum U8NodeKind {
 }
 
 /// An individual file system node.
-#[derive(Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
 #[repr(C, align(4))]
 pub struct U8Node {
     kind: u8,
@@ -121,7 +121,7 @@ impl<'a> U8View<'a> {
     pub fn iter(&self) -> U8Iter { U8Iter { inner: self, idx: 1 } }
 
     /// Get the name of a node.
-    pub fn get_name(&self, node: &U8Node) -> Result<Cow<str>, String> {
+    pub fn get_name(&self, node: U8Node) -> Result<Cow<str>, String> {
         let name_buf = self.string_table.get(node.name_offset() as usize..).ok_or_else(|| {
             format!(
                 "U8: name offset {} out of bounds (string table size: {})",
@@ -136,22 +136,29 @@ impl<'a> U8View<'a> {
     }
 
     /// Finds a particular file or directory by path.
-    pub fn find(&self, path: &str) -> Option<(usize, &U8Node)> {
-        let mut split = path.trim_matches('/').split('/');
-        let mut current = split.next()?;
+    pub fn find(&self, path: &str) -> Option<(usize, U8Node)> {
+        let mut split = path.split('/');
+        let mut current = next_non_empty(&mut split);
+        if current.is_empty() {
+            return Some((0, self.nodes[0]));
+        }
+
         let mut idx = 1;
         let mut stop_at = None;
-        while let Some(node) = self.nodes.get(idx) {
-            if self.get_name(node).as_ref().map_or(false, |name| name.eq_ignore_ascii_case(current))
-            {
-                if let Some(next) = split.next() {
-                    current = next;
-                } else {
+        while let Some(node) = self.nodes.get(idx).copied() {
+            if self.get_name(node).map_or(false, |name| name.eq_ignore_ascii_case(current)) {
+                current = next_non_empty(&mut split);
+                if current.is_empty() {
                     return Some((idx, node));
                 }
-                // Descend into directory
-                idx += 1;
-                stop_at = Some(node.length() as usize + idx);
+                if node.is_dir() {
+                    // Descend into directory
+                    idx += 1;
+                    stop_at = Some(node.length() as usize + idx);
+                } else {
+                    // Not a directory
+                    break;
+                }
             } else if node.is_dir() {
                 // Skip directory
                 idx = node.length() as usize;
@@ -169,6 +176,16 @@ impl<'a> U8View<'a> {
     }
 }
 
+fn next_non_empty<'a>(iter: &mut impl Iterator<Item = &'a str>) -> &'a str {
+    loop {
+        match iter.next() {
+            Some("") => continue,
+            Some(next) => break next,
+            None => break "",
+        }
+    }
+}
+
 /// Iterator over the nodes in a U8 archive.
 pub struct U8Iter<'a> {
     inner: &'a U8View<'a>,
@@ -176,11 +193,11 @@ pub struct U8Iter<'a> {
 }
 
 impl<'a> Iterator for U8Iter<'a> {
-    type Item = (usize, &'a U8Node, Result<Cow<'a, str>, String>);
+    type Item = (usize, U8Node, Result<Cow<'a, str>, String>);
 
     fn next(&mut self) -> Option<Self::Item> {
         let idx = self.idx;
-        let node = self.inner.nodes.get(idx)?;
+        let node = self.inner.nodes.get(idx).copied()?;
         let name = self.inner.get_name(node);
         self.idx += 1;
         Some((idx, node, name))

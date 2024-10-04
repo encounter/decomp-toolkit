@@ -5,7 +5,7 @@ use std::{
     ffi::OsStr,
     fs,
     fs::DirBuilder,
-    io::{Cursor, Write},
+    io::{Cursor, Seek, Write},
     mem::take,
     path::{Path, PathBuf},
     time::Instant,
@@ -48,10 +48,7 @@ use crate::{
         diff::{calc_diff_ranges, print_diff, process_code},
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{
-            buf_reader, buf_writer, map_file, map_file_basic, touch, verify_hash, FileIterator,
-            FileReadInfo,
-        },
+        file::{buf_writer, touch, verify_hash, FileIterator, FileReadInfo},
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         rel::{process_rel, process_rel_header, update_rel_section_alignment},
@@ -59,6 +56,7 @@ use crate::{
         split::{is_linker_generated_object, split_obj, update_splits},
         IntoCow, ToCow,
     },
+    vfs::{open_fs, open_path, open_path_fs, ArchiveKind, Vfs, VfsFile},
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -236,6 +234,9 @@ pub struct ProjectConfig {
     /// Marks all emitted symbols as "exported" to prevent the linker from removing them.
     #[serde(default = "bool_true", skip_serializing_if = "is_true")]
     pub export_all: bool,
+    /// Optional base path for all object files.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub object_base: Option<PathBuf>,
 }
 
 impl Default for ProjectConfig {
@@ -254,6 +255,7 @@ impl Default for ProjectConfig {
             symbols_known: false,
             fill_gaps: true,
             export_all: true,
+            object_base: None,
         }
     }
 }
@@ -483,8 +485,8 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
 
 pub fn info(args: InfoArgs) -> Result<()> {
     let mut obj = {
-        let file = map_file(&args.dol_file)?;
-        process_dol(file.as_slice(), "")?
+        let mut file = open_path(&args.dol_file, true)?;
+        process_dol(file.map()?, "")?
     };
     apply_signatures(&mut obj)?;
 
@@ -502,8 +504,8 @@ pub fn info(args: InfoArgs) -> Result<()> {
     apply_signatures_post(&mut obj)?;
 
     if let Some(selfile) = &args.selfile {
-        let file = map_file(selfile)?;
-        apply_selfile(&mut obj, file.as_slice())?;
+        let mut file = open_path(selfile, true)?;
+        apply_selfile(&mut obj, file.map()?)?;
     }
 
     println!("{}:", obj.name);
@@ -787,16 +789,18 @@ struct AnalyzeResult {
     splits_cache: Option<FileReadInfo>,
 }
 
-fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
-    log::debug!("Loading {}", config.base.object.display());
+fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<AnalyzeResult> {
+    let object_path = object_base.join(&config.base.object);
+    log::debug!("Loading {}", object_path.display());
     let mut obj = {
-        let file = map_file(&config.base.object)?;
+        let mut file = object_base.open(&config.base.object)?;
+        let data = file.map()?;
         if let Some(hash_str) = &config.base.hash {
-            verify_hash(file.as_slice(), hash_str)?;
+            verify_hash(data, hash_str)?;
         }
-        process_dol(file.as_slice(), config.base.name().as_ref())?
+        process_dol(data, config.base.name().as_ref())?
     };
-    let mut dep = vec![config.base.object.clone()];
+    let mut dep = vec![object_path];
 
     if let Some(comment_version) = config.mw_comment_version {
         obj.mw_comment = Some(MWComment::new(comment_version)?);
@@ -843,11 +847,12 @@ fn load_analyze_dol(config: &ProjectConfig) -> Result<AnalyzeResult> {
 
     if let Some(selfile) = &config.selfile {
         log::info!("Loading {}", selfile.display());
-        let file = map_file(selfile)?;
+        let mut file = open_path(selfile, true)?;
+        let data = file.map()?;
         if let Some(hash) = &config.selfile_hash {
-            verify_hash(file.as_slice(), hash)?;
+            verify_hash(data, hash)?;
         }
-        apply_selfile(&mut obj, file.as_slice())?;
+        apply_selfile(&mut obj, data)?;
         dep.push(selfile.clone());
     }
 
@@ -1004,12 +1009,11 @@ fn split_write_obj(
 
 fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
     if path.is_file() {
-        let old_file = map_file_basic(path)?;
+        let mut old_file = open_path(path, true)?;
+        let old_data = old_file.map()?;
         // If the file is the same size, check if the contents are the same
         // Avoid writing if unchanged, since it will update the file's mtime
-        if old_file.len() == contents.len() as u64
-            && xxh3_64(old_file.as_slice()) == xxh3_64(contents)
-        {
+        if old_data.len() == contents.len() && xxh3_64(old_data) == xxh3_64(contents) {
             return Ok(());
         }
     }
@@ -1018,20 +1022,26 @@ fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
     Ok(())
 }
 
-fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Result<AnalyzeResult> {
-    debug!("Loading {}", module_config.object.display());
-    let file = map_file(&module_config.object)?;
+fn load_analyze_rel(
+    config: &ProjectConfig,
+    object_base: &ObjectBase,
+    module_config: &ModuleConfig,
+) -> Result<AnalyzeResult> {
+    let object_path = object_base.join(&module_config.object);
+    debug!("Loading {}", object_path.display());
+    let mut file = object_base.open(&module_config.object)?;
+    let data = file.map()?;
     if let Some(hash_str) = &module_config.hash {
-        verify_hash(file.as_slice(), hash_str)?;
+        verify_hash(data, hash_str)?;
     }
     let (header, mut module_obj) =
-        process_rel(&mut Cursor::new(file.as_slice()), module_config.name().as_ref())?;
+        process_rel(&mut Cursor::new(data), module_config.name().as_ref())?;
 
     if let Some(comment_version) = config.mw_comment_version {
         module_obj.mw_comment = Some(MWComment::new(comment_version)?);
     }
 
-    let mut dep = vec![module_config.object.clone()];
+    let mut dep = vec![object_path];
     if let Some(map_path) = &module_config.map {
         apply_map_file(map_path, &mut module_obj, None, None)?;
         dep.push(map_path.clone());
@@ -1082,22 +1092,24 @@ fn load_analyze_rel(config: &ProjectConfig, module_config: &ModuleConfig) -> Res
 
 fn split(args: SplitArgs) -> Result<()> {
     if let Some(jobs) = args.jobs {
-        rayon::ThreadPoolBuilder::new().num_threads(jobs).build_global().unwrap();
+        rayon::ThreadPoolBuilder::new().num_threads(jobs).build_global()?;
     }
 
     let command_start = Instant::now();
     info!("Loading {}", args.config.display());
     let mut config: ProjectConfig = {
-        let mut config_file = buf_reader(&args.config)?;
-        serde_yaml::from_reader(&mut config_file)?
+        let mut config_file = open_path(&args.config, true)?;
+        serde_yaml::from_reader(config_file.as_mut())?
     };
+    let object_base = find_object_base(&config)?;
 
     for module_config in config.modules.iter_mut() {
-        let file = map_file(&module_config.object)?;
+        let mut file = object_base.open(&module_config.object)?;
+        let mut data = file.map()?;
         if let Some(hash_str) = &module_config.hash {
-            verify_hash(file.as_slice(), hash_str)?;
+            verify_hash(data, hash_str)?;
         } else {
-            module_config.hash = Some(file_sha1_string(&mut file.as_reader())?);
+            module_config.hash = Some(file_sha1_string(&mut data)?);
         }
     }
 
@@ -1121,7 +1133,7 @@ fn split(args: SplitArgs) -> Result<()> {
         s.spawn(|_| {
             let _span = info_span!("module", name = %config.base.name()).entered();
             dol_result =
-                Some(load_analyze_dol(&config).with_context(|| {
+                Some(load_analyze_dol(&config, &object_base).with_context(|| {
                     format!("While loading object '{}'", config.base.file_name())
                 }));
         });
@@ -1133,7 +1145,7 @@ fn split(args: SplitArgs) -> Result<()> {
                     .par_iter()
                     .map(|module_config| {
                         let _span = info_span!("module", name = %module_config.name()).entered();
-                        load_analyze_rel(&config, module_config).with_context(|| {
+                        load_analyze_rel(&config, &object_base, module_config).with_context(|| {
                             format!("While loading object '{}'", module_config.file_name())
                         })
                     })
@@ -1538,16 +1550,18 @@ fn symbol_name_fuzzy_eq(a: &ObjSymbol, b: &ObjSymbol) -> bool {
 
 fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
-    let mut config_file = buf_reader(&args.config)?;
-    let config: ProjectConfig = serde_yaml::from_reader(&mut config_file)?;
+    let mut config_file = open_path(&args.config, true)?;
+    let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
+    let object_base = find_object_base(&config)?;
 
-    log::info!("Loading {}", config.base.object.display());
+    log::info!("Loading {}", object_base.join(&config.base.object).display());
     let mut obj = {
-        let file = map_file(&config.base.object)?;
+        let mut file = object_base.open(&config.base.object)?;
+        let data = file.map()?;
         if let Some(hash_str) = &config.base.hash {
-            verify_hash(file.as_slice(), hash_str)?;
+            verify_hash(data, hash_str)?;
         }
-        process_dol(file.as_slice(), config.base.name().as_ref())?
+        process_dol(data, config.base.name().as_ref())?
     };
 
     if let Some(symbols_path) = &config.base.symbols {
@@ -1717,16 +1731,18 @@ fn diff(args: DiffArgs) -> Result<()> {
 
 fn apply(args: ApplyArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
-    let mut config_file = buf_reader(&args.config)?;
-    let config: ProjectConfig = serde_yaml::from_reader(&mut config_file)?;
+    let mut config_file = open_path(&args.config, true)?;
+    let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
+    let object_base = find_object_base(&config)?;
 
-    log::info!("Loading {}", config.base.object.display());
+    log::info!("Loading {}", object_base.join(&config.base.object).display());
     let mut obj = {
-        let file = map_file(&config.base.object)?;
+        let mut file = object_base.open(&config.base.object)?;
+        let data = file.map()?;
         if let Some(hash_str) = &config.base.hash {
-            verify_hash(file.as_slice(), hash_str)?;
+            verify_hash(data, hash_str)?;
         }
-        process_dol(file.as_slice(), config.base.name().as_ref())?
+        process_dol(data, config.base.name().as_ref())?
     };
 
     let Some(symbols_path) = &config.base.symbols else {
@@ -1881,30 +1897,31 @@ fn config(args: ConfigArgs) -> Result<()> {
     let mut config = ProjectConfig::default();
     let mut modules = Vec::<(u32, ModuleConfig)>::new();
     for result in FileIterator::new(&args.objects)? {
-        let (path, entry) = result?;
+        let (path, mut entry) = result?;
         log::info!("Loading {}", path.display());
 
         match path.extension() {
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("dol")) => {
                 config.base.object = path;
-                config.base.hash = Some(file_sha1_string(&mut entry.as_reader())?);
+                config.base.hash = Some(file_sha1_string(&mut entry)?);
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rel")) => {
-                let header = process_rel_header(&mut entry.as_reader())?;
+                let header = process_rel_header(&mut entry)?;
+                entry.rewind()?;
                 modules.push((header.module_id, ModuleConfig {
                     object: path,
-                    hash: Some(file_sha1_string(&mut entry.as_reader())?),
+                    hash: Some(file_sha1_string(&mut entry)?),
                     ..Default::default()
                 }));
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("sel")) => {
                 config.selfile = Some(path);
-                config.selfile_hash = Some(file_sha1_string(&mut entry.as_reader())?);
+                config.selfile_hash = Some(file_sha1_string(&mut entry)?);
             }
             Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rso")) => {
                 config.modules.push(ModuleConfig {
                     object: path,
-                    hash: Some(file_sha1_string(&mut entry.as_reader())?),
+                    hash: Some(file_sha1_string(&mut entry)?),
                     ..Default::default()
                 });
             }
@@ -1974,4 +1991,53 @@ fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig])
         });
     }
     Ok(())
+}
+
+pub enum ObjectBase {
+    None,
+    Directory(PathBuf),
+    Vfs(PathBuf, Box<dyn Vfs + Send + Sync>),
+}
+
+impl ObjectBase {
+    pub fn join(&self, path: &Path) -> PathBuf {
+        match self {
+            ObjectBase::None => path.to_path_buf(),
+            ObjectBase::Directory(base) => base.join(path),
+            ObjectBase::Vfs(base, _) => {
+                PathBuf::from(format!("{}:{}", base.display(), path.display()))
+            }
+        }
+    }
+
+    pub fn open(&self, path: &Path) -> Result<Box<dyn VfsFile>> {
+        match self {
+            ObjectBase::None => open_path(path, true),
+            ObjectBase::Directory(base) => open_path(&base.join(path), true),
+            ObjectBase::Vfs(vfs_path, vfs) => open_path_fs(vfs.clone(), path, true)
+                .with_context(|| format!("Using disc image {}", vfs_path.display())),
+        }
+    }
+}
+
+pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
+    if let Some(base) = &config.object_base {
+        // Search for disc images in the object base directory
+        for result in base.read_dir()? {
+            let entry = result?;
+            if entry.file_type()?.is_file() {
+                let path = entry.path();
+                let mut file = open_path(&path, false)?;
+                let format = nodtool::nod::Disc::detect(file.as_mut())?;
+                if format.is_some() {
+                    file.rewind()?;
+                    log::info!("Using disc image {}", path.display());
+                    let fs = open_fs(file, ArchiveKind::Disc)?;
+                    return Ok(ObjectBase::Vfs(path, fs));
+                }
+            }
+        }
+        return Ok(ObjectBase::Directory(base.clone()));
+    }
+    Ok(ObjectBase::None)
 }

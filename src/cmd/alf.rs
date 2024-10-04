@@ -10,9 +10,10 @@ use crate::{
     cmd,
     util::{
         alf::AlfFile,
-        file::{buf_writer, map_file},
+        file::buf_writer,
         reader::{Endian, FromReader},
     },
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -60,9 +61,8 @@ pub fn run(args: Args) -> Result<()> {
 
 fn hashes(args: HashesArgs) -> Result<()> {
     let alf_file = {
-        let file = map_file(&args.alf_file)?;
-        let mut reader = file.as_reader();
-        AlfFile::from_reader(&mut reader, Endian::Little)?
+        let mut file = open_path(&args.alf_file, true)?;
+        AlfFile::from_reader(file.as_mut(), Endian::Little)?
     };
     let mut w: Box<dyn Write> = if let Some(output) = args.output {
         Box::new(buf_writer(output)?)

@@ -3,10 +3,13 @@ use std::{fs, path::PathBuf};
 use anyhow::{Context, Result};
 use argp::FromArgs;
 
-use crate::util::{
-    file::{map_file_basic, process_rsp},
-    ncompress::{compress_yay0, decompress_yay0},
-    IntoCow, ToCow,
+use crate::{
+    util::{
+        file::process_rsp,
+        ncompress::{compress_yay0, decompress_yay0},
+        IntoCow, ToCow,
+    },
+    vfs::open_path,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -62,8 +65,8 @@ fn compress(args: CompressArgs) -> Result<()> {
     let single_file = files.len() == 1;
     for path in files {
         let data = {
-            let file = map_file_basic(&path)?;
-            compress_yay0(file.as_slice())
+            let mut file = open_path(&path, false)?;
+            compress_yay0(file.map()?)
         };
         let out_path = if let Some(output) = &args.output {
             if single_file {
@@ -85,8 +88,8 @@ fn decompress(args: DecompressArgs) -> Result<()> {
     let single_file = files.len() == 1;
     for path in files {
         let data = {
-            let file = map_file_basic(&path)?;
-            decompress_yay0(file.as_slice())
+            let mut file = open_path(&path, true)?;
+            decompress_yay0(file.map()?)
                 .with_context(|| format!("Failed to decompress '{}' using Yay0", path.display()))?
         };
         let out_path = if let Some(output) = &args.output {
