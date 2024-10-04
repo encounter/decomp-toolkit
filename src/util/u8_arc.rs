@@ -1,14 +1,14 @@
 use std::{borrow::Cow, ffi::CStr, mem::size_of};
 
 use anyhow::Result;
-use zerocopy::{big_endian::U32, AsBytes, FromBytes, FromZeroes};
+use zerocopy::{big_endian::U32, FromBytes, Immutable, IntoBytes, KnownLayout};
 
 use crate::static_assert;
 
 pub const U8_MAGIC: [u8; 4] = [0x55, 0xAA, 0x38, 0x2D];
 
 /// U8 archive header.
-#[derive(Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[derive(Clone, Debug, PartialEq, FromBytes, IntoBytes, Immutable, KnownLayout)]
 #[repr(C, align(4))]
 pub struct U8Header {
     magic: [u8; 4],
@@ -32,7 +32,7 @@ pub enum U8NodeKind {
 }
 
 /// An individual file system node.
-#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, IntoBytes, Immutable, KnownLayout)]
 #[repr(C, align(4))]
 pub struct U8Node {
     kind: u8,
@@ -91,7 +91,7 @@ pub struct U8View<'a> {
 impl<'a> U8View<'a> {
     /// Create a new U8 view from a buffer.
     pub fn new(buf: &'a [u8]) -> Result<Self, &'static str> {
-        let Some(header) = U8Header::ref_from_prefix(buf) else {
+        let Ok((header, _)) = U8Header::ref_from_prefix(buf) else {
             return Err("Buffer not large enough for U8 header");
         };
         if header.magic != U8_MAGIC {
@@ -101,7 +101,8 @@ impl<'a> U8View<'a> {
         let nodes_buf = buf
             .get(node_table_offset..node_table_offset + header.node_table_size.get() as usize)
             .ok_or("U8 node table out of bounds")?;
-        let root_node = U8Node::ref_from_prefix(nodes_buf).ok_or("U8 root node not aligned")?;
+        let (root_node, _) =
+            U8Node::ref_from_prefix(nodes_buf).map_err(|_| "U8 root node not aligned")?;
         if root_node.kind() != U8NodeKind::Directory {
             return Err("U8 root node is not a directory");
         }
@@ -113,7 +114,8 @@ impl<'a> U8View<'a> {
             return Err("U8 node table size mismatch");
         }
         let (nodes_buf, string_table) = nodes_buf.split_at(node_count * size_of::<U8Node>());
-        let nodes = U8Node::slice_from(nodes_buf).ok_or("U8 node table not aligned")?;
+        let nodes =
+            <[U8Node]>::ref_from_bytes(nodes_buf).map_err(|_| "U8 node table not aligned")?;
         Ok(Self { header, nodes, string_table })
     }
 

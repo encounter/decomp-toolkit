@@ -1,12 +1,12 @@
 use std::{borrow::Cow, ffi::CStr};
 
-use zerocopy::{big_endian::*, AsBytes, FromBytes, FromZeroes};
+use zerocopy::{big_endian::*, FromBytes, Immutable, IntoBytes, KnownLayout};
 
 use crate::static_assert;
 
 pub const RARC_MAGIC: [u8; 4] = *b"RARC";
 
-#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, IntoBytes, Immutable, KnownLayout)]
 #[repr(C, align(4))]
 pub struct RarcHeader {
     /// Magic identifier. (Always "RARC")
@@ -40,7 +40,7 @@ impl RarcHeader {
     pub fn data_len(&self) -> u32 { self.data_len.get() }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, IntoBytes, Immutable, KnownLayout)]
 #[repr(C, align(4))]
 struct RarcInfo {
     /// Number of directories in the directory table.
@@ -63,7 +63,7 @@ struct RarcInfo {
 
 static_assert!(size_of::<RarcInfo>() == 0x20);
 
-#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, IntoBytes, Immutable, KnownLayout)]
 #[repr(C, align(4))]
 pub struct RarcNode {
     /// Index of the node. (0xFFFF for directories)
@@ -104,7 +104,7 @@ impl RarcNode {
     pub fn data_length(&self) -> u32 { self.data_length.get() }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, FromBytes, FromZeroes, AsBytes)]
+#[derive(Copy, Clone, Debug, PartialEq, FromBytes, IntoBytes, Immutable, KnownLayout)]
 #[repr(C, align(4))]
 pub struct RarcDirectory {
     /// Identifier of the directory.
@@ -149,7 +149,7 @@ pub struct RarcView<'a> {
 impl<'a> RarcView<'a> {
     /// Create a new RARC view from a buffer.
     pub fn new(buf: &'a [u8]) -> Result<Self, &'static str> {
-        let Some(header) = RarcHeader::ref_from_prefix(buf) else {
+        let Ok((header, remaining)) = RarcHeader::ref_from_prefix(buf) else {
             return Err("Buffer not large enough for RARC header");
         };
         if header.magic != RARC_MAGIC {
@@ -161,32 +161,32 @@ impl<'a> RarcView<'a> {
 
         // All offsets are relative to the _end_ of the header, so we can
         // just trim the header from the buffer and use the offsets as is.
-        let buf = &buf[size_of::<RarcHeader>()..];
-        let Some(info) = RarcInfo::ref_from_prefix(buf) else {
+        let Ok((info, _)) = RarcInfo::ref_from_prefix(remaining) else {
             return Err("Buffer not large enough for RARC info");
         };
 
         let directory_table_offset = info.directory_offset.get() as usize;
         let directory_table_size = info.directory_count.get() as usize * size_of::<RarcDirectory>();
-        let directories_buf = buf
+        let directories_buf = remaining
             .get(directory_table_offset..directory_table_offset + directory_table_size)
             .ok_or("RARC directory table out of bounds")?;
-        let directories =
-            RarcDirectory::slice_from(directories_buf).ok_or("RARC directory table not aligned")?;
+        let directories = <[RarcDirectory]>::ref_from_bytes(directories_buf)
+            .map_err(|_| "RARC directory table not aligned")?;
         if directories.is_empty() || directories[0].identifier != *b"ROOT" {
             return Err("RARC root directory not found");
         }
 
         let node_table_offset = info.node_offset.get() as usize;
         let node_table_size = info.node_count.get() as usize * size_of::<RarcNode>();
-        let nodes_buf = buf
+        let nodes_buf = remaining
             .get(node_table_offset..node_table_offset + node_table_size)
             .ok_or("RARC node table out of bounds")?;
-        let nodes = RarcNode::slice_from(nodes_buf).ok_or("RARC node table not aligned")?;
+        let nodes =
+            <[RarcNode]>::ref_from_bytes(nodes_buf).map_err(|_| "RARC node table not aligned")?;
 
         let string_table_offset = info.string_table_offset.get() as usize;
         let string_table_size = info.string_table_len.get() as usize;
-        let string_table = buf
+        let string_table = remaining
             .get(string_table_offset..string_table_offset + string_table_size)
             .ok_or("RARC string table out of bounds")?;
 
