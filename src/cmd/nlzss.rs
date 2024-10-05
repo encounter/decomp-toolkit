@@ -4,7 +4,7 @@ use anyhow::{anyhow, Context, Result};
 use argp::FromArgs;
 
 use crate::{
-    util::{file::process_rsp, IntoCow, ToCow},
+    util::{file::process_rsp, nlzss, IntoCow, ToCow},
     vfs::open_file,
 };
 
@@ -46,7 +46,7 @@ fn decompress(args: DecompressArgs) -> Result<()> {
     let single_file = files.len() == 1;
     for path in files {
         let mut file = open_file(&path, false)?;
-        let data = nintendo_lz::decompress(&mut file)
+        let data = nlzss::decompress(file.as_mut())
             .map_err(|e| anyhow!("Failed to decompress '{}' with NLZSS: {}", path.display(), e))?;
         let out_path = if let Some(output) = &args.output {
             if single_file {

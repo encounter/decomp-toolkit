@@ -25,6 +25,7 @@ use u8_arc::U8Fs;
 
 use crate::util::{
     ncompress::{YAY0_MAGIC, YAZ0_MAGIC},
+    nlzss,
     rarc::RARC_MAGIC,
     u8_arc::U8_MAGIC,
 };
@@ -339,20 +340,21 @@ pub fn decompress_file(
     kind: CompressionKind,
 ) -> io::Result<Box<dyn VfsFile>> {
     let metadata = file.metadata()?;
-    let data = file.map()?;
     match kind {
         CompressionKind::Yay0 => {
+            let data = file.map()?;
             let result = orthrus_ncompress::yay0::Yay0::decompress_from(data)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
             Ok(Box::new(StaticFile::new(Arc::from(result), metadata.mtime)))
         }
         CompressionKind::Yaz0 => {
+            let data = file.map()?;
             let result = orthrus_ncompress::yaz0::Yaz0::decompress_from(data)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
             Ok(Box::new(StaticFile::new(Arc::from(result), metadata.mtime)))
         }
         CompressionKind::Nlzss => {
-            let result = nintendo_lz::decompress_arr(data)
+            let result = nlzss::decompress(file)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
             Ok(Box::new(StaticFile::new(Arc::from(result.as_slice()), metadata.mtime)))
         }
