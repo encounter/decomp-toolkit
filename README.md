@@ -198,7 +198,8 @@ Extracts the contents of disc images to a directory.
 
 See [disc info](#disc-info) for supported formats.
 
-See [vfs cp](#vfs-cp) for a more powerful and flexible extraction tool that supports disc images.
+> [!NOTE]  
+> [vfs cp](#vfs-cp) is more flexible and supports disc images.
 
 ```shell
 $ dtk disc extract /path/to/game.iso [outdir]
@@ -418,8 +419,8 @@ $ dtk nlzss decompress rels/*.lz -o rels
 ### rarc list
 
 > [!NOTE]  
-> [vfs ls](#vfs-ls) is more powerful and supports RARC archives.  
-> This command is now equivalent to `dtk vfs ls input.arc:`
+> [vfs ls](#vfs-ls) is more flexible and supports RARC archives.  
+> This command is now equivalent to `dtk vfs ls -r input.arc:`
 
 Lists the contents of an RARC (older .arc) archive.
 
@@ -430,7 +431,7 @@ $ dtk rarc list input.arc
 ### rarc extract
 
 > [!NOTE]  
-> [vfs cp](#vfs-cp) is more powerful and supports RARC archives.  
+> [vfs cp](#vfs-cp) is more flexible and supports RARC archives.  
 > This command is now equivalent to `dtk vfs cp input.arc: output_dir`
 
 Extracts the contents of an RARC (older .arc) archive.
@@ -442,8 +443,8 @@ $ dtk rarc extract input.arc -o output_dir
 ### u8 list
 
 > [!NOTE]
-> [vfs ls](#vfs-ls) is more powerful and supports U8 archives.  
-> This command is now equivalent to `dtk vfs ls input.arc:`
+> [vfs ls](#vfs-ls) is more flexible and supports U8 archives.  
+> This command is now equivalent to `dtk vfs ls -r input.arc:`
 
 Extracts the contents of a U8 (newer .arc) archive.
 
@@ -454,7 +455,7 @@ $ dtk u8 list input.arc
 ### u8 extract
 
 > [!NOTE]
-> [vfs cp](#vfs-cp) is more powerful and supports U8 archives.  
+> [vfs cp](#vfs-cp) is more flexible and supports U8 archives.  
 > This command is now equivalent to `dtk vfs cp input.arc: output_dir`
 
 Extracts the contents of a U8 (newer .arc) archive.
