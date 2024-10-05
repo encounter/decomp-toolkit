@@ -7,7 +7,7 @@ use anyhow::Result;
 use io::{Error, ErrorKind};
 
 use crate::{
-    obj::{ObjSymbol, ObjSymbolKind},
+    obj::{ObjSymbol, ObjSymbolKind, SectionIndex},
     util::{
         dol::{DolLike, DolSection, DolSectionKind},
         reader::{
@@ -55,7 +55,7 @@ impl FromReader for AlfFile {
                 data_size: section.data_size,
                 size: section.size,
                 kind,
-                index: sections.len(),
+                index: sections.len() as SectionIndex,
             });
         }
         for sym in &symtab.symbols {
@@ -230,7 +230,7 @@ impl AlfSymbol {
             name,
             demangled_name,
             address: self.address as u64,
-            section: Some(self.section as usize - 1),
+            section: Some(self.section as SectionIndex - 1),
             size: self.size as u64,
             size_known: true,
             flags: Default::default(),

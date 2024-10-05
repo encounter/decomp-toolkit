@@ -18,7 +18,7 @@ use crate::{
     array_ref,
     obj::{
         ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolKind,
+        ObjSymbolKind, SectionIndex, SymbolIndex,
     },
     util::elf::process_elf,
 };
@@ -36,13 +36,13 @@ pub struct OutSymbol {
 pub struct OutReloc {
     pub offset: u32,
     pub kind: ObjRelocKind,
-    pub symbol: usize,
+    pub symbol: u32,
     pub addend: i32,
 }
 
 #[derive(Debug, Clone, Hash, Eq, PartialEq, Serialize, Deserialize)]
 pub struct FunctionSignature {
-    pub symbol: usize,
+    pub symbol: u32,
     pub hash: String,
     pub signature: String,
     pub symbols: Vec<OutSymbol>,
@@ -92,12 +92,12 @@ pub fn check_signatures(
     let mut name = None;
     for signature in signatures {
         if name.is_none() {
-            name = Some(signature.symbols[signature.symbol].name.clone());
+            name = Some(signature.symbols[signature.symbol as usize].name.clone());
         }
         if check_signature(data, signature)? {
             log::debug!(
                 "Found {} @ {:#010X} (hash {})",
-                signature.symbols[signature.symbol].name,
+                signature.symbols[signature.symbol as usize].name,
                 addr,
                 signature.hash
             );
@@ -114,9 +114,9 @@ pub fn apply_symbol(
     obj: &mut ObjInfo,
     target: SectionAddress,
     sig_symbol: &OutSymbol,
-) -> Result<usize> {
+) -> Result<SymbolIndex> {
     let mut target_section_index =
-        if target.section == usize::MAX { None } else { Some(target.section) };
+        if target.section == SectionIndex::MAX { None } else { Some(target.section) };
     if let Some(target_section_index) = target_section_index {
         let target_section = &mut obj.sections[target_section_index];
         if !target_section.section_known {
@@ -154,7 +154,7 @@ pub fn apply_signature(
     addr: SectionAddress,
     signature: &FunctionSignature,
 ) -> Result<()> {
-    let in_symbol = &signature.symbols[signature.symbol];
+    let in_symbol = &signature.symbols[signature.symbol as usize];
     let symbol_idx = apply_symbol(obj, addr, in_symbol)?;
     let mut tracker = Tracker::new(obj);
     for reloc in &signature.relocations {
@@ -185,7 +185,7 @@ pub fn apply_signature(
             }
             _ => bail!("Relocation mismatch: {:?} != {:?}", reloc, sig_reloc.kind),
         };
-        let sig_symbol = &signature.symbols[sig_reloc.symbol];
+        let sig_symbol = &signature.symbols[sig_reloc.symbol as usize];
         // log::info!("Processing relocation {:#010X} {:?} -> {:#010X} {:?}", reloc_addr, reloc, target, sig_symbol);
         let target_symbol_idx = apply_symbol(obj, target, sig_symbol)?;
         let obj_reloc = ObjReloc {
@@ -200,7 +200,7 @@ pub fn apply_signature(
     for reloc in &signature.relocations {
         let addr = addr + reloc.offset;
         if !tracker.relocations.contains_key(&addr) {
-            let sig_symbol = &signature.symbols[reloc.symbol];
+            let sig_symbol = &signature.symbols[reloc.symbol as usize];
             bail!("Missing relocation @ {:#010X}: {:?} -> {:?}", addr, reloc, sig_symbol);
         }
     }
@@ -250,7 +250,7 @@ pub fn generate_signature<P>(path: P, symbol_name: &str) -> Result<Option<Functi
 where P: AsRef<Path> {
     let mut out_symbols: Vec<OutSymbol> = Vec::new();
     let mut out_relocs: Vec<OutReloc> = Vec::new();
-    let mut symbol_map: BTreeMap<usize, usize> = BTreeMap::new();
+    let mut symbol_map: BTreeMap<SymbolIndex, u32> = BTreeMap::new();
 
     let mut obj = process_elf(path)?;
     if obj.kind == ObjKind::Executable
@@ -312,7 +312,7 @@ where P: AsRef<Path> {
                 let symbol_idx = match symbol_map.entry(reloc.target_symbol) {
                     btree_map::Entry::Vacant(e) => {
                         let target = &obj.symbols[reloc.target_symbol];
-                        let symbol_idx = out_symbols.len();
+                        let symbol_idx = out_symbols.len() as u32;
                         e.insert(symbol_idx);
                         out_symbols.push(OutSymbol {
                             kind: target.kind,

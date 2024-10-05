@@ -19,7 +19,7 @@ use crate::{
     },
     obj::{
         ObjDataKind, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
-        ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+        ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, SectionIndex, SymbolIndex,
     },
 };
 
@@ -298,7 +298,7 @@ impl Tracker {
                                     debug_assert_ne!(
                                         value,
                                         RelocationTarget::Address(SectionAddress::new(
-                                            usize::MAX,
+                                            SectionIndex::MAX,
                                             0
                                         ))
                                     );
@@ -359,7 +359,7 @@ impl Tracker {
                                     debug_assert_ne!(
                                         address,
                                         RelocationTarget::Address(SectionAddress::new(
-                                            usize::MAX,
+                                            SectionIndex::MAX,
                                             0
                                         ))
                                     );
@@ -380,7 +380,7 @@ impl Tracker {
                                     debug_assert_ne!(
                                         address,
                                         RelocationTarget::Address(SectionAddress::new(
-                                            usize::MAX,
+                                            SectionIndex::MAX,
                                             0
                                         ))
                                     );
@@ -464,7 +464,7 @@ impl Tracker {
                             {
                                 (addr, is_function_addr(addr))
                             } else {
-                                (SectionAddress::new(usize::MAX, 0), false)
+                                (SectionAddress::new(SectionIndex::MAX, 0), false)
                             };
                             if branch.link || !is_fn_addr {
                                 self.relocations.insert(ins_addr, match ins.op {
@@ -549,7 +549,7 @@ impl Tracker {
     fn process_data(
         &mut self,
         obj: &ObjInfo,
-        section_index: usize,
+        section_index: SectionIndex,
         section: &ObjSection,
     ) -> Result<()> {
         let mut addr = SectionAddress::new(section_index, section.address as u32);
@@ -602,7 +602,7 @@ impl Tracker {
         } else {
             // Check known relocations (function signature matching)
             if self.known_relocations.contains(&from) {
-                return Some(SectionAddress::new(usize::MAX, addr));
+                return Some(SectionAddress::new(SectionIndex::MAX, addr));
             }
             // Check special symbols
             if self.stack_address == Some(addr)
@@ -613,7 +613,7 @@ impl Tracker {
                 || self.sda2_base == Some(addr)
                 || self.sda_base == Some(addr)
             {
-                return Some(SectionAddress::new(usize::MAX, addr));
+                return Some(SectionAddress::new(SectionIndex::MAX, addr));
             }
             // Not valid
             None
@@ -625,7 +625,7 @@ impl Tracker {
         obj: &mut ObjInfo,
         addr: u32,
         reloc_kind: ObjRelocKind,
-    ) -> Option<usize> {
+    ) -> Option<SymbolIndex> {
         if !matches!(
             reloc_kind,
             ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo
@@ -641,7 +641,7 @@ impl Tracker {
         //         return generate_special_symbol(obj, addr, &name).ok();
         //     }
         // }
-        let mut check_symbol = |opt: Option<u32>, name: &str| -> Option<usize> {
+        let mut check_symbol = |opt: Option<u32>, name: &str| -> Option<SymbolIndex> {
             if let Some(value) = opt {
                 if addr == value {
                     return generate_special_symbol(obj, value, name).ok();
@@ -866,7 +866,7 @@ fn data_kind_from_op(op: Opcode) -> DataKind {
     }
 }
 
-fn generate_special_symbol(obj: &mut ObjInfo, addr: u32, name: &str) -> Result<usize> {
+fn generate_special_symbol(obj: &mut ObjInfo, addr: u32, name: &str) -> Result<SymbolIndex> {
     obj.add_symbol(
         ObjSymbol {
             name: name.to_string(),

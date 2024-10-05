@@ -34,7 +34,7 @@ use crate::{
     cmd::shasum::file_sha1_string,
     obj::{
         best_match_for_reloc, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol,
-        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SymbolIndex,
+        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex,
     },
     util::{
         asm::write_asm,
@@ -402,7 +402,7 @@ pub fn run(args: Args) -> Result<()> {
 
 fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
     let rso = process_rso(&mut Cursor::new(buf))?;
-    for symbol in rso.symbols.iter() {
+    for (_, symbol) in rso.symbols.iter() {
         let dol_section_index = match symbol.section {
             Some(section) => section,
             None => bail!(
@@ -411,15 +411,17 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
                 symbol.address
             ),
         };
-        let (section, address, section_kind) = if dol_section_index == DOL_SECTION_ABS as usize {
+        let (section, address, section_kind) = if dol_section_index
+            == DOL_SECTION_ABS as SectionIndex
+        {
             (None, symbol.address as u32, None)
         } else {
-            let dol_section_name = if dol_section_index == DOL_SECTION_ETI as usize {
+            let dol_section_name = if dol_section_index == DOL_SECTION_ETI as SectionIndex {
                 "extabindex"
             } else {
-                DOL_SECTION_NAMES.get(dol_section_index).and_then(|&opt| opt).ok_or_else(|| {
-                    anyhow!("Can't add symbol for unknown DOL section {}", dol_section_index)
-                })?
+                DOL_SECTION_NAMES.get(dol_section_index as usize).and_then(|&opt| opt).ok_or_else(
+                    || anyhow!("Can't add symbol for unknown DOL section {}", dol_section_index),
+                )?
             };
             let (dol_section_index, dol_section) = obj
                 .sections
@@ -577,7 +579,7 @@ fn update_symbols(
         if source_module_id == obj.module_id {
             // Skip if already resolved
             let (_, source_section) =
-                obj.sections.get_elf_index(rel_reloc.section as usize).ok_or_else(|| {
+                obj.sections.get_elf_index(rel_reloc.section as SectionIndex).ok_or_else(|| {
                     anyhow!(
                         "Failed to locate REL section {} in module ID {}: source module {}, {:?}",
                         rel_reloc.section,
@@ -591,8 +593,10 @@ fn update_symbols(
             }
         }
 
-        let (target_section_index, target_section) =
-            obj.sections.get_elf_index(rel_reloc.target_section as usize).ok_or_else(|| {
+        let (target_section_index, target_section) = obj
+            .sections
+            .get_elf_index(rel_reloc.target_section as SectionIndex)
+            .ok_or_else(|| {
                 anyhow!(
                     "Failed to locate REL section {} in module ID {}: source module {}, {:?}",
                     rel_reloc.target_section,
@@ -655,7 +659,7 @@ fn create_relocations(
     for rel_reloc in take(&mut obj.unresolved_relocations) {
         // Skip if already resolved
         let (_, source_section) =
-            obj.sections.get_elf_index(rel_reloc.section as usize).ok_or_else(|| {
+            obj.sections.get_elf_index(rel_reloc.section as SectionIndex).ok_or_else(|| {
                 anyhow!(
                     "Failed to locate REL section {} in module ID {}: {:?}",
                     rel_reloc.section,
@@ -683,7 +687,7 @@ fn create_relocations(
                 anyhow!("Failed to locate DOL section at {:#010X}", rel_reloc.addend)
             })?
         } else {
-            target_obj.sections.get_elf_index(rel_reloc.target_section as usize).ok_or_else(
+            target_obj.sections.get_elf_index(rel_reloc.target_section as SectionIndex).ok_or_else(
                 || {
                     anyhow!(
                         "Failed to locate module {} section {}",
@@ -720,7 +724,7 @@ fn create_relocations(
             },
         };
         let (_, source_section) =
-            obj.sections.get_elf_index_mut(rel_reloc.section as usize).unwrap();
+            obj.sections.get_elf_index_mut(rel_reloc.section as SectionIndex).unwrap();
         source_section.relocations.insert(rel_reloc.address, reloc)?;
     }
 
@@ -739,7 +743,7 @@ fn resolve_external_relocations(
         module_id: u32,
         symbol_index: SymbolIndex,
     }
-    let mut reloc_to_symbol = HashMap::<RelocRef, usize>::new();
+    let mut reloc_to_symbol = HashMap::<RelocRef, SymbolIndex>::new();
 
     for (_section_index, section) in obj.sections.iter_mut() {
         for (_reloc_address, reloc) in section.relocations.iter_mut() {
@@ -1572,7 +1576,7 @@ fn diff(args: DiffArgs) -> Result<()> {
     let linked_obj = process_elf(&args.elf_file)?;
 
     let common_bss = obj.sections.common_bss_start();
-    for orig_sym in obj.symbols.iter().filter(|s| {
+    for (_, orig_sym) in obj.symbols.iter().filter(|(_, s)| {
         !matches!(s.kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section) && !s.flags.is_stripped()
     }) {
         let Some(orig_section_index) = orig_sym.section else { continue };
@@ -1596,8 +1600,8 @@ fn diff(args: DiffArgs) -> Result<()> {
                 if linked_sym.size != orig_sym.size &&
                     // TODO validate common symbol sizes
                     // (need to account for inflation bug)
-                    matches!(common_bss, Some((idx, addr)) if
-                        orig_section_index == idx && orig_sym.address as u32 >= addr)
+                    matches!(common_bss, Some(addr) if
+                        orig_section_index == addr.section && orig_sym.address as u32 >= addr.address)
                 {
                     log::error!(
                         "Expected {} (type {:?}) to have size {:#X}, but found {:#X}",
@@ -1656,7 +1660,7 @@ fn diff(args: DiffArgs) -> Result<()> {
     }
 
     // Data diff
-    for orig_sym in obj.symbols.iter().filter(|s| {
+    for (_, orig_sym) in obj.symbols.iter().filter(|(_, s)| {
         s.size > 0 && !matches!(s.kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section)
     }) {
         let Some(orig_section_index) = orig_sym.section else { continue };
@@ -1756,7 +1760,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
     let linked_obj = process_elf(&args.elf_file)?;
 
     let mut replacements: Vec<(SymbolIndex, Option<ObjSymbol>)> = vec![];
-    for (orig_idx, orig_sym) in obj.symbols.iter().enumerate() {
+    for (orig_idx, orig_sym) in obj.symbols.iter() {
         // skip ABS for now
         if orig_sym.section.is_none() {
             continue;
@@ -1832,7 +1836,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
     }
 
     // Add symbols from the linked object that aren't in the original
-    for linked_sym in linked_obj.symbols.iter() {
+    for (_, linked_sym) in linked_obj.symbols.iter() {
         if matches!(linked_sym.kind, ObjSymbolKind::Section)
             || is_auto_symbol(linked_sym)
             || is_linker_generated_object(&linked_sym.name)

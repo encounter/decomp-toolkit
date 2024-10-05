@@ -9,7 +9,7 @@ use cwdemangle::{demangle, DemangleOptions};
 use crate::{
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind,
+        ObjSymbolFlags, ObjSymbolKind, SectionIndex,
     },
     util::{
         file::{read_c_string, read_string},
@@ -452,7 +452,7 @@ where R: Read + Seek + ?Sized {
             size: size as u64,
             data,
             align: 0,
-            elf_index: idx as usize,
+            elf_index: idx as SectionIndex,
             relocations: Default::default(),
             virtual_address: None, // TODO option to set?
             file_offset: offset as u64,
@@ -476,13 +476,13 @@ where R: Read + Seek + ?Sized {
             let (section_index, _) = sections
                 .iter()
                 .enumerate()
-                .find(|&(_, section)| section.elf_index == rel_section_idx as usize)
+                .find(|&(_, section)| section.elf_index == rel_section_idx as SectionIndex)
                 .ok_or_else(|| anyhow!("Failed to locate {name} section {rel_section_idx}"))?;
             log::debug!("Adding {name} section {rel_section_idx} offset {offset:#X}");
             symbols.push(ObjSymbol {
                 name: name.to_string(),
                 address: offset as u64,
-                section: Some(section_index),
+                section: Some(section_index as SectionIndex),
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                 kind: ObjSymbolKind::Function,
                 ..Default::default()
@@ -526,7 +526,7 @@ where R: Read + Seek + ?Sized {
         let section = sections
             .iter()
             .enumerate()
-            .find(|&(_, section)| section.elf_index == symbol.section_index as usize)
+            .find(|&(_, section)| section.elf_index == symbol.section_index as SectionIndex)
             .map(|(idx, _)| idx)
             // HACK: selfiles won't have any sections
             .unwrap_or(symbol.section_index as usize);
@@ -541,7 +541,7 @@ where R: Read + Seek + ?Sized {
             name,
             demangled_name,
             address: symbol.offset as u64,
-            section: Some(section),
+            section: Some(section as SectionIndex),
             ..Default::default()
         });
     }

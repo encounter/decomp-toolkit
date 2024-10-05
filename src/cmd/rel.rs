@@ -28,7 +28,10 @@ use crate::{
     },
     array_ref_mut,
     cmd::dol::{find_object_base, ModuleConfig, ObjectBase, ProjectConfig},
-    obj::{ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol},
+    obj::{
+        ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
+        SectionIndex as ObjSectionIndex,
+    },
     util::{
         config::{is_auto_symbol, read_splits_sections, SectionDef},
         dol::process_dol,
@@ -499,7 +502,7 @@ fn merge(args: MergeArgs) -> Result<()> {
     }
 
     log::info!("Merging {} REL(s)", processed);
-    let mut section_map: BTreeMap<u32, BTreeMap<u32, u32>> = BTreeMap::new();
+    let mut section_map: BTreeMap<u32, BTreeMap<ObjSectionIndex, u32>> = BTreeMap::new();
     let mut offset = align32(arena_lo + 0x2000);
     for module in module_map.values() {
         for (mod_section_index, mod_section) in module.sections.iter() {
@@ -518,7 +521,7 @@ fn merge(args: MergeArgs) -> Result<()> {
                 section_known: mod_section.section_known,
                 splits: mod_section.splits.clone(),
             });
-            section_map.nested_insert(module.module_id, mod_section.elf_index as u32, offset)?;
+            section_map.nested_insert(module.module_id, mod_section.elf_index, offset)?;
             for (_, mod_symbol) in module.symbols.for_section(mod_section_index) {
                 obj.symbols.add_direct(ObjSymbol {
                     name: mod_symbol.name.clone(),
@@ -542,7 +545,8 @@ fn merge(args: MergeArgs) -> Result<()> {
     log::info!("Applying REL relocations");
     for module in module_map.values() {
         for rel_reloc in &module.unresolved_relocations {
-            let source_addr = (section_map[&module.module_id][&(rel_reloc.section as u32)]
+            let source_addr = (section_map[&module.module_id]
+                [&(rel_reloc.section as ObjSectionIndex)]
                 + rel_reloc.address)
                 & !3;
             let target_addr = if rel_reloc.module_id == 0 {

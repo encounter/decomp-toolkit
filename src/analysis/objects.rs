@@ -1,7 +1,7 @@
 use anyhow::Result;
 
 use crate::{
-    obj::{ObjDataKind, ObjInfo, ObjSectionKind, ObjSymbolKind},
+    obj::{ObjDataKind, ObjInfo, ObjSectionKind, ObjSymbolKind, SymbolIndex},
     util::split::is_linker_generated_label,
 };
 
@@ -64,7 +64,7 @@ pub fn detect_objects(obj: &mut ObjInfo) -> Result<()> {
 }
 
 pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
-    let mut symbols_set = Vec::<(usize, ObjDataKind, usize)>::new();
+    let mut symbols_set = Vec::<(SymbolIndex, ObjDataKind, usize)>::new();
     for (section_index, section) in obj
         .sections
         .iter()

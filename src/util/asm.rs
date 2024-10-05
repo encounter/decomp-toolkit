@@ -11,7 +11,7 @@ use ppc750cl::{Argument, Ins, InsIter, Opcode};
 use crate::{
     obj::{
         ObjDataKind, ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
-        ObjSymbolKind,
+        ObjSymbolKind, SymbolIndex,
     },
     util::nested::NestedVec,
 };
@@ -25,7 +25,7 @@ enum SymbolEntryKind {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 struct SymbolEntry {
-    index: usize,
+    index: SymbolIndex,
     kind: SymbolEntryKind,
 }
 
@@ -44,7 +44,7 @@ where W: Write + ?Sized {
     }
 
     // We'll append generated symbols to the end
-    let mut symbols: Vec<ObjSymbol> = obj.symbols.iter().cloned().collect();
+    let mut symbols: Vec<ObjSymbol> = obj.symbols.iter().map(|(_, s)| s.clone()).collect();
     let mut section_entries: Vec<BTreeMap<u32, Vec<SymbolEntry>>> = vec![];
     let mut section_relocations: Vec<BTreeMap<u32, ObjReloc>> = vec![];
     for (section_idx, section) in obj.sections.iter() {
@@ -90,7 +90,7 @@ where W: Write + ?Sized {
                         .map(|e| e.index);
                     if target_symbol_idx.is_none() {
                         let display_address = address as u64 + section.virtual_address.unwrap_or(0);
-                        let symbol_idx = symbols.len();
+                        let symbol_idx = symbols.len() as SymbolIndex;
                         symbols.push(ObjSymbol {
                             name: format!(".L_{display_address:08X}"),
                             address: display_address,
@@ -131,7 +131,7 @@ where W: Write + ?Sized {
             if reloc.addend == 0 {
                 continue;
             }
-            let target = &symbols[reloc.target_symbol];
+            let target = &symbols[reloc.target_symbol as usize];
             let target_section_idx = match target.section {
                 Some(v) => v,
                 None => continue,
@@ -140,7 +140,7 @@ where W: Write + ?Sized {
                 anyhow!("Invalid relocation target section: {:#010X} {:?}", reloc_address, target)
             })?;
             let address = (target.address as i64 + reloc.addend) as u64;
-            let vec = match section_entries[target_section_idx].entry(address as u32) {
+            let vec = match section_entries[target_section_idx as usize].entry(address as u32) {
                 btree_map::Entry::Occupied(e) => e.into_mut(),
                 btree_map::Entry::Vacant(e) => e.insert(vec![]),
             };
@@ -149,7 +149,7 @@ where W: Write + ?Sized {
                 .any(|e| e.kind == SymbolEntryKind::Label || e.kind == SymbolEntryKind::Start)
             {
                 let display_address = address + target_section.virtual_address.unwrap_or(0);
-                let symbol_idx = symbols.len();
+                let symbol_idx = symbols.len() as SymbolIndex;
                 symbols.push(ObjSymbol {
                     name: format!(".L_{display_address:08X}"),
                     address: display_address,
@@ -181,13 +181,17 @@ where W: Write + ?Sized {
     }
 
     for (section_index, section) in obj.sections.iter() {
-        let entries = &section_entries[section_index];
-        let relocations = &section_relocations[section_index];
+        let entries = &section_entries[section_index as usize];
+        let relocations = &section_relocations[section_index as usize];
 
         let mut current_address = section.address as u32;
         let section_end = (section.address + section.size) as u32;
-        let subsection =
-            obj.sections.iter().take(section_index).filter(|(_, s)| s.name == section.name).count();
+        let subsection = obj
+            .sections
+            .iter()
+            .take(section_index as usize)
+            .filter(|(_, s)| s.name == section.name)
+            .count();
 
         loop {
             if current_address >= section_end {
@@ -369,7 +373,7 @@ fn write_symbol_entry<W>(
 where
     W: Write + ?Sized,
 {
-    let symbol = &symbols[entry.index];
+    let symbol = &symbols[entry.index as usize];
 
     // Skip writing certain symbols
     if symbol.kind == ObjSymbolKind::Section {
@@ -452,13 +456,13 @@ where
 }
 
 fn parse_extab(symbols: &[ObjSymbol], entry: &SymbolEntry, section: &ObjSection) -> Result<String> {
-    let symbol = &symbols[entry.index];
+    let symbol = &symbols[entry.index as usize];
     let data = section.symbol_data(symbol)?;
     let decoded = cwextab::decode_extab(data)?;
     let function_names = section
         .relocations
         .range(symbol.address as u32..(symbol.address + symbol.size) as u32)
-        .map(|(_, reloc)| symbols[reloc.target_symbol].name.clone())
+        .map(|(_, reloc)| symbols[reloc.target_symbol as usize].name.clone())
         .collect_vec();
     decoded.to_string(function_names).ok_or_else(|| anyhow!("Failed to print extab entry"))
 }
@@ -504,7 +508,7 @@ where
                     .with_context(|| format!("At address {:#010X}", sym_addr))?;
                 entry = entry_iter.next();
             } else if current_address > sym_addr {
-                let dbg_symbols = vec.iter().map(|e| &symbols[e.index]).collect_vec();
+                let dbg_symbols = vec.iter().map(|e| &symbols[e.index as usize]).collect_vec();
                 bail!(
                     "Unaligned symbol entry @ {:#010X}:\n\t{:?}",
                     section.virtual_address.unwrap_or(0) as u32 + sym_addr,
@@ -585,7 +589,7 @@ fn find_symbol_kind(
     for entry in entries {
         match entry.kind {
             SymbolEntryKind::Start => {
-                let new_kind = symbols[entry.index].kind;
+                let new_kind = symbols[entry.index as usize].kind;
                 if !matches!(new_kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section) {
                     ensure!(
                         !found || new_kind == kind,
@@ -611,11 +615,11 @@ fn find_data_kind(
     for entry in entries {
         match entry.kind {
             SymbolEntryKind::Start => {
-                let new_kind = symbols[entry.index].data_kind;
+                let new_kind = symbols[entry.index as usize].data_kind;
                 if !matches!(new_kind, ObjDataKind::Unknown) {
                     if found && new_kind != kind {
                         for entry in entries {
-                            log::error!("Symbol {:?}", symbols[entry.index]);
+                            log::error!("Symbol {:?}", symbols[entry.index as usize]);
                         }
                         bail!(
                             "Conflicting data kinds found: {kind:?} and {new_kind:?}",
@@ -806,14 +810,14 @@ where
         ObjRelocKind::Absolute => {
             // Attempt to use .rel macro for relative relocations
             if reloc.addend != 0 {
-                let target = &symbols[reloc.target_symbol];
+                let target = &symbols[reloc.target_symbol as usize];
                 let target_addr = (target.address as i64 + reloc.addend) as u32;
                 if let Some(entry) = target
                     .section
-                    .and_then(|section_idx| section_entries[section_idx].get(&target_addr))
+                    .and_then(|section_idx| section_entries[section_idx as usize].get(&target_addr))
                     .and_then(|entries| entries.iter().find(|e| e.kind == SymbolEntryKind::Label))
                 {
-                    let symbol = &symbols[entry.index];
+                    let symbol = &symbols[entry.index as usize];
                     write!(w, "\t.rel ")?;
                     write_symbol_name(w, &target.name)?;
                     write!(w, ", ")?;
@@ -959,7 +963,7 @@ fn write_reloc_symbol<W>(
 where
     W: Write + ?Sized,
 {
-    write_symbol_name(w, &symbols[reloc.target_symbol].name)?;
+    write_symbol_name(w, &symbols[reloc.target_symbol as usize].name)?;
     match reloc.addend.cmp(&0i64) {
         Ordering::Greater => write!(w, "+{:#X}", reloc.addend),
         Ordering::Less => write!(w, "-{:#X}", -reloc.addend),

@@ -16,12 +16,15 @@ use crate::{
         vm::{BranchTarget, GprValue, StepResult, VM},
         RelocationTarget,
     },
-    obj::{ObjInfo, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind},
+    obj::{
+        ObjInfo, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+        SectionIndex,
+    },
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct SectionAddress {
-    pub section: usize,
+    pub section: SectionIndex,
     pub address: u32,
 }
 
@@ -38,7 +41,7 @@ impl Display for SectionAddress {
 }
 
 impl SectionAddress {
-    pub fn new(section: usize, address: u32) -> Self { Self { section, address } }
+    pub fn new(section: SectionIndex, address: u32) -> Self { Self { section, address } }
 
     pub fn offset(self, offset: i32) -> Self {
         Self { section: self.section, address: self.address.wrapping_add_signed(offset) }
@@ -116,7 +119,7 @@ pub struct AnalyzerState {
     pub functions: BTreeMap<SectionAddress, FunctionInfo>,
     pub jump_tables: BTreeMap<SectionAddress, u32>,
     pub known_symbols: BTreeMap<SectionAddress, Vec<ObjSymbol>>,
-    pub known_sections: BTreeMap<usize, String>,
+    pub known_sections: BTreeMap<SectionIndex, String>,
 }
 
 impl AnalyzerState {

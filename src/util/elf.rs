@@ -26,6 +26,7 @@ use crate::{
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
+        SectionIndex as ObjSectionIndex, SymbolIndex as ObjSymbolIndex,
     },
     util::{
         comment::{CommentSym, MWComment},
@@ -97,7 +98,7 @@ where P: AsRef<Path> {
             size: section.size(),
             data: section.uncompressed_data()?.to_vec(),
             align: section.align(),
-            elf_index: section.index().0,
+            elf_index: section.index().0 as ObjSectionIndex,
             relocations: Default::default(),
             virtual_address: None, // Loaded from section symbol
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
@@ -151,7 +152,7 @@ where P: AsRef<Path> {
     };
 
     let mut symbols: Vec<ObjSymbol> = vec![];
-    let mut symbol_indexes: Vec<Option<usize>> = vec![None /* ELF null symbol */];
+    let mut symbol_indexes: Vec<Option<ObjSymbolIndex>> = vec![None /* ELF null symbol */];
     let mut section_starts = IndexMap::<String, Vec<(u64, String)>>::new();
     let mut name_to_index = HashMap::<String, usize>::new(); // for resolving duplicate names
     let mut boundary_state = BoundaryState::LookForFile(Default::default());
@@ -307,7 +308,7 @@ where P: AsRef<Path> {
             symbol_indexes.push(None);
             continue;
         }
-        symbol_indexes.push(Some(symbols.len()));
+        symbol_indexes.push(Some(symbols.len() as ObjSymbolIndex));
         let align = mw_comment.as_ref().map(|(_, vec)| vec[symbol.index().0].align);
         symbols.push(to_obj_symbol(&obj_file, &symbol, &section_indexes, align)?);
     }
@@ -401,7 +402,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     }
 
     writer.reserve_null_section_index();
-    let mut out_sections: Vec<OutSection> = Vec::with_capacity(obj.sections.len());
+    let mut out_sections: Vec<OutSection> = Vec::with_capacity(obj.sections.len() as usize);
     for (_, section) in obj.sections.iter() {
         let name = writer.add_section_name(section.name.as_bytes());
         let index = writer.reserve_section_index();
@@ -416,7 +417,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         });
     }
 
-    let mut rela_names: Vec<String> = vec![Default::default(); obj.sections.len()];
+    let mut rela_names: Vec<String> = vec![Default::default(); obj.sections.len() as usize];
     for (((_, section), out_section), rela_name) in
         obj.sections.iter().zip(&mut out_sections).zip(&mut rela_names)
     {
@@ -449,7 +450,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         });
 
         // Generate .comment data
-        let mut comment_data = Vec::<u8>::with_capacity(0x2C + obj.symbols.count() * 8);
+        let mut comment_data = Vec::<u8>::with_capacity(0x2C + obj.symbols.count() as usize * 8);
         mw_comment.to_writer_static(&mut comment_data, Endian::Big)?;
         // Null symbol
         CommentSym { align: 0, vis_flags: 0, active_flags: 0 }
@@ -485,8 +486,8 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         None
     };
 
-    let mut out_symbols: Vec<OutSymbol> = Vec::with_capacity(obj.symbols.count());
-    let mut symbol_map = vec![None; obj.symbols.count()];
+    let mut out_symbols: Vec<OutSymbol> = Vec::with_capacity(obj.symbols.count() as usize);
+    let mut symbol_map = vec![None; obj.symbols.count() as usize];
     let mut section_symbol_offset = 0;
     let mut num_local = 0;
 
@@ -532,7 +533,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     // Add section symbols for relocatable objects
     if obj.kind == ObjKind::Relocatable {
         for (section_index, section) in obj.sections.iter() {
-            let out_section_index = out_sections.get(section_index).map(|s| s.index);
+            let out_section_index = out_sections.get(section_index as usize).map(|s| s.index);
             let index = writer.reserve_symbol_index(out_section_index);
             let sym = object::write::elf::Sym {
                 name: None,
@@ -561,19 +562,19 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     for (symbol_index, symbol) in obj
         .symbols
         .iter()
-        .enumerate()
         .filter(|&(_, s)| s.flags.is_local())
-        .chain(obj.symbols.iter().enumerate().filter(|&(_, s)| !s.flags.is_local()))
+        .chain(obj.symbols.iter().filter(|&(_, s)| !s.flags.is_local()))
     {
         if obj.kind == ObjKind::Relocatable && symbol.kind == ObjSymbolKind::Section {
             // We wrote section symbols above, so skip them here
             let section_index =
                 symbol.section.ok_or_else(|| anyhow!("section symbol without section index"))?;
-            symbol_map[symbol_index] = Some(section_symbol_offset + section_index as u32);
+            symbol_map[symbol_index as usize] =
+                Some(section_symbol_offset as ObjSectionIndex + section_index);
             continue;
         }
 
-        let section = symbol.section.and_then(|idx| out_sections.get(idx));
+        let section = symbol.section.and_then(|idx| out_sections.get(idx as usize));
         let section_index = section.map(|s| s.index);
         let index = writer.reserve_symbol_index(section_index);
         let name_index = if symbol.name.is_empty() {
@@ -617,7 +618,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
             num_local = writer.symbol_count();
         }
         out_symbols.push(OutSymbol { index, sym });
-        symbol_map[symbol_index] = Some(index.0);
+        symbol_map[symbol_index as usize] = Some(index.0);
         if let Some((comment_data, _)) = &mut comment_data {
             CommentSym::from(symbol, export_all).to_writer_static(comment_data, Endian::Big)?;
         }
@@ -635,7 +636,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
     writer.reserve_file_header();
 
     if obj.kind == ObjKind::Executable {
-        writer.reserve_program_headers(obj.sections.len() as u32);
+        writer.reserve_program_headers(obj.sections.len());
     }
 
     for ((_, section), out_section) in obj.sections.iter().zip(&mut out_sections) {
@@ -734,7 +735,7 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         ensure!(writer.len() == out_section.rela_offset);
         for (addr, reloc) in section.relocations.iter() {
             let (r_offset, r_type) = reloc.to_elf(addr);
-            let r_sym = symbol_map[reloc.target_symbol]
+            let r_sym = symbol_map[reloc.target_symbol as usize]
                 .ok_or_else(|| anyhow!("Relocation against stripped symbol"))?;
             writer.write_relocation(true, &Rel { r_offset, r_sym, r_type, r_addend: reloc.addend });
         }
@@ -893,7 +894,7 @@ fn to_obj_symbol(
         name: name.to_string(),
         demangled_name: demangle(name, &Default::default()),
         address: symbol.address(),
-        section: section_idx,
+        section: section_idx.map(|s| s as ObjSectionIndex),
         size: symbol.size(),
         size_known: true,
         flags,
@@ -927,7 +928,7 @@ pub fn to_obj_reloc_kind(flags: RelocationFlags) -> Result<ObjRelocKind> {
 
 fn to_obj_reloc(
     obj_file: &object::File<'_>,
-    symbol_indexes: &[Option<usize>],
+    symbol_indexes: &[Option<ObjSymbolIndex>],
     section_data: &[u8],
     address: u64,
     reloc: Relocation,

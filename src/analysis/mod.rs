@@ -6,7 +6,9 @@ use ppc750cl::Ins;
 use crate::{
     analysis::cfa::SectionAddress,
     array_ref,
-    obj::{ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbolKind},
+    obj::{
+        ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbolKind, SectionIndex,
+    },
 };
 
 pub mod cfa;
@@ -36,11 +38,9 @@ fn read_unresolved_relocation_address(
     address: u32,
     reloc_kind: Option<ObjRelocKind>,
 ) -> Result<Option<RelocationTarget>> {
-    if let Some(reloc) = obj
-        .unresolved_relocations
-        .iter()
-        .find(|reloc| reloc.section as usize == section.elf_index && reloc.address == address)
-    {
+    if let Some(reloc) = obj.unresolved_relocations.iter().find(|reloc| {
+        reloc.section as SectionIndex == section.elf_index && reloc.address == address
+    }) {
         if reloc.module_id != obj.module_id {
             return Ok(Some(RelocationTarget::External));
         }
@@ -48,7 +48,7 @@ fn read_unresolved_relocation_address(
             ensure!(reloc.kind == reloc_kind);
         }
         let (target_section_index, target_section) =
-            obj.sections.get_elf_index(reloc.target_section as usize).ok_or_else(|| {
+            obj.sections.get_elf_index(reloc.target_section as SectionIndex).ok_or_else(|| {
                 anyhow!(
                     "Failed to find target section {} for unresolved relocation",
                     reloc.target_section

@@ -15,7 +15,7 @@ use crate::{
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocations, ObjSection, ObjSectionKind,
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
-        ObjUnit,
+        ObjUnit, SectionIndex, SymbolIndex,
     },
     util::{align_up, comment::MWComment},
 };
@@ -444,8 +444,8 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
 
 /// Ensures that all .bss splits following a common split are also marked as common.
 fn update_common_splits(obj: &mut ObjInfo, common_start: Option<u32>) -> Result<()> {
-    let Some((bss_section_index, common_bss_start)) = (match common_start {
-        Some(addr) => Some((
+    let Some(common_bss_start) = (match common_start {
+        Some(addr) => Some(SectionAddress::new(
             obj.sections.by_name(".bss")?.ok_or_else(|| anyhow!("Failed to find .bss section"))?.0,
             addr,
         )),
@@ -454,8 +454,8 @@ fn update_common_splits(obj: &mut ObjInfo, common_start: Option<u32>) -> Result<
         return Ok(());
     };
     log::debug!("Found common BSS start at {:#010X}", common_bss_start);
-    let bss_section = &mut obj.sections[bss_section_index];
-    for (addr, split) in bss_section.splits.for_range_mut(common_bss_start..) {
+    let bss_section = &mut obj.sections[common_bss_start.section];
+    for (addr, split) in bss_section.splits.for_range_mut(common_bss_start.address..) {
         if !split.common {
             split.common = true;
             log::debug!("Added common flag to split {} at {:#010X}", split.unit, addr);
@@ -593,8 +593,8 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
             .peekable();
         while let Some((_, symbol)) = iter.next() {
             // Common BSS is allowed to have gaps and overlaps to accurately match the common BSS inflation bug
-            if matches!(common_bss, Some((idx, addr)) if
-                section_index == idx && symbol.address as u32 >= addr)
+            if matches!(common_bss, Some(addr) if
+                section_index == addr.section && symbol.address as u32 >= addr.address)
             {
                 continue;
             }
@@ -933,11 +933,11 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
 #[instrument(level = "debug", skip(obj))]
 pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo>> {
     let mut objects: Vec<ObjInfo> = vec![];
-    let mut object_symbols: Vec<Vec<Option<usize>>> = vec![];
+    let mut object_symbols: Vec<Vec<Option<SymbolIndex>>> = vec![];
     let mut name_to_obj: HashMap<String, usize> = HashMap::new();
     for unit in &obj.link_order {
         name_to_obj.insert(unit.name.clone(), objects.len());
-        object_symbols.push(vec![None; obj.symbols.count()]);
+        object_symbols.push(vec![None; obj.symbols.count() as usize]);
         let mut split_obj = ObjInfo::new(
             ObjKind::Relocatable,
             ObjArchitecture::PowerPc,
@@ -1079,7 +1079,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                     s.section == Some(section_index) && !is_linker_generated_label(&s.name)
                 })
             {
-                if symbol_idxs[symbol_idx].is_some() {
+                if symbol_idxs[symbol_idx as usize].is_some() {
                     continue; // should never happen?
                 }
 
@@ -1092,7 +1092,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                     continue;
                 }
 
-                symbol_idxs[symbol_idx] = Some(split_obj.symbols.add_direct(ObjSymbol {
+                let new_index = split_obj.symbols.add_direct(ObjSymbol {
                     name: symbol.name.clone(),
                     demangled_name: symbol.demangled_name.clone(),
                     address: if split.common {
@@ -1113,7 +1113,8 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                     data_kind: symbol.data_kind,
                     name_hash: symbol.name_hash,
                     demangled_name_hash: symbol.demangled_name_hash,
-                })?);
+                })?;
+                symbol_idxs[symbol_idx as usize] = Some(new_index);
             }
 
             // For mwldeppc 2.7 and above, a .comment section is required to link without error
@@ -1156,7 +1157,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
         let symbol_idxs = &mut object_symbols[obj_idx];
         for (_section_index, section) in out_obj.sections.iter_mut() {
             for (reloc_address, reloc) in section.relocations.iter_mut() {
-                match symbol_idxs[reloc.target_symbol] {
+                match symbol_idxs[reloc.target_symbol as usize] {
                     Some(out_sym_idx) => {
                         reloc.target_symbol = out_sym_idx;
                     }
@@ -1189,7 +1190,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                             globalize_symbols.push((reloc.target_symbol, new_name));
                         }
 
-                        symbol_idxs[reloc.target_symbol] = Some(out_sym_idx);
+                        symbol_idxs[reloc.target_symbol as usize] = Some(out_sym_idx);
                         out_obj.symbols.add_direct(ObjSymbol {
                             name: target_sym.name.clone(),
                             demangled_name: target_sym.demangled_name.clone(),
@@ -1233,7 +1234,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
     // Upgrade local symbols to global if necessary
     for (obj, symbol_map) in objects.iter_mut().zip(&object_symbols) {
         for (globalize_idx, new_name) in &globalize_symbols {
-            if let Some(symbol_idx) = symbol_map[*globalize_idx] {
+            if let Some(symbol_idx) = symbol_map[*globalize_idx as usize] {
                 let mut symbol = obj.symbols[symbol_idx].clone();
                 symbol.name.clone_from(new_name);
                 if symbol.flags.is_local() {
@@ -1248,7 +1249,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
     // Extern linker generated symbols
     for obj in &mut objects {
         let mut replace_symbols = vec![];
-        for (symbol_idx, symbol) in obj.symbols.iter().enumerate() {
+        for (symbol_idx, symbol) in obj.symbols.iter() {
             if is_linker_generated_label(&symbol.name) && symbol.section.is_some() {
                 log::debug!("Externing {:?} in {}", symbol, obj.name);
                 replace_symbols.push((symbol_idx, ObjSymbol {
@@ -1352,7 +1353,7 @@ pub fn is_linker_generated_object(name: &str) -> bool {
 }
 
 /// Locate the end address of a section when excluding linker generated objects
-pub fn end_for_section(obj: &ObjInfo, section_index: usize) -> Result<SectionAddress> {
+pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<SectionAddress> {
     let section = obj
         .sections
         .get(section_index)

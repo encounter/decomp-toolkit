@@ -11,7 +11,7 @@ use crate::{
     array_ref,
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind,
+        ObjSymbolFlags, ObjSymbolKind, SectionIndex,
     },
     util::{
         alf::{AlfFile, AlfSymbol, ALF_MAGIC},
@@ -75,7 +75,7 @@ pub struct DolSection {
     pub size: u32,
     pub kind: DolSectionKind,
     // TODO remove
-    pub index: usize,
+    pub index: SectionIndex,
 }
 
 #[derive(Debug, Clone)]
@@ -103,7 +103,7 @@ impl FromReader for DolFile {
                 data_size: size,
                 size,
                 kind: DolSectionKind::Text,
-                index: sections.len(),
+                index: sections.len() as SectionIndex,
             });
         }
         for (idx, &size) in header.data_sizes.iter().enumerate() {
@@ -116,7 +116,7 @@ impl FromReader for DolFile {
                 data_size: size,
                 size,
                 kind: DolSectionKind::Data,
-                index: sections.len(),
+                index: sections.len() as SectionIndex,
             });
         }
         sections.push(DolSection {
@@ -125,7 +125,7 @@ impl FromReader for DolFile {
             data_size: 0,
             size: header.bss_size,
             kind: DolSectionKind::Bss,
-            index: sections.len(),
+            index: sections.len() as SectionIndex,
         });
         Ok(Self { header, sections })
     }
@@ -286,8 +286,8 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
         dol.sections().iter().filter(|section| section.kind == DolSectionKind::Text).count();
     let mut eti_entries: Vec<EtiEntry> = Vec::new();
     let mut eti_init_info_range: Option<(u32, u32)> = None;
-    let mut extab_section: Option<usize> = None;
-    let mut extabindex_section: Option<usize> = None;
+    let mut extab_section: Option<SectionIndex> = None;
+    let mut extabindex_section: Option<SectionIndex> = None;
     'outer: for dol_section in
         dol.sections().iter().filter(|section| section.kind == DolSectionKind::Data)
     {
@@ -537,8 +537,9 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
     }
 
     // Apply section indices
-    let mut init_section_index = None;
+    let mut init_section_index: Option<SectionIndex> = None;
     for (idx, section) in sections.iter_mut().enumerate() {
+        let idx = idx as SectionIndex;
         match section.name.as_str() {
             ".init" => {
                 init_section_index = Some(idx);

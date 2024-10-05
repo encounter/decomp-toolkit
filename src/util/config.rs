@@ -18,7 +18,7 @@ use crate::{
     analysis::cfa::SectionAddress,
     obj::{
         ObjDataKind, ObjInfo, ObjKind, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind, ObjUnit,
+        ObjSymbolFlags, ObjSymbolKind, ObjUnit, SectionIndex,
     },
     util::{
         file::{buf_writer, FileReadInfo},
@@ -621,7 +621,7 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
 
 enum SplitState {
     None,
-    Sections(usize),
+    Sections(SectionIndex),
     Unit(String),
 }
 

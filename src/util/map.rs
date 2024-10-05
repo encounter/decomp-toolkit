@@ -21,7 +21,7 @@ use crate::{
     obj::{
         section_kind_for_section, ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind,
         ObjSections, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
-        ObjSymbols, ObjUnit,
+        ObjSymbols, ObjUnit, SectionIndex,
     },
     util::nested::NestedVec,
     vfs::open_file,
@@ -770,7 +770,7 @@ pub fn apply_map(mut result: MapInfo, obj: &mut ObjInfo) -> Result<()> {
                     && (s.address + s.size) <= (section.address + section.size) as u32
             })
         } else {
-            result.sections.iter().filter(|s| s.size > 0).nth(section_index)
+            result.sections.iter().filter(|s| s.size > 0).nth(section_index as usize)
         };
         if let Some(info) = opt {
             if section.section_known && section.name != info.name {
@@ -814,7 +814,7 @@ pub fn apply_map(mut result: MapInfo, obj: &mut ObjInfo) -> Result<()> {
                                 ".data"
                             }
                         } else if let Some(section_name) =
-                            DEFAULT_REL_SECTIONS.get(section.elf_index)
+                            DEFAULT_REL_SECTIONS.get(section.elf_index as usize)
                         {
                             section_name
                         } else {
@@ -1014,7 +1014,7 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
 fn add_symbol(
     obj: &mut ObjInfo,
     symbol_entry: &SymbolEntry,
-    section: Option<usize>,
+    section: Option<SectionIndex>,
     ignore_alignment: bool,
 ) -> Result<()> {
     let demangled_name = demangle(&symbol_entry.name, &DemangleOptions::default());

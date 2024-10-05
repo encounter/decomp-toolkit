@@ -12,7 +12,7 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 use crate::{
     analysis::cfa::SectionAddress,
-    obj::{ObjKind, ObjRelocKind, ObjSections},
+    obj::{sections::SectionIndex, ObjKind, ObjRelocKind, ObjSections},
     util::{
         config::{is_auto_jump_table, is_auto_label, is_auto_symbol, parse_u32},
         nested::NestedVec,
@@ -187,7 +187,7 @@ pub struct ObjSymbol {
     pub name: String,
     pub demangled_name: Option<String>,
     pub address: u64,
-    pub section: Option<usize>,
+    pub section: Option<SectionIndex>,
     pub size: u64,
     pub size_known: bool,
     pub flags: ObjSymbolFlagSet,
@@ -199,7 +199,7 @@ pub struct ObjSymbol {
     pub demangled_name_hash: Option<u32>,
 }
 
-pub type SymbolIndex = usize;
+pub type SymbolIndex = u32;
 
 #[derive(Debug, Clone)]
 pub struct ObjSymbols {
@@ -216,8 +216,10 @@ impl ObjSymbols {
         let mut symbols_by_section: Vec<BTreeMap<u32, Vec<SymbolIndex>>> = vec![];
         let mut symbols_by_name = HashMap::<String, Vec<SymbolIndex>>::new();
         for (idx, symbol) in symbols.iter().enumerate() {
+            let idx = idx as SymbolIndex;
             symbols_by_address.nested_push(symbol.address as u32, idx);
             if let Some(section_idx) = symbol.section {
+                let section_idx = section_idx as usize;
                 if section_idx >= symbols_by_section.len() {
                     symbols_by_section.resize_with(section_idx + 1, BTreeMap::new);
                 }
@@ -312,7 +314,7 @@ impl ObjSymbols {
             }
             symbol_idx
         } else {
-            let target_symbol_idx = self.symbols.len();
+            let target_symbol_idx = self.symbols.len() as SymbolIndex;
             self.add_direct(ObjSymbol {
                 name: in_symbol.name,
                 demangled_name: in_symbol.demangled_name,
@@ -333,9 +335,10 @@ impl ObjSymbols {
     }
 
     pub fn add_direct(&mut self, in_symbol: ObjSymbol) -> Result<SymbolIndex> {
-        let symbol_idx = self.symbols.len();
+        let symbol_idx = self.symbols.len() as SymbolIndex;
         self.symbols_by_address.nested_push(in_symbol.address as u32, symbol_idx);
         if let Some(section_idx) = in_symbol.section {
+            let section_idx = section_idx as usize;
             if section_idx >= self.symbols_by_section.len() {
                 self.symbols_by_section.resize_with(section_idx + 1, BTreeMap::new);
             }
@@ -355,28 +358,30 @@ impl ObjSymbols {
         Ok(symbol_idx)
     }
 
-    pub fn iter(&self) -> impl DoubleEndedIterator<Item = &ObjSymbol> { self.symbols.iter() }
+    pub fn iter(&self) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
+        self.symbols.iter().enumerate().map(|(i, s)| (i as SymbolIndex, s))
+    }
 
-    pub fn count(&self) -> usize { self.symbols.len() }
+    pub fn count(&self) -> SymbolIndex { self.symbols.len() as SymbolIndex }
 
     pub fn at_section_address(
         &self,
-        section_idx: usize,
+        section_idx: SectionIndex,
         addr: u32,
     ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
         self.symbols_by_section
-            .get(section_idx)
+            .get(section_idx as usize)
             .and_then(|v| v.get(&addr))
             .into_iter()
             .flatten()
-            .map(move |&idx| (idx, &self.symbols[idx]))
+            .map(move |&idx| (idx, &self.symbols[idx as usize]))
             // "Stripped" symbols don't actually exist at the address
             .filter(|(_, sym)| !sym.flags.is_stripped())
     }
 
     pub fn kind_at_section_address(
         &self,
-        section_idx: usize,
+        section_idx: SectionIndex,
         addr: u32,
         kind: ObjSymbolKind,
     ) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
@@ -397,7 +402,7 @@ impl ObjSymbols {
         self.symbols_by_section
             .iter()
             .flat_map(|v| v.iter().map(|(_, v)| v))
-            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u])))
+            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u as usize])))
     }
 
     // Iterate over all ABS symbols
@@ -405,24 +410,24 @@ impl ObjSymbols {
         debug_assert!(self.obj_kind == ObjKind::Executable);
         self.symbols_by_address
             .iter()
-            .flat_map(|(_, v)| v.iter().map(|&u| (u, &self.symbols[u])))
+            .flat_map(|(_, v)| v.iter().map(|&u| (u, &self.symbols[u as usize])))
             .filter(|(_, s)| s.section.is_none())
     }
 
     // Iterate over range in address ascending order, excluding ABS symbols
     pub fn for_section_range<R>(
         &self,
-        section_index: usize,
+        section_index: SectionIndex,
         range: R,
     ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)>
     where
         R: RangeBounds<u32> + Clone,
     {
         self.symbols_by_section
-            .get(section_index)
+            .get(section_index as usize)
             .into_iter()
             .flat_map(move |v| v.range(range.clone()))
-            .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u])))
+            .flat_map(move |(_, v)| v.iter().map(move |u| (*u, &self.symbols[*u as usize])))
     }
 
     pub fn indexes_for_range<R>(
@@ -438,13 +443,13 @@ impl ObjSymbols {
 
     pub fn for_section(
         &self,
-        section_idx: usize,
+        section_idx: SectionIndex,
     ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
         self.symbols_by_section
-            .get(section_idx)
+            .get(section_idx as usize)
             .into_iter()
             .flat_map(|v| v.iter().map(|(_, v)| v))
-            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u])))
+            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u as usize])))
     }
 
     pub fn for_name(
@@ -454,7 +459,7 @@ impl ObjSymbols {
         self.symbols_by_name
             .get(name)
             .into_iter()
-            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u])))
+            .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u as usize])))
     }
 
     pub fn by_name(&self, name: &str) -> Result<Option<(SymbolIndex, &ObjSymbol)>> {
@@ -515,11 +520,11 @@ impl ObjSymbols {
         &self,
         kind: ObjSymbolKind,
     ) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
-        self.symbols.iter().enumerate().filter(move |(_, sym)| sym.kind == kind)
+        self.iter().filter(move |(_, sym)| sym.kind == kind)
     }
 
     pub fn replace(&mut self, index: SymbolIndex, symbol: ObjSymbol) -> Result<()> {
-        let symbol_ref = &mut self.symbols[index];
+        let symbol_ref = &mut self.symbols[index as usize];
         ensure!(symbol_ref.address == symbol.address, "Can't modify address with replace_symbol");
         ensure!(symbol_ref.section == symbol.section, "Can't modify section with replace_symbol");
         if symbol_ref.name != symbol.name {
@@ -545,7 +550,7 @@ impl ObjSymbols {
         for (_addr, symbol_idxs) in self.indexes_for_range(..=target_addr.address).rev() {
             let symbols = symbol_idxs
                 .iter()
-                .map(|&idx| (idx, &self.symbols[idx]))
+                .map(|&idx| (idx, &self.symbols[idx as usize]))
                 .filter(|(_, sym)| {
                     (sym.section.is_none() || sym.section == Some(target_addr.section))
                         && sym.referenced_by(reloc_kind)
@@ -570,14 +575,14 @@ impl ObjSymbols {
 
     #[inline]
     pub fn flags(&mut self, idx: SymbolIndex) -> &mut ObjSymbolFlagSet {
-        &mut self.symbols[idx].flags
+        &mut self.symbols[idx as usize].flags
     }
 }
 
 impl Index<SymbolIndex> for ObjSymbols {
     type Output = ObjSymbol;
 
-    fn index(&self, index: usize) -> &Self::Output { &self.symbols[index] }
+    fn index(&self, index: SymbolIndex) -> &Self::Output { &self.symbols[index as usize] }
 }
 
 impl ObjSymbol {

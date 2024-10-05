@@ -7,7 +7,7 @@ use crate::{
     analysis::cfa::{AnalyzerState, FunctionInfo, SectionAddress},
     obj::{
         ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind,
+        ObjSymbolFlags, ObjSymbolKind, SectionIndex,
     },
 };
 
@@ -147,14 +147,14 @@ impl AnalysisPass for FindRelCtorsDtors {
                 // And the section ends with a null pointer
                 while let Some(reloc) = obj.unresolved_relocations.iter().find(|reloc| {
                     reloc.module_id == obj.module_id
-                        && reloc.section == section.elf_index as u8
+                        && reloc.section as SectionIndex == section.elf_index
                         && reloc.address == current_address
                         && reloc.kind == ObjRelocKind::Absolute
                 }) {
-                    let Some((target_section_index, target_section)) = obj
-                        .sections
-                        .iter()
-                        .find(|(_, section)| section.elf_index == reloc.target_section as usize)
+                    let Some((target_section_index, target_section)) =
+                        obj.sections.iter().find(|(_, section)| {
+                            section.elf_index == reloc.target_section as SectionIndex
+                        })
                     else {
                         return false;
                     };

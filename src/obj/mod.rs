@@ -13,7 +13,9 @@ use std::{
 use anyhow::{anyhow, bail, ensure, Result};
 use objdiff_core::obj::split_meta::SplitMeta;
 pub use relocations::{ObjReloc, ObjRelocKind, ObjRelocations};
-pub use sections::{section_kind_for_section, ObjSection, ObjSectionKind, ObjSections};
+pub use sections::{
+    section_kind_for_section, ObjSection, ObjSectionKind, ObjSections, SectionIndex,
+};
 pub use splits::{ObjSplit, ObjSplits};
 pub use symbols::{
     best_match_for_reloc, ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
@@ -132,7 +134,12 @@ impl ObjInfo {
         self.symbols.add(in_symbol, replace)
     }
 
-    pub fn add_split(&mut self, section_index: usize, address: u32, split: ObjSplit) -> Result<()> {
+    pub fn add_split(
+        &mut self,
+        section_index: SectionIndex,
+        address: u32,
+        split: ObjSplit,
+    ) -> Result<()> {
         let section = self
             .sections
             .get_mut(section_index)
@@ -322,8 +329,8 @@ impl ObjInfo {
                 // Include common symbols
                 self.symbols
                     .iter()
-                    .filter(|&symbol| symbol.flags.is_common())
-                    .map(|s| s.size as u32),
+                    .filter(|&(_, symbol)| symbol.flags.is_common())
+                    .map(|(_, s)| s.size as u32),
             )
             .sum()
     }

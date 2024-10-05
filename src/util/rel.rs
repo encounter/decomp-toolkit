@@ -13,7 +13,7 @@ use crate::{
     array_ref_mut,
     obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
-        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, SectionIndex,
     },
     util::{
         align_up,
@@ -418,7 +418,7 @@ where R: Read + Seek + ?Sized {
                 _ => None, // determined later
             }
             .unwrap_or_default() as u64,
-            elf_index: idx,
+            elf_index: idx as SectionIndex,
             relocations: Default::default(),
             virtual_address: None, // TODO option to set?
             file_offset: offset as u64,
@@ -440,7 +440,7 @@ where R: Read + Seek + ?Sized {
                 let (section_index, _) = sections
                     .iter()
                     .enumerate()
-                    .find(|&(_, section)| section.elf_index == rel_section_idx as usize)
+                    .find(|&(_, section)| section.elf_index == rel_section_idx as SectionIndex)
                     .ok_or_else(|| anyhow!("Failed to locate {name} section {rel_section_idx}"))?;
                 log::debug!("Adding {name} section {rel_section_idx} offset {offset:#X}");
                 let mut flags = ObjSymbolFlagSet(ObjSymbolFlags::Global.into());
@@ -450,7 +450,7 @@ where R: Read + Seek + ?Sized {
                 symbols.push(ObjSymbol {
                     name: name.to_string(),
                     address: offset as u64,
-                    section: Some(section_index),
+                    section: Some(section_index as SectionIndex),
                     flags,
                     kind: ObjSymbolKind::Function,
                     ..Default::default()

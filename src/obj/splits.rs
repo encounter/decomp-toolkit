@@ -4,7 +4,7 @@ use anyhow::{anyhow, Result};
 use itertools::Itertools;
 
 use crate::{
-    obj::{ObjInfo, ObjSection},
+    obj::{ObjInfo, ObjSection, SectionIndex},
     util::{nested::NestedVec, split::default_section_align},
 };
 
@@ -28,7 +28,7 @@ impl ObjSplit {
     pub fn alignment(
         &self,
         obj: &ObjInfo,
-        section_index: usize,
+        section_index: SectionIndex,
         section: &ObjSection,
         split_addr: u32,
     ) -> u32 {

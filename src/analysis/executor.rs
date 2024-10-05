@@ -18,7 +18,7 @@ struct VisitedAddresses {
 
 impl VisitedAddresses {
     pub fn new(obj: &ObjInfo) -> Self {
-        let mut inner = Vec::with_capacity(obj.sections.len());
+        let mut inner = Vec::with_capacity(obj.sections.len() as usize);
         for (_, section) in obj.sections.iter() {
             if section.kind == ObjSectionKind::Code {
                 let size = (section.size / 4) as usize;
@@ -32,11 +32,13 @@ impl VisitedAddresses {
     }
 
     pub fn contains(&self, section_address: u32, address: SectionAddress) -> bool {
-        self.inner[address.section].contains(Self::bit_for(section_address, address.address))
+        self.inner[address.section as usize]
+            .contains(Self::bit_for(section_address, address.address))
     }
 
     pub fn insert(&mut self, section_address: u32, address: SectionAddress) {
-        self.inner[address.section].insert(Self::bit_for(section_address, address.address));
+        self.inner[address.section as usize]
+            .insert(Self::bit_for(section_address, address.address));
     }
 
     #[inline]
