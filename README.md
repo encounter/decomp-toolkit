@@ -46,6 +46,8 @@ project structure and build system that uses decomp-toolkit under the hood.
   - [rarc extract](#rarc-extract)
   - [u8 list](#u8-list)
   - [u8 extract](#u8-extract)
+  - [vfs ls](#vfs-ls)
+  - [vfs cp](#vfs-cp)
   - [yay0 decompress](#yay0-decompress)
   - [yay0 compress](#yay0-compress)
   - [yaz0 decompress](#yaz0-decompress)
@@ -89,8 +91,6 @@ binary that is byte-for-byte identical to the original, then we know that the de
 decomp-toolkit provides tooling for analyzing and splitting the original binary into relocatable objects, as well
 as generating the linker script and other files needed to link the decompiled code.
 
-
-
 ## Analyzer features
 
 **Function boundary analysis**  
@@ -125,11 +125,6 @@ If desired, optionally writes GNU assembler-compatible files alongside the objec
 
 **Linker script generation**  
 Generates `ldscript.lcf` for `mwldeppc.exe`.
-
-**Future work**
-
-- Support RSO files
-- Add more signatures
 
 ## Commands
 
@@ -181,6 +176,8 @@ and its `nodtool` command line tool._
 
 Displays information about disc images.
 
+To list the contents of a disc image, use [vfs ls](#vfs-ls).
+
 Supported disc image formats:
 
 - ISO (GCM)
@@ -200,6 +197,8 @@ $ dtk disc info /path/to/game.iso
 Extracts the contents of disc images to a directory.
 
 See [disc info](#disc-info) for supported formats.
+
+See [vfs cp](#vfs-cp) for a more powerful and flexible extraction tool that supports disc images.
 
 ```shell
 $ dtk disc extract /path/to/game.iso [outdir]
@@ -235,20 +234,22 @@ $ dtk disc verify /path/to/game.iso
 
 Analyzes a DOL file and outputs information section and symbol information.
 
+See [vfs ls](#vfs-ls) for information on the VFS abstraction.
+
 ```shell
 $ dtk dol info input.dol
+# or, directly from a disc image
+$ dtk dol info 'disc.rvz:sys/main.dol'
 ```
 
 ### dol split
 
-> [!NOTE]  
-> This command is a work-in-progress.
+> [!IMPORTANT]  
+> **This command is intended to be used as part of a decompilation project's build system.**  
+> For an example project structure and for documentation on the configuration, see
+> [dtk-template](https://github.com/encounter/dtk-template).
 
 Analyzes and splits a DOL file into relocatable objects based on user configuration.
-
-**This command is intended to be used as part of a decompilation project's build system.**  
-For an example project structure and for documentation on the configuration, see
-[dtk-template](https://github.com/encounter/dtk-template).
 
 ```shell
 $ dtk dol split config.yml target
@@ -348,8 +349,12 @@ $ dtk map symbol Game.MAP 'Function__5ClassFv'
 
 Prints information about a REL file.
 
+See [vfs ls](#vfs-ls) for information on the VFS abstraction.
+
 ```shell
 $ dtk rel info input.rel
+# or, directly from a disc image
+$ dtk rel info 'disc.rvz:files/RELS.arc:amem/d_a_tag_so.rel'
 ```
 
 ### rel merge
@@ -412,6 +417,10 @@ $ dtk nlzss decompress rels/*.lz -o rels
 
 ### rarc list
 
+> [!NOTE]  
+> [vfs ls](#vfs-ls) is more powerful and supports RARC archives.  
+> This command is now equivalent to `dtk vfs ls input.arc:`
+
 Lists the contents of an RARC (older .arc) archive.
 
 ```shell
@@ -419,6 +428,10 @@ $ dtk rarc list input.arc
 ```
 
 ### rarc extract
+
+> [!NOTE]  
+> [vfs cp](#vfs-cp) is more powerful and supports RARC archives.  
+> This command is now equivalent to `dtk vfs cp input.arc: output_dir`
 
 Extracts the contents of an RARC (older .arc) archive.
 
@@ -428,6 +441,10 @@ $ dtk rarc extract input.arc -o output_dir
 
 ### u8 list
 
+> [!NOTE]
+> [vfs ls](#vfs-ls) is more powerful and supports U8 archives.  
+> This command is now equivalent to `dtk vfs ls input.arc:`
+
 Extracts the contents of a U8 (newer .arc) archive.
 
 ```shell
@@ -436,10 +453,73 @@ $ dtk u8 list input.arc
 
 ### u8 extract
 
+> [!NOTE]
+> [vfs cp](#vfs-cp) is more powerful and supports U8 archives.  
+> This command is now equivalent to `dtk vfs cp input.arc: output_dir`
+
 Extracts the contents of a U8 (newer .arc) archive.
 
 ```shell
 $ dtk u8 extract input.arc -o output_dir
+```
+
+### vfs ls
+
+decomp-toolkit has a powerful virtual filesystem (VFS) abstraction that allows you to work with a
+variety of containers. All operations happen in memory with minimal overhead and no temporary files.
+
+Supported containers:
+
+- Disc images (see [disc info](#disc-info) for supported formats)
+- RARC archives (older .arc)
+- U8 archives (newer .arc)
+
+Supported compression formats are handled transparently:
+- Yay0 (SZP) / Yaz0 (SZS)
+- NLZSS (.lz) (Use `:nlzss` in the path)
+
+`vfs ls` lists the contents of a container or directory.
+
+Options:
+
+- `-r`, `--recursive`: Recursively list contents.
+- `-s`, `--short`: Only list file names.
+
+Examples:
+
+```shell
+# List the contents of the `amem` directory inside `RELS.arc` in a disc image
+$ dtk vfs ls 'disc.rvz:files/RELS.arc:amem'
+# List the contents of `RELS.arc` recursively
+$ dtk vfs ls -r 'disc.rvz:files/RELS.arc:'
+
+# All commands that accept a file path can also accept a VFS path
+$ dtk rel info 'disc.rvz:files/RELS.arc:amem/d_a_tag_so.rel'
+# Example disc image within a disc image
+$ dtk dol info 'disc.rvz:files/zz_demo.tgc:sys/main.dol'
+````
+
+### vfs cp
+
+See [vfs ls](#vfs-ls) for information on the VFS abstraction.
+
+`vfs cp` copies files and directories recursively to the host filesystem.
+
+Options:
+
+- `--no-decompress`: Do not decompress files when copying.
+- `-q`, `--quiet`: Suppresses all output except errors.
+
+Examples:
+
+```shell
+# Extract a file from a nested path in a disc image to the current directory
+$ dtk vfs cp 'disc.rvz:files/RELS.arc:amem/d_a_tag_so.rel' .
+
+# Directories are copied recursively, making it easy to extract entire archives
+$ dtk vfs cp 'disc.rvz:files/RELS.arc:' rels
+# Or, to disable automatic decompression
+$ dtk vfs cp --no-decompress 'disc.rvz:files/RELS.arc:' rels
 ```
 
 ### yay0 decompress

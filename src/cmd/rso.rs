@@ -20,7 +20,7 @@ use crate::{
             RSO_SECTION_NAMES,
         },
     },
-    vfs::open_path,
+    vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -77,7 +77,7 @@ pub fn run(args: Args) -> Result<()> {
 
 fn info(args: InfoArgs) -> Result<()> {
     let rso = {
-        let mut file = open_path(&args.rso_file, true)?;
+        let mut file = open_file(&args.rso_file, true)?;
         let obj = process_rso(file.as_mut())?;
         #[allow(clippy::let_and_return)]
         obj
@@ -87,7 +87,7 @@ fn info(args: InfoArgs) -> Result<()> {
 }
 
 fn make(args: MakeArgs) -> Result<()> {
-    let mut file = open_path(&args.input, true)?;
+    let mut file = open_file(&args.input, true)?;
     let obj_file = object::read::File::parse(file.map()?)?;
     match obj_file.architecture() {
         Architecture::PowerPc => {}
@@ -102,7 +102,7 @@ fn make(args: MakeArgs) -> Result<()> {
 
     let symbols_to_export = match &args.export {
         Some(export_file_path) => {
-            let export_file_reader = open_path(export_file_path, true)?;
+            let export_file_reader = open_file(export_file_path, true)?;
             export_file_reader.lines().map_while(Result::ok).collect()
         }
         None => vec![],

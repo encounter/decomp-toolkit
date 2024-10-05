@@ -11,7 +11,7 @@ use crate::{
         map::{create_obj, process_map, SymbolEntry, SymbolRef},
         split::update_splits,
     },
-    vfs::open_path,
+    vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -75,7 +75,7 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn entries(args: EntriesArgs) -> Result<()> {
-    let mut file = open_path(&args.map_file, true)?;
+    let mut file = open_file(&args.map_file, true)?;
     let entries = process_map(file.as_mut(), None, None)?;
     match entries.unit_entries.get_vec(&args.unit) {
         Some(vec) => {
@@ -106,7 +106,7 @@ fn entries(args: EntriesArgs) -> Result<()> {
 }
 
 fn symbol(args: SymbolArgs) -> Result<()> {
-    let mut file = open_path(&args.map_file, true)?;
+    let mut file = open_file(&args.map_file, true)?;
     log::info!("Processing map...");
     let entries = process_map(file.as_mut(), None, None)?;
     log::info!("Done!");
@@ -181,7 +181,7 @@ fn symbol(args: SymbolArgs) -> Result<()> {
 }
 
 fn config(args: ConfigArgs) -> Result<()> {
-    let mut file = open_path(&args.map_file, true)?;
+    let mut file = open_file(&args.map_file, true)?;
     log::info!("Processing map...");
     let entries = process_map(file.as_mut(), None, None)?;
     let mut obj = create_obj(&entries)?;

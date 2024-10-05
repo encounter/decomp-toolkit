@@ -17,7 +17,7 @@ use crate::{
         ncompress::{decompress_yay0, decompress_yaz0, YAY0_MAGIC, YAZ0_MAGIC},
         Bytes,
     },
-    vfs::{open_path, VfsFile},
+    vfs::{open_file, VfsFile},
 };
 
 /// Creates a buffered writer around a file (not memory mapped).
@@ -67,8 +67,7 @@ pub fn process_rsp(files: &[PathBuf]) -> Result<Vec<PathBuf>> {
         let path_str =
             path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
         if let Some(rsp_file) = path_str.strip_prefix('@') {
-            let rsp_path = Path::new(rsp_file);
-            let file = open_path(rsp_path, true)?;
+            let file = open_file(Path::new(rsp_file), true)?;
             for result in file.lines() {
                 let line = result?;
                 if !line.is_empty() {
@@ -123,7 +122,7 @@ impl FileIterator {
 
         let path = self.paths[self.index].clone();
         self.index += 1;
-        match open_path(&path, true) {
+        match open_file(&path, true) {
             Ok(file) => Some(Ok((path, file))),
             Err(e) => Some(Err(e)),
         }

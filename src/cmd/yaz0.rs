@@ -9,7 +9,7 @@ use crate::{
         ncompress::{compress_yaz0, decompress_yaz0},
         IntoCow, ToCow,
     },
-    vfs::open_path,
+    vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -65,7 +65,7 @@ fn compress(args: CompressArgs) -> Result<()> {
     let single_file = files.len() == 1;
     for path in files {
         let data = {
-            let mut file = open_path(&path, false)?;
+            let mut file = open_file(&path, false)?;
             compress_yaz0(file.map()?)
         };
         let out_path = if let Some(output) = &args.output {
@@ -88,7 +88,7 @@ fn decompress(args: DecompressArgs) -> Result<()> {
     let single_file = files.len() == 1;
     for path in files {
         let data = {
-            let mut file = open_path(&path, false)?;
+            let mut file = open_file(&path, false)?;
             decompress_yaz0(file.map()?)
                 .with_context(|| format!("Failed to decompress '{}' using Yaz0", path.display()))?
         };

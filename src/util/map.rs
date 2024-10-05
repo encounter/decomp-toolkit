@@ -24,7 +24,7 @@ use crate::{
         ObjSymbols, ObjUnit,
     },
     util::nested::NestedVec,
-    vfs::open_path,
+    vfs::open_file,
 };
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum SymbolKind {
@@ -722,7 +722,7 @@ pub fn apply_map_file<P>(
 where
     P: AsRef<Path>,
 {
-    let mut file = open_path(path.as_ref(), true)?;
+    let mut file = open_file(path.as_ref(), true)?;
     let info = process_map(file.as_mut(), common_bss_start, mw_comment_version)?;
     apply_map(info, obj)
 }

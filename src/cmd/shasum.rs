@@ -12,7 +12,7 @@ use sha1::{Digest, Sha1};
 
 use crate::{
     util::file::{buf_writer, process_rsp, touch},
-    vfs::open_path,
+    vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -39,7 +39,7 @@ const DEFAULT_BUF_SIZE: usize = 8192;
 pub fn run(args: Args) -> Result<()> {
     if args.check {
         for path in process_rsp(&args.files)? {
-            let mut file = open_path(&path, false)?;
+            let mut file = open_file(&path, false)?;
             check(&args, file.as_mut())?;
         }
         if let Some(out_path) = &args.output {
@@ -56,7 +56,7 @@ pub fn run(args: Args) -> Result<()> {
                 Box::new(stdout())
             };
         for path in process_rsp(&args.files)? {
-            let mut file = open_path(&path, false)?;
+            let mut file = open_file(&path, false)?;
             hash(w.as_mut(), file.as_mut(), &path)?
         }
     }

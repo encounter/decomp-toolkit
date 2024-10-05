@@ -11,7 +11,7 @@ use object::{Object, ObjectSymbol, SymbolScope};
 
 use crate::{
     util::file::{buf_writer, process_rsp},
-    vfs::open_path,
+    vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -83,7 +83,7 @@ fn create(args: CreateArgs) -> Result<()> {
             Entry::Vacant(e) => e.insert(Vec::new()),
             Entry::Occupied(_) => bail!("Duplicate file name '{path_str}'"),
         };
-        let mut file = open_path(path, false)?;
+        let mut file = open_file(path, false)?;
         let obj = object::File::parse(file.map()?)?;
         for symbol in obj.symbols() {
             if symbol.scope() == SymbolScope::Dynamic {
@@ -129,7 +129,7 @@ fn extract(args: ExtractArgs) -> Result<()> {
             println!("Extracting {} to {}", path.display(), out_dir.display());
         }
 
-        let mut file = open_path(path, false)?;
+        let mut file = open_file(path, false)?;
         let mut archive = ar::Archive::new(file.map()?);
         while let Some(entry) = archive.next_entry() {
             let mut entry =

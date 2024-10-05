@@ -3,7 +3,7 @@ use std::{borrow::Cow, ffi::CStr, mem::size_of};
 use anyhow::Result;
 use zerocopy::{big_endian::U32, FromBytes, Immutable, IntoBytes, KnownLayout};
 
-use crate::static_assert;
+use crate::{static_assert, vfs::next_non_empty};
 
 pub const U8_MAGIC: [u8; 4] = [0x55, 0xAA, 0x38, 0x2D];
 
@@ -175,16 +175,6 @@ impl<'a> U8View<'a> {
             }
         }
         None
-    }
-}
-
-fn next_non_empty<'a>(iter: &mut impl Iterator<Item = &'a str>) -> &'a str {
-    loop {
-        match iter.next() {
-            Some("") => continue,
-            Some(next) => break next,
-            None => break "",
-        }
     }
 }
 

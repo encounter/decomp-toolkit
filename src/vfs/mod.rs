@@ -72,16 +72,24 @@ dyn_clone::clone_trait_object!(VfsFile);
 #[derive(Debug)]
 pub enum VfsError {
     NotFound,
+    NotADirectory,
+    IsADirectory,
     IoError(io::Error),
     Other(String),
-    FileExists,
-    DirectoryExists,
 }
 
 pub type VfsResult<T, E = VfsError> = Result<T, E>;
 
 impl From<io::Error> for VfsError {
-    fn from(e: io::Error) -> Self { VfsError::IoError(e) }
+    fn from(e: io::Error) -> Self {
+        match e.kind() {
+            io::ErrorKind::NotFound => VfsError::NotFound,
+            // TODO: stabilized in Rust 1.83
+            // io::ErrorKind::NotADirectory => VfsError::NotADirectory,
+            // io::ErrorKind::IsADirectory => VfsError::IsADirectory,
+            _ => VfsError::IoError(e),
+        }
+    }
 }
 
 impl From<String> for VfsError {
@@ -98,33 +106,63 @@ impl Display for VfsError {
             VfsError::NotFound => write!(f, "File or directory not found"),
             VfsError::IoError(e) => write!(f, "{}", e),
             VfsError::Other(e) => write!(f, "{}", e),
-            VfsError::FileExists => write!(f, "File already exists"),
-            VfsError::DirectoryExists => write!(f, "Directory already exists"),
+            VfsError::NotADirectory => write!(f, "Path is a file, not a directory"),
+            VfsError::IsADirectory => write!(f, "Path is a directory, not a file"),
         }
     }
 }
 
 impl Error for VfsError {}
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum FileFormat {
     Regular,
     Compressed(CompressionKind),
     Archive(ArchiveKind),
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+impl Display for FileFormat {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            FileFormat::Regular => write!(f, "File"),
+            FileFormat::Compressed(kind) => write!(f, "Compressed: {}", kind),
+            FileFormat::Archive(kind) => write!(f, "Archive: {}", kind),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum CompressionKind {
     Yay0,
     Yaz0,
     Nlzss,
 }
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+impl Display for CompressionKind {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            CompressionKind::Yay0 => write!(f, "Yay0"),
+            CompressionKind::Yaz0 => write!(f, "Yaz0"),
+            CompressionKind::Nlzss => write!(f, "NLZSS"),
+        }
+    }
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum ArchiveKind {
     Rarc,
     U8,
-    Disc,
+    Disc(nod::Format),
+}
+
+impl Display for ArchiveKind {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        match self {
+            ArchiveKind::Rarc => write!(f, "RARC"),
+            ArchiveKind::U8 => write!(f, "U8"),
+            ArchiveKind::Disc(format) => write!(f, "Disc ({})", format),
+        }
+    }
 }
 
 pub fn detect<R>(file: &mut R) -> io::Result<FileFormat>
@@ -146,97 +184,138 @@ where R: Read + Seek + ?Sized {
             let format = nod::Disc::detect(file)?;
             file.seek(SeekFrom::Start(0))?;
             match format {
-                Some(_) => Ok(FileFormat::Archive(ArchiveKind::Disc)),
+                Some(format) => Ok(FileFormat::Archive(ArchiveKind::Disc(format))),
                 None => Ok(FileFormat::Regular),
             }
         }
     }
 }
 
-pub fn open_path(path: &Path, auto_decompress: bool) -> anyhow::Result<Box<dyn VfsFile>> {
-    open_path_fs(Box::new(StdFs), path, auto_decompress)
+pub enum OpenResult<'a> {
+    File(Box<dyn VfsFile>, &'a str),
+    Directory(Box<dyn Vfs>, &'a str),
 }
 
-pub fn open_path_fs(
+pub fn open_path(path: &Path, auto_decompress: bool) -> anyhow::Result<OpenResult> {
+    open_path_with_fs(Box::new(StdFs), path, auto_decompress)
+}
+
+pub fn open_path_with_fs(
     mut fs: Box<dyn Vfs>,
     path: &Path,
     auto_decompress: bool,
-) -> anyhow::Result<Box<dyn VfsFile>> {
+) -> anyhow::Result<OpenResult> {
     let str = path.to_str().ok_or_else(|| anyhow!("Path is not valid UTF-8"))?;
     let mut split = str.split(':').peekable();
-    let mut within = String::new();
+    let mut current_path = String::new();
+    let mut file: Option<Box<dyn VfsFile>> = None;
+    let mut segment = "";
     loop {
-        let path = split.next().unwrap();
-        let mut file = fs
-            .open(path)
-            .with_context(|| format!("Failed to open {}", format_path(path, &within)))?;
-        match detect(file.as_mut()).with_context(|| {
-            format!("Failed to detect file type for {}", format_path(path, &within))
-        })? {
-            FileFormat::Regular => {
-                return match split.next() {
-                    None => Ok(file),
-                    Some(segment) => {
-                        if split.next().is_some() {
-                            return Err(anyhow!(
-                                "{} is not an archive",
-                                format_path(path, &within)
-                            ));
-                        }
-                        match segment {
-                            "nlzss" => Ok(decompress_file(file, CompressionKind::Nlzss)
-                                .with_context(|| {
-                                    format!(
-                                        "Failed to decompress {} with NLZSS",
-                                        format_path(path, &within)
-                                    )
-                                })?),
-                            "yay0" => Ok(decompress_file(file, CompressionKind::Yay0)
-                                .with_context(|| {
-                                    format!(
-                                        "Failed to decompress {} with Yay0",
-                                        format_path(path, &within)
-                                    )
-                                })?),
-                            "yaz0" => Ok(decompress_file(file, CompressionKind::Yaz0)
-                                .with_context(|| {
-                                    format!(
-                                        "Failed to decompress {} with Yaz0",
-                                        format_path(path, &within)
-                                    )
-                                })?),
-                            _ => Err(anyhow!("{} is not an archive", format_path(path, &within))),
-                        }
-                    }
+        // Open the next segment if necessary
+        if file.is_none() {
+            segment = split.next().unwrap();
+            if !current_path.is_empty() {
+                current_path.push(':');
+            }
+            current_path.push_str(segment);
+            let file_type = match fs.metadata(segment) {
+                Ok(metadata) => metadata.file_type,
+                Err(VfsError::NotFound) => return Err(anyhow!("{} not found", current_path)),
+                Err(e) => return Err(e).context(format!("Failed to open {}", current_path)),
+            };
+            match file_type {
+                VfsFileType::File => {
+                    file = Some(
+                        fs.open(segment)
+                            .with_context(|| format!("Failed to open {}", current_path))?,
+                    );
                 }
-            }
-            FileFormat::Compressed(kind) => {
-                return if split.peek().is_none() {
-                    if auto_decompress {
-                        Ok(decompress_file(file, kind).with_context(|| {
-                            format!("Failed to decompress {}", format_path(path, &within))
-                        })?)
+                VfsFileType::Directory => {
+                    return if split.peek().is_some() {
+                        Err(anyhow!("{} is not a file", current_path))
                     } else {
-                        Ok(file)
+                        Ok(OpenResult::Directory(fs, segment))
                     }
-                } else {
-                    Err(anyhow!("{} is not an archive", format_path(path, &within)))
-                };
-            }
-            FileFormat::Archive(kind) => {
-                if split.peek().is_none() {
-                    return Ok(file);
-                } else {
-                    fs = open_fs(file, kind).with_context(|| {
-                        format!("Failed to open container {}", format_path(path, &within))
-                    })?;
-                    if !within.is_empty() {
-                        within.push(':');
-                    }
-                    within.push_str(path);
                 }
             }
         }
+        let mut current_file = file.take().unwrap();
+        let format = detect(current_file.as_mut())
+            .with_context(|| format!("Failed to detect file type for {}", current_path))?;
+        if let Some(&next) = split.peek() {
+            match next {
+                "nlzss" => {
+                    split.next();
+                    file = Some(
+                        decompress_file(current_file.as_mut(), CompressionKind::Nlzss)
+                            .with_context(|| {
+                                format!("Failed to decompress {} with NLZSS", current_path)
+                            })?,
+                    );
+                }
+                "yay0" => {
+                    split.next();
+                    file = Some(
+                        decompress_file(current_file.as_mut(), CompressionKind::Yay0)
+                            .with_context(|| {
+                                format!("Failed to decompress {} with Yay0", current_path)
+                            })?,
+                    );
+                }
+                "yaz0" => {
+                    split.next();
+                    file = Some(
+                        decompress_file(current_file.as_mut(), CompressionKind::Yaz0)
+                            .with_context(|| {
+                                format!("Failed to decompress {} with Yaz0", current_path)
+                            })?,
+                    );
+                }
+                _ => match format {
+                    FileFormat::Regular => {
+                        return Err(anyhow!("{} is not an archive", current_path))
+                    }
+                    FileFormat::Compressed(kind) => {
+                        file =
+                            Some(decompress_file(current_file.as_mut(), kind).with_context(
+                                || format!("Failed to decompress {}", current_path),
+                            )?);
+                        // Continue the loop to detect the new format
+                    }
+                    FileFormat::Archive(kind) => {
+                        fs = open_fs(current_file, kind).with_context(|| {
+                            format!("Failed to open container {}", current_path)
+                        })?;
+                        // Continue the loop to open the next segment
+                    }
+                },
+            }
+        } else {
+            // No more segments, return as-is
+            return match format {
+                FileFormat::Compressed(kind) if auto_decompress => Ok(OpenResult::File(
+                    decompress_file(current_file.as_mut(), kind)
+                        .with_context(|| format!("Failed to decompress {}", current_path))?,
+                    segment,
+                )),
+                _ => Ok(OpenResult::File(current_file, segment)),
+            };
+        }
+    }
+}
+
+pub fn open_file(path: &Path, auto_decompress: bool) -> anyhow::Result<Box<dyn VfsFile>> {
+    open_file_with_fs(Box::new(StdFs), path, auto_decompress)
+}
+
+pub fn open_file_with_fs(
+    fs: Box<dyn Vfs>,
+    path: &Path,
+    auto_decompress: bool,
+) -> anyhow::Result<Box<dyn VfsFile>> {
+    match open_path_with_fs(fs, path, auto_decompress)? {
+        OpenResult::File(file, _) => Ok(file),
+        OpenResult::Directory(_, _) => Err(VfsError::IsADirectory.into()),
     }
 }
 
@@ -245,7 +324,7 @@ pub fn open_fs(mut file: Box<dyn VfsFile>, kind: ArchiveKind) -> io::Result<Box<
     match kind {
         ArchiveKind::Rarc => Ok(Box::new(RarcFs::new(file)?)),
         ArchiveKind::U8 => Ok(Box::new(U8Fs::new(file)?)),
-        ArchiveKind::Disc => {
+        ArchiveKind::Disc(_) => {
             let disc = nod::Disc::new_stream(file.into_disc_stream()).map_err(nod_to_io_error)?;
             let partition =
                 disc.open_partition_kind(nod::PartitionKind::Data).map_err(nod_to_io_error)?;
@@ -255,35 +334,37 @@ pub fn open_fs(mut file: Box<dyn VfsFile>, kind: ArchiveKind) -> io::Result<Box<
 }
 
 pub fn decompress_file(
-    mut file: Box<dyn VfsFile>,
+    file: &mut dyn VfsFile,
     kind: CompressionKind,
 ) -> io::Result<Box<dyn VfsFile>> {
     let metadata = file.metadata()?;
+    let data = file.map()?;
     match kind {
         CompressionKind::Yay0 => {
-            let data = file.map()?;
             let result = orthrus_ncompress::yay0::Yay0::decompress_from(data)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
             Ok(Box::new(StaticFile::new(Arc::from(result), metadata.mtime)))
         }
         CompressionKind::Yaz0 => {
-            let data = file.map()?;
             let result = orthrus_ncompress::yaz0::Yaz0::decompress_from(data)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
             Ok(Box::new(StaticFile::new(Arc::from(result), metadata.mtime)))
         }
         CompressionKind::Nlzss => {
-            let result = nintendo_lz::decompress(&mut file)
+            let result = nintendo_lz::decompress_arr(data)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
             Ok(Box::new(StaticFile::new(Arc::from(result.as_slice()), metadata.mtime)))
         }
     }
 }
 
-fn format_path(path: &str, within: &str) -> String {
-    if within.is_empty() {
-        format!("'{}'", path)
-    } else {
-        format!("'{}' (within '{}')", path, within)
+#[inline]
+pub fn next_non_empty<'a>(iter: &mut impl Iterator<Item = &'a str>) -> &'a str {
+    loop {
+        match iter.next() {
+            Some("") => continue,
+            Some(next) => break next,
+            None => break "",
+        }
     }
 }

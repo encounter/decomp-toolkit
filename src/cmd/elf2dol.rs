@@ -7,7 +7,7 @@ use anyhow::{anyhow, bail, ensure, Result};
 use argp::FromArgs;
 use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, SectionKind};
 
-use crate::{util::file::buf_writer, vfs::open_path};
+use crate::{util::file::buf_writer, vfs::open_file};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Converts an ELF file to a DOL file.
@@ -46,7 +46,7 @@ const MAX_TEXT_SECTIONS: usize = 7;
 const MAX_DATA_SECTIONS: usize = 11;
 
 pub fn run(args: Args) -> Result<()> {
-    let mut file = open_path(&args.elf_file, true)?;
+    let mut file = open_file(&args.elf_file, true)?;
     let obj_file = object::read::File::parse(file.map()?)?;
     match obj_file.architecture() {
         Architecture::PowerPc => {}

@@ -41,7 +41,7 @@ use crate::{
         },
         IntoCow, ToCow,
     },
-    vfs::open_path,
+    vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -264,7 +264,7 @@ fn make(args: MakeArgs) -> Result<()> {
     let mut name_to_module_id = FxHashMap::<String, u32>::default();
     if let Some(config_path) = &args.config {
         let config: ProjectConfig = {
-            let mut file = open_path(config_path, true)?;
+            let mut file = open_file(config_path, true)?;
             serde_yaml::from_reader(file.as_mut())?
         };
         let object_base = find_object_base(&config)?;
@@ -293,7 +293,7 @@ fn make(args: MakeArgs) -> Result<()> {
     }
 
     // Load all modules
-    let mut files = paths.iter().map(|p| open_path(p, true)).collect::<Result<Vec<_>>>()?;
+    let mut files = paths.iter().map(|p| open_file(p, true)).collect::<Result<Vec<_>>>()?;
     let modules = files
         .par_iter_mut()
         .enumerate()
@@ -405,7 +405,7 @@ fn make(args: MakeArgs) -> Result<()> {
 }
 
 fn info(args: InfoArgs) -> Result<()> {
-    let mut file = open_path(&args.rel_file, true)?;
+    let mut file = open_file(&args.rel_file, true)?;
     let (header, mut module_obj) = process_rel(file.as_mut(), "")?;
 
     let mut state = AnalyzerState::default();
@@ -475,7 +475,7 @@ const fn align32(x: u32) -> u32 { (x + 31) & !31 }
 fn merge(args: MergeArgs) -> Result<()> {
     log::info!("Loading {}", args.dol_file.display());
     let mut obj = {
-        let mut file = open_path(&args.dol_file, true)?;
+        let mut file = open_file(&args.dol_file, true)?;
         let name = args.dol_file.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
         process_dol(file.map()?, name.as_ref())?
     };

@@ -1,16 +1,9 @@
-use std::{borrow::Cow, fs, fs::DirBuilder, path::PathBuf};
+use std::path::PathBuf;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::Result;
 use argp::FromArgs;
-use itertools::Itertools;
 
-use crate::{
-    util::{
-        file::decompress_if_needed,
-        u8_arc::{U8Node, U8View},
-    },
-    vfs::open_path,
-};
+use super::vfs;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing U8 (arc) files.
@@ -34,6 +27,9 @@ pub struct ListArgs {
     #[argp(positional)]
     /// U8 (arc) file
     file: PathBuf,
+    #[argp(switch, short = 's')]
+    /// Only print filenames.
+    short: bool,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -46,8 +42,11 @@ pub struct ExtractArgs {
     #[argp(option, short = 'o')]
     /// output directory
     output: Option<PathBuf>,
+    #[argp(switch)]
+    /// Do not decompress files when copying.
+    no_decompress: bool,
     #[argp(switch, short = 'q')]
-    /// quiet output
+    /// Quiet output. Don't print anything except errors.
     quiet: bool,
 }
 
@@ -59,66 +58,16 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn list(args: ListArgs) -> Result<()> {
-    let mut file = open_path(&args.file, true)?;
-    let view = U8View::new(file.map()?)
-        .map_err(|e| anyhow!("Failed to open U8 file '{}': {}", args.file.display(), e))?;
-    visit_files(&view, |_, node, path| {
-        println!("{}: {} bytes, offset {:#X}", path, node.length(), node.offset());
-        Ok(())
-    })
+    let path = PathBuf::from(format!("{}:", args.file.display()));
+    vfs::ls(vfs::LsArgs { path, short: args.short, recursive: true })
 }
 
 fn extract(args: ExtractArgs) -> Result<()> {
-    let mut file = open_path(&args.file, true)?;
-    let data = file.map()?;
-    let view = U8View::new(data)
-        .map_err(|e| anyhow!("Failed to open U8 file '{}': {}", args.file.display(), e))?;
-    visit_files(&view, |_, node, path| {
-        let offset = node.offset();
-        let size = node.length();
-        let file_data =
-            decompress_if_needed(&data[offset as usize..offset as usize + size as usize])?;
-        let output_path = args
-            .output
-            .as_ref()
-            .map(|p| p.join(&path))
-            .unwrap_or_else(|| PathBuf::from(path.clone()));
-        if !args.quiet {
-            println!("Extracting {} to {} ({} bytes)", path, output_path.display(), size);
-        }
-        if let Some(parent) = output_path.parent() {
-            DirBuilder::new().recursive(true).create(parent)?;
-        }
-        fs::write(&output_path, file_data)
-            .with_context(|| format!("Failed to write file '{}'", output_path.display()))?;
-        Ok(())
+    let path = PathBuf::from(format!("{}:", args.file.display()));
+    let output = args.output.unwrap_or_else(|| PathBuf::from("."));
+    vfs::cp(vfs::CpArgs {
+        paths: vec![path, output],
+        no_decompress: args.no_decompress,
+        quiet: args.quiet,
     })
-}
-
-fn visit_files(
-    view: &U8View,
-    mut visitor: impl FnMut(usize, U8Node, String) -> Result<()>,
-) -> Result<()> {
-    let mut path_segments = Vec::<(Cow<str>, usize)>::new();
-    for (idx, node, name) in view.iter() {
-        // Remove ended path segments
-        let mut new_size = 0;
-        for (_, end) in path_segments.iter() {
-            if *end == idx {
-                break;
-            }
-            new_size += 1;
-        }
-        path_segments.truncate(new_size);
-
-        // Add the new path segment
-        let end = if node.is_dir() { node.length() as usize } else { idx + 1 };
-        path_segments.push((name.map_err(|e| anyhow!("{}", e))?, end));
-
-        let path = path_segments.iter().map(|(name, _)| name.as_ref()).join("/");
-        if !node.is_dir() {
-            visitor(idx, node, path)?;
-        }
-    }
-    Ok(())
 }

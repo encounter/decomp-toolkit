@@ -56,7 +56,7 @@ use crate::{
         split::{is_linker_generated_object, split_obj, update_splits},
         IntoCow, ToCow,
     },
-    vfs::{open_fs, open_path, open_path_fs, ArchiveKind, Vfs, VfsFile},
+    vfs::{open_file, open_file_with_fs, open_fs, ArchiveKind, Vfs, VfsFile},
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -485,7 +485,7 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
 
 pub fn info(args: InfoArgs) -> Result<()> {
     let mut obj = {
-        let mut file = open_path(&args.dol_file, true)?;
+        let mut file = open_file(&args.dol_file, true)?;
         process_dol(file.map()?, "")?
     };
     apply_signatures(&mut obj)?;
@@ -504,7 +504,7 @@ pub fn info(args: InfoArgs) -> Result<()> {
     apply_signatures_post(&mut obj)?;
 
     if let Some(selfile) = &args.selfile {
-        let mut file = open_path(selfile, true)?;
+        let mut file = open_file(selfile, true)?;
         apply_selfile(&mut obj, file.map()?)?;
     }
 
@@ -847,7 +847,7 @@ fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<
 
     if let Some(selfile) = &config.selfile {
         log::info!("Loading {}", selfile.display());
-        let mut file = open_path(selfile, true)?;
+        let mut file = open_file(selfile, true)?;
         let data = file.map()?;
         if let Some(hash) = &config.selfile_hash {
             verify_hash(data, hash)?;
@@ -1009,7 +1009,7 @@ fn split_write_obj(
 
 fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
     if path.is_file() {
-        let mut old_file = open_path(path, true)?;
+        let mut old_file = open_file(path, true)?;
         let old_data = old_file.map()?;
         // If the file is the same size, check if the contents are the same
         // Avoid writing if unchanged, since it will update the file's mtime
@@ -1098,7 +1098,7 @@ fn split(args: SplitArgs) -> Result<()> {
     let command_start = Instant::now();
     info!("Loading {}", args.config.display());
     let mut config: ProjectConfig = {
-        let mut config_file = open_path(&args.config, true)?;
+        let mut config_file = open_file(&args.config, true)?;
         serde_yaml::from_reader(config_file.as_mut())?
     };
     let object_base = find_object_base(&config)?;
@@ -1550,7 +1550,7 @@ fn symbol_name_fuzzy_eq(a: &ObjSymbol, b: &ObjSymbol) -> bool {
 
 fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
-    let mut config_file = open_path(&args.config, true)?;
+    let mut config_file = open_file(&args.config, true)?;
     let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
     let object_base = find_object_base(&config)?;
 
@@ -1731,7 +1731,7 @@ fn diff(args: DiffArgs) -> Result<()> {
 
 fn apply(args: ApplyArgs) -> Result<()> {
     log::info!("Loading {}", args.config.display());
-    let mut config_file = open_path(&args.config, true)?;
+    let mut config_file = open_file(&args.config, true)?;
     let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
     let object_base = find_object_base(&config)?;
 
@@ -2012,9 +2012,9 @@ impl ObjectBase {
 
     pub fn open(&self, path: &Path) -> Result<Box<dyn VfsFile>> {
         match self {
-            ObjectBase::None => open_path(path, true),
-            ObjectBase::Directory(base) => open_path(&base.join(path), true),
-            ObjectBase::Vfs(vfs_path, vfs) => open_path_fs(vfs.clone(), path, true)
+            ObjectBase::None => open_file(path, true),
+            ObjectBase::Directory(base) => open_file(&base.join(path), true),
+            ObjectBase::Vfs(vfs_path, vfs) => open_file_with_fs(vfs.clone(), path, true)
                 .with_context(|| format!("Using disc image {}", vfs_path.display())),
         }
     }
@@ -2027,12 +2027,12 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
             let entry = result?;
             if entry.file_type()?.is_file() {
                 let path = entry.path();
-                let mut file = open_path(&path, false)?;
+                let mut file = open_file(&path, false)?;
                 let format = nodtool::nod::Disc::detect(file.as_mut())?;
-                if format.is_some() {
+                if let Some(format) = format {
                     file.rewind()?;
                     log::info!("Using disc image {}", path.display());
-                    let fs = open_fs(file, ArchiveKind::Disc)?;
+                    let fs = open_fs(file, ArchiveKind::Disc(format))?;
                     return Ok(ObjectBase::Vfs(path, fs));
                 }
             }

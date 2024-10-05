@@ -440,6 +440,7 @@ dependencies = [
  "serde_repr",
  "serde_yaml",
  "sha-1",
+ "size",
  "supports-color 3.0.1",
  "syntect",
  "tracing",
@@ -917,9 +918,9 @@ dependencies = [
 
 [[package]]
 name = "nod"
-version = "1.4.0"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "75b9bd092c2ebed932654aa6de256e39d2156ce8c87ace31191f8086f6d22f02"
+checksum = "8fc8822a8dac202a8589b1c49c7916bf8dec0adb8e8048f4f5cb979f9f4bc5e9"
 dependencies = [
  "adler",
  "aes",
@@ -942,9 +943,9 @@ dependencies = [
 
 [[package]]
 name = "nodtool"
-version = "1.4.0"
+version = "1.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "598b0c24bb98d0094d37e8dc8d83bb600d857c9e42a475806ac1667ec52afbb3"
+checksum = "7f838d5c364ae3f04fbec424baa64facadb401b8114a6b1f96ea35b2d99f5e13"
 dependencies = [
  "argp",
  "base16ct",

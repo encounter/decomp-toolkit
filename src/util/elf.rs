@@ -31,7 +31,7 @@ use crate::{
         comment::{CommentSym, MWComment},
         reader::{Endian, FromReader, ToWriter},
     },
-    vfs::open_path,
+    vfs::open_file,
 };
 
 pub const SHT_MWCATS: u32 = SHT_LOUSER + 0x4A2A82C2;
@@ -48,7 +48,7 @@ enum BoundaryState {
 pub fn process_elf<P>(path: P) -> Result<ObjInfo>
 where P: AsRef<Path> {
     let path = path.as_ref();
-    let mut file = open_path(path, true)?;
+    let mut file = open_file(path, true)?;
     let obj_file = object::read::File::parse(file.map()?)?;
     let architecture = match obj_file.architecture() {
         Architecture::PowerPc => ObjArchitecture::PowerPc,

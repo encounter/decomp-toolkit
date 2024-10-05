@@ -2,7 +2,7 @@ use std::{borrow::Cow, ffi::CStr};
 
 use zerocopy::{big_endian::*, FromBytes, Immutable, IntoBytes, KnownLayout};
 
-use crate::static_assert;
+use crate::{static_assert, vfs::next_non_empty};
 
 pub const RARC_MAGIC: [u8; 4] = *b"RARC";
 
@@ -279,14 +279,4 @@ impl<'a> RarcView<'a> {
 pub enum RarcNodeKind {
     File(usize, RarcNode),
     Directory(usize, RarcDirectory),
-}
-
-fn next_non_empty<'a>(iter: &mut impl Iterator<Item = &'a str>) -> &'a str {
-    loop {
-        match iter.next() {
-            Some("") => continue,
-            Some(next) => break next,
-            None => break "",
-        }
-    }
 }

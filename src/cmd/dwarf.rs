@@ -24,7 +24,7 @@ use crate::{
         },
         file::buf_writer,
     },
-    vfs::open_path,
+    vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -76,7 +76,7 @@ fn dump(args: DumpArgs) -> Result<()> {
     let theme = theme_set.themes.get("Solarized (dark)").context("Failed to load theme")?;
     let syntax = syntax_set.find_syntax_by_name("C++").context("Failed to find syntax")?.clone();
 
-    let mut file = open_path(&args.in_file, true)?;
+    let mut file = open_file(&args.in_file, true)?;
     let buf = file.map()?;
     if buf.starts_with(b"!<arch>\n") {
         let mut archive = ar::Archive::new(buf);

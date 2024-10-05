@@ -28,7 +28,7 @@ impl Vfs for U8Fs {
                     let file = WindowedFile::new(self.file.clone(), offset, len)?;
                     Ok(Box::new(file))
                 }
-                U8NodeKind::Directory => Err(VfsError::DirectoryExists),
+                U8NodeKind::Directory => Err(VfsError::IsADirectory),
                 U8NodeKind::Invalid => Err(VfsError::from("U8: Invalid node kind")),
             },
             None => Err(VfsError::NotFound),
@@ -44,7 +44,7 @@ impl Vfs for U8Fs {
         let view = self.view()?;
         match view.find(path) {
             Some((idx, node)) => match node.kind() {
-                U8NodeKind::File => Err(VfsError::FileExists),
+                U8NodeKind::File => Err(VfsError::NotADirectory),
                 U8NodeKind::Directory => {
                     let mut entries = Vec::new();
                     let mut idx = idx + 1;

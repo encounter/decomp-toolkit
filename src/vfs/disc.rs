@@ -10,7 +10,9 @@ use nodtool::{
     nod::{DiscStream, Fst, NodeKind, OwnedFileStream, PartitionBase, PartitionMeta},
 };
 
-use super::{StaticFile, Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult};
+use super::{
+    next_non_empty, StaticFile, Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult,
+};
 
 #[derive(Clone)]
 pub struct DiscFs {
@@ -36,15 +38,13 @@ impl DiscFs {
     fn find(&self, path: &str) -> VfsResult<DiscNode> {
         let path = path.trim_matches('/');
         let mut split = path.split('/');
-        let Some(segment) = split.next() else {
-            return Ok(DiscNode::Root);
-        };
+        let mut segment = next_non_empty(&mut split);
         if segment.is_empty() {
             return Ok(DiscNode::Root);
         }
         if segment.eq_ignore_ascii_case("files") {
             let fst = Fst::new(&self.meta.raw_fst)?;
-            if split.next().is_none() {
+            if next_non_empty(&mut split).is_empty() {
                 let root = fst.nodes[0];
                 return Ok(DiscNode::Node(fst, 0, root));
             }
@@ -54,9 +54,7 @@ impl DiscFs {
                 None => Ok(DiscNode::None),
             }
         } else if segment.eq_ignore_ascii_case("sys") {
-            let Some(segment) = split.next() else {
-                return Ok(DiscNode::Sys);
-            };
+            segment = next_non_empty(&mut split);
             // No directories in sys
             if split.next().is_some() {
                 return Ok(DiscNode::None);
@@ -92,8 +90,8 @@ impl Vfs for DiscFs {
     fn open(&mut self, path: &str) -> VfsResult<Box<dyn VfsFile>> {
         match self.find(path)? {
             DiscNode::None => Err(VfsError::NotFound),
-            DiscNode::Root => Err(VfsError::DirectoryExists),
-            DiscNode::Sys => Err(VfsError::DirectoryExists),
+            DiscNode::Root => Err(VfsError::IsADirectory),
+            DiscNode::Sys => Err(VfsError::IsADirectory),
             DiscNode::Node(_, _, node) => match node.kind() {
                 NodeKind::File => {
                     if node.length() > 2048 {
@@ -107,7 +105,7 @@ impl Vfs for DiscFs {
                         Ok(Box::new(StaticFile::new(Arc::from(data.as_slice()), self.mtime)))
                     }
                 }
-                NodeKind::Directory => Err(VfsError::FileExists),
+                NodeKind::Directory => Err(VfsError::IsADirectory),
                 NodeKind::Invalid => Err(VfsError::from("FST: Invalid node kind")),
             },
             DiscNode::Static(data) => Ok(Box::new(StaticFile::new(Arc::from(data), self.mtime))),
@@ -146,7 +144,7 @@ impl Vfs for DiscFs {
             }
             DiscNode::Node(fst, idx, node) => {
                 match node.kind() {
-                    NodeKind::File => return Err(VfsError::FileExists),
+                    NodeKind::File => return Err(VfsError::NotADirectory),
                     NodeKind::Directory => {}
                     NodeKind::Invalid => return Err(VfsError::from("FST: Invalid node kind")),
                 }
@@ -168,7 +166,7 @@ impl Vfs for DiscFs {
                 }
                 Ok(entries)
             }
-            DiscNode::Static(_) => Err(VfsError::FileExists),
+            DiscNode::Static(_) => Err(VfsError::NotADirectory),
         }
     }
 

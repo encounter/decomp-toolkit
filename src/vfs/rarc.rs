@@ -29,7 +29,7 @@ impl Vfs for RarcFs {
                 let file = WindowedFile::new(self.file.clone(), offset, len)?;
                 Ok(Box::new(file))
             }
-            Some(RarcNodeKind::Directory(_, _)) => Err(VfsError::DirectoryExists),
+            Some(RarcNodeKind::Directory(_, _)) => Err(VfsError::IsADirectory),
             None => Err(VfsError::NotFound),
         }
     }
@@ -53,7 +53,7 @@ impl Vfs for RarcFs {
                 }
                 Ok(entries)
             }
-            Some(RarcNodeKind::File(_, _)) => Err(VfsError::FileExists),
+            Some(RarcNodeKind::File(_, _)) => Err(VfsError::NotADirectory),
             None => Err(VfsError::NotFound),
         }
     }

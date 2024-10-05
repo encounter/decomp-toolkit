@@ -24,7 +24,7 @@ use crate::{
         file::{buf_writer, FileReadInfo},
         split::default_section_align,
     },
-    vfs::open_path,
+    vfs::open_file,
 };
 
 pub fn parse_u32(s: &str) -> Result<u32, ParseIntError> {
@@ -49,7 +49,7 @@ pub fn apply_symbols_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileRe
 where P: AsRef<Path> {
     let path = path.as_ref();
     Ok(if path.is_file() {
-        let mut file = open_path(path, true)?;
+        let mut file = open_file(path, true)?;
         let cached = FileReadInfo::new(file.as_mut())?;
         for result in file.lines() {
             let line = match result {
@@ -629,7 +629,7 @@ pub fn apply_splits_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileRea
 where P: AsRef<Path> {
     let path = path.as_ref();
     Ok(if path.is_file() {
-        let mut file = open_path(path, true)?;
+        let mut file = open_file(path, true)?;
         let cached = FileReadInfo::new(file.as_mut())?;
         apply_splits(file.as_mut(), obj)?;
         Some(cached)
@@ -744,7 +744,7 @@ where P: AsRef<Path> {
     if !path.is_file() {
         return Ok(None);
     }
-    let file = open_path(path, true)?;
+    let file = open_file(path, true)?;
     let mut sections = Vec::new();
     let mut state = SplitState::None;
     for result in file.lines() {
