@@ -1,7 +1,4 @@
-use std::{
-    io::{BufRead, Seek, Write},
-    path::{Path, PathBuf},
-};
+use std::io::{BufRead, Seek, Write};
 
 use anyhow::{bail, ensure, Context, Result};
 use argp::FromArgs;
@@ -10,10 +7,12 @@ use object::{
     Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, SectionKind,
     SymbolIndex, SymbolKind, SymbolSection,
 };
+use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 
 use crate::{
     util::{
         file::buf_writer,
+        path::native_path,
         reader::{Endian, ToWriter},
         rso::{
             process_rso, symbol_hash, RsoHeader, RsoRelocation, RsoSectionHeader, RsoSymbol,
@@ -42,30 +41,30 @@ enum SubCommand {
 /// Views RSO file information.
 #[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// RSO file
-    rso_file: PathBuf,
+    rso_file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Creates an RSO from an ELF.
 #[argp(subcommand, name = "make")]
 pub struct MakeArgs {
-    #[argp(positional, arg_name = "ELF File")]
+    #[argp(positional, arg_name = "ELF File", from_str_fn(native_path))]
     /// elf file
-    input: PathBuf,
+    input: Utf8NativePathBuf,
 
-    #[argp(option, short = 'o', arg_name = "File")]
+    #[argp(option, short = 'o', arg_name = "File", from_str_fn(native_path))]
     /// output file path
-    output: PathBuf,
+    output: Utf8NativePathBuf,
 
     #[argp(option, short = 'm', arg_name = "Name")]
     /// module name (or path). Default: input name
     module_name: Option<String>,
 
-    #[argp(option, short = 'e', arg_name = "File")]
+    #[argp(option, short = 'e', arg_name = "File", from_str_fn(native_path))]
     /// file containing exported symbol names (newline separated)
-    export: Option<PathBuf>,
+    export: Option<Utf8NativePathBuf>,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -78,9 +77,7 @@ pub fn run(args: Args) -> Result<()> {
 fn info(args: InfoArgs) -> Result<()> {
     let rso = {
         let mut file = open_file(&args.rso_file, true)?;
-        let obj = process_rso(file.as_mut())?;
-        #[allow(clippy::let_and_return)]
-        obj
+        process_rso(file.as_mut())?
     };
     println!("Read RSO module {}", rso.name);
     Ok(())
@@ -97,7 +94,7 @@ fn make(args: MakeArgs) -> Result<()> {
 
     let module_name = match args.module_name {
         Some(n) => n,
-        None => args.input.display().to_string(),
+        None => args.input.to_string(),
     };
 
     let symbols_to_export = match &args.export {
@@ -121,18 +118,18 @@ fn make(args: MakeArgs) -> Result<()> {
     Ok(())
 }
 
-fn make_sel<P: AsRef<Path>>(
+fn make_sel(
     _file: object::File,
-    _output: P,
+    _output: &Utf8NativePath,
     _module_name: &str,
     _symbols_to_export: Vec<String>,
 ) -> Result<()> {
     bail!("Creating SEL files is not supported yet.");
 }
 
-fn make_rso<P: AsRef<Path>>(
+fn make_rso(
     file: object::File,
-    output: P,
+    output: &Utf8NativePath,
     module_name: &str,
     symbols_to_export: Vec<String>,
 ) -> Result<()> {

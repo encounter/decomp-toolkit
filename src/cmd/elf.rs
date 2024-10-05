@@ -3,7 +3,6 @@ use std::{
     fs,
     fs::DirBuilder,
     io::{Cursor, Write},
-    path::PathBuf,
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
@@ -15,6 +14,7 @@ use object::{
     FileFlags, Object, ObjectSection, ObjectSymbol, RelocationTarget, SectionFlags, SectionIndex,
     SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection,
 };
+use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 
 use crate::{
     obj::ObjKind,
@@ -24,6 +24,7 @@ use crate::{
         config::{write_splits_file, write_symbols_file},
         elf::{process_elf, write_elf},
         file::{buf_writer, process_rsp},
+        path::native_path,
         reader::{Endian, FromReader},
         signatures::{compare_signature, generate_signature, FunctionSignature},
         split::split_obj,
@@ -54,72 +55,72 @@ enum SubCommand {
 /// Disassembles an ELF file.
 #[argp(subcommand, name = "disasm")]
 pub struct DisasmArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input file
-    elf_file: PathBuf,
-    #[argp(positional)]
+    elf_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// output file (.o) or directory (.elf)
-    out: PathBuf,
+    out: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Fixes issues with GNU assembler built object files.
 #[argp(subcommand, name = "fixup")]
 pub struct FixupArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input file
-    in_file: PathBuf,
-    #[argp(positional)]
+    in_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// output file
-    out_file: PathBuf,
+    out_file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Splits an executable ELF into relocatable objects.
 #[argp(subcommand, name = "split")]
 pub struct SplitArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input file
-    in_file: PathBuf,
-    #[argp(positional)]
+    in_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// output directory
-    out_dir: PathBuf,
+    out_dir: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Generates configuration files from an executable ELF.
 #[argp(subcommand, name = "config")]
 pub struct ConfigArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input file
-    in_file: PathBuf,
-    #[argp(positional)]
+    in_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// output directory
-    out_dir: PathBuf,
+    out_dir: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Builds function signatures from an ELF file.
 #[argp(subcommand, name = "sigs")]
 pub struct SignaturesArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input file(s)
-    files: Vec<PathBuf>,
+    files: Vec<Utf8NativePathBuf>,
     #[argp(option, short = 's')]
     /// symbol name
     symbol: String,
-    #[argp(option, short = 'o')]
+    #[argp(option, short = 'o', from_str_fn(native_path))]
     /// output yml
-    out_file: PathBuf,
+    out_file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Prints information about an ELF file.
 #[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input file
-    input: PathBuf,
+    input: Utf8NativePathBuf,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -134,17 +135,17 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn config(args: ConfigArgs) -> Result<()> {
-    log::info!("Loading {}", args.in_file.display());
+    log::info!("Loading {}", args.in_file);
     let obj = process_elf(&args.in_file)?;
 
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
-    write_symbols_file(args.out_dir.join("symbols.txt"), &obj, None)?;
-    write_splits_file(args.out_dir.join("splits.txt"), &obj, false, None)?;
+    write_symbols_file(&args.out_dir.join("symbols.txt"), &obj, None)?;
+    write_splits_file(&args.out_dir.join("splits.txt"), &obj, false, None)?;
     Ok(())
 }
 
 fn disasm(args: DisasmArgs) -> Result<()> {
-    log::info!("Loading {}", args.elf_file.display());
+    log::info!("Loading {}", args.elf_file);
     let obj = process_elf(&args.elf_file)?;
     match obj.kind {
         ObjKind::Executable => {
@@ -156,12 +157,12 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             DirBuilder::new().recursive(true).create(&include_dir)?;
             fs::write(include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
 
-            let mut files_out = buf_writer(args.out.join("link_order.txt"))?;
+            let mut files_out = buf_writer(&args.out.join("link_order.txt"))?;
             for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
                 let out_path = asm_dir.join(file_name_from_unit(&unit.name, ".s"));
-                log::info!("Writing {}", out_path.display());
+                log::info!("Writing {}", out_path);
 
-                let mut w = buf_writer(out_path)?;
+                let mut w = buf_writer(&out_path)?;
                 write_asm(&mut w, split_obj)?;
                 w.flush()?;
 
@@ -170,7 +171,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             files_out.flush()?;
         }
         ObjKind::Relocatable => {
-            let mut w = buf_writer(args.out)?;
+            let mut w = buf_writer(&args.out)?;
             write_asm(&mut w, &obj)?;
             w.flush()?;
         }
@@ -193,18 +194,17 @@ fn split(args: SplitArgs) -> Result<()> {
         };
     }
 
-    let mut rsp_file = buf_writer("rsp")?;
+    let mut rsp_file = buf_writer(Utf8NativePath::new("rsp"))?;
     for unit in &obj.link_order {
         let object = file_map
             .get(&unit.name)
             .ok_or_else(|| anyhow!("Failed to find object file for unit '{}'", unit.name))?;
         let out_path = args.out_dir.join(file_name_from_unit(&unit.name, ".o"));
-        writeln!(rsp_file, "{}", out_path.display())?;
+        writeln!(rsp_file, "{}", out_path)?;
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
         }
-        fs::write(&out_path, object)
-            .with_context(|| format!("Failed to write '{}'", out_path.display()))?;
+        fs::write(&out_path, object).with_context(|| format!("Failed to write '{}'", out_path))?;
     }
     rsp_file.flush()?;
     Ok(())
@@ -237,7 +237,7 @@ const ASM_SUFFIX: &str = " (asm)";
 
 fn fixup(args: FixupArgs) -> Result<()> {
     let in_buf = fs::read(&args.in_file)
-        .with_context(|| format!("Failed to open input file: '{}'", args.in_file.display()))?;
+        .with_context(|| format!("Failed to open input file: '{}'", args.in_file))?;
     let in_file = object::read::File::parse(&*in_buf).context("Failed to parse input ELF")?;
     let mut out_file =
         object::write::Object::new(in_file.format(), in_file.architecture(), in_file.endianness());
@@ -262,10 +262,7 @@ fn fixup(args: FixupArgs) -> Result<()> {
         let file_name = args
             .in_file
             .file_name()
-            .ok_or_else(|| anyhow!("'{}' is not a file path", args.in_file.display()))?;
-        let file_name = file_name
-            .to_str()
-            .ok_or_else(|| anyhow!("'{}' is not valid UTF-8", file_name.to_string_lossy()))?;
+            .ok_or_else(|| anyhow!("'{}' is not a file path", args.in_file))?;
         let mut name_bytes = file_name.as_bytes().to_vec();
         name_bytes.append(&mut ASM_SUFFIX.as_bytes().to_vec());
         out_file.add_symbol(object::write::Symbol {
@@ -445,7 +442,7 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
 
     let mut signatures: HashMap<String, FunctionSignature> = HashMap::new();
     for path in files {
-        log::info!("Processing {}", path.display());
+        log::info!("Processing {}", path);
         let signature = match generate_signature(&path, &args.symbol) {
             Ok(Some(signature)) => signature,
             Ok(None) => continue,
@@ -472,7 +469,7 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
 
 fn info(args: InfoArgs) -> Result<()> {
     let in_buf = fs::read(&args.input)
-        .with_context(|| format!("Failed to open input file: '{}'", args.input.display()))?;
+        .with_context(|| format!("Failed to open input file: '{}'", args.input))?;
     let in_file = object::read::File::parse(&*in_buf).context("Failed to parse input ELF")?;
 
     println!("ELF type: {:?}", in_file.kind());

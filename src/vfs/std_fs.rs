@@ -1,10 +1,10 @@
 use std::{
-    io,
+    fs, io,
     io::{BufRead, BufReader, Read, Seek, SeekFrom},
-    path::{Path, PathBuf},
 };
 
 use filetime::FileTime;
+use typed_path::{Utf8NativePathBuf, Utf8UnixPath};
 
 use super::{DiscStream, Vfs, VfsFile, VfsFileType, VfsMetadata, VfsResult};
 
@@ -12,23 +12,25 @@ use super::{DiscStream, Vfs, VfsFile, VfsFileType, VfsMetadata, VfsResult};
 pub struct StdFs;
 
 impl Vfs for StdFs {
-    fn open(&mut self, path: &str) -> VfsResult<Box<dyn VfsFile>> {
-        let mut file = StdFile::new(PathBuf::from(path));
+    fn open(&mut self, path: &Utf8UnixPath) -> VfsResult<Box<dyn VfsFile>> {
+        let mut file = StdFile::new(path.with_encoding());
         file.file()?; // Open the file now to check for errors
         Ok(Box::new(file))
     }
 
-    fn exists(&mut self, path: &str) -> VfsResult<bool> { Ok(Path::new(path).exists()) }
+    fn exists(&mut self, path: &Utf8UnixPath) -> VfsResult<bool> {
+        Ok(fs::exists(path.with_encoding())?)
+    }
 
-    fn read_dir(&mut self, path: &str) -> VfsResult<Vec<String>> {
-        let entries = std::fs::read_dir(path)?
+    fn read_dir(&mut self, path: &Utf8UnixPath) -> VfsResult<Vec<String>> {
+        let entries = fs::read_dir(path.with_encoding())?
             .map(|entry| entry.map(|e| e.file_name().to_string_lossy().into_owned()))
             .collect::<Result<Vec<_>, _>>()?;
         Ok(entries)
     }
 
-    fn metadata(&mut self, path: &str) -> VfsResult<VfsMetadata> {
-        let metadata = std::fs::metadata(path)?;
+    fn metadata(&mut self, path: &Utf8UnixPath) -> VfsResult<VfsMetadata> {
+        let metadata = fs::metadata(path.with_encoding())?;
         Ok(VfsMetadata {
             file_type: if metadata.is_dir() { VfsFileType::Directory } else { VfsFileType::File },
             len: metadata.len(),
@@ -38,8 +40,8 @@ impl Vfs for StdFs {
 }
 
 pub struct StdFile {
-    path: PathBuf,
-    file: Option<BufReader<std::fs::File>>,
+    path: Utf8NativePathBuf,
+    file: Option<BufReader<fs::File>>,
     mmap: Option<memmap2::Mmap>,
 }
 
@@ -50,11 +52,11 @@ impl Clone for StdFile {
 
 impl StdFile {
     #[inline]
-    pub fn new(path: PathBuf) -> Self { StdFile { path, file: None, mmap: None } }
+    pub fn new(path: Utf8NativePathBuf) -> Self { StdFile { path, file: None, mmap: None } }
 
-    pub fn file(&mut self) -> io::Result<&mut BufReader<std::fs::File>> {
+    pub fn file(&mut self) -> io::Result<&mut BufReader<fs::File>> {
         if self.file.is_none() {
-            self.file = Some(BufReader::new(std::fs::File::open(&self.path)?));
+            self.file = Some(BufReader::new(fs::File::open(&self.path)?));
         }
         Ok(self.file.as_mut().unwrap())
     }
@@ -85,7 +87,7 @@ impl Seek for StdFile {
 impl VfsFile for StdFile {
     fn map(&mut self) -> io::Result<&[u8]> {
         if self.file.is_none() {
-            self.file = Some(BufReader::new(std::fs::File::open(&self.path)?));
+            self.file = Some(BufReader::new(fs::File::open(&self.path)?));
         }
         if self.mmap.is_none() {
             self.mmap = Some(unsafe { memmap2::Mmap::map(self.file.as_ref().unwrap().get_ref())? });
@@ -94,7 +96,7 @@ impl VfsFile for StdFile {
     }
 
     fn metadata(&mut self) -> io::Result<VfsMetadata> {
-        let metadata = std::fs::metadata(&self.path)?;
+        let metadata = fs::metadata(&self.path)?;
         Ok(VfsMetadata {
             file_type: if metadata.is_dir() { VfsFileType::Directory } else { VfsFileType::File },
             len: metadata.len(),

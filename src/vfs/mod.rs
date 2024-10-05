@@ -9,7 +9,6 @@ use std::{
     fmt::{Debug, Display, Formatter},
     io,
     io::{BufRead, Read, Seek, SeekFrom},
-    path::Path,
     sync::Arc,
 };
 
@@ -21,6 +20,7 @@ use filetime::FileTime;
 use nodtool::{nod, nod::DiscStream};
 use rarc::RarcFs;
 pub use std_fs::StdFs;
+use typed_path::{Utf8NativePath, Utf8UnixPath, Utf8UnixPathBuf};
 use u8_arc::U8Fs;
 
 use crate::util::{
@@ -31,13 +31,13 @@ use crate::util::{
 };
 
 pub trait Vfs: DynClone + Send + Sync {
-    fn open(&mut self, path: &str) -> VfsResult<Box<dyn VfsFile>>;
+    fn open(&mut self, path: &Utf8UnixPath) -> VfsResult<Box<dyn VfsFile>>;
 
-    fn exists(&mut self, path: &str) -> VfsResult<bool>;
+    fn exists(&mut self, path: &Utf8UnixPath) -> VfsResult<bool>;
 
-    fn read_dir(&mut self, path: &str) -> VfsResult<Vec<String>>;
+    fn read_dir(&mut self, path: &Utf8UnixPath) -> VfsResult<Vec<String>>;
 
-    fn metadata(&mut self, path: &str) -> VfsResult<VfsMetadata>;
+    fn metadata(&mut self, path: &Utf8UnixPath) -> VfsResult<VfsMetadata>;
 }
 
 dyn_clone::clone_trait_object!(Vfs);
@@ -192,33 +192,33 @@ where R: Read + Seek + ?Sized {
     }
 }
 
-pub enum OpenResult<'a> {
-    File(Box<dyn VfsFile>, &'a str),
-    Directory(Box<dyn Vfs>, &'a str),
+pub enum OpenResult {
+    File(Box<dyn VfsFile>, Utf8UnixPathBuf),
+    Directory(Box<dyn Vfs>, Utf8UnixPathBuf),
 }
 
-pub fn open_path(path: &Path, auto_decompress: bool) -> anyhow::Result<OpenResult> {
+pub fn open_path(path: &Utf8NativePath, auto_decompress: bool) -> anyhow::Result<OpenResult> {
     open_path_with_fs(Box::new(StdFs), path, auto_decompress)
 }
 
 pub fn open_path_with_fs(
     mut fs: Box<dyn Vfs>,
-    path: &Path,
+    path: &Utf8NativePath,
     auto_decompress: bool,
 ) -> anyhow::Result<OpenResult> {
-    let str = path.to_str().ok_or_else(|| anyhow!("Path is not valid UTF-8"))?;
-    let mut split = str.split(':').peekable();
+    let path = path.with_unix_encoding();
+    let mut split = path.as_str().split(':').peekable();
     let mut current_path = String::new();
     let mut file: Option<Box<dyn VfsFile>> = None;
-    let mut segment = "";
+    let mut segment = Utf8UnixPath::new("");
     loop {
         // Open the next segment if necessary
         if file.is_none() {
-            segment = split.next().unwrap();
+            segment = Utf8UnixPath::new(split.next().unwrap());
             if !current_path.is_empty() {
                 current_path.push(':');
             }
-            current_path.push_str(segment);
+            current_path.push_str(segment.as_str());
             let file_type = match fs.metadata(segment) {
                 Ok(metadata) => metadata.file_type,
                 Err(VfsError::NotFound) => return Err(anyhow!("{} not found", current_path)),
@@ -235,7 +235,7 @@ pub fn open_path_with_fs(
                     return if split.peek().is_some() {
                         Err(anyhow!("{} is not a file", current_path))
                     } else {
-                        Ok(OpenResult::Directory(fs, segment))
+                        Ok(OpenResult::Directory(fs, segment.to_path_buf()))
                     }
                 }
             }
@@ -297,21 +297,21 @@ pub fn open_path_with_fs(
                 FileFormat::Compressed(kind) if auto_decompress => Ok(OpenResult::File(
                     decompress_file(current_file.as_mut(), kind)
                         .with_context(|| format!("Failed to decompress {}", current_path))?,
-                    segment,
+                    segment.to_path_buf(),
                 )),
-                _ => Ok(OpenResult::File(current_file, segment)),
+                _ => Ok(OpenResult::File(current_file, segment.to_path_buf())),
             };
         }
     }
 }
 
-pub fn open_file(path: &Path, auto_decompress: bool) -> anyhow::Result<Box<dyn VfsFile>> {
+pub fn open_file(path: &Utf8NativePath, auto_decompress: bool) -> anyhow::Result<Box<dyn VfsFile>> {
     open_file_with_fs(Box::new(StdFs), path, auto_decompress)
 }
 
 pub fn open_file_with_fs(
     fs: Box<dyn Vfs>,
-    path: &Path,
+    path: &Utf8NativePath,
     auto_decompress: bool,
 ) -> anyhow::Result<Box<dyn VfsFile>> {
     match open_path_with_fs(fs, path, auto_decompress)? {

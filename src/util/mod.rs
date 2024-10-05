@@ -16,6 +16,7 @@ pub mod map;
 pub mod ncompress;
 pub mod nested;
 pub mod nlzss;
+pub mod path;
 pub mod rarc;
 pub mod reader;
 pub mod rel;

@@ -1,13 +1,10 @@
 use std::{
-    borrow::Cow,
     cmp::min,
     collections::{btree_map::Entry, hash_map, BTreeMap, HashMap},
-    ffi::OsStr,
     fs,
     fs::DirBuilder,
     io::{Cursor, Seek, Write},
     mem::take,
-    path::{Path, PathBuf},
     time::Instant,
 };
 
@@ -18,6 +15,7 @@ use itertools::Itertools;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info, info_span};
+use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPath, Utf8UnixPathBuf};
 use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
@@ -51,6 +49,7 @@ use crate::{
         file::{buf_writer, touch, verify_hash, FileIterator, FileReadInfo},
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
+        path::{check_path_buf, native_path},
         rel::{process_rel, process_rel_header, update_rel_section_alignment},
         rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_ETI, DOL_SECTION_NAMES},
         split::{is_linker_generated_object, split_obj, update_splits},
@@ -81,24 +80,24 @@ enum SubCommand {
 /// Views DOL file information.
 #[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// DOL file
-    pub dol_file: PathBuf,
-    #[argp(option, short = 's')]
+    pub dol_file: Utf8NativePathBuf,
+    #[argp(option, short = 's', from_str_fn(native_path))]
     /// optional path to selfile.sel
-    pub selfile: Option<PathBuf>,
+    pub selfile: Option<Utf8NativePathBuf>,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Splits a DOL into relocatable objects.
 #[argp(subcommand, name = "split")]
 pub struct SplitArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input configuration file
-    config: PathBuf,
-    #[argp(positional)]
+    config: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// output directory
-    out_dir: PathBuf,
+    out_dir: Utf8NativePathBuf,
     #[argp(switch)]
     /// skip updating splits & symbol files (for build systems)
     no_update: bool,
@@ -111,36 +110,36 @@ pub struct SplitArgs {
 /// Diffs symbols in a linked ELF.
 #[argp(subcommand, name = "diff")]
 pub struct DiffArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input configuration file
-    config: PathBuf,
-    #[argp(positional)]
+    config: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// linked ELF
-    elf_file: PathBuf,
+    elf_file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Applies updated symbols from a linked ELF to the project configuration.
 #[argp(subcommand, name = "apply")]
 pub struct ApplyArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input configuration file
-    config: PathBuf,
-    #[argp(positional)]
+    config: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// linked ELF
-    elf_file: PathBuf,
+    elf_file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Generates a project configuration file from a DOL (& RELs).
 #[argp(subcommand, name = "config")]
 pub struct ConfigArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// object files
-    objects: Vec<PathBuf>,
-    #[argp(option, short = 'o')]
+    objects: Vec<Utf8NativePathBuf>,
+    #[argp(option, short = 'o', from_str_fn(native_path))]
     /// output config YAML file
-    out_file: PathBuf,
+    out_file: Utf8NativePathBuf,
 }
 
 #[inline]
@@ -155,44 +154,37 @@ where T: Default + PartialEq {
     t == &T::default()
 }
 
-mod path_slash_serde {
-    use std::path::PathBuf;
-
-    use path_slash::PathBufExt as _;
+mod unix_path_serde {
     use serde::{Deserialize, Deserializer, Serializer};
+    use typed_path::Utf8UnixPathBuf;
 
-    pub fn serialize<S>(path: &PathBuf, s: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(path: &Utf8UnixPathBuf, s: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
-        let path_str = path.to_slash().ok_or_else(|| serde::ser::Error::custom("Invalid path"))?;
-        s.serialize_str(path_str.as_ref())
+        s.serialize_str(path.as_str())
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<PathBuf, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Utf8UnixPathBuf, D::Error>
     where D: Deserializer<'de> {
-        String::deserialize(deserializer).map(PathBuf::from_slash)
+        String::deserialize(deserializer).map(Utf8UnixPathBuf::from)
     }
 }
 
-mod path_slash_serde_option {
-    use std::path::PathBuf;
-
-    use path_slash::PathBufExt as _;
+mod unix_path_serde_option {
     use serde::{Deserialize, Deserializer, Serializer};
+    use typed_path::Utf8UnixPathBuf;
 
-    pub fn serialize<S>(path: &Option<PathBuf>, s: S) -> Result<S::Ok, S::Error>
+    pub fn serialize<S>(path: &Option<Utf8UnixPathBuf>, s: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
         if let Some(path) = path {
-            let path_str =
-                path.to_slash().ok_or_else(|| serde::ser::Error::custom("Invalid path"))?;
-            s.serialize_str(path_str.as_ref())
+            s.serialize_str(path.as_str())
         } else {
             s.serialize_none()
         }
     }
 
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<PathBuf>, D::Error>
+    pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Utf8UnixPathBuf>, D::Error>
     where D: Deserializer<'de> {
-        Ok(Option::deserialize(deserializer)?.map(PathBuf::from_slash::<String>))
+        Ok(Option::<String>::deserialize(deserializer)?.map(Utf8UnixPathBuf::from))
     }
 }
 
@@ -200,8 +192,8 @@ mod path_slash_serde_option {
 pub struct ProjectConfig {
     #[serde(flatten)]
     pub base: ModuleConfig,
-    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "is_default")]
-    pub selfile: Option<PathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
+    pub selfile: Option<Utf8UnixPathBuf>,
     #[serde(skip_serializing_if = "is_default")]
     pub selfile_hash: Option<String>,
     /// Version of the MW `.comment` section format.
@@ -235,8 +227,8 @@ pub struct ProjectConfig {
     #[serde(default = "bool_true", skip_serializing_if = "is_true")]
     pub export_all: bool,
     /// Optional base path for all object files.
-    #[serde(default, skip_serializing_if = "is_default")]
-    pub object_base: Option<PathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
+    pub object_base: Option<Utf8UnixPathBuf>,
 }
 
 impl Default for ProjectConfig {
@@ -265,21 +257,21 @@ pub struct ModuleConfig {
     /// Object name. If not specified, the file name without extension will be used.
     #[serde(skip_serializing_if = "is_default")]
     pub name: Option<String>,
-    #[serde(with = "path_slash_serde")]
-    pub object: PathBuf,
+    #[serde(with = "unix_path_serde")]
+    pub object: Utf8UnixPathBuf,
     #[serde(skip_serializing_if = "is_default")]
     pub hash: Option<String>,
-    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "is_default")]
-    pub splits: Option<PathBuf>,
-    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "is_default")]
-    pub symbols: Option<PathBuf>,
-    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "is_default")]
-    pub map: Option<PathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
+    pub splits: Option<Utf8UnixPathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
+    pub symbols: Option<Utf8UnixPathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
+    pub map: Option<Utf8UnixPathBuf>,
     /// Forces the given symbols to be active (exported) in the linker script.
     #[serde(default, skip_serializing_if = "is_default")]
     pub force_active: Vec<String>,
-    #[serde(skip_serializing_if = "is_default")]
-    pub ldscript_template: Option<PathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
+    pub ldscript_template: Option<Utf8UnixPathBuf>,
     /// Overrides links to other modules.
     #[serde(skip_serializing_if = "is_default")]
     pub links: Option<Vec<String>>,
@@ -297,12 +289,12 @@ pub struct ExtractConfig {
     pub symbol: String,
     /// If specified, the symbol's data will be extracted to the given file.
     /// Path is relative to `out_dir/bin`.
-    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "Option::is_none")]
-    pub binary: Option<PathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "Option::is_none")]
+    pub binary: Option<Utf8UnixPathBuf>,
     /// If specified, the symbol's data will be extracted to the given file as a C array.
     /// Path is relative to `out_dir/include`.
-    #[serde(with = "path_slash_serde_option", default, skip_serializing_if = "Option::is_none")]
-    pub header: Option<PathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "Option::is_none")]
+    pub header: Option<Utf8UnixPathBuf>,
 }
 
 /// A relocation that should be blocked.
@@ -336,30 +328,20 @@ pub struct AddRelocationConfig {
 }
 
 impl ModuleConfig {
-    pub fn file_name(&self) -> Cow<'_, str> {
-        self.object.file_name().unwrap_or(self.object.as_os_str()).to_string_lossy()
+    pub fn file_name(&self) -> &str { self.object.file_name().unwrap_or(self.object.as_str()) }
+
+    pub fn file_prefix(&self) -> &str {
+        let file_name = self.file_name();
+        file_name.split_once('.').map(|(prefix, _)| prefix).unwrap_or(file_name)
     }
 
-    pub fn file_prefix(&self) -> Cow<'_, str> {
-        match self.file_name() {
-            Cow::Borrowed(s) => {
-                Cow::Borrowed(s.split_once('.').map(|(prefix, _)| prefix).unwrap_or(s))
-            }
-            Cow::Owned(s) => {
-                Cow::Owned(s.split_once('.').map(|(prefix, _)| prefix).unwrap_or(&s).to_string())
-            }
-        }
-    }
-
-    pub fn name(&self) -> Cow<'_, str> {
-        self.name.as_ref().map(|n| n.as_str().to_cow()).unwrap_or_else(|| self.file_prefix())
-    }
+    pub fn name(&self) -> &str { self.name.as_deref().unwrap_or_else(|| self.file_prefix()) }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
 pub struct OutputUnit {
-    #[serde(with = "path_slash_serde")]
-    pub object: PathBuf,
+    #[serde(with = "unix_path_serde")]
+    pub object: Utf8UnixPathBuf,
     pub name: String,
     pub autogenerated: bool,
     pub code_size: u32,
@@ -370,8 +352,8 @@ pub struct OutputUnit {
 pub struct OutputModule {
     pub name: String,
     pub module_id: u32,
-    #[serde(with = "path_slash_serde")]
-    pub ldscript: PathBuf,
+    #[serde(with = "unix_path_serde")]
+    pub ldscript: Utf8UnixPathBuf,
     pub entry: Option<String>,
     pub units: Vec<OutputUnit>,
 }
@@ -788,21 +770,21 @@ fn resolve_external_relocations(
 
 struct AnalyzeResult {
     obj: ObjInfo,
-    dep: Vec<PathBuf>,
+    dep: Vec<Utf8NativePathBuf>,
     symbols_cache: Option<FileReadInfo>,
     splits_cache: Option<FileReadInfo>,
 }
 
 fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<AnalyzeResult> {
     let object_path = object_base.join(&config.base.object);
-    log::debug!("Loading {}", object_path.display());
+    log::debug!("Loading {}", object_path);
     let mut obj = {
         let mut file = object_base.open(&config.base.object)?;
         let data = file.map()?;
         if let Some(hash_str) = &config.base.hash {
             verify_hash(data, hash_str)?;
         }
-        process_dol(data, config.base.name().as_ref())?
+        process_dol(data, config.base.name())?
     };
     let mut dep = vec![object_path];
 
@@ -811,20 +793,25 @@ fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<
     }
 
     if let Some(map_path) = &config.base.map {
-        apply_map_file(map_path, &mut obj, config.common_start, config.mw_comment_version)?;
-        dep.push(map_path.clone());
+        let map_path = map_path.with_encoding();
+        apply_map_file(&map_path, &mut obj, config.common_start, config.mw_comment_version)?;
+        dep.push(map_path);
     }
 
     let splits_cache = if let Some(splits_path) = &config.base.splits {
-        dep.push(splits_path.clone());
-        apply_splits_file(splits_path, &mut obj)?
+        let splits_path = splits_path.with_encoding();
+        let cache = apply_splits_file(&splits_path, &mut obj)?;
+        dep.push(splits_path);
+        cache
     } else {
         None
     };
 
     let symbols_cache = if let Some(symbols_path) = &config.base.symbols {
-        dep.push(symbols_path.clone());
-        apply_symbols_file(symbols_path, &mut obj)?
+        let symbols_path = symbols_path.with_encoding();
+        let cache = apply_symbols_file(&symbols_path, &mut obj)?;
+        dep.push(symbols_path);
+        cache
     } else {
         None
     };
@@ -850,8 +837,9 @@ fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<
     }
 
     if let Some(selfile) = &config.selfile {
-        log::info!("Loading {}", selfile.display());
-        let mut file = open_file(selfile, true)?;
+        let selfile: Utf8NativePathBuf = selfile.with_encoding();
+        log::info!("Loading {}", selfile);
+        let mut file = open_file(&selfile, true)?;
         let data = file.map()?;
         if let Some(hash) = &config.selfile_hash {
             verify_hash(data, hash)?;
@@ -872,8 +860,8 @@ fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<
 fn split_write_obj(
     module: &mut ModuleInfo,
     config: &ProjectConfig,
-    base_dir: &Path,
-    out_dir: &Path,
+    base_dir: &Utf8NativePath,
+    out_dir: &Utf8NativePath,
     no_update: bool,
 ) -> Result<OutputModule> {
     debug!("Performing relocation analysis");
@@ -904,10 +892,15 @@ fn split_write_obj(
     if !no_update {
         debug!("Writing configuration");
         if let Some(symbols_path) = &module.config.symbols {
-            write_symbols_file(symbols_path, &module.obj, module.symbols_cache)?;
+            write_symbols_file(&symbols_path.with_encoding(), &module.obj, module.symbols_cache)?;
         }
         if let Some(splits_path) = &module.config.splits {
-            write_splits_file(splits_path, &module.obj, false, module.splits_cache)?;
+            write_splits_file(
+                &splits_path.with_encoding(),
+                &module.obj,
+                false,
+                module.splits_cache,
+            )?;
         }
     }
 
@@ -919,7 +912,7 @@ fn split_write_obj(
     DirBuilder::new()
         .recursive(true)
         .create(out_dir)
-        .with_context(|| format!("Failed to create out dir '{}'", out_dir.display()))?;
+        .with_context(|| format!("Failed to create out dir '{}'", out_dir))?;
     let obj_dir = out_dir.join("obj");
     let entry = if module.obj.kind == ObjKind::Executable {
         module.obj.entry.and_then(|e| {
@@ -934,7 +927,7 @@ fn split_write_obj(
     let mut out_config = OutputModule {
         name: module_name,
         module_id,
-        ldscript: out_dir.join("ldscript.lcf"),
+        ldscript: out_dir.join("ldscript.lcf").with_unix_encoding(),
         units: Vec::with_capacity(split_objs.len()),
         entry,
     };
@@ -942,7 +935,7 @@ fn split_write_obj(
         let out_obj = write_elf(split_obj, config.export_all)?;
         let out_path = obj_dir.join(obj_path_for_unit(&unit.name));
         out_config.units.push(OutputUnit {
-            object: out_path.clone(),
+            object: out_path.with_unix_encoding(),
             name: unit.name.clone(),
             autogenerated: unit.autogenerated,
             code_size: split_obj.code_size(),
@@ -967,7 +960,7 @@ fn split_write_obj(
         let data = section.symbol_data(symbol)?;
 
         if let Some(binary) = &extract.binary {
-            let out_path = base_dir.join("bin").join(binary);
+            let out_path = base_dir.join("bin").join(binary.with_encoding());
             if let Some(parent) = out_path.parent() {
                 DirBuilder::new().recursive(true).create(parent)?;
             }
@@ -976,7 +969,7 @@ fn split_write_obj(
 
         if let Some(header) = &extract.header {
             let header_string = bin2c(symbol, section, data);
-            let out_path = base_dir.join("include").join(header);
+            let out_path = base_dir.join("include").join(header.with_encoding());
             if let Some(parent) = out_path.parent() {
                 DirBuilder::new().recursive(true).create(parent)?;
             }
@@ -985,16 +978,18 @@ fn split_write_obj(
     }
 
     // Generate ldscript.lcf
-    let ldscript_template = if let Some(template) = &module.config.ldscript_template {
-        Some(fs::read_to_string(template).with_context(|| {
-            format!("Failed to read linker script template '{}'", template.display())
+    let ldscript_template = if let Some(template_path) = &module.config.ldscript_template {
+        let template_path = template_path.with_encoding();
+        Some(fs::read_to_string(&template_path).with_context(|| {
+            format!("Failed to read linker script template '{}'", template_path)
         })?)
     } else {
         None
     };
     let ldscript_string =
         generate_ldscript(&module.obj, ldscript_template.as_deref(), &module.config.force_active)?;
-    write_if_changed(&out_config.ldscript, ldscript_string.as_bytes())?;
+    let ldscript_path = out_config.ldscript.with_encoding();
+    write_if_changed(&ldscript_path, ldscript_string.as_bytes())?;
 
     if config.write_asm {
         debug!("Writing disassembly");
@@ -1004,15 +999,15 @@ fn split_write_obj(
 
             let mut w = buf_writer(&out_path)?;
             write_asm(&mut w, split_obj)
-                .with_context(|| format!("Failed to write {}", out_path.display()))?;
+                .with_context(|| format!("Failed to write {}", out_path))?;
             w.flush()?;
         }
     }
     Ok(out_config)
 }
 
-fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
-    if path.is_file() {
+fn write_if_changed(path: &Utf8NativePath, contents: &[u8]) -> Result<()> {
+    if fs::metadata(path).is_ok_and(|m| m.is_file()) {
         let mut old_file = open_file(path, true)?;
         let old_data = old_file.map()?;
         // If the file is the same size, check if the contents are the same
@@ -1021,8 +1016,7 @@ fn write_if_changed(path: &Path, contents: &[u8]) -> Result<()> {
             return Ok(());
         }
     }
-    fs::write(path, contents)
-        .with_context(|| format!("Failed to write file '{}'", path.display()))?;
+    fs::write(path, contents).with_context(|| format!("Failed to write file '{}'", path))?;
     Ok(())
 }
 
@@ -1032,14 +1026,13 @@ fn load_analyze_rel(
     module_config: &ModuleConfig,
 ) -> Result<AnalyzeResult> {
     let object_path = object_base.join(&module_config.object);
-    debug!("Loading {}", object_path.display());
+    debug!("Loading {}", object_path);
     let mut file = object_base.open(&module_config.object)?;
     let data = file.map()?;
     if let Some(hash_str) = &module_config.hash {
         verify_hash(data, hash_str)?;
     }
-    let (header, mut module_obj) =
-        process_rel(&mut Cursor::new(data), module_config.name().as_ref())?;
+    let (header, mut module_obj) = process_rel(&mut Cursor::new(data), module_config.name())?;
 
     if let Some(comment_version) = config.mw_comment_version {
         module_obj.mw_comment = Some(MWComment::new(comment_version)?);
@@ -1047,20 +1040,25 @@ fn load_analyze_rel(
 
     let mut dep = vec![object_path];
     if let Some(map_path) = &module_config.map {
-        apply_map_file(map_path, &mut module_obj, None, None)?;
-        dep.push(map_path.clone());
+        let map_path = map_path.with_encoding();
+        apply_map_file(&map_path, &mut module_obj, None, None)?;
+        dep.push(map_path);
     }
 
     let splits_cache = if let Some(splits_path) = &module_config.splits {
-        dep.push(splits_path.clone());
-        apply_splits_file(splits_path, &mut module_obj)?
+        let splits_path = splits_path.with_encoding();
+        let cache = apply_splits_file(&splits_path, &mut module_obj)?;
+        dep.push(splits_path);
+        cache
     } else {
         None
     };
 
     let symbols_cache = if let Some(symbols_path) = &module_config.symbols {
-        dep.push(symbols_path.clone());
-        apply_symbols_file(symbols_path, &mut module_obj)?
+        let symbols_path = symbols_path.with_encoding();
+        let cache = apply_symbols_file(&symbols_path, &mut module_obj)?;
+        dep.push(symbols_path);
+        cache
     } else {
         None
     };
@@ -1100,7 +1098,7 @@ fn split(args: SplitArgs) -> Result<()> {
     }
 
     let command_start = Instant::now();
-    info!("Loading {}", args.config.display());
+    info!("Loading {}", args.config);
     let mut config: ProjectConfig = {
         let mut config_file = open_file(&args.config, true)?;
         serde_yaml::from_reader(config_file.as_mut())?
@@ -1302,7 +1300,7 @@ fn split(args: SplitArgs) -> Result<()> {
                         let _span =
                             info_span!("module", name = %module.config.name(), id = module.obj.module_id)
                                 .entered();
-                        let out_dir = args.out_dir.join(module.config.name().as_ref());
+                        let out_dir = args.out_dir.join(module.config.name());
                         split_write_obj(module, &config, &args.out_dir, &out_dir, args.no_update).with_context(
                             || {
                                 format!(
@@ -1363,7 +1361,7 @@ fn split(args: SplitArgs) -> Result<()> {
     // Write dep file
     {
         let dep_path = args.out_dir.join("dep");
-        let mut dep_file = buf_writer(dep_path)?;
+        let mut dep_file = buf_writer(&dep_path)?;
         dep.write(&mut dep_file)?;
         dep_file.flush()?;
     }
@@ -1379,8 +1377,7 @@ fn split(args: SplitArgs) -> Result<()> {
 }
 
 #[allow(dead_code)]
-fn validate<P>(obj: &ObjInfo, elf_file: P, state: &AnalyzerState) -> Result<()>
-where P: AsRef<Path> {
+fn validate(obj: &ObjInfo, elf_file: &Utf8NativePath, state: &AnalyzerState) -> Result<()> {
     let real_obj = process_elf(elf_file)?;
     for (section_index, real_section) in real_obj.sections.iter() {
         let obj_section = match obj.sections.get(section_index) {
@@ -1553,26 +1550,26 @@ fn symbol_name_fuzzy_eq(a: &ObjSymbol, b: &ObjSymbol) -> bool {
 }
 
 fn diff(args: DiffArgs) -> Result<()> {
-    log::info!("Loading {}", args.config.display());
+    log::info!("Loading {}", args.config);
     let mut config_file = open_file(&args.config, true)?;
     let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
     let object_base = find_object_base(&config)?;
 
-    log::info!("Loading {}", object_base.join(&config.base.object).display());
+    log::info!("Loading {}", object_base.join(&config.base.object));
     let mut obj = {
         let mut file = object_base.open(&config.base.object)?;
         let data = file.map()?;
         if let Some(hash_str) = &config.base.hash {
             verify_hash(data, hash_str)?;
         }
-        process_dol(data, config.base.name().as_ref())?
+        process_dol(data, config.base.name())?
     };
 
     if let Some(symbols_path) = &config.base.symbols {
-        apply_symbols_file(symbols_path, &mut obj)?;
+        apply_symbols_file(&symbols_path.with_encoding(), &mut obj)?;
     }
 
-    log::info!("Loading {}", args.elf_file.display());
+    log::info!("Loading {}", args.elf_file);
     let linked_obj = process_elf(&args.elf_file)?;
 
     let common_bss = obj.sections.common_bss_start();
@@ -1734,29 +1731,30 @@ fn diff(args: DiffArgs) -> Result<()> {
 }
 
 fn apply(args: ApplyArgs) -> Result<()> {
-    log::info!("Loading {}", args.config.display());
+    log::info!("Loading {}", args.config);
     let mut config_file = open_file(&args.config, true)?;
     let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
     let object_base = find_object_base(&config)?;
 
-    log::info!("Loading {}", object_base.join(&config.base.object).display());
+    log::info!("Loading {}", object_base.join(&config.base.object));
     let mut obj = {
         let mut file = object_base.open(&config.base.object)?;
         let data = file.map()?;
         if let Some(hash_str) = &config.base.hash {
             verify_hash(data, hash_str)?;
         }
-        process_dol(data, config.base.name().as_ref())?
+        process_dol(data, config.base.name())?
     };
 
     let Some(symbols_path) = &config.base.symbols else {
         bail!("No symbols file specified in config");
     };
-    let Some(symbols_cache) = apply_symbols_file(symbols_path, &mut obj)? else {
-        bail!("Symbols file '{}' does not exist", symbols_path.display());
+    let symbols_path = symbols_path.with_encoding();
+    let Some(symbols_cache) = apply_symbols_file(&symbols_path, &mut obj)? else {
+        bail!("Symbols file '{}' does not exist", symbols_path);
     };
 
-    log::info!("Loading {}", args.elf_file.display());
+    log::info!("Loading {}", args.elf_file);
     let linked_obj = process_elf(&args.elf_file)?;
 
     let mut replacements: Vec<(SymbolIndex, Option<ObjSymbol>)> = vec![];
@@ -1892,7 +1890,8 @@ fn apply(args: ApplyArgs) -> Result<()> {
         }
     }
 
-    write_symbols_file(config.base.symbols.as_ref().unwrap(), &obj, Some(symbols_cache))?;
+    let symbols_path = config.base.symbols.as_ref().unwrap();
+    write_symbols_file(&symbols_path.with_encoding(), &obj, Some(symbols_cache))?;
 
     Ok(())
 }
@@ -1902,39 +1901,41 @@ fn config(args: ConfigArgs) -> Result<()> {
     let mut modules = Vec::<(u32, ModuleConfig)>::new();
     for result in FileIterator::new(&args.objects)? {
         let (path, mut entry) = result?;
-        log::info!("Loading {}", path.display());
-
-        match path.extension() {
-            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("dol")) => {
-                config.base.object = path;
+        log::info!("Loading {}", path);
+        let Some(ext) = path.extension() else {
+            bail!("No file extension for {}", path);
+        };
+        match ext.to_ascii_lowercase().as_str() {
+            "dol" => {
+                config.base.object = path.with_unix_encoding();
                 config.base.hash = Some(file_sha1_string(&mut entry)?);
             }
-            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rel")) => {
+            "rel" => {
                 let header = process_rel_header(&mut entry)?;
                 entry.rewind()?;
                 modules.push((header.module_id, ModuleConfig {
-                    object: path,
+                    object: path.with_unix_encoding(),
                     hash: Some(file_sha1_string(&mut entry)?),
                     ..Default::default()
                 }));
             }
-            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("sel")) => {
-                config.selfile = Some(path);
+            "sel" => {
+                config.selfile = Some(path.with_unix_encoding());
                 config.selfile_hash = Some(file_sha1_string(&mut entry)?);
             }
-            Some(ext) if ext.eq_ignore_ascii_case(OsStr::new("rso")) => {
+            "rso" => {
                 config.modules.push(ModuleConfig {
-                    object: path,
+                    object: path.with_unix_encoding(),
                     hash: Some(file_sha1_string(&mut entry)?),
                     ..Default::default()
                 });
             }
-            _ => bail!("Unknown file extension: '{}'", path.display()),
+            _ => bail!("Unknown file extension: '{}'", ext),
         }
     }
     modules.sort_by(|(a_id, a_config), (b_id, b_config)| {
         // Sort by module ID, then by name
-        a_id.cmp(b_id).then(a_config.name().cmp(&b_config.name()))
+        a_id.cmp(b_id).then(a_config.name().cmp(b_config.name()))
     });
     config.modules.extend(modules.into_iter().map(|(_, m)| m));
 
@@ -1999,49 +2000,50 @@ fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig])
 
 pub enum ObjectBase {
     None,
-    Directory(PathBuf),
-    Vfs(PathBuf, Box<dyn Vfs + Send + Sync>),
+    Directory(Utf8NativePathBuf),
+    Vfs(Utf8NativePathBuf, Box<dyn Vfs + Send + Sync>),
 }
 
 impl ObjectBase {
-    pub fn join(&self, path: &Path) -> PathBuf {
+    pub fn join(&self, path: &Utf8UnixPath) -> Utf8NativePathBuf {
         match self {
-            ObjectBase::None => path.to_path_buf(),
-            ObjectBase::Directory(base) => base.join(path),
-            ObjectBase::Vfs(base, _) => {
-                PathBuf::from(format!("{}:{}", base.display(), path.display()))
-            }
+            ObjectBase::None => path.with_encoding(),
+            ObjectBase::Directory(base) => base.join(path.with_encoding()),
+            ObjectBase::Vfs(base, _) => Utf8NativePathBuf::from(format!("{}:{}", base, path)),
         }
     }
 
-    pub fn open(&self, path: &Path) -> Result<Box<dyn VfsFile>> {
+    pub fn open(&self, path: &Utf8UnixPath) -> Result<Box<dyn VfsFile>> {
         match self {
-            ObjectBase::None => open_file(path, true),
-            ObjectBase::Directory(base) => open_file(&base.join(path), true),
-            ObjectBase::Vfs(vfs_path, vfs) => open_file_with_fs(vfs.clone(), path, true)
-                .with_context(|| format!("Using disc image {}", vfs_path.display())),
+            ObjectBase::None => open_file(&path.with_encoding(), true),
+            ObjectBase::Directory(base) => open_file(&base.join(path.with_encoding()), true),
+            ObjectBase::Vfs(vfs_path, vfs) => {
+                open_file_with_fs(vfs.clone(), &path.with_encoding(), true)
+                    .with_context(|| format!("Using disc image {}", vfs_path))
+            }
         }
     }
 }
 
 pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
     if let Some(base) = &config.object_base {
+        let base = base.with_encoding();
         // Search for disc images in the object base directory
-        for result in base.read_dir()? {
+        for result in fs::read_dir(&base)? {
             let entry = result?;
             if entry.file_type()?.is_file() {
-                let path = entry.path();
+                let path = check_path_buf(entry.path())?;
                 let mut file = open_file(&path, false)?;
                 let format = nodtool::nod::Disc::detect(file.as_mut())?;
                 if let Some(format) = format {
                     file.rewind()?;
-                    log::info!("Using disc image {}", path.display());
+                    log::info!("Using disc image {}", path);
                     let fs = open_fs(file, ArchiveKind::Disc(format))?;
                     return Ok(ObjectBase::Vfs(path, fs));
                 }
             }
         }
-        return Ok(ObjectBase::Directory(base.clone()));
+        return Ok(ObjectBase::Directory(base));
     }
     Ok(ObjectBase::None)
 }

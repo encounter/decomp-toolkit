@@ -1,13 +1,11 @@
-use std::{
-    collections::{btree_map, BTreeMap},
-    path::Path,
-};
+use std::collections::{btree_map, BTreeMap};
 
 use anyhow::{anyhow, bail, ensure, Result};
 use base64::{engine::general_purpose::STANDARD, Engine};
 use cwdemangle::{demangle, DemangleOptions};
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
+use typed_path::Utf8NativePath;
 
 use crate::{
     analysis::{
@@ -246,8 +244,10 @@ pub fn compare_signature(existing: &mut FunctionSignature, new: &FunctionSignatu
     Ok(())
 }
 
-pub fn generate_signature<P>(path: P, symbol_name: &str) -> Result<Option<FunctionSignature>>
-where P: AsRef<Path> {
+pub fn generate_signature(
+    path: &Utf8NativePath,
+    symbol_name: &str,
+) -> Result<Option<FunctionSignature>> {
     let mut out_symbols: Vec<OutSymbol> = Vec::new();
     let mut out_relocs: Vec<OutReloc> = Vec::new();
     let mut symbol_map: BTreeMap<SymbolIndex, u32> = BTreeMap::new();

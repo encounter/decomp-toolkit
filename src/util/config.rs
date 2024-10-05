@@ -2,7 +2,6 @@ use std::{
     fs,
     io::{BufRead, Write},
     num::ParseIntError,
-    path::Path,
     str::FromStr,
 };
 
@@ -12,6 +11,7 @@ use filetime::FileTime;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
 use tracing::{debug, info, warn};
+use typed_path::Utf8NativePath;
 use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
@@ -45,10 +45,11 @@ pub fn parse_i32(s: &str) -> Result<i32, ParseIntError> {
     }
 }
 
-pub fn apply_symbols_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileReadInfo>>
-where P: AsRef<Path> {
-    let path = path.as_ref();
-    Ok(if path.is_file() {
+pub fn apply_symbols_file(
+    path: &Utf8NativePath,
+    obj: &mut ObjInfo,
+) -> Result<Option<FileReadInfo>> {
+    Ok(if fs::metadata(path).is_ok_and(|m| m.is_file()) {
         let mut file = open_file(path, true)?;
         let cached = FileReadInfo::new(file.as_mut())?;
         for result in file.lines() {
@@ -199,19 +200,21 @@ pub fn is_auto_label(symbol: &ObjSymbol) -> bool { symbol.name.starts_with("lbl_
 
 pub fn is_auto_jump_table(symbol: &ObjSymbol) -> bool { symbol.name.starts_with("jumptable_") }
 
-fn write_if_unchanged<P, Cb>(path: P, cb: Cb, cached_file: Option<FileReadInfo>) -> Result<()>
+fn write_if_unchanged<Cb>(
+    path: &Utf8NativePath,
+    cb: Cb,
+    cached_file: Option<FileReadInfo>,
+) -> Result<()>
 where
-    P: AsRef<Path>,
     Cb: FnOnce(&mut dyn Write) -> Result<()>,
 {
     if let Some(cached_file) = cached_file {
         // Check file mtime
-        let path = path.as_ref();
         let new_mtime = fs::metadata(path).ok().map(|m| FileTime::from_last_modification_time(&m));
         if let (Some(new_mtime), Some(old_mtime)) = (new_mtime, cached_file.mtime) {
             if new_mtime != old_mtime {
                 // File changed, don't write
-                warn!(path = %path.display(), "File changed since read, not updating");
+                warn!(path = %path, "File changed since read, not updating");
                 return Ok(());
             }
         }
@@ -221,12 +224,12 @@ where
         cb(&mut buf)?;
         if xxh3_64(&buf) == cached_file.hash {
             // No changes
-            debug!(path = %path.display(), "File unchanged");
+            debug!(path = %path, "File unchanged");
             return Ok(());
         }
 
         // Write to file
-        info!("Writing updated {}", path.display());
+        info!("Writing updated {}", path);
         fs::write(path, &buf)?;
     } else {
         // Write directly
@@ -238,14 +241,11 @@ where
 }
 
 #[inline]
-pub fn write_symbols_file<P>(
-    path: P,
+pub fn write_symbols_file(
+    path: &Utf8NativePath,
     obj: &ObjInfo,
     cached_file: Option<FileReadInfo>,
-) -> Result<()>
-where
-    P: AsRef<Path>,
-{
+) -> Result<()> {
     write_if_unchanged(path, |w| write_symbols(w, obj), cached_file)
 }
 
@@ -413,15 +413,12 @@ fn section_kind_to_str(kind: ObjSectionKind) -> &'static str {
 }
 
 #[inline]
-pub fn write_splits_file<P>(
-    path: P,
+pub fn write_splits_file(
+    path: &Utf8NativePath,
     obj: &ObjInfo,
     all: bool,
     cached_file: Option<FileReadInfo>,
-) -> Result<()>
-where
-    P: AsRef<Path>,
-{
+) -> Result<()> {
     write_if_unchanged(path, |w| write_splits(w, obj, all), cached_file)
 }
 
@@ -625,10 +622,8 @@ enum SplitState {
     Unit(String),
 }
 
-pub fn apply_splits_file<P>(path: P, obj: &mut ObjInfo) -> Result<Option<FileReadInfo>>
-where P: AsRef<Path> {
-    let path = path.as_ref();
-    Ok(if path.is_file() {
+pub fn apply_splits_file(path: &Utf8NativePath, obj: &mut ObjInfo) -> Result<Option<FileReadInfo>> {
+    Ok(if fs::metadata(path).is_ok_and(|m| m.is_file()) {
         let mut file = open_file(path, true)?;
         let cached = FileReadInfo::new(file.as_mut())?;
         apply_splits(file.as_mut(), obj)?;
@@ -738,10 +733,8 @@ where R: BufRead + ?Sized {
     Ok(())
 }
 
-pub fn read_splits_sections<P>(path: P) -> Result<Option<Vec<SectionDef>>>
-where P: AsRef<Path> {
-    let path = path.as_ref();
-    if !path.is_file() {
+pub fn read_splits_sections(path: &Utf8NativePath) -> Result<Option<Vec<SectionDef>>> {
+    if !fs::metadata(path).is_ok_and(|m| m.is_file()) {
         return Ok(None);
     }
     let file = open_file(path, true)?;

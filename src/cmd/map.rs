@@ -1,14 +1,16 @@
-use std::{fs::DirBuilder, path::PathBuf};
+use std::fs::DirBuilder;
 
 use anyhow::{bail, ensure, Result};
 use argp::FromArgs;
 use cwdemangle::{demangle, DemangleOptions};
 use tracing::error;
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
     util::{
         config::{write_splits_file, write_symbols_file},
         map::{create_obj, process_map, SymbolEntry, SymbolRef},
+        path::native_path,
         split::update_splits,
     },
     vfs::open_file,
@@ -34,9 +36,9 @@ enum SubCommand {
 /// Displays all entries for a particular TU.
 #[argp(subcommand, name = "entries")]
 pub struct EntriesArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// path to input map
-    map_file: PathBuf,
+    map_file: Utf8NativePathBuf,
     #[argp(positional)]
     /// TU to display entries for
     unit: String,
@@ -46,9 +48,9 @@ pub struct EntriesArgs {
 /// Displays all references to a symbol.
 #[argp(subcommand, name = "symbol")]
 pub struct SymbolArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// path to input map
-    map_file: PathBuf,
+    map_file: Utf8NativePathBuf,
     #[argp(positional)]
     /// symbol to display references for
     symbol: String,
@@ -58,12 +60,12 @@ pub struct SymbolArgs {
 /// Generates project configuration files from a map. (symbols.txt, splits.txt)
 #[argp(subcommand, name = "config")]
 pub struct ConfigArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// path to input map
-    map_file: PathBuf,
-    #[argp(positional)]
+    map_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// output directory for symbols.txt and splits.txt
-    out_dir: PathBuf,
+    out_dir: Utf8NativePathBuf,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -189,8 +191,8 @@ fn config(args: ConfigArgs) -> Result<()> {
         error!("Failed to update splits: {}", e)
     }
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
-    write_symbols_file(args.out_dir.join("symbols.txt"), &obj, None)?;
-    write_splits_file(args.out_dir.join("splits.txt"), &obj, false, None)?;
+    write_symbols_file(&args.out_dir.join("symbols.txt"), &obj, None)?;
+    write_splits_file(&args.out_dir.join("splits.txt"), &obj, false, None)?;
     log::info!("Done!");
     Ok(())
 }

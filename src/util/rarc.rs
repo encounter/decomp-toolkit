@@ -1,5 +1,6 @@
 use std::{borrow::Cow, ffi::CStr};
 
+use typed_path::Utf8UnixPath;
 use zerocopy::{big_endian::*, FromBytes, Immutable, IntoBytes, KnownLayout};
 
 use crate::{static_assert, vfs::next_non_empty};
@@ -223,8 +224,8 @@ impl<'a> RarcView<'a> {
     }
 
     /// Finds a particular file or directory by path.
-    pub fn find(&self, path: &str) -> Option<RarcNodeKind> {
-        let mut split = path.split('/');
+    pub fn find(&self, path: &Utf8UnixPath) -> Option<RarcNodeKind> {
+        let mut split = path.as_str().split('/');
         let mut current = next_non_empty(&mut split);
 
         let mut dir_idx = 0;

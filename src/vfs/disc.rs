@@ -9,6 +9,7 @@ use nodtool::{
     nod,
     nod::{Disc, DiscStream, Fst, NodeKind, OwnedFileStream, PartitionBase, PartitionMeta},
 };
+use typed_path::Utf8UnixPath;
 use zerocopy::IntoBytes;
 
 use super::{
@@ -46,8 +47,8 @@ impl DiscFs {
         Ok(Self { disc, base, meta, mtime })
     }
 
-    fn find(&self, path: &str) -> VfsResult<DiscNode> {
-        let path = path.trim_matches('/');
+    fn find(&self, path: &Utf8UnixPath) -> VfsResult<DiscNode> {
+        let path = path.as_str().trim_matches('/');
         let mut split = path.split('/');
         let mut segment = next_non_empty(&mut split);
         match segment.to_ascii_lowercase().as_str() {
@@ -116,7 +117,7 @@ impl DiscFs {
 }
 
 impl Vfs for DiscFs {
-    fn open(&mut self, path: &str) -> VfsResult<Box<dyn VfsFile>> {
+    fn open(&mut self, path: &Utf8UnixPath) -> VfsResult<Box<dyn VfsFile>> {
         match self.find(path)? {
             DiscNode::None => Err(VfsError::NotFound),
             DiscNode::Special(_) => Err(VfsError::IsADirectory),
@@ -140,11 +141,11 @@ impl Vfs for DiscFs {
         }
     }
 
-    fn exists(&mut self, path: &str) -> VfsResult<bool> {
+    fn exists(&mut self, path: &Utf8UnixPath) -> VfsResult<bool> {
         Ok(!matches!(self.find(path)?, DiscNode::None))
     }
 
-    fn read_dir(&mut self, path: &str) -> VfsResult<Vec<String>> {
+    fn read_dir(&mut self, path: &Utf8UnixPath) -> VfsResult<Vec<String>> {
         match self.find(path)? {
             DiscNode::None => Err(VfsError::NotFound),
             DiscNode::Special(SpecialDir::Root) => {
@@ -211,7 +212,7 @@ impl Vfs for DiscFs {
         }
     }
 
-    fn metadata(&mut self, path: &str) -> VfsResult<VfsMetadata> {
+    fn metadata(&mut self, path: &Utf8UnixPath) -> VfsResult<VfsMetadata> {
         match self.find(path)? {
             DiscNode::None => Err(VfsError::NotFound),
             DiscNode::Special(_) => {

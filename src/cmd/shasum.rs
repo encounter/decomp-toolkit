@@ -1,17 +1,19 @@
 use std::{
     fs::File,
     io::{stdout, BufRead, Read, Write},
-    path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
 use owo_colors::{OwoColorize, Stream};
-use path_slash::PathExt;
 use sha1::{Digest, Sha1};
+use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 
 use crate::{
-    util::file::{buf_writer, process_rsp, touch},
+    util::{
+        file::{buf_writer, process_rsp, touch},
+        path::native_path,
+    },
     vfs::open_file,
 };
 
@@ -22,13 +24,13 @@ pub struct Args {
     #[argp(switch, short = 'c')]
     /// check SHA sums against given list
     check: bool,
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// path to input file(s)
-    files: Vec<PathBuf>,
-    #[argp(option, short = 'o')]
+    files: Vec<Utf8NativePathBuf>,
+    #[argp(option, short = 'o', from_str_fn(native_path))]
     /// (check) touch output file on successful check
     /// (hash) write hash(es) to output file
-    output: Option<PathBuf>,
+    output: Option<Utf8NativePathBuf>,
     #[argp(switch, short = 'q')]
     /// only print failures and a summary
     quiet: bool,
@@ -44,17 +46,17 @@ pub fn run(args: Args) -> Result<()> {
         }
         if let Some(out_path) = &args.output {
             touch(out_path)
-                .with_context(|| format!("Failed to touch output file '{}'", out_path.display()))?;
+                .with_context(|| format!("Failed to touch output file '{}'", out_path))?;
         }
     } else {
-        let mut w: Box<dyn Write> =
-            if let Some(out_path) = &args.output {
-                Box::new(buf_writer(out_path).with_context(|| {
-                    format!("Failed to open output file '{}'", out_path.display())
-                })?)
-            } else {
-                Box::new(stdout())
-            };
+        let mut w: Box<dyn Write> = if let Some(out_path) = &args.output {
+            Box::new(
+                buf_writer(out_path)
+                    .with_context(|| format!("Failed to open output file '{}'", out_path))?,
+            )
+        } else {
+            Box::new(stdout())
+        };
         for path in process_rsp(&args.files)? {
             let mut file = open_file(&path, false)?;
             hash(w.as_mut(), file.as_mut(), &path)?
@@ -114,7 +116,7 @@ where R: BufRead + ?Sized {
     Ok(())
 }
 
-fn hash<R, W>(w: &mut W, reader: &mut R, path: &Path) -> Result<()>
+fn hash<R, W>(w: &mut W, reader: &mut R, path: &Utf8NativePath) -> Result<()>
 where
     R: Read + ?Sized,
     W: Write + ?Sized,
@@ -123,7 +125,7 @@ where
     let mut hash_buf = [0u8; 40];
     let hash_str = base16ct::lower::encode_str(&hash, &mut hash_buf)
         .map_err(|e| anyhow!("Failed to encode hash: {e}"))?;
-    writeln!(w, "{}  {}", hash_str, path.to_slash_lossy())?;
+    writeln!(w, "{}  {}", hash_str, path.with_unix_encoding())?;
     Ok(())
 }
 

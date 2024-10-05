@@ -1,33 +1,32 @@
 use std::{
+    fs,
     fs::{DirBuilder, File, OpenOptions},
     io,
     io::{BufRead, BufWriter, Read, Seek, SeekFrom},
-    path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, Context, Result};
 use filetime::{set_file_mtime, FileTime};
-use path_slash::PathBufExt;
 use sha1::{Digest, Sha1};
+use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPathBuf};
 use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
     array_ref,
     util::{
         ncompress::{decompress_yay0, decompress_yaz0, YAY0_MAGIC, YAZ0_MAGIC},
+        path::check_path_buf,
         Bytes,
     },
     vfs::{open_file, VfsFile},
 };
 
 /// Creates a buffered writer around a file (not memory mapped).
-pub fn buf_writer<P>(path: P) -> Result<BufWriter<File>>
-where P: AsRef<Path> {
-    if let Some(parent) = path.as_ref().parent() {
+pub fn buf_writer(path: &Utf8NativePath) -> Result<BufWriter<File>> {
+    if let Some(parent) = path.parent() {
         DirBuilder::new().recursive(true).create(parent)?;
     }
-    let file = File::create(&path)
-        .with_context(|| format!("Failed to create file '{}'", path.as_ref().display()))?;
+    let file = File::create(path).with_context(|| format!("Failed to create file '{}'", path))?;
     Ok(BufWriter::new(file))
 }
 
@@ -61,22 +60,21 @@ where R: Read + Seek + ?Sized {
 }
 
 /// Process response files (starting with '@') and glob patterns (*).
-pub fn process_rsp(files: &[PathBuf]) -> Result<Vec<PathBuf>> {
-    let mut out = Vec::with_capacity(files.len());
+pub fn process_rsp(files: &[Utf8NativePathBuf]) -> Result<Vec<Utf8NativePathBuf>> {
+    let mut out = Vec::<Utf8NativePathBuf>::with_capacity(files.len());
     for path in files {
-        let path_str =
-            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
-        if let Some(rsp_file) = path_str.strip_prefix('@') {
-            let file = open_file(Path::new(rsp_file), true)?;
+        if let Some(rsp_file) = path.as_str().strip_prefix('@') {
+            let file = open_file(Utf8NativePath::new(rsp_file), true)?;
             for result in file.lines() {
                 let line = result?;
                 if !line.is_empty() {
-                    out.push(PathBuf::from_slash(line));
+                    out.push(Utf8UnixPathBuf::from(line).with_encoding());
                 }
             }
-        } else if path_str.contains('*') {
-            for entry in glob::glob(path_str)? {
-                out.push(entry?);
+        } else if path.as_str().contains('*') {
+            for entry in glob::glob(path.as_str())? {
+                let path = check_path_buf(entry?)?;
+                out.push(path.with_encoding());
             }
         } else {
             out.push(path.clone());
@@ -106,16 +104,16 @@ impl FileReadInfo {
 /// If a file is a RARC archive, iterate over its contents.
 /// If a file is a Yaz0 compressed file, decompress it.
 pub struct FileIterator {
-    paths: Vec<PathBuf>,
+    paths: Vec<Utf8NativePathBuf>,
     index: usize,
 }
 
 impl FileIterator {
-    pub fn new(paths: &[PathBuf]) -> Result<Self> {
+    pub fn new(paths: &[Utf8NativePathBuf]) -> Result<Self> {
         Ok(Self { paths: process_rsp(paths)?, index: 0 })
     }
 
-    fn next_path(&mut self) -> Option<Result<(PathBuf, Box<dyn VfsFile>)>> {
+    fn next_path(&mut self) -> Option<Result<(Utf8NativePathBuf, Box<dyn VfsFile>)>> {
         if self.index >= self.paths.len() {
             return None;
         }
@@ -130,14 +128,13 @@ impl FileIterator {
 }
 
 impl Iterator for FileIterator {
-    type Item = Result<(PathBuf, Box<dyn VfsFile>)>;
+    type Item = Result<(Utf8NativePathBuf, Box<dyn VfsFile>)>;
 
     fn next(&mut self) -> Option<Self::Item> { self.next_path() }
 }
 
-pub fn touch<P>(path: P) -> io::Result<()>
-where P: AsRef<Path> {
-    if path.as_ref().exists() {
+pub fn touch(path: &Utf8NativePath) -> io::Result<()> {
+    if fs::exists(path)? {
         set_file_mtime(path, FileTime::now())
     } else {
         match OpenOptions::new().create(true).truncate(true).write(true).open(path) {

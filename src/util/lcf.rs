@@ -1,8 +1,6 @@
-use std::path::PathBuf;
-
 use anyhow::Result;
 use itertools::Itertools;
-use path_slash::PathBufExt;
+use typed_path::{Utf8NativePathBuf, Utf8UnixPath};
 
 use crate::obj::{ObjInfo, ObjKind};
 
@@ -33,7 +31,7 @@ pub fn generate_ldscript(
     let mut force_files = Vec::with_capacity(obj.link_order.len());
     for unit in &obj.link_order {
         let obj_path = obj_path_for_unit(&unit.name);
-        force_files.push(obj_path.file_name().unwrap().to_str().unwrap().to_string());
+        force_files.push(obj_path.file_name().unwrap().to_string());
     }
 
     let mut force_active = force_active.to_vec();
@@ -82,7 +80,7 @@ pub fn generate_ldscript_partial(
     let mut force_files = Vec::with_capacity(obj.link_order.len());
     for unit in &obj.link_order {
         let obj_path = obj_path_for_unit(&unit.name);
-        force_files.push(obj_path.file_name().unwrap().to_str().unwrap().to_string());
+        force_files.push(obj_path.file_name().unwrap().to_string());
     }
 
     let mut force_active = force_active.to_vec();
@@ -99,6 +97,10 @@ pub fn generate_ldscript_partial(
     Ok(out)
 }
 
-pub fn obj_path_for_unit(unit: &str) -> PathBuf { PathBuf::from_slash(unit).with_extension("o") }
+pub fn obj_path_for_unit(unit: &str) -> Utf8NativePathBuf {
+    Utf8UnixPath::new(unit).with_encoding().with_extension("o")
+}
 
-pub fn asm_path_for_unit(unit: &str) -> PathBuf { PathBuf::from_slash(unit).with_extension("s") }
+pub fn asm_path_for_unit(unit: &str) -> Utf8NativePathBuf {
+    Utf8UnixPath::new(unit).with_encoding().with_extension("s")
+}

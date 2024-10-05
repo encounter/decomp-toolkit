@@ -20,6 +20,7 @@ use object::{
     Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
     RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection,
 };
+use typed_path::Utf8NativePath;
 
 use crate::{
     array_ref,
@@ -46,9 +47,7 @@ enum BoundaryState {
     FilesEnded,
 }
 
-pub fn process_elf<P>(path: P) -> Result<ObjInfo>
-where P: AsRef<Path> {
-    let path = path.as_ref();
+pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
     let mut file = open_file(path, true)?;
     let obj_file = object::read::File::parse(file.map()?)?;
     let architecture = match obj_file.architecture() {

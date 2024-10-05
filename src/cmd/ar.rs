@@ -2,15 +2,18 @@ use std::{
     collections::{btree_map::Entry, BTreeMap},
     fs::File,
     io::Write,
-    path::PathBuf,
 };
 
 use anyhow::{anyhow, bail, Context, Result};
 use argp::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    util::file::{buf_writer, process_rsp},
+    util::{
+        file::{buf_writer, process_rsp},
+        path::native_path,
+    },
     vfs::open_file,
 };
 
@@ -33,24 +36,24 @@ enum SubCommand {
 /// Creates a static library.
 #[argp(subcommand, name = "create")]
 pub struct CreateArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// output file
-    out: PathBuf,
-    #[argp(positional)]
+    out: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// input files
-    files: Vec<PathBuf>,
+    files: Vec<Utf8NativePathBuf>,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Extracts a static library.
 #[argp(subcommand, name = "extract")]
 pub struct ExtractArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input files
-    files: Vec<PathBuf>,
-    #[argp(option, short = 'o')]
+    files: Vec<Utf8NativePathBuf>,
+    #[argp(option, short = 'o', from_str_fn(native_path))]
     /// output directory
-    out: Option<PathBuf>,
+    out: Option<Utf8NativePathBuf>,
     #[argp(switch, short = 'q')]
     /// quiet output
     quiet: bool,
@@ -74,14 +77,13 @@ fn create(args: CreateArgs) -> Result<()> {
     let mut identifiers = Vec::with_capacity(files.len());
     let mut symbol_table = BTreeMap::new();
     for path in &files {
-        let path_str =
-            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
-        let identifier = path_str.as_bytes().to_vec();
+        let unix_path = path.with_unix_encoding();
+        let identifier = unix_path.as_str().as_bytes().to_vec();
         identifiers.push(identifier.clone());
 
         let entries = match symbol_table.entry(identifier) {
             Entry::Vacant(e) => e.insert(Vec::new()),
-            Entry::Occupied(_) => bail!("Duplicate file name '{path_str}'"),
+            Entry::Occupied(_) => bail!("Duplicate file name '{unix_path}'"),
         };
         let mut file = open_file(path, false)?;
         let obj = object::File::parse(file.map()?)?;
@@ -102,10 +104,8 @@ fn create(args: CreateArgs) -> Result<()> {
         symbol_table,
     )?;
     for path in files {
-        let path_str =
-            path.to_str().ok_or_else(|| anyhow!("'{}' is not valid UTF-8", path.display()))?;
         let mut file = File::open(&path)?;
-        builder.append_file(path_str.as_bytes(), &mut file)?;
+        builder.append_file(path.as_str().as_bytes(), &mut file)?;
     }
     builder.into_inner()?.flush()?;
     Ok(())
@@ -118,7 +118,8 @@ fn extract(args: ExtractArgs) -> Result<()> {
     // Extract files
     let mut num_files = 0;
     for path in &files {
-        let mut out_dir = if let Some(out) = &args.out { out.clone() } else { PathBuf::new() };
+        let mut out_dir =
+            if let Some(out) = &args.out { out.clone() } else { Utf8NativePathBuf::new() };
         // If there are multiple files, extract to separate directories
         if files.len() > 1 {
             out_dir
@@ -126,14 +127,13 @@ fn extract(args: ExtractArgs) -> Result<()> {
         }
         std::fs::create_dir_all(&out_dir)?;
         if !args.quiet {
-            println!("Extracting {} to {}", path.display(), out_dir.display());
+            println!("Extracting {} to {}", path, out_dir);
         }
 
         let mut file = open_file(path, false)?;
         let mut archive = ar::Archive::new(file.map()?);
         while let Some(entry) = archive.next_entry() {
-            let mut entry =
-                entry.with_context(|| format!("Processing entry in {}", path.display()))?;
+            let mut entry = entry.with_context(|| format!("Processing entry in {}", path))?;
             let file_name = std::str::from_utf8(entry.header().identifier())?;
             if !args.quiet && args.verbose {
                 println!("\t{}", file_name);
@@ -146,7 +146,7 @@ fn extract(args: ExtractArgs) -> Result<()> {
                 std::fs::create_dir_all(parent)?;
             }
             let mut file = File::create(&file_path)
-                .with_context(|| format!("Failed to create file {}", file_path.display()))?;
+                .with_context(|| format!("Failed to create file {}", file_path))?;
             std::io::copy(&mut entry, &mut file)?;
             file.flush()?;
 

@@ -5,7 +5,6 @@ use std::{
     hash::Hash,
     io::BufRead,
     mem::{replace, take},
-    path::Path,
 };
 
 use anyhow::{anyhow, bail, Error, Result};
@@ -16,6 +15,7 @@ use itertools::Itertools;
 use multimap::MultiMap;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
+use typed_path::Utf8NativePath;
 
 use crate::{
     obj::{
@@ -26,6 +26,7 @@ use crate::{
     util::nested::NestedVec,
     vfs::open_file,
 };
+
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum SymbolKind {
     Function,
@@ -713,16 +714,13 @@ where
     Ok(sm.result)
 }
 
-pub fn apply_map_file<P>(
-    path: P,
+pub fn apply_map_file(
+    path: &Utf8NativePath,
     obj: &mut ObjInfo,
     common_bss_start: Option<u32>,
     mw_comment_version: Option<u8>,
-) -> Result<()>
-where
-    P: AsRef<Path>,
-{
-    let mut file = open_file(path.as_ref(), true)?;
+) -> Result<()> {
+    let mut file = open_file(path, true)?;
     let info = process_map(file.as_mut(), common_bss_start, mw_comment_version)?;
     apply_map(info, obj)
 }

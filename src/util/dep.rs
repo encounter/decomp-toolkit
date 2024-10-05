@@ -1,41 +1,39 @@
-use std::{
-    io::Write,
-    path::{Path, PathBuf},
-};
+use std::io::Write;
 
 use itertools::Itertools;
+use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPathBuf};
 
 pub struct DepFile {
-    pub name: String,
-    pub dependencies: Vec<String>,
+    pub name: Utf8UnixPathBuf,
+    pub dependencies: Vec<Utf8UnixPathBuf>,
 }
 
-fn normalize_path(path: &Path) -> String {
-    let path = path.to_string_lossy().replace('\\', "/");
-    path.split_once(':').map(|(p, _)| p.to_string()).unwrap_or(path)
+fn normalize_path(path: Utf8NativePathBuf) -> Utf8UnixPathBuf {
+    if let Some((a, _)) = path.as_str().split_once(':') {
+        Utf8NativePath::new(a).with_unix_encoding()
+    } else {
+        path.with_unix_encoding()
+    }
 }
 
 impl DepFile {
-    pub fn new(name: PathBuf) -> Self {
-        Self { name: name.to_string_lossy().into_owned(), dependencies: vec![] }
+    pub fn new(name: Utf8NativePathBuf) -> Self {
+        Self { name: name.with_unix_encoding(), dependencies: vec![] }
     }
 
-    pub fn push<P>(&mut self, dependency: P)
-    where P: AsRef<Path> {
-        let path = dependency.as_ref().to_string_lossy().replace('\\', "/");
-        let path = path.split_once(':').map(|(p, _)| p.to_string()).unwrap_or(path);
-        self.dependencies.push(path);
+    pub fn push(&mut self, dependency: Utf8NativePathBuf) {
+        self.dependencies.push(normalize_path(dependency));
     }
 
-    pub fn extend(&mut self, dependencies: Vec<PathBuf>) {
-        self.dependencies.extend(dependencies.iter().map(|dependency| normalize_path(dependency)));
+    pub fn extend(&mut self, dependencies: Vec<Utf8NativePathBuf>) {
+        self.dependencies.extend(dependencies.into_iter().map(normalize_path));
     }
 
     pub fn write<W>(&self, w: &mut W) -> std::io::Result<()>
     where W: Write + ?Sized {
         write!(w, "{}:", self.name)?;
         for dep in self.dependencies.iter().unique() {
-            write!(w, " \\\n  {}", dep.replace(' ', "\\ "))?;
+            write!(w, " \\\n  {}", dep.as_str().replace(' ', "\\ "))?;
         }
         Ok(())
     }

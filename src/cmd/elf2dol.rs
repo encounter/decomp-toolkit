@@ -1,24 +1,25 @@
-use std::{
-    io::{Seek, SeekFrom, Write},
-    path::PathBuf,
-};
+use std::io::{Seek, SeekFrom, Write};
 
 use anyhow::{anyhow, bail, ensure, Result};
 use argp::FromArgs;
 use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, SectionKind};
+use typed_path::Utf8NativePathBuf;
 
-use crate::{util::file::buf_writer, vfs::open_file};
+use crate::{
+    util::{file::buf_writer, path::native_path},
+    vfs::open_file,
+};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Converts an ELF file to a DOL file.
 #[argp(subcommand, name = "elf2dol")]
 pub struct Args {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// path to input ELF
-    elf_file: PathBuf,
-    #[argp(positional)]
+    elf_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// path to output DOL
-    dol_file: PathBuf,
+    dol_file: Utf8NativePathBuf,
     /// sections (by name) to ignore
     #[argp(option, long = "ignore")]
     deny_sections: Vec<String>,

@@ -2,7 +2,6 @@ use std::{
     collections::{btree_map, BTreeMap},
     fs,
     io::{Cursor, Write},
-    path::PathBuf,
     time::Instant,
 };
 
@@ -15,6 +14,7 @@ use object::{
 use rayon::prelude::*;
 use rustc_hash::FxHashMap;
 use tracing::{info, info_span};
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
     analysis::{
@@ -38,6 +38,7 @@ use crate::{
         elf::{to_obj_reloc_kind, write_elf},
         file::{buf_writer, process_rsp, verify_hash, FileIterator},
         nested::NestedMap,
+        path::native_path,
         rel::{
             print_relocations, process_rel, process_rel_header, process_rel_sections, write_rel,
             RelHeader, RelReloc, RelSectionHeader, RelWriteInfo, PERMITTED_SECTIONS,
@@ -67,9 +68,9 @@ enum SubCommand {
 /// Views REL file information.
 #[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// REL file
-    rel_file: PathBuf,
+    rel_file: Utf8NativePathBuf,
     #[argp(switch, short = 'r')]
     /// print relocations
     relocations: bool,
@@ -79,27 +80,27 @@ pub struct InfoArgs {
 /// Merges a DOL + REL(s) into an ELF.
 #[argp(subcommand, name = "merge")]
 pub struct MergeArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// DOL file
-    dol_file: PathBuf,
-    #[argp(positional)]
+    dol_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// REL file(s)
-    rel_files: Vec<PathBuf>,
-    #[argp(option, short = 'o')]
+    rel_files: Vec<Utf8NativePathBuf>,
+    #[argp(option, short = 'o', from_str_fn(native_path))]
     /// output ELF
-    out_file: PathBuf,
+    out_file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Creates RELs from an ELF + PLF(s).
 #[argp(subcommand, name = "make")]
 pub struct MakeArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// input file(s)
-    files: Vec<PathBuf>,
-    #[argp(option, short = 'c')]
+    files: Vec<Utf8NativePathBuf>,
+    #[argp(option, short = 'c', from_str_fn(native_path))]
     /// (optional) project configuration file
-    config: Option<PathBuf>,
+    config: Option<Utf8NativePathBuf>,
     #[argp(option, short = 'n')]
     /// (optional) module names
     names: Vec<String>,
@@ -176,7 +177,7 @@ fn load_rel(module_config: &ModuleConfig, object_base: &ObjectBase) -> Result<Re
     let header = process_rel_header(&mut reader)?;
     let sections = process_rel_sections(&mut reader, &header)?;
     let section_defs = if let Some(splits_path) = &module_config.splits {
-        read_splits_sections(splits_path)?
+        read_splits_sections(&splits_path.with_encoding())?
     } else {
         None
     };
@@ -186,7 +187,7 @@ fn load_rel(module_config: &ModuleConfig, object_base: &ObjectBase) -> Result<Re
 struct LoadedModule<'a> {
     module_id: u32,
     file: File<'a>,
-    path: PathBuf,
+    path: Utf8NativePathBuf,
 }
 
 fn resolve_relocations(
@@ -273,12 +274,12 @@ fn make(args: MakeArgs) -> Result<()> {
         let object_base = find_object_base(&config)?;
         for module_config in &config.modules {
             let module_name = module_config.name();
-            if !args.names.is_empty() && !args.names.iter().any(|n| n == &module_name) {
+            if !args.names.is_empty() && !args.names.iter().any(|n| n == module_name) {
                 continue;
             }
             let _span = info_span!("module", name = %module_name).entered();
             let info = load_rel(module_config, &object_base).with_context(|| {
-                format!("While loading REL '{}'", object_base.join(&module_config.object).display())
+                format!("While loading REL '{}'", object_base.join(&module_config.object))
             })?;
             name_to_module_id.insert(module_name.to_string(), info.0.module_id);
             match existing_headers.entry(info.0.module_id) {
@@ -312,7 +313,7 @@ fn make(args: MakeArgs) -> Result<()> {
                 .unwrap_or(idx as u32);
             load_obj(file.map()?)
                 .map(|o| LoadedModule { module_id, file: o, path: path.clone() })
-                .with_context(|| format!("Failed to load '{}'", path.display()))
+                .with_context(|| format!("Failed to load '{}'", path))
         })
         .collect::<Result<Vec<_>>>()?;
 
@@ -320,7 +321,7 @@ fn make(args: MakeArgs) -> Result<()> {
     let start = Instant::now();
     let mut symbol_map = FxHashMap::<&[u8], (u32, SymbolIndex)>::default();
     for module_info in modules.iter() {
-        let _span = info_span!("file", path = %module_info.path.display()).entered();
+        let _span = info_span!("file", path = %module_info.path).entered();
         for symbol in module_info.file.symbols() {
             if symbol.scope() == object::SymbolScope::Dynamic {
                 symbol_map
@@ -335,7 +336,7 @@ fn make(args: MakeArgs) -> Result<()> {
     let mut relocations = Vec::<Vec<RelReloc>>::with_capacity(modules.len() - 1);
     relocations.resize_with(modules.len() - 1, Vec::new);
     for (module_info, relocations) in modules.iter().skip(1).zip(&mut relocations) {
-        let _span = info_span!("file", path = %module_info.path.display()).entered();
+        let _span = info_span!("file", path = %module_info.path).entered();
         resolved += resolve_relocations(
             &module_info.file,
             &existing_headers,
@@ -344,9 +345,7 @@ fn make(args: MakeArgs) -> Result<()> {
             &modules,
             relocations,
         )
-        .with_context(|| {
-            format!("While resolving relocations in '{}'", module_info.path.display())
-        })?;
+        .with_context(|| format!("While resolving relocations in '{}'", module_info.path))?;
     }
 
     if !args.quiet {
@@ -362,7 +361,7 @@ fn make(args: MakeArgs) -> Result<()> {
     // Write RELs
     let start = Instant::now();
     for (module_info, relocations) in modules.iter().skip(1).zip(relocations) {
-        let _span = info_span!("file", path = %module_info.path.display()).entered();
+        let _span = info_span!("file", path = %module_info.path).entered();
         let mut info = RelWriteInfo {
             module_id: module_info.module_id,
             version: 3,
@@ -393,7 +392,7 @@ fn make(args: MakeArgs) -> Result<()> {
         let rel_path = module_info.path.with_extension("rel");
         let mut w = buf_writer(&rel_path)?;
         write_rel(&mut w, &info, &module_info.file, relocations)
-            .with_context(|| format!("Failed to write '{}'", rel_path.display()))?;
+            .with_context(|| format!("Failed to write '{}'", rel_path))?;
         w.flush()?;
     }
 
@@ -476,11 +475,11 @@ fn info(args: InfoArgs) -> Result<()> {
 const fn align32(x: u32) -> u32 { (x + 31) & !31 }
 
 fn merge(args: MergeArgs) -> Result<()> {
-    log::info!("Loading {}", args.dol_file.display());
+    log::info!("Loading {}", args.dol_file);
     let mut obj = {
         let mut file = open_file(&args.dol_file, true)?;
-        let name = args.dol_file.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
-        process_dol(file.map()?, name.as_ref())?
+        let name = args.dol_file.file_stem().unwrap_or_default();
+        process_dol(file.map()?, name)?
     };
 
     log::info!("Performing signature analysis");
@@ -491,9 +490,9 @@ fn merge(args: MergeArgs) -> Result<()> {
     let mut module_map = BTreeMap::<u32, ObjInfo>::new();
     for result in FileIterator::new(&args.rel_files)? {
         let (path, mut entry) = result?;
-        log::info!("Loading {}", path.display());
-        let name = path.file_stem().map(|s| s.to_string_lossy()).unwrap_or_default();
-        let (_, obj) = process_rel(&mut entry, name.as_ref())?;
+        log::info!("Loading {}", path);
+        let name = path.file_stem().unwrap_or_default();
+        let (_, obj) = process_rel(&mut entry, name)?;
         match module_map.entry(obj.module_id) {
             btree_map::Entry::Vacant(e) => e.insert(obj),
             btree_map::Entry::Occupied(_) => bail!("Duplicate module ID {}", obj.module_id),
@@ -610,7 +609,7 @@ fn merge(args: MergeArgs) -> Result<()> {
     tracker.apply(&mut obj, false)?;
 
     // Write ELF
-    log::info!("Writing {}", args.out_file.display());
+    log::info!("Writing {}", args.out_file);
     fs::write(&args.out_file, write_elf(&obj, false)?)?;
     Ok(())
 }

@@ -1,3 +1,4 @@
+#![deny(unused_crate_dependencies)]
 use std::{env, ffi::OsStr, fmt::Display, path::PathBuf, process::exit, str::FromStr};
 
 use anyhow::Error;

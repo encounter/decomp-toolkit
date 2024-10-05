@@ -9,7 +9,7 @@ publish = false
 repository = "https://github.com/encounter/decomp-toolkit"
 readme = "README.md"
 categories = ["command-line-utilities"]
-rust-version = "1.80.0"
+rust-version = "1.81"
 
 [[bin]]
 name = "dtk"
@@ -31,6 +31,7 @@ argp = "0.3"
 base16ct = "0.2"
 base64 = "0.22"
 byteorder = "1.5"
+typed-path = "0.9"
 crossterm = "0.28"
 cwdemangle = "1.0"
 cwextab = "1.0"
@@ -57,7 +58,6 @@ object = { version = "0.36", features = ["read_core", "std", "elf", "write_std"]
 once_cell = "1.20"
 orthrus-ncompress = "0.2"
 owo-colors = { version = "4.1", features = ["supports-colors"] }
-path-slash = "0.2"
 petgraph = { version = "0.6", default-features = false }
 ppc750cl = "0.3"
 rayon = "1.10"

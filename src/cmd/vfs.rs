@@ -3,16 +3,19 @@ use std::{
     fs::File,
     io,
     io::{BufRead, Write},
-    path::{Path, PathBuf},
 };
 
 use anyhow::{anyhow, bail, Context};
 use argp::FromArgs;
 use size::Size;
+use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPath};
 
-use crate::vfs::{
-    decompress_file, detect, open_path, FileFormat, OpenResult, Vfs, VfsFile, VfsFileType,
-    VfsMetadata,
+use crate::{
+    util::path::native_path,
+    vfs::{
+        decompress_file, detect, open_path, FileFormat, OpenResult, Vfs, VfsFile, VfsFileType,
+        VfsMetadata,
+    },
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -34,9 +37,9 @@ enum SubCommand {
 /// List files in a directory or container.
 #[argp(subcommand, name = "ls")]
 pub struct LsArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// Directory or container path.
-    pub path: PathBuf,
+    pub path: Utf8NativePathBuf,
     #[argp(switch, short = 's')]
     /// Only print filenames.
     pub short: bool,
@@ -49,9 +52,9 @@ pub struct LsArgs {
 /// Copy files from a container.
 #[argp(subcommand, name = "cp")]
 pub struct CpArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// Source path(s) and destination path.
-    pub paths: Vec<PathBuf>,
+    pub paths: Vec<Utf8NativePathBuf>,
     #[argp(switch)]
     /// Do not decompress files when copying.
     pub no_decompress: bool,
@@ -111,21 +114,18 @@ pub fn ls(args: LsArgs) -> anyhow::Result<()> {
     let mut files = Vec::new();
     match open_path(&args.path, false)? {
         OpenResult::File(mut file, path) => {
-            let filename = Path::new(path)
-                .file_name()
-                .ok_or_else(|| anyhow!("Path has no filename"))?
-                .to_string_lossy();
+            let filename = path.file_name().ok_or_else(|| anyhow!("Path has no filename"))?;
             if args.short {
                 println!("{}", filename);
             } else {
                 let metadata = file
                     .metadata()
                     .with_context(|| format!("Failed to fetch metadata for {}", path))?;
-                files.push(file_info(&filename, file.as_mut(), &metadata)?);
+                files.push(file_info(filename, file.as_mut(), &metadata)?);
             }
         }
         OpenResult::Directory(mut fs, path) => {
-            ls_directory(fs.as_mut(), path, "", &args, &mut files)?;
+            ls_directory(fs.as_mut(), &path, Utf8UnixPath::new(""), &args, &mut files)?;
         }
     }
     if !args.short {
@@ -149,16 +149,16 @@ pub fn ls(args: LsArgs) -> anyhow::Result<()> {
 
 fn ls_directory(
     fs: &mut dyn Vfs,
-    path: &str,
-    base_filename: &str,
+    path: &Utf8UnixPath,
+    base_filename: &Utf8UnixPath,
     args: &LsArgs,
     files: &mut Vec<Columns<5>>,
 ) -> anyhow::Result<()> {
     let entries = fs.read_dir(path)?;
     files.reserve(entries.len());
     for filename in entries {
-        let entry_path = format!("{}/{}", path, filename);
-        let display_filename = format!("{}{}", base_filename, filename);
+        let entry_path = path.join(&filename);
+        let display_path = base_filename.join(&filename);
         let metadata = fs
             .metadata(&entry_path)
             .with_context(|| format!("Failed to fetch metadata for {}", entry_path))?;
@@ -168,26 +168,25 @@ fn ls_directory(
                     .open(&entry_path)
                     .with_context(|| format!("Failed to open file {}", entry_path))?;
                 if args.short {
-                    println!("{}", display_filename);
+                    println!("{}", display_path);
                 } else {
-                    files.push(file_info(&display_filename, file.as_mut(), &metadata)?);
+                    files.push(file_info(display_path.as_str(), file.as_mut(), &metadata)?);
                 }
             }
             VfsFileType::Directory => {
                 if args.short {
-                    println!("{}/", display_filename);
+                    println!("{}/", display_path);
                 } else {
                     files.push([
                         "        ".to_string(),
-                        format!("{}/", display_filename),
+                        format!("{}/", display_path),
                         "Directory".to_string(),
                         String::new(),
                         String::new(),
                     ]);
                 }
                 if args.recursive {
-                    let base_filename = format!("{}/", display_filename);
-                    ls_directory(fs, &entry_path, &base_filename, args, files)?;
+                    ls_directory(fs, &entry_path, &display_path, args, files)?;
                 }
             }
         }
@@ -200,26 +199,24 @@ pub fn cp(mut args: CpArgs) -> anyhow::Result<()> {
         bail!("Both source and destination paths must be provided");
     }
     let dest = args.paths.pop().unwrap();
-    let dest_is_dir = args.paths.len() > 1 || dest.metadata().ok().is_some_and(|m| m.is_dir());
+    let dest_is_dir = args.paths.len() > 1 || fs::metadata(&dest).ok().is_some_and(|m| m.is_dir());
     let auto_decompress = !args.no_decompress;
     for path in args.paths {
         match open_path(&path, auto_decompress)? {
             OpenResult::File(file, path) => {
                 let dest = if dest_is_dir {
-                    fs::create_dir_all(&dest).with_context(|| {
-                        format!("Failed to create directory {}", dest.display())
-                    })?;
-                    let filename = Path::new(path)
-                        .file_name()
-                        .ok_or_else(|| anyhow!("Path has no filename"))?;
+                    fs::create_dir_all(&dest)
+                        .with_context(|| format!("Failed to create directory {}", dest))?;
+                    let filename =
+                        path.file_name().ok_or_else(|| anyhow!("Path has no filename"))?;
                     dest.join(filename)
                 } else {
                     dest.clone()
                 };
-                cp_file(file, path, &dest, auto_decompress, args.quiet)?;
+                cp_file(file, &path, &dest, auto_decompress, args.quiet)?;
             }
             OpenResult::Directory(mut fs, path) => {
-                cp_recursive(fs.as_mut(), path, &dest, auto_decompress, args.quiet)?;
+                cp_recursive(fs.as_mut(), &path, &dest, auto_decompress, args.quiet)?;
             }
         }
     }
@@ -228,8 +225,8 @@ pub fn cp(mut args: CpArgs) -> anyhow::Result<()> {
 
 fn cp_file(
     mut file: Box<dyn VfsFile>,
-    path: &str,
-    dest: &Path,
+    path: &Utf8UnixPath,
+    dest: &Utf8NativePath,
     auto_decompress: bool,
     quiet: bool,
 ) -> anyhow::Result<()> {
@@ -237,31 +234,30 @@ fn cp_file(
     if let FileFormat::Compressed(kind) = detect(file.as_mut())? {
         if auto_decompress {
             file = decompress_file(file.as_mut(), kind)
-                .with_context(|| format!("Failed to decompress file {}", dest.display()))?;
+                .with_context(|| format!("Failed to decompress file {}", dest))?;
             compression = Some(kind);
         }
     }
-    let metadata = file
-        .metadata()
-        .with_context(|| format!("Failed to fetch metadata for {}", dest.display()))?;
+    let metadata =
+        file.metadata().with_context(|| format!("Failed to fetch metadata for {}", dest))?;
     if !quiet {
         if let Some(kind) = compression {
             println!(
                 "{} -> {} ({}) [Decompressed {}]",
                 path,
-                dest.display(),
+                dest,
                 Size::from_bytes(metadata.len),
                 kind
             );
         } else {
-            println!("{} -> {} ({})", path, dest.display(), Size::from_bytes(metadata.len));
+            println!("{} -> {} ({})", path, dest, Size::from_bytes(metadata.len));
         }
     }
     let mut dest_file =
-        File::create(dest).with_context(|| format!("Failed to create file {}", dest.display()))?;
+        File::create(dest).with_context(|| format!("Failed to create file {}", dest))?;
     buf_copy(file.as_mut(), &mut dest_file)
-        .with_context(|| format!("Failed to copy file {}", dest.display()))?;
-    dest_file.flush().with_context(|| format!("Failed to flush file {}", dest.display()))?;
+        .with_context(|| format!("Failed to copy file {}", dest))?;
+    dest_file.flush().with_context(|| format!("Failed to flush file {}", dest))?;
     Ok(())
 }
 
@@ -286,16 +282,15 @@ where
 
 fn cp_recursive(
     fs: &mut dyn Vfs,
-    path: &str,
-    dest: &Path,
+    path: &Utf8UnixPath,
+    dest: &Utf8NativePath,
     auto_decompress: bool,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    fs::create_dir_all(dest)
-        .with_context(|| format!("Failed to create directory {}", dest.display()))?;
+    fs::create_dir_all(dest).with_context(|| format!("Failed to create directory {}", dest))?;
     let entries = fs.read_dir(path)?;
     for filename in entries {
-        let entry_path = format!("{}/{}", path, filename);
+        let entry_path = path.join(&filename);
         let metadata = fs
             .metadata(&entry_path)
             .with_context(|| format!("Failed to fetch metadata for {}", entry_path))?;

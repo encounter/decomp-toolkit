@@ -1,16 +1,15 @@
-use std::{
-    io::{stdout, Write},
-    path::PathBuf,
-};
+use std::io::{stdout, Write};
 
 use anyhow::Result;
 use argp::FromArgs;
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
     cmd,
     util::{
         alf::AlfFile,
         file::buf_writer,
+        path::native_path,
         reader::{Endian, FromReader},
     },
     vfs::open_file,
@@ -35,21 +34,21 @@ enum SubCommand {
 /// Prints information about an alf file. (Same as `dol info`)
 #[argp(subcommand, name = "info")]
 pub struct InfoArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// alf file
-    file: PathBuf,
+    file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Extracts symbol hashes from an alf file.
 #[argp(subcommand, name = "hashes")]
 pub struct HashesArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// alf file
-    alf_file: PathBuf,
-    #[argp(positional)]
+    alf_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
     /// output file
-    output: Option<PathBuf>,
+    output: Option<Utf8NativePathBuf>,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -64,7 +63,7 @@ fn hashes(args: HashesArgs) -> Result<()> {
         let mut file = open_file(&args.alf_file, true)?;
         AlfFile::from_reader(file.as_mut(), Endian::Little)?
     };
-    let mut w: Box<dyn Write> = if let Some(output) = args.output {
+    let mut w: Box<dyn Write> = if let Some(output) = &args.output {
         Box::new(buf_writer(output)?)
     } else {
         Box::new(stdout())

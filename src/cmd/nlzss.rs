@@ -1,10 +1,11 @@
-use std::{fs, path::PathBuf};
+use std::fs;
 
 use anyhow::{anyhow, Context, Result};
 use argp::FromArgs;
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    util::{file::process_rsp, nlzss, IntoCow, ToCow},
+    util::{file::process_rsp, nlzss, path::native_path, IntoCow, ToCow},
     vfs::open_file,
 };
 
@@ -26,13 +27,13 @@ enum SubCommand {
 /// Decompresses NLZSS-compressed files.
 #[argp(subcommand, name = "decompress")]
 pub struct DecompressArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// NLZSS-compressed file(s)
-    files: Vec<PathBuf>,
-    #[argp(option, short = 'o')]
+    files: Vec<Utf8NativePathBuf>,
+    #[argp(option, short = 'o', from_str_fn(native_path))]
     /// Output file (or directory, if multiple files are specified).
     /// If not specified, decompresses in-place.
-    output: Option<PathBuf>,
+    output: Option<Utf8NativePathBuf>,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -47,7 +48,7 @@ fn decompress(args: DecompressArgs) -> Result<()> {
     for path in files {
         let mut file = open_file(&path, false)?;
         let data = nlzss::decompress(file.as_mut())
-            .map_err(|e| anyhow!("Failed to decompress '{}' with NLZSS: {}", path.display(), e))?;
+            .map_err(|e| anyhow!("Failed to decompress '{}' with NLZSS: {}", path, e))?;
         let out_path = if let Some(output) = &args.output {
             if single_file {
                 output.as_path().to_cow()
@@ -58,7 +59,7 @@ fn decompress(args: DecompressArgs) -> Result<()> {
             path.as_path().to_cow()
         };
         fs::write(out_path.as_ref(), data)
-            .with_context(|| format!("Failed to write '{}'", out_path.display()))?;
+            .with_context(|| format!("Failed to write '{}'", out_path))?;
     }
     Ok(())
 }

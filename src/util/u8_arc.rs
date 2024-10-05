@@ -1,6 +1,7 @@
 use std::{borrow::Cow, ffi::CStr, mem::size_of};
 
 use anyhow::Result;
+use typed_path::Utf8UnixPath;
 use zerocopy::{big_endian::U32, FromBytes, Immutable, IntoBytes, KnownLayout};
 
 use crate::{static_assert, vfs::next_non_empty};
@@ -138,8 +139,8 @@ impl<'a> U8View<'a> {
     }
 
     /// Finds a particular file or directory by path.
-    pub fn find(&self, path: &str) -> Option<(usize, U8Node)> {
-        let mut split = path.split('/');
+    pub fn find(&self, path: &Utf8UnixPath) -> Option<(usize, U8Node)> {
+        let mut split = path.as_str().split('/');
         let mut current = next_non_empty(&mut split);
         if current.is_empty() {
             return Some((0, self.nodes[0]));

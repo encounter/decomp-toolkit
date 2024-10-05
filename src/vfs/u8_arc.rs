@@ -1,5 +1,7 @@
 use std::io;
 
+use typed_path::Utf8UnixPath;
+
 use super::{Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult, WindowedFile};
 use crate::util::u8_arc::{U8NodeKind, U8View};
 
@@ -18,7 +20,7 @@ impl U8Fs {
 }
 
 impl Vfs for U8Fs {
-    fn open(&mut self, path: &str) -> VfsResult<Box<dyn VfsFile>> {
+    fn open(&mut self, path: &Utf8UnixPath) -> VfsResult<Box<dyn VfsFile>> {
         let view = self.view()?;
         match view.find(path) {
             Some((_, node)) => match node.kind() {
@@ -35,12 +37,12 @@ impl Vfs for U8Fs {
         }
     }
 
-    fn exists(&mut self, path: &str) -> VfsResult<bool> {
+    fn exists(&mut self, path: &Utf8UnixPath) -> VfsResult<bool> {
         let view = self.view()?;
         Ok(view.find(path).is_some())
     }
 
-    fn read_dir(&mut self, path: &str) -> VfsResult<Vec<String>> {
+    fn read_dir(&mut self, path: &Utf8UnixPath) -> VfsResult<Vec<String>> {
         let view = self.view()?;
         match view.find(path) {
             Some((idx, node)) => match node.kind() {
@@ -66,7 +68,7 @@ impl Vfs for U8Fs {
         }
     }
 
-    fn metadata(&mut self, path: &str) -> VfsResult<VfsMetadata> {
+    fn metadata(&mut self, path: &Utf8UnixPath) -> VfsResult<VfsMetadata> {
         let metdata = self.file.metadata()?;
         let view = self.view()?;
         match view.find(path) {

@@ -2,7 +2,6 @@ use std::{
     collections::{btree_map, BTreeMap},
     io::{stdout, Cursor, Read, Write},
     ops::Bound::{Excluded, Unbounded},
-    path::PathBuf,
     str::from_utf8,
 };
 
@@ -15,6 +14,7 @@ use syntect::{
     highlighting::{Color, HighlightIterator, HighlightState, Highlighter, Theme, ThemeSet},
     parsing::{ParseState, ScopeStack, SyntaxReference, SyntaxSet},
 };
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
     util::{
@@ -23,6 +23,7 @@ use crate::{
             should_skip_tag, tag_type_string, AttributeKind, TagKind,
         },
         file::buf_writer,
+        path::native_path,
     },
     vfs::open_file,
 };
@@ -45,12 +46,12 @@ enum SubCommand {
 /// Dumps DWARF 1.1 info from an object or archive.
 #[argp(subcommand, name = "dump")]
 pub struct DumpArgs {
-    #[argp(positional)]
+    #[argp(positional, from_str_fn(native_path))]
     /// Input object. (ELF or archive)
-    in_file: PathBuf,
-    #[argp(option, short = 'o')]
+    in_file: Utf8NativePathBuf,
+    #[argp(option, short = 'o', from_str_fn(native_path))]
     /// Output file. (Or directory, for archive)
-    out: Option<PathBuf>,
+    out: Option<Utf8NativePathBuf>,
     #[argp(switch)]
     /// Disable color output.
     no_color: bool,
@@ -104,7 +105,7 @@ fn dump(args: DumpArgs) -> Result<()> {
                 let name = name.trim_start_matches("D:").replace('\\', "/");
                 let name = name.rsplit_once('/').map(|(_, b)| b).unwrap_or(&name);
                 let file_path = out_path.join(format!("{}.txt", name));
-                let mut file = buf_writer(file_path)?;
+                let mut file = buf_writer(&file_path)?;
                 dump_debug_section(&args, &mut file, &obj_file, debug_section)?;
                 file.flush()?;
             } else if args.no_color {
