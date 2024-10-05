@@ -325,10 +325,11 @@ pub fn open_fs(mut file: Box<dyn VfsFile>, kind: ArchiveKind) -> io::Result<Box<
         ArchiveKind::Rarc => Ok(Box::new(RarcFs::new(file)?)),
         ArchiveKind::U8 => Ok(Box::new(U8Fs::new(file)?)),
         ArchiveKind::Disc(_) => {
-            let disc = nod::Disc::new_stream(file.into_disc_stream()).map_err(nod_to_io_error)?;
+            let disc =
+                Arc::new(nod::Disc::new_stream(file.into_disc_stream()).map_err(nod_to_io_error)?);
             let partition =
                 disc.open_partition_kind(nod::PartitionKind::Data).map_err(nod_to_io_error)?;
-            Ok(Box::new(DiscFs::new(partition, metadata.mtime)?))
+            Ok(Box::new(DiscFs::new(disc, partition, metadata.mtime)?))
         }
     }
 }

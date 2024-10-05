@@ -7,8 +7,9 @@ use std::{
 use filetime::FileTime;
 use nodtool::{
     nod,
-    nod::{DiscStream, Fst, NodeKind, OwnedFileStream, PartitionBase, PartitionMeta},
+    nod::{Disc, DiscStream, Fst, NodeKind, OwnedFileStream, PartitionBase, PartitionMeta},
 };
+use zerocopy::IntoBytes;
 
 use super::{
     next_non_empty, StaticFile, Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult,
@@ -16,72 +17,100 @@ use super::{
 
 #[derive(Clone)]
 pub struct DiscFs {
+    disc: Arc<Disc>,
     base: Box<dyn PartitionBase>,
     meta: Box<PartitionMeta>,
     mtime: Option<FileTime>,
 }
 
-enum DiscNode<'a> {
-    None,
+enum SpecialDir {
     Root,
     Sys,
+    Disc,
+}
+
+enum DiscNode<'a> {
+    None,
+    Special(SpecialDir),
     Node(Fst<'a>, usize, nod::Node),
     Static(&'a [u8]),
 }
 
 impl DiscFs {
-    pub fn new(mut base: Box<dyn PartitionBase>, mtime: Option<FileTime>) -> io::Result<Self> {
+    pub fn new(
+        disc: Arc<Disc>,
+        mut base: Box<dyn PartitionBase>,
+        mtime: Option<FileTime>,
+    ) -> io::Result<Self> {
         let meta = base.meta().map_err(nod_to_io_error)?;
-        Ok(Self { base, meta, mtime })
+        Ok(Self { disc, base, meta, mtime })
     }
 
     fn find(&self, path: &str) -> VfsResult<DiscNode> {
         let path = path.trim_matches('/');
         let mut split = path.split('/');
         let mut segment = next_non_empty(&mut split);
-        if segment.is_empty() {
-            return Ok(DiscNode::Root);
-        }
-        if segment.eq_ignore_ascii_case("files") {
-            let fst = Fst::new(&self.meta.raw_fst)?;
-            if next_non_empty(&mut split).is_empty() {
-                let root = fst.nodes[0];
-                return Ok(DiscNode::Node(fst, 0, root));
-            }
-            let remainder = &path[segment.len() + 1..];
-            match fst.find(remainder) {
-                Some((idx, node)) => Ok(DiscNode::Node(fst, idx, node)),
-                None => Ok(DiscNode::None),
-            }
-        } else if segment.eq_ignore_ascii_case("sys") {
-            segment = next_non_empty(&mut split);
-            // No directories in sys
-            if split.next().is_some() {
-                return Ok(DiscNode::None);
-            }
-            match segment.to_ascii_lowercase().as_str() {
-                "" => Ok(DiscNode::Sys),
-                "boot.bin" => Ok(DiscNode::Static(self.meta.raw_boot.as_slice())),
-                "bi2.bin" => Ok(DiscNode::Static(self.meta.raw_bi2.as_slice())),
-                "apploader.bin" => Ok(DiscNode::Static(self.meta.raw_apploader.as_ref())),
-                "fst.bin" => Ok(DiscNode::Static(self.meta.raw_fst.as_ref())),
-                "main.dol" => Ok(DiscNode::Static(self.meta.raw_dol.as_ref())),
-                "ticket.bin" => {
-                    Ok(DiscNode::Static(self.meta.raw_ticket.as_deref().ok_or(VfsError::NotFound)?))
+        match segment.to_ascii_lowercase().as_str() {
+            "" => Ok(DiscNode::Special(SpecialDir::Root)),
+            "files" => {
+                let fst = Fst::new(&self.meta.raw_fst)?;
+                if next_non_empty(&mut split).is_empty() {
+                    let root = fst.nodes[0];
+                    return Ok(DiscNode::Node(fst, 0, root));
                 }
-                "tmd.bin" => {
-                    Ok(DiscNode::Static(self.meta.raw_tmd.as_deref().ok_or(VfsError::NotFound)?))
+                let remainder = &path[segment.len() + 1..];
+                match fst.find(remainder) {
+                    Some((idx, node)) => Ok(DiscNode::Node(fst, idx, node)),
+                    None => Ok(DiscNode::None),
                 }
-                "cert.bin" => Ok(DiscNode::Static(
-                    self.meta.raw_cert_chain.as_deref().ok_or(VfsError::NotFound)?,
-                )),
-                "h3.bin" => Ok(DiscNode::Static(
-                    self.meta.raw_h3_table.as_deref().ok_or(VfsError::NotFound)?,
-                )),
-                _ => Ok(DiscNode::None),
             }
-        } else {
-            return Ok(DiscNode::None);
+            "sys" => {
+                segment = next_non_empty(&mut split);
+                // No directories in sys
+                if !next_non_empty(&mut split).is_empty() {
+                    return Ok(DiscNode::None);
+                }
+                match segment.to_ascii_lowercase().as_str() {
+                    "" => Ok(DiscNode::Special(SpecialDir::Sys)),
+                    "boot.bin" => Ok(DiscNode::Static(self.meta.raw_boot.as_slice())),
+                    "bi2.bin" => Ok(DiscNode::Static(self.meta.raw_bi2.as_slice())),
+                    "apploader.img" => Ok(DiscNode::Static(self.meta.raw_apploader.as_ref())),
+                    "fst.bin" => Ok(DiscNode::Static(self.meta.raw_fst.as_ref())),
+                    "main.dol" => Ok(DiscNode::Static(self.meta.raw_dol.as_ref())),
+                    _ => Ok(DiscNode::None),
+                }
+            }
+            "disc" => {
+                if !self.disc.header().is_wii() {
+                    return Ok(DiscNode::None);
+                }
+                segment = next_non_empty(&mut split);
+                // No directories in disc
+                if !next_non_empty(&mut split).is_empty() {
+                    return Ok(DiscNode::None);
+                }
+                match segment.to_ascii_lowercase().as_str() {
+                    "" => Ok(DiscNode::Special(SpecialDir::Disc)),
+                    "header.bin" => Ok(DiscNode::Static(&self.disc.header().as_bytes()[..0x100])),
+                    "region.bin" => {
+                        Ok(DiscNode::Static(self.disc.region().ok_or(VfsError::NotFound)?))
+                    }
+                    _ => Ok(DiscNode::None),
+                }
+            }
+            "ticket.bin" => {
+                Ok(DiscNode::Static(self.meta.raw_ticket.as_deref().ok_or(VfsError::NotFound)?))
+            }
+            "tmd.bin" => {
+                Ok(DiscNode::Static(self.meta.raw_tmd.as_deref().ok_or(VfsError::NotFound)?))
+            }
+            "cert.bin" => {
+                Ok(DiscNode::Static(self.meta.raw_cert_chain.as_deref().ok_or(VfsError::NotFound)?))
+            }
+            "h3.bin" => {
+                Ok(DiscNode::Static(self.meta.raw_h3_table.as_deref().ok_or(VfsError::NotFound)?))
+            }
+            _ => Ok(DiscNode::None),
         }
     }
 }
@@ -90,8 +119,7 @@ impl Vfs for DiscFs {
     fn open(&mut self, path: &str) -> VfsResult<Box<dyn VfsFile>> {
         match self.find(path)? {
             DiscNode::None => Err(VfsError::NotFound),
-            DiscNode::Root => Err(VfsError::IsADirectory),
-            DiscNode::Sys => Err(VfsError::IsADirectory),
+            DiscNode::Special(_) => Err(VfsError::IsADirectory),
             DiscNode::Node(_, _, node) => match node.kind() {
                 NodeKind::File => {
                     if node.length() > 2048 {
@@ -119,28 +147,41 @@ impl Vfs for DiscFs {
     fn read_dir(&mut self, path: &str) -> VfsResult<Vec<String>> {
         match self.find(path)? {
             DiscNode::None => Err(VfsError::NotFound),
-            DiscNode::Root => Ok(vec!["files".to_string(), "sys".to_string()]),
-            DiscNode::Sys => {
-                let mut sys = vec![
-                    "boot.bin".to_string(),
-                    "bi2.bin".to_string(),
-                    "apploader.bin".to_string(),
-                    "fst.bin".to_string(),
-                    "main.dol".to_string(),
-                ];
-                if self.meta.raw_ticket.is_some() {
-                    sys.push("ticket.bin".to_string());
-                }
-                if self.meta.raw_tmd.is_some() {
-                    sys.push("tmd.bin".to_string());
+            DiscNode::Special(SpecialDir::Root) => {
+                let mut entries = vec!["files".to_string(), "sys".to_string()];
+                if self.disc.header().is_wii() {
+                    entries.push("disc".to_string());
                 }
                 if self.meta.raw_cert_chain.is_some() {
-                    sys.push("cert.bin".to_string());
+                    entries.push("cert.bin".to_string());
                 }
                 if self.meta.raw_h3_table.is_some() {
-                    sys.push("h3.bin".to_string());
+                    entries.push("h3.bin".to_string());
                 }
-                Ok(sys)
+                if self.meta.raw_ticket.is_some() {
+                    entries.push("ticket.bin".to_string());
+                }
+                if self.meta.raw_tmd.is_some() {
+                    entries.push("tmd.bin".to_string());
+                }
+                Ok(entries)
+            }
+            DiscNode::Special(SpecialDir::Sys) => Ok(vec![
+                "boot.bin".to_string(),
+                "bi2.bin".to_string(),
+                "apploader.img".to_string(),
+                "fst.bin".to_string(),
+                "main.dol".to_string(),
+            ]),
+            DiscNode::Special(SpecialDir::Disc) => {
+                let mut entries = Vec::new();
+                if self.disc.header().is_wii() {
+                    entries.push("header.bin".to_string());
+                    if self.disc.region().is_some() {
+                        entries.push("region.bin".to_string());
+                    }
+                }
+                Ok(entries)
             }
             DiscNode::Node(fst, idx, node) => {
                 match node.kind() {
@@ -173,7 +214,7 @@ impl Vfs for DiscFs {
     fn metadata(&mut self, path: &str) -> VfsResult<VfsMetadata> {
         match self.find(path)? {
             DiscNode::None => Err(VfsError::NotFound),
-            DiscNode::Root | DiscNode::Sys => {
+            DiscNode::Special(_) => {
                 Ok(VfsMetadata { file_type: VfsFileType::Directory, len: 0, mtime: self.mtime })
             }
             DiscNode::Node(_, _, node) => {
