@@ -129,7 +129,11 @@ jobs:
           sudo apt-get -y install ${{ matrix.packages }}
       - name: Install cargo-zigbuild
         if: matrix.build == 'zigbuild'
-        run: pip install ziglang==0.13.0 cargo-zigbuild==0.19.1
+        run: |
+          python3 -m venv .venv
+          . .venv/bin/activate
+          echo PATH=$PATH >> $GITHUB_ENV
+          pip install ziglang==0.13.0 cargo-zigbuild==0.19.1
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
