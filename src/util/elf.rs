@@ -116,7 +116,7 @@ pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
                 .context("While reading .comment section")?;
             log::debug!("Loaded .comment section header {:?}", header);
             let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
-            CommentSym::from_reader(&mut reader, Endian::Big)?; // ELF null symbol
+            comment_syms.push(CommentSym::from_reader(&mut reader, Endian::Big)?); // ELF null symbol
             for symbol in obj_file.symbols() {
                 let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
                 log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
@@ -239,7 +239,9 @@ pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
                     .and_then(|m| m.virtual_addresses.as_ref())
                     .and_then(|v| v.get(symbol.index().0).cloned())
                 {
-                    sections[section_index.0].virtual_address = Some(addr);
+                    if let Some(section_index) = section_indexes[section_index.0] {
+                        sections[section_index].virtual_address = Some(addr);
+                    }
                 }
 
                 let section = obj_file.section_by_index(section_index)?;
