@@ -837,15 +837,15 @@ fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<
     }
 
     if let Some(selfile) = &config.selfile {
-        let selfile: Utf8NativePathBuf = selfile.with_encoding();
-        log::info!("Loading {}", selfile);
-        let mut file = open_file(&selfile, true)?;
+        let selfile_path = object_base.join(selfile);
+        log::info!("Loading {}", selfile_path);
+        let mut file = object_base.open(selfile)?;
         let data = file.map()?;
         if let Some(hash) = &config.selfile_hash {
             verify_hash(data, hash)?;
         }
         apply_selfile(&mut obj, data)?;
-        dep.push(selfile.clone());
+        dep.push(selfile_path);
     }
 
     // Create _ctors and _dtors symbols if missing
