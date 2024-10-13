@@ -1116,7 +1116,7 @@ fn split(args: SplitArgs) -> Result<()> {
     if config.extract_objects && matches!(object_base, ObjectBase::Vfs(..)) {
         // Extract files from the VFS into the object base directory
         let target_dir = extract_objects(&config, &object_base)?;
-        object_base = ObjectBase::Extracted(target_dir);
+        object_base = ObjectBase::Directory(target_dir);
     }
 
     for module_config in config.modules.iter_mut() {
@@ -2015,7 +2015,6 @@ fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig])
 pub enum ObjectBase {
     None,
     Directory(Utf8NativePathBuf),
-    Extracted(Utf8NativePathBuf),
     Vfs(Utf8NativePathBuf, Box<dyn Vfs + Send + Sync>),
 }
 
@@ -2023,8 +2022,14 @@ impl ObjectBase {
     pub fn join(&self, path: &Utf8UnixPath) -> Utf8NativePathBuf {
         match self {
             ObjectBase::None => path.with_encoding(),
-            ObjectBase::Directory(base) => base.join(path.with_encoding()),
-            ObjectBase::Extracted(base) => extracted_path(base, path),
+            ObjectBase::Directory(base) => {
+                // If the extracted file exists, use it directly
+                let extracted = extracted_path(base, path);
+                if fs::exists(&extracted).unwrap_or(false) {
+                    return extracted;
+                }
+                base.join(path.with_encoding())
+            }
             ObjectBase::Vfs(base, _) => Utf8NativePathBuf::from(format!("{}:{}", base, path)),
         }
     }
@@ -2032,8 +2037,14 @@ impl ObjectBase {
     pub fn open(&self, path: &Utf8UnixPath) -> Result<Box<dyn VfsFile>> {
         match self {
             ObjectBase::None => open_file(&path.with_encoding(), true),
-            ObjectBase::Directory(base) => open_file(&base.join(path.with_encoding()), true),
-            ObjectBase::Extracted(base) => open_file(&extracted_path(base, path), true),
+            ObjectBase::Directory(base) => {
+                // If the extracted file exists, use it directly
+                let extracted = extracted_path(base, path);
+                if fs::exists(&extracted).unwrap_or(false) {
+                    return open_file(&extracted, true);
+                }
+                open_file(&base.join(path.with_encoding()), true)
+            }
             ObjectBase::Vfs(vfs_path, vfs) => {
                 open_file_with_fs(vfs.clone(), &path.with_encoding(), true)
                     .with_context(|| format!("Using disc image {}", vfs_path))
@@ -2045,7 +2056,6 @@ impl ObjectBase {
         match self {
             ObjectBase::None => Utf8NativePath::new(""),
             ObjectBase::Directory(base) => base,
-            ObjectBase::Extracted(base) => base,
             ObjectBase::Vfs(base, _) => base,
         }
     }
