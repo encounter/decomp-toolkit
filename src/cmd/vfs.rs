@@ -1,9 +1,4 @@
-use std::{
-    fs,
-    fs::File,
-    io,
-    io::{BufRead, Write},
-};
+use std::{fs, fs::File, io::Write};
 
 use anyhow::{anyhow, bail, Context};
 use argp::FromArgs;
@@ -11,7 +6,7 @@ use size::Size;
 use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPath};
 
 use crate::{
-    util::path::native_path,
+    util::{file::buf_copy, path::native_path},
     vfs::{
         decompress_file, detect, open_path, FileFormat, OpenResult, Vfs, VfsFile, VfsFileType,
         VfsMetadata,
@@ -259,25 +254,6 @@ fn cp_file(
         .with_context(|| format!("Failed to copy file {}", dest))?;
     dest_file.flush().with_context(|| format!("Failed to flush file {}", dest))?;
     Ok(())
-}
-
-fn buf_copy<R, W>(reader: &mut R, writer: &mut W) -> io::Result<u64>
-where
-    R: BufRead + ?Sized,
-    W: Write + ?Sized,
-{
-    let mut copied = 0;
-    loop {
-        let buf = reader.fill_buf()?;
-        let len = buf.len();
-        if len == 0 {
-            break;
-        }
-        writer.write_all(buf)?;
-        reader.consume(len);
-        copied += len as u64;
-    }
-    Ok(copied)
 }
 
 fn cp_recursive(

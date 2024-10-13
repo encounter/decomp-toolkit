@@ -46,7 +46,10 @@ use crate::{
         diff::{calc_diff_ranges, print_diff, process_code},
         dol::process_dol,
         elf::{process_elf, write_elf},
-        file::{buf_writer, touch, verify_hash, FileIterator, FileReadInfo},
+        file::{
+            buf_copy_with_hash, buf_writer, check_hash_str, touch, verify_hash, FileIterator,
+            FileReadInfo,
+        },
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         path::{check_path_buf, native_path},
@@ -229,6 +232,10 @@ pub struct ProjectConfig {
     /// Optional base path for all object files.
     #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
     pub object_base: Option<Utf8UnixPathBuf>,
+    /// Whether to extract objects from a disc image into object base. If false, the files
+    /// will be used from the disc image directly without extraction.
+    #[serde(default = "bool_true", skip_serializing_if = "is_true")]
+    pub extract_objects: bool,
 }
 
 impl Default for ProjectConfig {
@@ -248,6 +255,7 @@ impl Default for ProjectConfig {
             fill_gaps: true,
             export_all: true,
             object_base: None,
+            extract_objects: true,
         }
     }
 }
@@ -1103,7 +1111,13 @@ fn split(args: SplitArgs) -> Result<()> {
         let mut config_file = open_file(&args.config, true)?;
         serde_yaml::from_reader(config_file.as_mut())?
     };
-    let object_base = find_object_base(&config)?;
+
+    let mut object_base = find_object_base(&config)?;
+    if config.extract_objects && matches!(object_base, ObjectBase::Vfs(..)) {
+        // Extract files from the VFS into the object base directory
+        let target_dir = extract_objects(&config, &object_base)?;
+        object_base = ObjectBase::Extracted(target_dir);
+    }
 
     for module_config in config.modules.iter_mut() {
         let mut file = object_base.open(&module_config.object)?;
@@ -2001,6 +2015,7 @@ fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig])
 pub enum ObjectBase {
     None,
     Directory(Utf8NativePathBuf),
+    Extracted(Utf8NativePathBuf),
     Vfs(Utf8NativePathBuf, Box<dyn Vfs + Send + Sync>),
 }
 
@@ -2009,6 +2024,7 @@ impl ObjectBase {
         match self {
             ObjectBase::None => path.with_encoding(),
             ObjectBase::Directory(base) => base.join(path.with_encoding()),
+            ObjectBase::Extracted(base) => extracted_path(base, path),
             ObjectBase::Vfs(base, _) => Utf8NativePathBuf::from(format!("{}:{}", base, path)),
         }
     }
@@ -2017,10 +2033,20 @@ impl ObjectBase {
         match self {
             ObjectBase::None => open_file(&path.with_encoding(), true),
             ObjectBase::Directory(base) => open_file(&base.join(path.with_encoding()), true),
+            ObjectBase::Extracted(base) => open_file(&extracted_path(base, path), true),
             ObjectBase::Vfs(vfs_path, vfs) => {
                 open_file_with_fs(vfs.clone(), &path.with_encoding(), true)
                     .with_context(|| format!("Using disc image {}", vfs_path))
             }
+        }
+    }
+
+    pub fn base_path(&self) -> &Utf8NativePath {
+        match self {
+            ObjectBase::None => Utf8NativePath::new(""),
+            ObjectBase::Directory(base) => base,
+            ObjectBase::Extracted(base) => base,
+            ObjectBase::Vfs(base, _) => base,
         }
     }
 }
@@ -2037,7 +2063,6 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
                 let format = nodtool::nod::Disc::detect(file.as_mut())?;
                 if let Some(format) = format {
                     file.rewind()?;
-                    log::info!("Using disc image {}", path);
                     let fs = open_fs(file, ArchiveKind::Disc(format))?;
                     return Ok(ObjectBase::Vfs(path, fs));
                 }
@@ -2046,4 +2071,84 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
         return Ok(ObjectBase::Directory(base));
     }
     Ok(ObjectBase::None)
+}
+
+/// Extracts object files from the disc image into the object base directory.
+fn extract_objects(config: &ProjectConfig, object_base: &ObjectBase) -> Result<Utf8NativePathBuf> {
+    let target_dir: Utf8NativePathBuf = match config.object_base.as_ref() {
+        Some(path) => path.with_encoding(),
+        None => bail!("No object base specified"),
+    };
+    let mut object_paths = Vec::<(&Utf8UnixPath, Option<&str>, Utf8NativePathBuf)>::new();
+    {
+        let target_path = extracted_path(&target_dir, &config.base.object);
+        if !fs::exists(&target_path)
+            .with_context(|| format!("Failed to check path '{}'", target_path))?
+        {
+            object_paths.push((&config.base.object, config.base.hash.as_deref(), target_path));
+        }
+    }
+    if let Some(selfile) = &config.selfile {
+        let target_path = extracted_path(&target_dir, selfile);
+        if !fs::exists(&target_path)
+            .with_context(|| format!("Failed to check path '{}'", target_path))?
+        {
+            object_paths.push((selfile, config.selfile_hash.as_deref(), target_path));
+        }
+    }
+    for module_config in &config.modules {
+        let target_path = extracted_path(&target_dir, &module_config.object);
+        if !fs::exists(&target_path)
+            .with_context(|| format!("Failed to check path '{}'", target_path))?
+        {
+            object_paths.push((&module_config.object, module_config.hash.as_deref(), target_path));
+        }
+    }
+    if object_paths.is_empty() {
+        return Ok(target_dir);
+    }
+    log::info!(
+        "Extracting {} file{} from {}",
+        object_paths.len(),
+        if object_paths.len() == 1 { "" } else { "s" },
+        object_base.base_path()
+    );
+    let start = Instant::now();
+    for (source_path, hash, target_path) in object_paths {
+        let mut file = object_base.open(source_path)?;
+        if let Some(parent) = target_path.parent() {
+            fs::create_dir_all(parent)
+                .with_context(|| format!("Failed to create directory '{}'", parent))?;
+        }
+        let mut out = fs::File::create(&target_path)
+            .with_context(|| format!("Failed to create file '{}'", target_path))?;
+        let hash_bytes = buf_copy_with_hash(&mut file, &mut out)
+            .with_context(|| format!("Failed to extract file '{}'", target_path))?;
+        if let Some(hash) = hash {
+            check_hash_str(hash_bytes, hash).with_context(|| {
+                format!("Source file failed verification: '{}'", object_base.join(source_path))
+            })?;
+        }
+    }
+    let duration = start.elapsed();
+    log::info!("Extraction completed in {}.{:03}s", duration.as_secs(), duration.subsec_millis());
+    Ok(target_dir)
+}
+
+/// Converts VFS paths like `path/to/container.arc:file` to `path/to/container/file`.
+fn extracted_path(target_dir: &Utf8NativePath, path: &Utf8UnixPath) -> Utf8NativePathBuf {
+    let mut target_path = target_dir.to_owned();
+    let mut split = path.as_str().split(':').peekable();
+    while let Some(path) = split.next() {
+        let path = Utf8UnixPath::new(path);
+        if split.peek().is_some() {
+            if let Some(parent) = path.parent() {
+                target_path.push(parent.with_encoding());
+            }
+            target_path.push(path.file_stem().unwrap());
+        } else {
+            target_path.push(path.with_encoding());
+        }
+    }
+    target_path
 }

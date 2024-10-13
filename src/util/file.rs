@@ -2,7 +2,7 @@ use std::{
     fs,
     fs::{DirBuilder, File, OpenOptions},
     io,
-    io::{BufRead, BufWriter, Read, Seek, SeekFrom},
+    io::{BufRead, BufWriter, Read, Seek, SeekFrom, Write},
 };
 
 use anyhow::{anyhow, Context, Result};
@@ -156,13 +156,16 @@ pub fn decompress_if_needed(buf: &[u8]) -> Result<Bytes> {
 }
 
 pub fn verify_hash(buf: &[u8], expected_str: &str) -> Result<()> {
+    let mut hasher = Sha1::new();
+    hasher.update(buf);
+    check_hash_str(hasher.finalize().into(), expected_str)
+}
+
+pub fn check_hash_str(hash_bytes: [u8; 20], expected_str: &str) -> Result<()> {
     let mut expected_bytes = [0u8; 20];
     hex::decode_to_slice(expected_str, &mut expected_bytes)
         .with_context(|| format!("Invalid SHA-1 '{expected_str}'"))?;
-    let mut hasher = Sha1::new();
-    hasher.update(buf);
-    let hash_bytes = hasher.finalize();
-    if hash_bytes.as_ref() == expected_bytes {
+    if hash_bytes == expected_bytes {
         Ok(())
     } else {
         Err(anyhow!(
@@ -171,4 +174,45 @@ pub fn verify_hash(buf: &[u8], expected_str: &str) -> Result<()> {
             hex::encode(hash_bytes)
         ))
     }
+}
+
+/// Copies from a buffered reader to a writer without extra allocations.
+pub fn buf_copy<R, W>(reader: &mut R, writer: &mut W) -> io::Result<u64>
+where
+    R: BufRead + ?Sized,
+    W: Write + ?Sized,
+{
+    let mut copied = 0;
+    loop {
+        let buf = reader.fill_buf()?;
+        let len = buf.len();
+        if len == 0 {
+            break;
+        }
+        writer.write_all(buf)?;
+        reader.consume(len);
+        copied += len as u64;
+    }
+    Ok(copied)
+}
+
+/// Copies from a buffered reader to a writer without extra allocations.
+/// Generates an SHA-1 hash of the data as it is copied.
+pub fn buf_copy_with_hash<R, W>(reader: &mut R, writer: &mut W) -> io::Result<[u8; 20]>
+where
+    R: BufRead + ?Sized,
+    W: Write + ?Sized,
+{
+    let mut hasher = Sha1::new();
+    loop {
+        let buf = reader.fill_buf()?;
+        let len = buf.len();
+        if len == 0 {
+            break;
+        }
+        hasher.update(buf);
+        writer.write_all(buf)?;
+        reader.consume(len);
+    }
+    Ok(hasher.finalize().into())
 }
