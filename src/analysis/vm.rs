@@ -208,11 +208,11 @@ impl VM {
                     (
                         GprValue::Address(RelocationTarget::Address(left)),
                         GprValue::Constant(right),
-                    ) => GprValue::Address(RelocationTarget::Address(left + right)),
+                    ) => GprValue::Address(RelocationTarget::Address(left.wrapping_add(right))),
                     (
                         GprValue::Constant(left),
                         GprValue::Address(RelocationTarget::Address(right)),
-                    ) => GprValue::Address(RelocationTarget::Address(right + left)),
+                    ) => GprValue::Address(RelocationTarget::Address(right.wrapping_add(left))),
                     _ => GprValue::Unknown,
                 };
                 self.gpr[ins.field_rd() as usize].set_direct(value);

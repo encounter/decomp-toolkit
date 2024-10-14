@@ -56,6 +56,10 @@ impl SectionAddress {
     }
 
     pub fn is_aligned(self, align: u32) -> bool { self.address & (align - 1) == 0 }
+
+    pub fn wrapping_add(self, rhs: u32) -> Self {
+        Self { section: self.section, address: self.address.wrapping_add(rhs) }
+    }
 }
 
 impl Add<u32> for SectionAddress {
