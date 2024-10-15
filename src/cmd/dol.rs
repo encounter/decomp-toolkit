@@ -2067,7 +2067,8 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
         // Search for disc images in the object base directory
         for result in fs::read_dir(&base)? {
             let entry = result?;
-            if entry.file_type()?.is_file() {
+            // Use fs::metadata to follow symlinks
+            if fs::metadata(entry.path())?.file_type().is_file() {
                 let path = check_path_buf(entry.path())?;
                 let mut file = open_file(&path, false)?;
                 let format = nodtool::nod::Disc::detect(file.as_mut())?;
