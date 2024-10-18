@@ -352,11 +352,12 @@ pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
         // TODO rebuild common symbols
     }
 
-    for (section_idx, section) in obj_file.sections().enumerate() {
-        let out_section = match section_indexes[section_idx].and_then(|idx| sections.get_mut(idx)) {
-            Some(s) => s,
-            None => continue,
-        };
+    for section in obj_file.sections() {
+        let out_section =
+            match section_indexes[section.index().0].and_then(|idx| sections.get_mut(idx)) {
+                Some(s) => s,
+                None => continue,
+            };
         // Generate relocations
         for (address, reloc) in section.relocations() {
             let Some(reloc) =
