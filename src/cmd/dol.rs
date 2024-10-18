@@ -2065,13 +2065,26 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
     if let Some(base) = &config.object_base {
         let base = base.with_encoding();
         // Search for disc images in the object base directory
-        for result in fs::read_dir(&base)? {
-            let entry = result?;
-            // Use fs::metadata to follow symlinks
-            if fs::metadata(entry.path())?.file_type().is_file() {
-                let path = check_path_buf(entry.path())?;
+        for result in fs::read_dir(&base).with_context(|| format!("Reading directory {}", base))? {
+            let entry = result.with_context(|| format!("Reading entry in directory {}", base))?;
+            let Ok(path) = check_path_buf(entry.path()) else {
+                log::warn!("Path is not valid UTF-8: {:?}", entry.path());
+                continue;
+            };
+            let file_type =
+                entry.file_type().with_context(|| format!("Getting file type for {}", path))?;
+            let is_file = if file_type.is_symlink() {
+                // Also traverse symlinks to files
+                fs::metadata(&path)
+                    .with_context(|| format!("Getting metadata for {}", path))?
+                    .is_file()
+            } else {
+                file_type.is_file()
+            };
+            if is_file {
                 let mut file = open_file(&path, false)?;
-                let format = nodtool::nod::Disc::detect(file.as_mut())?;
+                let format = nodtool::nod::Disc::detect(file.as_mut())
+                    .with_context(|| format!("Detecting file type for {}", path))?;
                 if let Some(format) = format {
                     file.rewind()?;
                     let fs = open_fs(file, ArchiveKind::Disc(format))?;
