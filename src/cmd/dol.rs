@@ -5,6 +5,7 @@ use std::{
     fs::DirBuilder,
     io::{Cursor, Seek, Write},
     mem::take,
+    str::FromStr,
     time::Instant,
 };
 
@@ -36,7 +37,7 @@ use crate::{
     },
     util::{
         asm::write_asm,
-        bin2c::bin2c,
+        bin2c::{bin2c, HeaderKind},
         comment::MWComment,
         config::{
             apply_splits_file, apply_symbols_file, is_auto_symbol, signed_hex_serde,
@@ -303,6 +304,20 @@ pub struct ExtractConfig {
     /// Path is relative to `out_dir/include`.
     #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "Option::is_none")]
     pub header: Option<Utf8UnixPathBuf>,
+    /// The type for the extracted symbol in the header file. By default, the header will emit
+    /// a full symbol declaration (a.k.a. `symbol`), but this can be set to `raw` to emit the raw
+    /// data as a byte array. `none` avoids emitting a header entirely, in which case the `header`
+    /// field can be used by external asset processing.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub header_type: Option<String>,
+    /// A user-defined type for use with external asset processing. This value is simply passed
+    /// through to the `custom_type` field in the output config.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_type: Option<String>,
+    /// User-defined data for use with external asset processing. This value is simply passed
+    /// through to the `custom_data` field in the output config.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub custom_data: Option<serde_json::Value>,
 }
 
 /// A relocation that should be blocked.
@@ -364,6 +379,19 @@ pub struct OutputModule {
     pub ldscript: Utf8UnixPathBuf,
     pub entry: Option<String>,
     pub units: Vec<OutputUnit>,
+    pub extract: Vec<OutputExtract>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, Default)]
+pub struct OutputExtract {
+    pub symbol: String,
+    #[serde(with = "unix_path_serde_option")]
+    pub binary: Option<Utf8UnixPathBuf>,
+    #[serde(with = "unix_path_serde_option")]
+    pub header: Option<Utf8UnixPathBuf>,
+    pub header_type: String,
+    pub custom_type: Option<String>,
+    pub custom_data: Option<serde_json::Value>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, Hash)]
@@ -938,6 +966,7 @@ fn split_write_obj(
         ldscript: out_dir.join("ldscript.lcf").with_unix_encoding(),
         units: Vec::with_capacity(split_objs.len()),
         entry,
+        extract: Vec::with_capacity(module.config.extract.len()),
     };
     for (unit, split_obj) in module.obj.link_order.iter().zip(&split_objs) {
         let out_obj = write_elf(split_obj, config.export_all)?;
@@ -975,14 +1004,34 @@ fn split_write_obj(
             write_if_changed(&out_path, data)?;
         }
 
-        if let Some(header) = &extract.header {
-            let header_string = bin2c(symbol, section, data);
-            let out_path = base_dir.join("include").join(header.with_encoding());
-            if let Some(parent) = out_path.parent() {
-                DirBuilder::new().recursive(true).create(parent)?;
+        let header_kind = match extract.header_type.as_deref() {
+            Some(value) => match HeaderKind::from_str(value) {
+                Ok(kind) => kind,
+                Err(()) => bail!("Invalid header type '{}'", value),
+            },
+            _ => HeaderKind::Symbol,
+        };
+
+        if header_kind != HeaderKind::None {
+            if let Some(header) = &extract.header {
+                let header_string = bin2c(symbol, section, data, header_kind);
+                let out_path = base_dir.join("include").join(header.with_encoding());
+                if let Some(parent) = out_path.parent() {
+                    DirBuilder::new().recursive(true).create(parent)?;
+                }
+                write_if_changed(&out_path, header_string.as_bytes())?;
             }
-            write_if_changed(&out_path, header_string.as_bytes())?;
         }
+
+        // Copy to output config
+        out_config.extract.push(OutputExtract {
+            symbol: symbol.name.clone(),
+            binary: extract.binary.clone(),
+            header: extract.header.clone(),
+            header_type: header_kind.to_string(),
+            custom_type: extract.custom_type.clone(),
+            custom_data: extract.custom_data.clone(),
+        });
     }
 
     // Generate ldscript.lcf
