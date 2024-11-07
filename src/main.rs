@@ -106,6 +106,7 @@ enum SubCommand {
     Vfs(cmd::vfs::Args),
     Yay0(cmd::yay0::Args),
     Yaz0(cmd::yaz0::Args),
+    Wad(cmd::wad::Args),
 }
 
 // Duplicated from supports-color so we can check early.
@@ -181,6 +182,7 @@ fn main() {
         SubCommand::Vfs(c_args) => cmd::vfs::run(c_args),
         SubCommand::Yay0(c_args) => cmd::yay0::run(c_args),
         SubCommand::Yaz0(c_args) => cmd::yaz0::run(c_args),
+        SubCommand::Wad(c_args) => cmd::wad::run(c_args),
     });
     if let Err(e) = result {
         eprintln!("Failed: {e:?}");

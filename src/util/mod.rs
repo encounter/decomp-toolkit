@@ -18,6 +18,7 @@ pub mod nested;
 pub mod nlzss;
 pub mod path;
 pub mod rarc;
+pub mod read;
 pub mod reader;
 pub mod rel;
 pub mod rso;
@@ -25,6 +26,7 @@ pub mod signatures;
 pub mod split;
 pub mod take_seek;
 pub mod u8_arc;
+pub mod wad;
 
 #[inline]
 pub const fn align_up(value: u32, align: u32) -> u32 { (value + (align - 1)) & !(align - 1) }

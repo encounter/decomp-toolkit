@@ -112,7 +112,7 @@ impl Seek for WindowedFile {
     }
 
     #[inline]
-    fn stream_position(&mut self) -> io::Result<u64> { Ok(self.pos) }
+    fn stream_position(&mut self) -> io::Result<u64> { Ok(self.pos - self.begin) }
 }
 
 impl VfsFile for WindowedFile {

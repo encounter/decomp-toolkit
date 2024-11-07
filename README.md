@@ -52,6 +52,9 @@ project structure and build system that uses decomp-toolkit under the hood.
   - [yay0 compress](#yay0-compress)
   - [yaz0 decompress](#yaz0-decompress)
   - [yaz0 compress](#yaz0-compress)
+  - [wad info](#wad-info)
+  - [wad extract](#wad-extract)
+  - [wad verify](#wad-verify)
 
 ## Goals
 
@@ -474,6 +477,7 @@ Supported containers:
 - Disc images (see [disc info](#disc-info) for supported formats)
 - RARC archives (older .arc)
 - U8 archives (newer .arc)
+- WAD files (Wii VC)
 
 Supported compression formats are handled transparently:
 - Yay0 (SZP) / Yaz0 (SZS)
@@ -561,4 +565,32 @@ Compresses files using Yaz0 compression.
 $ dtk yaz0 compress input.bin -o output.bin.yaz0
 # or, for batch processing
 $ dtk yaz0 compress rels/* -o rels
+```
+
+### wad info
+
+Prints information about a WAD file.
+
+```shell
+$ dtk wad info input.wad
+```
+
+### wad extract
+
+> [!NOTE]
+> [vfs cp](#vfs-cp) is more flexible and supports WAD files.  
+> This command is now equivalent to `dtk vfs cp input.wad: output_dir`
+
+Extracts the contents of a WAD file.
+
+```shell
+$ dtk wad extract input.wad -o output_dir
+```
+
+### wad verify
+
+Verifies the contents of a WAD file.
+
+```shell
+$ dtk wad verify input.wad
 ```

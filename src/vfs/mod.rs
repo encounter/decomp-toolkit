@@ -3,6 +3,7 @@ mod disc;
 mod rarc;
 mod std_fs;
 mod u8_arc;
+mod wad;
 
 use std::{
     error::Error,
@@ -22,12 +23,14 @@ use rarc::RarcFs;
 pub use std_fs::StdFs;
 use typed_path::{Utf8NativePath, Utf8UnixPath, Utf8UnixPathBuf};
 use u8_arc::U8Fs;
+use wad::WadFs;
 
 use crate::util::{
     ncompress::{YAY0_MAGIC, YAZ0_MAGIC},
     nlzss,
     rarc::RARC_MAGIC,
     u8_arc::U8_MAGIC,
+    wad::WAD_MAGIC,
 };
 
 pub trait Vfs: DynClone + Send + Sync {
@@ -154,6 +157,7 @@ pub enum ArchiveKind {
     Rarc,
     U8,
     Disc(nod::Format),
+    Wad,
 }
 
 impl Display for ArchiveKind {
@@ -162,6 +166,7 @@ impl Display for ArchiveKind {
             ArchiveKind::Rarc => write!(f, "RARC"),
             ArchiveKind::U8 => write!(f, "U8"),
             ArchiveKind::Disc(format) => write!(f, "Disc ({})", format),
+            ArchiveKind::Wad => write!(f, "WAD"),
         }
     }
 }
@@ -169,18 +174,19 @@ impl Display for ArchiveKind {
 pub fn detect<R>(file: &mut R) -> io::Result<FileFormat>
 where R: Read + Seek + ?Sized {
     file.seek(SeekFrom::Start(0))?;
-    let mut magic = [0u8; 4];
+    let mut magic = [0u8; 8];
     match file.read_exact(&mut magic) {
         Ok(_) => {}
         Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => return Ok(FileFormat::Regular),
         Err(e) => return Err(e),
     }
-    file.seek_relative(-4)?;
+    file.seek_relative(-8)?;
     match magic {
-        YAY0_MAGIC => Ok(FileFormat::Compressed(CompressionKind::Yay0)),
-        YAZ0_MAGIC => Ok(FileFormat::Compressed(CompressionKind::Yaz0)),
-        RARC_MAGIC => Ok(FileFormat::Archive(ArchiveKind::Rarc)),
-        U8_MAGIC => Ok(FileFormat::Archive(ArchiveKind::U8)),
+        _ if magic.starts_with(&YAY0_MAGIC) => Ok(FileFormat::Compressed(CompressionKind::Yay0)),
+        _ if magic.starts_with(&YAZ0_MAGIC) => Ok(FileFormat::Compressed(CompressionKind::Yaz0)),
+        _ if magic.starts_with(&RARC_MAGIC) => Ok(FileFormat::Archive(ArchiveKind::Rarc)),
+        _ if magic.starts_with(&U8_MAGIC) => Ok(FileFormat::Archive(ArchiveKind::U8)),
+        WAD_MAGIC => Ok(FileFormat::Archive(ArchiveKind::Wad)),
         _ => {
             let format = nod::Disc::detect(file)?;
             file.seek(SeekFrom::Start(0))?;
@@ -332,6 +338,7 @@ pub fn open_fs(mut file: Box<dyn VfsFile>, kind: ArchiveKind) -> io::Result<Box<
                 disc.open_partition_kind(nod::PartitionKind::Data).map_err(nod_to_io_error)?;
             Ok(Box::new(DiscFs::new(disc, partition, metadata.mtime)?))
         }
+        ArchiveKind::Wad => Ok(Box::new(WadFs::new(file)?)),
     }
 }
 
