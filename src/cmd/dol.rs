@@ -296,6 +296,8 @@ pub struct ModuleConfig {
 pub struct ExtractConfig {
     /// The name of the symbol to extract.
     pub symbol: String,
+    /// Optionally rename the output symbol. (e.g. symbol$1234 -> symbol)
+    pub rename: Option<String>,
     /// If specified, the symbol's data will be extracted to the given file.
     /// Path is relative to `out_dir/bin`.
     #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "Option::is_none")]
@@ -385,6 +387,7 @@ pub struct OutputModule {
 #[derive(Serialize, Deserialize, Debug, Clone, Default)]
 pub struct OutputExtract {
     pub symbol: String,
+    pub rename: Option<String>,
     #[serde(with = "unix_path_serde_option")]
     pub binary: Option<Utf8UnixPathBuf>,
     #[serde(with = "unix_path_serde_option")]
@@ -1014,7 +1017,8 @@ fn split_write_obj(
 
         if header_kind != HeaderKind::None {
             if let Some(header) = &extract.header {
-                let header_string = bin2c(symbol, section, data, header_kind);
+                let header_string =
+                    bin2c(symbol, section, data, header_kind, extract.rename.as_deref());
                 let out_path = base_dir.join("include").join(header.with_encoding());
                 if let Some(parent) = out_path.parent() {
                     DirBuilder::new().recursive(true).create(parent)?;
@@ -1026,6 +1030,7 @@ fn split_write_obj(
         // Copy to output config
         out_config.extract.push(OutputExtract {
             symbol: symbol.name.clone(),
+            rename: extract.rename.clone(),
             binary: extract.binary.clone(),
             header: extract.header.clone(),
             header_type: header_kind.to_string(),

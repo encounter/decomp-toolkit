@@ -50,15 +50,26 @@ impl fmt::Display for HeaderKind {
 }
 
 /// Converts a binary blob into a C array.
-pub fn bin2c(symbol: &ObjSymbol, section: &ObjSection, data: &[u8], kind: HeaderKind) -> String {
+pub fn bin2c(
+    symbol: &ObjSymbol,
+    section: &ObjSection,
+    data: &[u8],
+    kind: HeaderKind,
+    rename: Option<&str>,
+) -> String {
     match kind {
         HeaderKind::None => String::new(),
-        HeaderKind::Symbol => bin2c_symbol(symbol, section, data),
+        HeaderKind::Symbol => bin2c_symbol(symbol, section, data, rename),
         HeaderKind::Raw => bin2c_raw(data),
     }
 }
 
-fn bin2c_symbol(symbol: &ObjSymbol, section: &ObjSection, data: &[u8]) -> String {
+fn bin2c_symbol(
+    symbol: &ObjSymbol,
+    section: &ObjSection,
+    data: &[u8],
+    rename: Option<&str>,
+) -> String {
     let mut output = String::new();
     output.push_str(PROLOGUE);
     output.push_str(&format!(
@@ -72,7 +83,11 @@ fn bin2c_symbol(symbol: &ObjSymbol, section: &ObjSection, data: &[u8]) -> String
         output.push_str("const ");
     }
     output.push_str("unsigned char ");
-    output.push_str(symbol.demangled_name.as_deref().unwrap_or(symbol.name.as_str()));
+    if let Some(rename) = rename {
+        output.push_str(rename);
+    } else {
+        output.push_str(symbol.demangled_name.as_deref().unwrap_or(symbol.name.as_str()));
+    }
     output.push_str(&format!("[] ATTRIBUTE_ALIGN({}) = {{", symbol.align.unwrap_or(4)));
     for (i, byte) in data.iter().enumerate() {
         if i % 16 == 0 {
