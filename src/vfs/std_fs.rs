@@ -55,10 +55,10 @@ impl StdFile {
     pub fn new(path: Utf8NativePathBuf) -> Self { StdFile { path, file: None, mmap: None } }
 
     pub fn file(&mut self) -> io::Result<&mut BufReader<fs::File>> {
-        if self.file.is_none() {
-            self.file = Some(BufReader::new(fs::File::open(&self.path)?));
-        }
-        Ok(self.file.as_mut().unwrap())
+        Ok(match self.file {
+            Some(ref mut file) => file,
+            None => self.file.insert(BufReader::new(fs::File::open(&self.path)?)),
+        })
     }
 }
 
@@ -86,13 +86,15 @@ impl Seek for StdFile {
 
 impl VfsFile for StdFile {
     fn map(&mut self) -> io::Result<&[u8]> {
-        if self.file.is_none() {
-            self.file = Some(BufReader::new(fs::File::open(&self.path)?));
-        }
-        if self.mmap.is_none() {
-            self.mmap = Some(unsafe { memmap2::Mmap::map(self.file.as_ref().unwrap().get_ref())? });
-        }
-        Ok(self.mmap.as_ref().unwrap())
+        let file = match self.file {
+            Some(ref mut file) => file,
+            None => self.file.insert(BufReader::new(fs::File::open(&self.path)?)),
+        };
+        let mmap = match self.mmap {
+            Some(ref mmap) => mmap,
+            None => self.mmap.insert(unsafe { memmap2::Mmap::map(file.get_ref())? }),
+        };
+        Ok(mmap)
     }
 
     fn metadata(&mut self) -> io::Result<VfsMetadata> {

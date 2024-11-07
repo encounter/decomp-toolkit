@@ -23,6 +23,7 @@ use crate::{
 pub struct WadFs {
     file: Box<dyn VfsFile>,
     wad: WadFile,
+    mtime: Option<FileTime>,
 }
 
 enum WadFindResult<'a> {
@@ -34,9 +35,10 @@ enum WadFindResult<'a> {
 
 impl WadFs {
     pub fn new(mut file: Box<dyn VfsFile>) -> io::Result<Self> {
+        let mtime = file.metadata()?.mtime;
         let wad = process_wad(file.as_mut())
             .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e))?;
-        Ok(Self { file, wad })
+        Ok(Self { file, wad, mtime })
     }
 
     fn find(&self, path: &str) -> Option<WadFindResult> {
@@ -81,7 +83,7 @@ impl Vfs for WadFs {
             match result {
                 WadFindResult::Root => Err(VfsError::IsADirectory),
                 WadFindResult::Static(data) => {
-                    Ok(Box::new(StaticFile::new(Arc::from(data), self.file.metadata()?.mtime)))
+                    Ok(Box::new(StaticFile::new(Arc::from(data), self.mtime)))
                 }
                 WadFindResult::Content(content_index, content) => {
                     let offset = self.wad.content_offset(content_index);
@@ -93,7 +95,7 @@ impl Vfs for WadFs {
                             &self.wad.title_key,
                             &content.iv(),
                         ),
-                        self.file.metadata()?.mtime,
+                        self.mtime,
                     )))
                 }
                 WadFindResult::Window(offset, len) => {
@@ -129,20 +131,23 @@ impl Vfs for WadFs {
     }
 
     fn metadata(&mut self, path: &Utf8UnixPath) -> VfsResult<VfsMetadata> {
-        let mtime = self.file.metadata()?.mtime;
         if let Some(result) = self.find(path.as_str()) {
             match result {
                 WadFindResult::Root => {
-                    Ok(VfsMetadata { file_type: VfsFileType::Directory, len: 0, mtime })
+                    Ok(VfsMetadata { file_type: VfsFileType::Directory, len: 0, mtime: self.mtime })
                 }
-                WadFindResult::Static(data) => {
-                    Ok(VfsMetadata { file_type: VfsFileType::File, len: data.len() as u64, mtime })
-                }
-                WadFindResult::Content(_, content) => {
-                    Ok(VfsMetadata { file_type: VfsFileType::File, len: content.size.get(), mtime })
-                }
+                WadFindResult::Static(data) => Ok(VfsMetadata {
+                    file_type: VfsFileType::File,
+                    len: data.len() as u64,
+                    mtime: self.mtime,
+                }),
+                WadFindResult::Content(_, content) => Ok(VfsMetadata {
+                    file_type: VfsFileType::File,
+                    len: content.size.get(),
+                    mtime: self.mtime,
+                }),
                 WadFindResult::Window(_, len) => {
-                    Ok(VfsMetadata { file_type: VfsFileType::File, len, mtime })
+                    Ok(VfsMetadata { file_type: VfsFileType::File, len, mtime: self.mtime })
                 }
             }
         } else {
@@ -168,19 +173,21 @@ impl WadContent {
         Self { inner: WadContentInner::Stream(inner), mtime }
     }
 
-    fn convert_to_mapped(&mut self) {
+    fn convert_to_mapped(&mut self) -> io::Result<()> {
         match &mut self.inner {
             WadContentInner::Stream(stream) => {
-                let pos = stream.stream_position().unwrap();
-                stream.seek(SeekFrom::Start(0)).unwrap();
-                let mut data = vec![0u8; stream.len() as usize];
-                stream.read_exact(&mut data).unwrap();
-                let mut cursor = Cursor::new(Arc::from(data.as_slice()));
+                let pos = stream.stream_position()?;
+                stream.seek(SeekFrom::Start(0))?;
+                let mut data = <[u8]>::new_box_zeroed_with_elems(stream.len() as usize)
+                    .map_err(|_| io::Error::from(io::ErrorKind::OutOfMemory))?;
+                stream.read_exact(&mut data)?;
+                let mut cursor = Cursor::new(Arc::from(data));
                 cursor.set_position(pos);
                 self.inner = WadContentInner::Mapped(cursor);
             }
             WadContentInner::Mapped(_) => {}
         };
+        Ok(())
     }
 }
 
@@ -220,7 +227,7 @@ impl Seek for WadContent {
 
 impl VfsFile for WadContent {
     fn map(&mut self) -> io::Result<&[u8]> {
-        self.convert_to_mapped();
+        self.convert_to_mapped()?;
         match &mut self.inner {
             WadContentInner::Stream(_) => unreachable!(),
             WadContentInner::Mapped(data) => Ok(data.get_ref()),

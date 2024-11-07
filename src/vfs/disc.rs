@@ -10,7 +10,7 @@ use nodtool::{
     nod::{Disc, DiscStream, Fst, NodeKind, OwnedFileStream, PartitionBase, PartitionMeta},
 };
 use typed_path::Utf8UnixPath;
-use zerocopy::IntoBytes;
+use zerocopy::{FromZeros, IntoBytes};
 
 use super::{
     next_non_empty, StaticFile, Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult,
@@ -252,19 +252,21 @@ impl DiscFile {
         Self { inner: DiscFileInner::Stream(file), mtime }
     }
 
-    fn convert_to_mapped(&mut self) {
+    fn convert_to_mapped(&mut self) -> io::Result<()> {
         match &mut self.inner {
             DiscFileInner::Stream(stream) => {
-                let pos = stream.stream_position().unwrap();
-                stream.seek(SeekFrom::Start(0)).unwrap();
-                let mut data = vec![0u8; stream.len() as usize];
-                stream.read_exact(&mut data).unwrap();
-                let mut cursor = Cursor::new(Arc::from(data.as_slice()));
+                let pos = stream.stream_position()?;
+                stream.seek(SeekFrom::Start(0))?;
+                let mut data = <[u8]>::new_box_zeroed_with_elems(stream.len() as usize)
+                    .map_err(|_| io::Error::from(io::ErrorKind::OutOfMemory))?;
+                stream.read_exact(&mut data)?;
+                let mut cursor = Cursor::new(Arc::from(data));
                 cursor.set_position(pos);
                 self.inner = DiscFileInner::Mapped(cursor);
             }
             DiscFileInner::Mapped(_) => {}
         };
+        Ok(())
     }
 }
 
@@ -304,7 +306,7 @@ impl Seek for DiscFile {
 
 impl VfsFile for DiscFile {
     fn map(&mut self) -> io::Result<&[u8]> {
-        self.convert_to_mapped();
+        self.convert_to_mapped()?;
         match &mut self.inner {
             DiscFileInner::Stream(_) => unreachable!(),
             DiscFileInner::Mapped(data) => Ok(data.get_ref()),
