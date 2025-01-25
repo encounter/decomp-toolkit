@@ -149,7 +149,7 @@ impl FunctionSlices {
         if check_prologue_sequence(section, addr, Some(ins))? {
             if let Some(prologue) = self.prologue {
                 if prologue != addr && prologue != addr - 4 {
-                    bail!("Found duplicate prologue: {:#010X} and {:#010X}", prologue, addr)
+                    bail!("Found multiple functions inside a symbol: {:#010X} and {:#010X}. Check symbols.txt?", prologue, addr)
                 }
             } else {
                 self.prologue = Some(addr);
