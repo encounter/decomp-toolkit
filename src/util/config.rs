@@ -710,7 +710,7 @@ where R: BufRead + ?Sized {
                 ensure!(
                     section.contains_range(start..end)
                         || (start == section_end && end == section_end),
-                    "Section {} ({:#010X}..{:#010X}) does not contain range {:#010X}..{:#010X}",
+                    "Section {} ({:#010X}..{:#010X}) does not contain range {:#010X}..{:#010X}. Check splits.txt?",
                     name,
                     section.address,
                     section.address + section.size,
