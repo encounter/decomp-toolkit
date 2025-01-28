@@ -59,7 +59,7 @@ use crate::{
         split::{is_linker_generated_object, split_obj, update_splits},
         IntoCow, ToCow,
     },
-    vfs::{open_file, open_file_with_fs, open_fs, ArchiveKind, Vfs, VfsFile},
+    vfs::{detect, open_file, open_file_with_fs, open_fs, ArchiveKind, FileFormat, Vfs, VfsFile},
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -2180,12 +2180,18 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
             };
             if is_file {
                 let mut file = open_file(&path, false)?;
-                let format = nodtool::nod::Disc::detect(file.as_mut())
+                let format = detect(file.as_mut())
                     .with_context(|| format!("Detecting file type for {}", path))?;
-                if let Some(format) = format {
-                    file.rewind()?;
-                    let fs = open_fs(file, ArchiveKind::Disc(format))?;
-                    return Ok(ObjectBase::Vfs(path, fs));
+                match format {
+                    FileFormat::Archive(ArchiveKind::Disc(format)) => {
+                        let fs = open_fs(file, ArchiveKind::Disc(format))?;
+                        return Ok(ObjectBase::Vfs(path, fs));
+                    }
+                    FileFormat::Archive(ArchiveKind::Wad) => {
+                        let fs = open_fs(file, ArchiveKind::Wad)?;
+                        return Ok(ObjectBase::Vfs(path, fs));
+                    }
+                    _ => {}
                 }
             }
         }
