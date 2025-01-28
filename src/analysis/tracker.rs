@@ -734,55 +734,65 @@ impl Tracker {
                     );
                 }
             }
-            let data_kind = self
+            let (data_kind, inferred_alignment) = self
                 .data_types
                 .get(&target)
                 .map(|dt| match dt {
-                    DataKind::Unknown => ObjDataKind::Unknown,
-                    DataKind::Word => ObjDataKind::Byte4,
-                    DataKind::Half => ObjDataKind::Byte2,
-                    DataKind::Byte => ObjDataKind::Byte,
-                    DataKind::Float => ObjDataKind::Float,
-                    DataKind::Double => ObjDataKind::Double,
+                    DataKind::Unknown => (ObjDataKind::Unknown, None),
+                    DataKind::Word => (ObjDataKind::Byte4, None),
+                    DataKind::Half => (ObjDataKind::Byte2, None),
+                    DataKind::Byte => (ObjDataKind::Byte, None),
+                    DataKind::Float => (ObjDataKind::Float, Some(4)),
+                    DataKind::Double => (ObjDataKind::Double, Some(8)),
                 })
                 .unwrap_or_default();
-            let (target_symbol, addend) = if let Some(symbol) =
-                self.special_symbol(obj, target.address, reloc_kind)
-            {
-                (symbol, 0)
-            } else if let Some((symbol_idx, symbol)) =
-                obj.symbols.for_relocation(target, reloc_kind)?
-            {
-                let symbol_address = symbol.address;
-                // TODO meh
-                if data_kind != ObjDataKind::Unknown
-                    && symbol.data_kind == ObjDataKind::Unknown
-                    && symbol_address as u32 == target.address
+            let (target_symbol, addend) =
+                if let Some(symbol) = self.special_symbol(obj, target.address, reloc_kind) {
+                    (symbol, 0)
+                } else if let Some((symbol_idx, symbol)) =
+                    obj.symbols.for_relocation(target, reloc_kind)?
                 {
-                    obj.symbols.replace(symbol_idx, ObjSymbol { data_kind, ..symbol.clone() })?;
-                }
-                (symbol_idx, target.address as i64 - symbol_address as i64)
-            } else {
-                // Create a new label
-                let name = if obj.module_id == 0 {
-                    format!("lbl_{:08X}", target.address)
+                    let symbol_address = symbol.address;
+                    if symbol_address as u32 == target.address
+                        && ((data_kind != ObjDataKind::Unknown
+                            && symbol.data_kind == ObjDataKind::Unknown)
+                            || (symbol.align.is_none() && inferred_alignment.is_some()))
+                    {
+                        let mut new_symbol = symbol.clone();
+                        if symbol.data_kind == ObjDataKind::Unknown {
+                            new_symbol.data_kind = data_kind;
+                        }
+                        if symbol.align.is_none() {
+                            if let Some(inferred_alignment) = inferred_alignment {
+                                if symbol_address as u32 % inferred_alignment == 0 {
+                                    new_symbol.align = Some(inferred_alignment);
+                                }
+                            }
+                        }
+                        obj.symbols.replace(symbol_idx, new_symbol)?;
+                    }
+                    (symbol_idx, target.address as i64 - symbol_address as i64)
                 } else {
-                    format!(
-                        "lbl_{}_{}_{:X}",
-                        obj.module_id,
-                        obj.sections[target.section].name.trim_start_matches('.'),
-                        target.address
-                    )
+                    // Create a new label
+                    let name = if obj.module_id == 0 {
+                        format!("lbl_{:08X}", target.address)
+                    } else {
+                        format!(
+                            "lbl_{}_{}_{:X}",
+                            obj.module_id,
+                            obj.sections[target.section].name.trim_start_matches('.'),
+                            target.address
+                        )
+                    };
+                    let symbol_idx = obj.symbols.add_direct(ObjSymbol {
+                        name,
+                        address: target.address as u64,
+                        section: Some(target.section),
+                        data_kind,
+                        ..Default::default()
+                    })?;
+                    (symbol_idx, 0)
                 };
-                let symbol_idx = obj.symbols.add_direct(ObjSymbol {
-                    name,
-                    address: target.address as u64,
-                    section: Some(target.section),
-                    data_kind,
-                    ..Default::default()
-                })?;
-                (symbol_idx, 0)
-            };
             let reloc = ObjReloc { kind: reloc_kind, target_symbol, addend, module: None };
             let section = &mut obj.sections[addr.section];
             if replace {
