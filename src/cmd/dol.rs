@@ -1720,7 +1720,7 @@ fn diff(args: DiffArgs) -> Result<()> {
                     );
                 }
                 found = true;
-            } else if linked_sym.kind == orig_sym.kind && linked_sym.size == orig_sym.size {
+            } else if linked_sym.kind == orig_sym.kind {
                 // Fuzzy match
                 let orig_data = orig_section.data_range(
                     orig_sym.address as u32,
@@ -1730,7 +1730,12 @@ fn diff(args: DiffArgs) -> Result<()> {
                     linked_sym.address as u32,
                     linked_sym.address as u32 + linked_sym.size as u32,
                 )?;
-                if orig_data == linked_data {
+                let len = orig_data.len().min(linked_data.len());
+                if orig_data[..len] == linked_data[..len]
+                    // Ignore padding differences
+                    && orig_data[len..].iter().all(|&b| b == 0)
+                    && linked_data[len..].iter().all(|&b| b == 0)
+                {
                     found = true;
                 }
             }
@@ -1794,7 +1799,11 @@ fn diff(args: DiffArgs) -> Result<()> {
             linked_sym.address as u32,
             linked_sym.address as u32 + linked_sym.size as u32,
         )?;
-        if orig_data != linked_data {
+        let len = orig_data.len().min(linked_data.len());
+        if orig_data[..len] != linked_data[..len]
+            || orig_data[len..].iter().any(|&b| b != 0)
+            || linked_data[len..].iter().any(|&b| b != 0)
+        {
             log::error!(
                 "Data mismatch for {} (type {:?}, size {:#X}) at {:#010X}",
                 orig_sym.name,
@@ -1834,6 +1843,15 @@ fn diff(args: DiffArgs) -> Result<()> {
             }
 
             std::process::exit(1);
+        } else if orig_data.len() != linked_data.len() {
+            log::error!(
+                "Size mismatch for {} (type {:?}) at {:#010X}: Expected {:#X}, found {:#X}",
+                orig_sym.name,
+                orig_sym.kind,
+                orig_sym.address,
+                orig_data.len(),
+                linked_data.len()
+            );
         }
     }
 
