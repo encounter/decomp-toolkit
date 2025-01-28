@@ -4,6 +4,7 @@ use anyhow::{anyhow, bail, Context};
 use argp::FromArgs;
 use size::Size;
 use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPath};
+use unicode_width::UnicodeWidthStr;
 
 use crate::{
     util::{file::buf_copy, path::native_path},
@@ -72,7 +73,7 @@ fn column_widths<const N: usize>(entries: &[Columns<N>]) -> [usize; N] {
     let mut widths = [0usize; N];
     for text in entries {
         for (i, column) in text.iter().enumerate() {
-            widths[i] = widths[i].max(column.len());
+            widths[i] = widths[i].max(column.width_cjk());
         }
     }
     widths
@@ -133,7 +134,11 @@ pub fn ls(args: LsArgs) -> anyhow::Result<()> {
                         print!("{}", SEPARATOR);
                     }
                     written += 1;
-                    print!("{:width$}", column, width = widths[i]);
+                    print!("{}", column);
+                    let remain = widths[i].saturating_sub(column.width_cjk());
+                    if remain > 0 {
+                        print!("{:width$}", "", width = remain);
+                    }
                 }
             }
             println!();

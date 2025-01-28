@@ -77,6 +77,7 @@ syntect = { version = "5.2", features = ["parsing", "regex-fancy", "dump-load"],
 tracing = "0.1"
 tracing-attributes = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+unicode-width = "0.2"
 xxhash-rust = { version = "0.8", features = ["xxh3"] }
 zerocopy = { version = "0.8", features = ["derive"] }
 
