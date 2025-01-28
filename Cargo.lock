@@ -383,7 +383,6 @@ dependencies = [
  "once_cell",
  "orthrus-ncompress",
  "owo-colors",
- "petgraph",
  "ppc750cl",
  "rayon",
  "regex",
