@@ -1,11 +1,11 @@
 use std::{
-    collections::{btree_map, hash_map, BTreeMap, HashMap},
+    collections::{btree_map, BTreeMap, HashMap},
     fs,
     fs::DirBuilder,
     io::{Cursor, Write},
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{anyhow, ensure, Context, Result};
 use argp::FromArgs;
 use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
 use object::{
@@ -14,7 +14,7 @@ use object::{
     FileFlags, Object, ObjectSection, ObjectSymbol, RelocationTarget, SectionFlags, SectionIndex,
     SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection,
 };
-use typed_path::{Utf8NativePath, Utf8NativePathBuf};
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
     obj::ObjKind,
@@ -22,7 +22,7 @@ use crate::{
         asm::write_asm,
         comment::{CommentSym, MWComment},
         config::{write_splits_file, write_symbols_file},
-        elf::{process_elf, write_elf},
+        elf::process_elf,
         file::{buf_writer, process_rsp},
         path::native_path,
         reader::{Endian, FromReader},
@@ -47,7 +47,6 @@ enum SubCommand {
     Disasm(DisasmArgs),
     Fixup(FixupArgs),
     Signatures(SignaturesArgs),
-    Split(SplitArgs),
     Info(InfoArgs),
 }
 
@@ -73,18 +72,6 @@ pub struct FixupArgs {
     #[argp(positional, from_str_fn(native_path))]
     /// output file
     out_file: Utf8NativePathBuf,
-}
-
-#[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Splits an executable ELF into relocatable objects.
-#[argp(subcommand, name = "split")]
-pub struct SplitArgs {
-    #[argp(positional, from_str_fn(native_path))]
-    /// input file
-    in_file: Utf8NativePathBuf,
-    #[argp(positional, from_str_fn(native_path))]
-    /// output directory
-    out_dir: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -128,7 +115,6 @@ pub fn run(args: Args) -> Result<()> {
         SubCommand::Config(c_args) => config(c_args),
         SubCommand::Disasm(c_args) => disasm(c_args),
         SubCommand::Fixup(c_args) => fixup(c_args),
-        SubCommand::Split(c_args) => split(c_args),
         SubCommand::Signatures(c_args) => signatures(c_args),
         SubCommand::Info(c_args) => info(c_args),
     }
@@ -177,38 +163,6 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             w.flush()?;
         }
     }
-    Ok(())
-}
-
-fn split(args: SplitArgs) -> Result<()> {
-    let obj = process_elf(&args.in_file)?;
-    ensure!(obj.kind == ObjKind::Executable, "Can only split executable objects");
-
-    let mut file_map = HashMap::<String, Vec<u8>>::new();
-
-    let split_objs = split_obj(&obj, None)?;
-    for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
-        let out_obj = write_elf(split_obj, false)?;
-        match file_map.entry(unit.name.clone()) {
-            hash_map::Entry::Vacant(e) => e.insert(out_obj),
-            hash_map::Entry::Occupied(_) => bail!("Duplicate file {}", unit.name),
-        };
-    }
-
-    let mut rsp_file = buf_writer(Utf8NativePath::new("rsp"))?;
-    for unit in &obj.link_order {
-        let object = file_map
-            .get(&unit.name)
-            .ok_or_else(|| anyhow!("Failed to find object file for unit '{}'", unit.name))?;
-        let out_name = file_stem_from_unit(&unit.name);
-        let out_path = args.out_dir.join(format!("{}.o", out_name));
-        writeln!(rsp_file, "{}", out_path)?;
-        if let Some(parent) = out_path.parent() {
-            DirBuilder::new().recursive(true).create(parent)?;
-        }
-        fs::write(&out_path, object).with_context(|| format!("Failed to write '{}'", out_path))?;
-    }
-    rsp_file.flush()?;
     Ok(())
 }
 
