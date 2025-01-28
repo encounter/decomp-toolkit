@@ -269,7 +269,8 @@ impl Tracker {
         possible_missed_branches: &mut BTreeMap<SectionAddress, Box<VM>>,
     ) -> Result<ExecCbResult<()>> {
         let ExecCbData { executor, vm, result, ins_addr, section: _, ins, block_start: _ } = data;
-        let is_function_addr = |addr: SectionAddress| addr >= function_start && addr < function_end;
+        // Using > instead of >= to treat a branch to the beginning of the function as a tail call
+        let is_function_addr = |addr: SectionAddress| addr > function_start && addr < function_end;
         let _span = debug_span!("ins", addr = %ins_addr, op = ?ins.op).entered();
 
         match result {
