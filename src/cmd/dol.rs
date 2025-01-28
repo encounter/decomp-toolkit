@@ -1642,24 +1642,6 @@ fn is_hex(s: &str) -> bool {
     s.chars().all(|c| c.is_ascii_digit() || matches!(c, 'a'..='f' | 'A'..='F'))
 }
 
-#[cfg(test)]
-mod test {
-    use super::*;
-
-    #[test]
-    fn test_symbol_name_fuzzy_eq() {
-        assert!(symbol_name_fuzzy_eq("symbol", "symbol"));
-        assert!(symbol_name_fuzzy_eq("@1234", "@5678"));
-        assert!(symbol_name_fuzzy_eq("symbol$1234", "symbol$5678"));
-        assert!(symbol_name_fuzzy_eq("symbol", "symbol_80123456"));
-        assert!(symbol_name_fuzzy_eq("symbol_80123456", "symbol"));
-        assert!(!symbol_name_fuzzy_eq("symbol", "symbol2"));
-        assert!(!symbol_name_fuzzy_eq("symbol@1234", "symbol@5678"));
-        assert!(!symbol_name_fuzzy_eq("symbol", "symbol_80123456_"));
-        assert!(!symbol_name_fuzzy_eq("symbol_80123456_", "symbol"));
-    }
-}
-
 fn diff(args: DiffArgs) -> Result<()> {
     log::info!("Loading {}", args.config);
     let mut config_file = open_file(&args.config, true)?;
@@ -2290,4 +2272,22 @@ fn extracted_path(target_dir: &Utf8NativePath, path: &Utf8UnixPath) -> Utf8Nativ
         }
     }
     target_path
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_symbol_name_fuzzy_eq() {
+        assert!(symbol_name_fuzzy_eq("symbol", "symbol"));
+        assert!(symbol_name_fuzzy_eq("@1234", "@5678"));
+        assert!(symbol_name_fuzzy_eq("symbol$1234", "symbol$5678"));
+        assert!(symbol_name_fuzzy_eq("symbol", "symbol_80123456"));
+        assert!(symbol_name_fuzzy_eq("symbol_80123456", "symbol"));
+        assert!(!symbol_name_fuzzy_eq("symbol", "symbol2"));
+        assert!(!symbol_name_fuzzy_eq("symbol@1234", "symbol@5678"));
+        assert!(!symbol_name_fuzzy_eq("symbol", "symbol_80123456_"));
+        assert!(!symbol_name_fuzzy_eq("symbol_80123456_", "symbol"));
+    }
 }
