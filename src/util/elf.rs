@@ -17,7 +17,7 @@ use object::{
         elf::{ProgramHeader, Rel, SectionHeader, SectionIndex, SymbolIndex, Writer},
         StringId,
     },
-    Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
+    Architecture, Endianness, File, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
     RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection,
 };
 use typed_path::Utf8NativePath;
@@ -49,7 +49,7 @@ enum BoundaryState {
 
 pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
     let mut file = open_file(path, true)?;
-    let obj_file = object::read::File::parse(file.map()?)?;
+    let obj_file = File::parse(file.map()?)?;
     let architecture = match obj_file.architecture() {
         Architecture::PowerPc => ObjArchitecture::PowerPc,
         arch => bail!("Unexpected architecture: {arch:?}"),
@@ -106,49 +106,14 @@ pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
         });
     }
 
-    let mw_comment = if let Some(comment_section) = obj_file.section_by_name(".comment") {
-        let data = comment_section.uncompressed_data()?;
-        if data.is_empty() {
-            None
-        } else {
-            let mut reader = Cursor::new(&*data);
-            let header = MWComment::from_reader(&mut reader, Endian::Big)
-                .context("While reading .comment section")?;
-            log::debug!("Loaded .comment section header {:?}", header);
-            let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
-            comment_syms.push(CommentSym::from_reader(&mut reader, Endian::Big)?); // ELF null symbol
-            for symbol in obj_file.symbols() {
-                let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
-                log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
-                comment_syms.push(comment_sym);
-            }
-            ensure!(
-                data.len() - reader.position() as usize == 0,
-                ".comment section data not fully read"
-            );
-            Some((header, comment_syms))
-        }
-    } else {
+    let mw_comment = load_comment(&obj_file).unwrap_or_else(|e| {
+        log::warn!("Failed to read .comment section: {e:#}");
         None
-    };
-
-    let split_meta = if let Some(split_meta_section) = obj_file.section_by_name(SPLITMETA_SECTION) {
-        let data = split_meta_section.uncompressed_data()?;
-        if data.is_empty() {
-            None
-        } else {
-            let metadata = SplitMeta::from_section(
-                split_meta_section,
-                obj_file.endianness(),
-                obj_file.is_64(),
-            )
-            .context("While reading .note.split section")?;
-            log::debug!("Loaded .note.split section");
-            Some(metadata)
-        }
-    } else {
+    });
+    let split_meta = load_split_meta(&obj_file).unwrap_or_else(|e| {
+        log::warn!("Failed to read .note.split section: {e:#}");
         None
-    };
+    });
 
     let mut symbols: Vec<ObjSymbol> = vec![];
     let mut symbol_indexes: Vec<Option<ObjSymbolIndex>> = vec![None /* ELF null symbol */];
@@ -382,6 +347,41 @@ pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
     obj.arena_hi = arena_hi;
     obj.link_order = link_order;
     Ok(obj)
+}
+
+fn load_split_meta(obj_file: &File) -> Result<Option<SplitMeta>> {
+    let Some(split_meta_section) = obj_file.section_by_name(SPLITMETA_SECTION) else {
+        return Ok(None);
+    };
+    let data = split_meta_section.uncompressed_data()?;
+    if data.is_empty() {
+        return Ok(None);
+    }
+    let metadata =
+        SplitMeta::from_section(split_meta_section, obj_file.endianness(), obj_file.is_64())?;
+    log::debug!("Loaded .note.split section");
+    Ok(Some(metadata))
+}
+
+fn load_comment(obj_file: &File) -> Result<Option<(MWComment, Vec<CommentSym>)>> {
+    let Some(comment_section) = obj_file.section_by_name(".comment") else {
+        return Ok(None);
+    };
+    let data = comment_section.uncompressed_data()?;
+    if data.is_empty() {
+        return Ok(None);
+    }
+    let mut reader = Cursor::new(&*data);
+    let header = MWComment::from_reader(&mut reader, Endian::Big)?;
+    log::debug!("Loaded .comment section header {:?}", header);
+    let mut comment_syms = Vec::with_capacity(obj_file.symbols().count());
+    for symbol in obj_file.symbols() {
+        let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
+        log::debug!("Symbol {:?} -> Comment {:?}", symbol, comment_sym);
+        comment_syms.push(comment_sym);
+    }
+    ensure!(data.len() == reader.position() as usize, "Section data not fully read");
+    Ok(Some((header, comment_syms)))
 }
 
 pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {

@@ -159,14 +159,15 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 
             let mut files_out = buf_writer(&args.out.join("link_order.txt"))?;
             for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
-                let out_path = asm_dir.join(file_name_from_unit(&unit.name, ".s"));
+                let out_name = file_stem_from_unit(&unit.name);
+                let out_path = asm_dir.join(format!("{}.s", out_name));
                 log::info!("Writing {}", out_path);
 
                 let mut w = buf_writer(&out_path)?;
                 write_asm(&mut w, split_obj)?;
                 w.flush()?;
 
-                writeln!(files_out, "{}", file_name_from_unit(&unit.name, ".o"))?;
+                writeln!(files_out, "{}.o", out_name)?;
             }
             files_out.flush()?;
         }
@@ -199,7 +200,8 @@ fn split(args: SplitArgs) -> Result<()> {
         let object = file_map
             .get(&unit.name)
             .ok_or_else(|| anyhow!("Failed to find object file for unit '{}'", unit.name))?;
-        let out_path = args.out_dir.join(file_name_from_unit(&unit.name, ".o"));
+        let out_name = file_stem_from_unit(&unit.name);
+        let out_path = args.out_dir.join(format!("{}.o", out_name));
         writeln!(rsp_file, "{}", out_path)?;
         if let Some(parent) = out_path.parent() {
             DirBuilder::new().recursive(true).create(parent)?;
@@ -210,7 +212,7 @@ fn split(args: SplitArgs) -> Result<()> {
     Ok(())
 }
 
-fn file_name_from_unit(str: &str, suffix: &str) -> String {
+fn file_stem_from_unit(str: &str) -> String {
     let str = str.strip_suffix(ASM_SUFFIX).unwrap_or(str);
     let str = str.strip_prefix("C:").unwrap_or(str);
     let str = str.strip_prefix("D:").unwrap_or(str);
@@ -222,8 +224,7 @@ fn file_name_from_unit(str: &str, suffix: &str) -> String {
         .or_else(|| str.strip_suffix(".o"))
         .unwrap_or(str);
     let str = str.replace('\\', "/");
-    let str = str.strip_prefix('/').unwrap_or(&str);
-    format!("{str}{suffix}")
+    str.strip_prefix('/').unwrap_or(&str).to_string()
 }
 
 const ASM_SUFFIX: &str = " (asm)";
