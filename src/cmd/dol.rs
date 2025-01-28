@@ -971,9 +971,19 @@ fn split_write_obj(
         entry,
         extract: Vec::with_capacity(module.config.extract.len()),
     };
+    let mut object_paths = BTreeMap::new();
     for (unit, split_obj) in module.obj.link_order.iter().zip(&split_objs) {
         let out_obj = write_elf(split_obj, config.export_all)?;
-        let out_path = obj_dir.join(obj_path_for_unit(&unit.name));
+        let obj_path = obj_path_for_unit(&unit.name);
+        let out_path = obj_dir.join(&obj_path);
+        if let Some(existing) = object_paths.insert(obj_path, unit) {
+            bail!(
+                "Duplicate object path: {} and {} both resolve to {}",
+                existing.name,
+                unit.name,
+                out_path,
+            );
+        }
         out_config.units.push(OutputUnit {
             object: out_path.with_unix_encoding(),
             name: unit.name.clone(),
