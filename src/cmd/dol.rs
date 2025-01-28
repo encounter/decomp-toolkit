@@ -1606,25 +1606,58 @@ fn validate(obj: &ObjInfo, elf_file: &Utf8NativePath, state: &AnalyzerState) -> 
 
 /// Check if two symbols' names match, allowing for differences in compiler-generated names,
 /// like @1234 and @5678, or init$1234 and init$5678.
-fn symbol_name_fuzzy_eq(a: &ObjSymbol, b: &ObjSymbol) -> bool {
-    if a.name == b.name {
+fn symbol_name_fuzzy_eq(a: &str, b: &str) -> bool {
+    if a == b {
         return true;
     }
     // Match e.g. @1234 and @5678
-    if a.name.starts_with('@') && b.name.starts_with('@') {
+    if a.starts_with('@') && b.starts_with('@') {
         return true;
     }
     // Match e.g. init$1234 and init$5678
-    if let (Some(a_dollar), Some(b_dollar)) = (a.name.rfind('$'), b.name.rfind('$')) {
-        if a.name[..a_dollar] == b.name[..b_dollar] {
+    if let (Some(a_dollar), Some(b_dollar)) = (a.rfind('$'), b.rfind('$')) {
+        if a[..a_dollar] == b[..b_dollar] {
             if let (Ok(_), Ok(_)) =
-                (a.name[a_dollar + 1..].parse::<u32>(), b.name[b_dollar + 1..].parse::<u32>())
+                (a[a_dollar + 1..].parse::<u32>(), b[b_dollar + 1..].parse::<u32>())
             {
                 return true;
             }
         }
     }
+    // Match e.g. symbol and symbol_80123456 (globalized symbol)
+    if let Some(a_under) = a.rfind('_') {
+        if &a[..a_under] == b && is_hex(&a[a_under + 1..]) {
+            return true;
+        }
+    }
+    if let Some(b_under) = b.rfind('_') {
+        if a == &b[..b_under] && is_hex(&b[b_under + 1..]) {
+            return true;
+        }
+    }
     false
+}
+
+fn is_hex(s: &str) -> bool {
+    s.chars().all(|c| c.is_ascii_digit() || matches!(c, 'a'..='f' | 'A'..='F'))
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn test_symbol_name_fuzzy_eq() {
+        assert!(symbol_name_fuzzy_eq("symbol", "symbol"));
+        assert!(symbol_name_fuzzy_eq("@1234", "@5678"));
+        assert!(symbol_name_fuzzy_eq("symbol$1234", "symbol$5678"));
+        assert!(symbol_name_fuzzy_eq("symbol", "symbol_80123456"));
+        assert!(symbol_name_fuzzy_eq("symbol_80123456", "symbol"));
+        assert!(!symbol_name_fuzzy_eq("symbol", "symbol2"));
+        assert!(!symbol_name_fuzzy_eq("symbol@1234", "symbol@5678"));
+        assert!(!symbol_name_fuzzy_eq("symbol", "symbol_80123456_"));
+        assert!(!symbol_name_fuzzy_eq("symbol_80123456_", "symbol"));
+    }
 }
 
 fn diff(args: DiffArgs) -> Result<()> {
@@ -1671,7 +1704,7 @@ fn diff(args: DiffArgs) -> Result<()> {
             });
         let mut found = false;
         if let Some((_, linked_sym)) = linked_sym {
-            if symbol_name_fuzzy_eq(linked_sym, orig_sym) {
+            if symbol_name_fuzzy_eq(&linked_sym.name, &orig_sym.name) {
                 if linked_sym.size != orig_sym.size &&
                     // TODO validate common symbol sizes
                     // (need to account for inflation bug)
