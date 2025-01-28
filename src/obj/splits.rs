@@ -5,7 +5,7 @@ use itertools::Itertools;
 
 use crate::{
     obj::{ObjInfo, ObjSection, SectionIndex},
-    util::{nested::NestedVec, split::default_section_align},
+    util::split::default_section_align,
 };
 
 /// Marks a split point within a section.
@@ -107,7 +107,9 @@ impl ObjSplits {
     }
 
     pub fn push(&mut self, address: u32, split: ObjSplit) {
-        self.splits.nested_push(address, split);
+        let out = self.splits.entry(address).or_default();
+        out.push(split);
+        out.sort_by_key(|s| s.end);
     }
 
     pub fn remove(&mut self, address: u32) -> Option<Vec<ObjSplit>> { self.splits.remove(&address) }

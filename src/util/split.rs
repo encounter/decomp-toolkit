@@ -530,8 +530,9 @@ fn validate_splits(obj: &ObjInfo) -> Result<()> {
 
 /// Add padding symbols to fill in gaps between splits and symbols.
 fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
-    for (section_index, section, addr, _split) in obj.sections.all_splits() {
-        if section.name == ".ctors" || section.name == ".dtors" {
+    let mut splits = obj.sections.all_splits().peekable();
+    while let Some((section_index, section, addr, split)) = splits.next() {
+        if section.name == ".ctors" || section.name == ".dtors" || addr == split.end {
             continue;
         }
 
@@ -545,19 +546,31 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
             })?
             .is_none()
         {
+            let next_split_address = splits
+                .peek()
+                .map(|(_, _, addr, _)| *addr as u64)
+                .unwrap_or(section.address + section.size);
             let next_symbol_address = obj
                 .symbols
-                .for_section_range(section_index, addr + 1..)
+                .for_section_range(section_index, addr + 1..next_split_address as u32)
                 .find(|&(_, s)| s.size_known && s.size > 0)
                 .map(|(_, s)| s.address)
-                .unwrap_or(section.address + section.size);
+                .unwrap_or(next_split_address);
+            if next_symbol_address <= addr as u64 {
+                continue;
+            }
             let symbol_name = format!(
                 "pad_{:02}_{:08X}_{}",
                 section_index,
                 addr,
                 section.name.trim_start_matches('.')
             );
-            log::debug!("Adding padding symbol {} at {:#010X}", symbol_name, addr);
+            log::debug!(
+                "Adding padding symbol {} at {:#010X}-{:#010X}",
+                symbol_name,
+                addr,
+                next_symbol_address
+            );
             obj.symbols.add_direct(ObjSymbol {
                 name: symbol_name,
                 address: addr as u64,
