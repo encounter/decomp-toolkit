@@ -802,10 +802,7 @@ pub fn apply_map(mut result: MapInfo, obj: &mut ObjInfo) -> Result<()> {
                     }
                     ObjSectionKind::Data | ObjSectionKind::ReadOnlyData => {
                         if section.elf_index == 4 {
-                            if result
-                                .section_symbols
-                                .get(".rodata")
-                                .map_or(false, |m| !m.is_empty())
+                            if result.section_symbols.get(".rodata").is_some_and(|m| !m.is_empty())
                             {
                                 ".rodata"
                             } else {

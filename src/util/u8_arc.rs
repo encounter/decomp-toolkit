@@ -149,7 +149,7 @@ impl<'a> U8View<'a> {
         let mut idx = 1;
         let mut stop_at = None;
         while let Some(node) = self.nodes.get(idx).copied() {
-            if self.get_name(node).map_or(false, |name| name.eq_ignore_ascii_case(current)) {
+            if self.get_name(node).is_ok_and(|name| name.eq_ignore_ascii_case(current)) {
                 current = next_non_empty(&mut split);
                 if current.is_empty() {
                     return Some((idx, node));

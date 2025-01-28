@@ -94,7 +94,7 @@ pub enum Bytes<'a> {
     Owned(Box<[u8]>),
 }
 
-impl<'a> Bytes<'a> {
+impl Bytes<'_> {
     pub fn into_owned(self) -> Box<[u8]> {
         match self {
             Bytes::Borrowed(s) => Box::from(s),
@@ -103,7 +103,7 @@ impl<'a> Bytes<'a> {
     }
 }
 
-impl<'a> AsRef<[u8]> for Bytes<'a> {
+impl AsRef<[u8]> for Bytes<'_> {
     fn as_ref(&self) -> &[u8] {
         match self {
             Bytes::Borrowed(s) => s,

@@ -787,7 +787,7 @@ pub mod signed_hex_serde {
     where D: Deserializer<'de> {
         struct SignedHexVisitor;
 
-        impl<'de> serde::de::Visitor<'de> for SignedHexVisitor {
+        impl serde::de::Visitor<'_> for SignedHexVisitor {
             type Value = i64;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -860,7 +860,7 @@ impl<'de> serde::Deserialize<'de> for SectionAddressRef {
     where D: serde::Deserializer<'de> {
         struct SectionAddressRefVisitor;
 
-        impl<'de> serde::de::Visitor<'de> for SectionAddressRefVisitor {
+        impl serde::de::Visitor<'_> for SectionAddressRefVisitor {
             type Value = SectionAddressRef;
 
             fn expecting(&self, formatter: &mut std::fmt::Formatter) -> std::fmt::Result {
