@@ -385,6 +385,20 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                         new_split_end.address = symbol.address as u32;
                         break;
                     }
+                    // Create a new split if we need to adjust the alignment
+                    if let Some(align) = symbol.align {
+                        if current_address & (align - 1) != 0 {
+                            log::debug!(
+                                "Auto split {:#010X}..{:#010X} for symbol {} with alignment {}",
+                                current_address,
+                                symbol.address,
+                                symbol.name,
+                                align
+                            );
+                            new_split_end.address = symbol.address as u32;
+                            break;
+                        }
+                    }
                 }
 
                 ensure!(
@@ -614,20 +628,54 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                 if let Some(&(_, next_symbol)) = iter.peek() {
                     (
                         next_symbol.name.as_str(),
-                        next_symbol.address,
-                        next_symbol.address + next_symbol.size,
+                        next_symbol.address as u32,
+                        (next_symbol.address + next_symbol.size) as u32,
                         next_symbol.align.unwrap_or(1),
                     )
                 } else {
                     (
                         section.name.as_str(),
-                        section.address + section.size,
-                        section.address + section.size,
+                        (section.address + section.size) as u32,
+                        (section.address + section.size) as u32,
                         1,
                     )
                 };
-            let aligned_end = align_up((symbol.address + symbol.size) as u32, next_align);
-            match aligned_end.cmp(&(next_address as u32)) {
+
+            // Check if symbol is missing data between the end of the symbol and the next symbol
+            let symbol_end = (symbol.address + symbol.size) as u32;
+            if section.kind != ObjSectionKind::Code && next_address > symbol_end {
+                let data = section.data_range(symbol_end, next_address)?;
+                if data.iter().any(|&x| x != 0) {
+                    log::debug!(
+                        "Non-zero data between {:#010X}..{:#010X}, creating new symbol",
+                        symbol_end,
+                        next_address
+                    );
+                    let name = if obj.module_id == 0 {
+                        format!("lbl_{:08X}", symbol_end)
+                    } else {
+                        format!(
+                            "lbl_{}_{}_{:X}",
+                            obj.module_id,
+                            section.name.trim_start_matches('.'),
+                            symbol_end
+                        )
+                    };
+                    to_add.push(ObjSymbol {
+                        name,
+                        address: symbol_end as u64,
+                        section: Some(section_index),
+                        size: (next_address - symbol_end) as u64,
+                        size_known: true,
+                        kind: ObjSymbolKind::Object,
+                        ..Default::default()
+                    });
+                    continue;
+                }
+            }
+
+            let aligned_end = align_up(symbol_end, next_align);
+            match aligned_end.cmp(&next_address) {
                 Ordering::Less => {
                     let symbol_name = format!(
                         "gap_{:02}_{:08X}_{}",
@@ -640,7 +688,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                         name: symbol_name,
                         address: aligned_end as u64,
                         section: Some(section_index),
-                        size: next_address - aligned_end as u64,
+                        size: (next_address - aligned_end) as u64,
                         size_known: true,
                         flags: ObjSymbolFlagSet(
                             ObjSymbolFlags::Global

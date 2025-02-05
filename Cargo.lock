@@ -339,16 +339,16 @@ checksum = "c2e06f9bce634a3c898eb1e5cb949ff63133cbb218af93cc9b38b31d6f3ea285"
 
 [[package]]
 name = "cwextab"
-version = "1.0.2"
+version = "1.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e5aa7f13cc2fcb2bcfd3abc51bdbbf8f1fb729a69ed8c05ecbaa1a42197d1842"
+checksum = "003567b96ff9d8ac3275831650385891bca370092937be625157778b1e58f755"
 dependencies = [
  "thiserror",
 ]
 
 [[package]]
 name = "decomp-toolkit"
-version = "1.4.0"
+version = "1.4.1"
 dependencies = [
  "aes",
  "anyhow",
