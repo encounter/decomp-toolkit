@@ -50,7 +50,7 @@ const MAX_DATA_SECTIONS: usize = 11;
 pub fn run(args: Args) -> Result<()> {
     let mut file = open_file(&args.elf_file, true)?;
     let data = file.map()?;
-    if data.len() >= 4 && &data[0..4] == ALF_MAGIC {
+    if data.len() >= 4 && data[0..4] == ALF_MAGIC {
         return convert_alf(args, data);
     }
 

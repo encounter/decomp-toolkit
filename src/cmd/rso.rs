@@ -204,8 +204,7 @@ fn make_rso(
     let mut rso_sections: Vec<RsoSectionHeader> =
         vec![RsoSectionHeader::default() /* ELF null section */];
     for section in file.sections() {
-        let is_valid_section =
-            section.name().is_ok_and(|n| RSO_SECTION_NAMES.iter().any(|&s| s == n));
+        let is_valid_section = section.name().is_ok_and(|n| RSO_SECTION_NAMES.contains(&n));
         let section_size = section.size();
 
         if !is_valid_section || section_size == 0 {
@@ -321,8 +320,7 @@ fn make_rso(
     let mut exported_relocations: Vec<RsoRelocation> = vec![];
 
     for section in file.sections() {
-        let is_valid_section =
-            section.name().is_ok_and(|n| RSO_SECTION_NAMES.iter().any(|&s| s == n));
+        let is_valid_section = section.name().is_ok_and(|n| RSO_SECTION_NAMES.contains(&n));
         if !is_valid_section {
             continue;
         }

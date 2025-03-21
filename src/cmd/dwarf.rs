@@ -360,7 +360,7 @@ fn blend_fg_color(fg: Color, bg: Color) -> Color {
 
 impl Write for HighlightWriter<'_> {
     fn write(&mut self, buf: &[u8]) -> std::io::Result<usize> {
-        let str = from_utf8(buf).map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+        let str = from_utf8(buf).map_err(std::io::Error::other)?;
         for s in str.split_inclusive('\n') {
             self.line.push_str(s);
             if self.line.ends_with('\n') {
@@ -377,7 +377,7 @@ impl Write for HighlightWriter<'_> {
         let ops = self
             .parse_state
             .parse_line(&self.line, &self.syntax_set)
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))?;
+            .map_err(std::io::Error::other)?;
         let iter = HighlightIterator::new(
             &mut self.highlight_state,
             &ops[..],
