@@ -6,16 +6,17 @@ use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, Sectio
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    util::{file::buf_writer, path::native_path},
+    obj::ObjSectionKind,
+    util::{alf::ALF_MAGIC, dol::process_dol, file::buf_writer, path::native_path},
     vfs::open_file,
 };
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Converts an ELF file to a DOL file.
+/// Converts an ELF (or ALF) file to a DOL file.
 #[argp(subcommand, name = "elf2dol")]
 pub struct Args {
     #[argp(positional, from_str_fn(native_path))]
-    /// path to input ELF
+    /// path to input ELF or ALF file
     elf_file: Utf8NativePathBuf,
     #[argp(positional, from_str_fn(native_path))]
     /// path to output DOL
@@ -48,7 +49,12 @@ const MAX_DATA_SECTIONS: usize = 11;
 
 pub fn run(args: Args) -> Result<()> {
     let mut file = open_file(&args.elf_file, true)?;
-    let obj_file = object::read::File::parse(file.map()?)?;
+    let data = file.map()?;
+    if data.len() >= 4 && &data[0..4] == ALF_MAGIC {
+        return convert_alf(args, data);
+    }
+
+    let obj_file = object::read::File::parse(data)?;
     match obj_file.architecture() {
         Architecture::PowerPc => {}
         arch => bail!("Unexpected architecture: {arch:?}"),
@@ -112,6 +118,89 @@ pub fn run(args: Args) -> Result<()> {
     }) {
         let address = section.address() as u32;
         let size = section.size() as u32;
+        if header.bss_address == 0 {
+            header.bss_address = address;
+        }
+        header.bss_size = (address + size) - header.bss_address;
+    }
+
+    // Offsets
+    out.rewind()?;
+    for section in &header.text_sections {
+        out.write_all(&section.offset.to_be_bytes())?;
+    }
+    for section in &header.data_sections {
+        out.write_all(&section.offset.to_be_bytes())?;
+    }
+
+    // Addresses
+    for section in &header.text_sections {
+        out.write_all(&section.address.to_be_bytes())?;
+    }
+    for section in &header.data_sections {
+        out.write_all(&section.address.to_be_bytes())?;
+    }
+
+    // Sizes
+    for section in &header.text_sections {
+        out.write_all(&section.size.to_be_bytes())?;
+    }
+    for section in &header.data_sections {
+        out.write_all(&section.size.to_be_bytes())?;
+    }
+
+    // BSS + entry
+    out.write_all(&header.bss_address.to_be_bytes())?;
+    out.write_all(&header.bss_size.to_be_bytes())?;
+    out.write_all(&header.entry_point.to_be_bytes())?;
+
+    // Done!
+    out.flush()?;
+    Ok(())
+}
+
+fn convert_alf(args: Args, data: &[u8]) -> Result<()> {
+    let obj = process_dol(data, "")?;
+
+    let mut header = DolHeader { entry_point: obj.entry.unwrap() as u32, ..Default::default() };
+    let mut offset = 0x100u32;
+    let mut out = buf_writer(&args.dol_file)?;
+    out.seek(SeekFrom::Start(offset as u64))?;
+
+    // Text sections
+    for (_, section) in obj.sections.iter().filter(|(_, s)| s.kind == ObjSectionKind::Code) {
+        log::debug!("Processing text section '{}'", section.name);
+        let address = section.address as u32;
+        let size = align32(section.size as u32);
+        *header.text_sections.get_mut(header.text_section_count).ok_or_else(|| {
+            anyhow!("Too many text sections (while processing '{}')", section.name)
+        })? = DolSection { offset, address, size };
+        header.text_section_count += 1;
+        write_aligned(&mut out, &section.data, size)?;
+        offset += size;
+    }
+
+    // Data sections
+    for (_, section) in obj
+        .sections
+        .iter()
+        .filter(|(_, s)| matches!(s.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData))
+    {
+        log::debug!("Processing data section '{}'", section.name);
+        let address = section.address as u32;
+        let size = align32(section.size as u32);
+        *header.data_sections.get_mut(header.data_section_count).ok_or_else(|| {
+            anyhow!("Too many data sections (while processing '{}')", section.name)
+        })? = DolSection { offset, address, size };
+        header.data_section_count += 1;
+        write_aligned(&mut out, &section.data, size)?;
+        offset += size;
+    }
+
+    // BSS sections
+    for (_, section) in obj.sections.iter().filter(|(_, s)| s.kind == ObjSectionKind::Bss) {
+        let address = section.address as u32;
+        let size = section.size as u32;
         if header.bss_address == 0 {
             header.bss_address = address;
         }
