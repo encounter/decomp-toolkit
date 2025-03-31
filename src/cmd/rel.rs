@@ -104,6 +104,9 @@ pub struct MakeArgs {
     #[argp(option, short = 'n')]
     /// (optional) module names
     names: Vec<String>,
+    #[argp(option, short = 'v')]
+    /// (optional) REL version (default is 3)
+    version: Option<u32>,
     #[argp(switch, short = 'w')]
     /// disable warnings
     no_warn: bool,
@@ -364,7 +367,7 @@ fn make(args: MakeArgs) -> Result<()> {
         let _span = info_span!("file", path = %module_info.path).entered();
         let mut info = RelWriteInfo {
             module_id: module_info.module_id,
-            version: 3,
+            version: args.version.unwrap_or(3),
             name_offset: None,
             name_size: None,
             align: None,
