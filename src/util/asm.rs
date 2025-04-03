@@ -675,13 +675,13 @@ where
     W: std::io::Write + ?Sized,
 {
     if data.last() != Some(&0x00) {
-        anyhow::bail!("Non-terminated Shift-JIS string");
+        bail!("Non-terminated Shift-JIS string");
     }
 
     // Decode the Shift-JIS bytes (without the null terminator) into a UTF-8 string.
     let (cow, _, had_errors) = SHIFT_JIS.decode(&data[..data.len() - 1]);
     if had_errors {
-        anyhow::bail!("Invalid Shift-JIS data");
+        bail!("Invalid Shift-JIS data");
     }
     let s = cow;
 
