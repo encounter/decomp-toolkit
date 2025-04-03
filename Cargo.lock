@@ -363,6 +363,7 @@ dependencies = [
  "cwextab",
  "dyn-clone",
  "enable-ansi-support",
+ "encoding_rs",
  "filetime",
  "fixedbitset 0.5.7",
  "flagset",
