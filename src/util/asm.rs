@@ -668,6 +668,43 @@ where W: Write + ?Sized {
     Ok(())
 }
 
+use encoding_rs::SHIFT_JIS;
+
+fn write_string_shiftjis<W>(w: &mut W, data: &[u8]) -> Result<()>
+where
+    W: std::io::Write + ?Sized,
+{
+    if data.last() != Some(&0x00) {
+        anyhow::bail!("Non-terminated Shift-JIS string");
+    }
+
+    // Decode the Shift-JIS bytes (without the null terminator) into a UTF-8 string.
+    let (cow, _, had_errors) = SHIFT_JIS.decode(&data[..data.len() - 1]);
+    if had_errors {
+        anyhow::bail!("Invalid Shift-JIS data");
+    }
+    let s = cow;
+
+    write!(w, "\t.string \"")?;
+
+    // For each character, apply escaping for control characters and quotes as needed.
+    for c in s.chars() {
+        match c {
+            '\x08' => write!(w, "\\b")?,
+            '\x09' => write!(w, "\\t")?,
+            '\x0A' => write!(w, "\\n")?,
+            '\x0C' => write!(w, "\\f")?,
+            '\x0D' => write!(w, "\\r")?,
+            '\\' => write!(w, "\\\\")?,
+            '"'  => write!(w, "\\\"")?,
+            _ => write!(w, "{}", c)?,
+        }
+    }
+
+    writeln!(w, "\"")?;
+    Ok(())
+}
+
 fn write_string16<W>(w: &mut W, data: &[u16]) -> Result<()>
 where W: Write + ?Sized {
     if matches!(data.last(), Some(&b) if b == 0) {
@@ -705,6 +742,12 @@ where W: Write + ?Sized {
         ObjDataKind::String => {
             return write_string(w, data);
         }
+        ObjDataKind::Shiftjis => {
+            if data.is_empty() || data.last() != Some(&0x00) {
+                anyhow::bail!("Non-terminated Shift-JIS string");
+            }
+            return write_string_shiftjis(w, data);
+        }
         ObjDataKind::String16 => {
             if data.len() % 2 != 0 {
                 bail!("Attempted to write wstring with length {:#X}", data.len());
@@ -734,6 +777,12 @@ where W: Write + ?Sized {
             }
             return Ok(());
         }
+        ObjDataKind::ShiftjisTable => {
+            for slice in data.split_inclusive(|&b| b == 0) {
+                write_string_shiftjis(w, slice)?;
+            }
+            return Ok(());
+        }
         _ => {}
     }
     let chunk_size = match data_kind {
@@ -742,7 +791,9 @@ where W: Write + ?Sized {
         ObjDataKind::Byte | ObjDataKind::Byte8 | ObjDataKind::Double => 8,
         ObjDataKind::String
         | ObjDataKind::String16
+        | ObjDataKind::Shiftjis
         | ObjDataKind::StringTable
+        | ObjDataKind::ShiftjisTable
         | ObjDataKind::String16Table => unreachable!(),
     };
     for chunk in remain.chunks(chunk_size) {
