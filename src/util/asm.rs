@@ -672,36 +672,37 @@ use encoding_rs::SHIFT_JIS;
 
 fn write_string_shiftjis<W>(w: &mut W, data: &[u8]) -> Result<()>
 where
-    W: std::io::Write + ?Sized,
+    W: Write + ?Sized,
 {
     if data.last() != Some(&0x00) {
         bail!("Non-terminated Shift-JIS string");
     }
 
-    // Decode the Shift-JIS bytes (without the null terminator) into a UTF-8 string.
-    let (cow, _, had_errors) = SHIFT_JIS.decode(&data[..data.len() - 1]);
+    let raw_data = &data[..data.len() - 1];
+
+    // Decode then write SJIS as comment above byte array
+    let (cow, _, had_errors) = SHIFT_JIS.decode(raw_data);
     if had_errors {
         bail!("Invalid Shift-JIS data");
     }
-    let s = cow;
-
-    write!(w, "\t.string \"")?;
-
-    // For each character, apply escaping for control characters and quotes as needed.
-    for c in s.chars() {
+    
+    write!(w, "\t# ")?;
+    for c in cow.chars() {
         match c {
-            '\x08' => write!(w, "\\b")?,
-            '\x09' => write!(w, "\\t")?,
-            '\x0A' => write!(w, "\\n")?,
-            '\x0C' => write!(w, "\\f")?,
-            '\x0D' => write!(w, "\\r")?,
-            '\\' => write!(w, "\\\\")?,
-            '"'  => write!(w, "\\\"")?,
-            _ => write!(w, "{}", c)?,
+            '#' => write!(w, "\\#")?,
+            _   => write!(w, "{}", c)?,
         }
     }
 
-    writeln!(w, "\"")?;
+    write!(w, "\n\t.byte ")?;
+    for (i, &b) in data.iter().enumerate() {
+        write!(w, "0x{:02X}", b)?;
+        if i + 1 != data.len() {
+            write!(w, ", ")?;
+        }
+    }
+
+    writeln!(w)?;
     Ok(())
 }
 
