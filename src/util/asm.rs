@@ -671,9 +671,7 @@ where W: Write + ?Sized {
 use encoding_rs::SHIFT_JIS;
 
 fn write_string_shiftjis<W>(w: &mut W, data: &[u8]) -> Result<()>
-where
-    W: Write + ?Sized,
-{
+where W: Write + ?Sized {
     if data.last() != Some(&0x00) {
         bail!("Non-terminated Shift-JIS string");
     }
@@ -686,7 +684,7 @@ where
     for c in cow.chars() {
         match c {
             '#' => write!(w, "\\#")?,
-            _   => write!(w, "{}", c)?,
+            _ => write!(w, "{}", c)?,
         }
     }
 
