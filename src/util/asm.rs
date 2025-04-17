@@ -743,7 +743,7 @@ where W: Write + ?Sized {
         ObjDataKind::String => {
             return write_string(w, data);
         }
-        ObjDataKind::Shiftjis => {
+        ObjDataKind::ShiftJIS => {
             if data.is_empty() || data.last() != Some(&0x00) {
                 anyhow::bail!("Non-terminated Shift-JIS string");
             }
@@ -778,7 +778,7 @@ where W: Write + ?Sized {
             }
             return Ok(());
         }
-        ObjDataKind::ShiftjisTable => {
+        ObjDataKind::ShiftJISTable => {
             for slice in data.split_inclusive(|&b| b == 0) {
                 write_string_shiftjis(w, slice)?;
             }
@@ -792,9 +792,9 @@ where W: Write + ?Sized {
         ObjDataKind::Byte | ObjDataKind::Byte8 | ObjDataKind::Double => 8,
         ObjDataKind::String
         | ObjDataKind::String16
-        | ObjDataKind::Shiftjis
+        | ObjDataKind::ShiftJIS
         | ObjDataKind::StringTable
-        | ObjDataKind::ShiftjisTable
+        | ObjDataKind::ShiftJISTable
         | ObjDataKind::String16Table => unreachable!(),
     };
     for chunk in remain.chunks(chunk_size) {
