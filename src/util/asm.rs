@@ -681,11 +681,7 @@ where
     let raw_data = &data[..data.len() - 1];
 
     // Decode then write SJIS as comment above byte array
-    let (cow, _, had_errors) = SHIFT_JIS.decode(raw_data);
-    if had_errors {
-        bail!("Invalid Shift-JIS data");
-    }
-    
+    let (cow, _, _) = SHIFT_JIS.decode(raw_data);
     write!(w, "\t# ")?;
     for c in cow.chars() {
         match c {
