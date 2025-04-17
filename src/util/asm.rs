@@ -668,6 +668,38 @@ where W: Write + ?Sized {
     Ok(())
 }
 
+use encoding_rs::SHIFT_JIS;
+
+fn write_string_shiftjis<W>(w: &mut W, data: &[u8]) -> Result<()>
+where W: Write + ?Sized {
+    if data.last() != Some(&0x00) {
+        bail!("Non-terminated Shift-JIS string");
+    }
+
+    let raw_data = &data[..data.len() - 1];
+
+    // Decode then write SJIS as comment above byte array
+    let (cow, _, _) = SHIFT_JIS.decode(raw_data);
+    write!(w, "\t# ")?;
+    for c in cow.chars() {
+        match c {
+            '#' => write!(w, "\\#")?,
+            _ => write!(w, "{}", c)?,
+        }
+    }
+
+    write!(w, "\n\t.byte ")?;
+    for (i, &b) in data.iter().enumerate() {
+        write!(w, "0x{:02X}", b)?;
+        if i + 1 != data.len() {
+            write!(w, ", ")?;
+        }
+    }
+
+    writeln!(w)?;
+    Ok(())
+}
+
 fn write_string16<W>(w: &mut W, data: &[u16]) -> Result<()>
 where W: Write + ?Sized {
     if matches!(data.last(), Some(&b) if b == 0) {
@@ -705,6 +737,12 @@ where W: Write + ?Sized {
         ObjDataKind::String => {
             return write_string(w, data);
         }
+        ObjDataKind::ShiftJIS => {
+            if data.is_empty() || data.last() != Some(&0x00) {
+                anyhow::bail!("Non-terminated Shift-JIS string");
+            }
+            return write_string_shiftjis(w, data);
+        }
         ObjDataKind::String16 => {
             if data.len() % 2 != 0 {
                 bail!("Attempted to write wstring with length {:#X}", data.len());
@@ -734,6 +772,12 @@ where W: Write + ?Sized {
             }
             return Ok(());
         }
+        ObjDataKind::ShiftJISTable => {
+            for slice in data.split_inclusive(|&b| b == 0) {
+                write_string_shiftjis(w, slice)?;
+            }
+            return Ok(());
+        }
         _ => {}
     }
     let chunk_size = match data_kind {
@@ -742,7 +786,9 @@ where W: Write + ?Sized {
         ObjDataKind::Byte | ObjDataKind::Byte8 | ObjDataKind::Double => 8,
         ObjDataKind::String
         | ObjDataKind::String16
+        | ObjDataKind::ShiftJIS
         | ObjDataKind::StringTable
+        | ObjDataKind::ShiftJISTable
         | ObjDataKind::String16Table => unreachable!(),
     };
     for chunk in remain.chunks(chunk_size) {
