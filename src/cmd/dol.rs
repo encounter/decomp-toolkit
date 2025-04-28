@@ -132,6 +132,9 @@ pub struct ApplyArgs {
     #[argp(positional, from_str_fn(native_path))]
     /// linked ELF
     elf_file: Utf8NativePathBuf,
+    #[argp(switch)]
+    /// skip updating anonymous local symbol names
+    relaxed: bool,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -1841,6 +1844,31 @@ fn diff(args: DiffArgs) -> Result<()> {
     Ok(())
 }
 
+fn are_local_anonymous_names_similar<'a>(left: &'a ObjSymbol, right: &'a ObjSymbol) -> bool {
+    if left.flags.scope() != ObjSymbolScope::Local || right.flags.scope() != ObjSymbolScope::Local {
+        return false;
+    }
+
+    let is_at_symbol =
+        |name: &str| name.starts_with('@') && name[1..].chars().all(|c| c.is_numeric());
+
+    if is_at_symbol(&left.name) && is_at_symbol(&right.name) {
+        // consider e.g. @8280 -> @8536 equal
+        return true;
+    }
+
+    let split_dollar_symbol = |name: &'a str| -> Option<&'a str> {
+        name.rsplit_once('$')
+            .and_then(|(prefix, suffix)| suffix.chars().all(|c| c.is_numeric()).then_some(prefix))
+    };
+
+    // consider e.g. __arraydtor$3926 -> __arraydtor$7669 equal
+    match (split_dollar_symbol(&left.name), split_dollar_symbol(&right.name)) {
+        (Some(left_prefix), Some(right_prefix)) => left_prefix == right_prefix,
+        _ => false,
+    }
+}
+
 fn apply(args: ApplyArgs) -> Result<()> {
     log::info!("Loading {}", args.config);
     let mut config_file = open_file(&args.config, true)?;
@@ -1891,7 +1919,12 @@ fn apply(args: ApplyArgs) -> Result<()> {
             let mut updated_sym = orig_sym.clone();
             let is_globalized = linked_sym.name.ends_with(&format!("_{:08X}", linked_sym.address));
             if (is_globalized && !linked_sym.name.starts_with(&orig_sym.name))
-                || (!is_globalized && linked_sym.name != orig_sym.name)
+                || (!is_globalized
+                    && (if args.relaxed {
+                        !are_local_anonymous_names_similar(linked_sym, orig_sym)
+                    } else {
+                        linked_sym.name != orig_sym.name
+                    }))
             {
                 log::info!(
                     "Changing name of {} (type {:?}) to {}",
