@@ -133,8 +133,8 @@ pub struct ApplyArgs {
     /// linked ELF
     elf_file: Utf8NativePathBuf,
     #[argp(switch)]
-    /// skip updating anonymous local symbol names
-    relaxed: bool,
+    /// always update anonymous local symbol names, even if they are similar
+    full: bool,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -1920,11 +1920,8 @@ fn apply(args: ApplyArgs) -> Result<()> {
             let is_globalized = linked_sym.name.ends_with(&format!("_{:08X}", linked_sym.address));
             if (is_globalized && !linked_sym.name.starts_with(&orig_sym.name))
                 || (!is_globalized
-                    && (if args.relaxed {
-                        !are_local_anonymous_names_similar(linked_sym, orig_sym)
-                    } else {
-                        linked_sym.name != orig_sym.name
-                    }))
+                    && (linked_sym.name != orig_sym.name
+                        && (args.full || !are_local_anonymous_names_similar(linked_sym, orig_sym))))
             {
                 log::info!(
                     "Changing name of {} (type {:?}) to {}",
