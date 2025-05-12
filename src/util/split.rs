@@ -561,6 +561,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
         {
             let next_split_address = splits
                 .peek()
+                .filter(|(i, _, _, _)| *i == section_index)
                 .map(|(_, _, addr, _)| *addr as u64)
                 .unwrap_or(section.address + section.size);
             let next_symbol_address = obj
