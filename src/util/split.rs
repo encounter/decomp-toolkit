@@ -26,7 +26,25 @@ fn split_ctors_dtors(obj: &mut ObjInfo, start: SectionAddress, end: SectionAddre
     let mut current_address = start;
     let mut referenced_symbols = vec![];
 
+    // ProDG ctor list can start with -1
+    if matches!(read_u32(ctors_section, current_address.address), Some(0xFFFFFFFF)) {
+        current_address += 4;
+    }
+
     while current_address < end {
+        // ProDG hack when the end address is not known
+        if matches!(read_u32(ctors_section, current_address.address), Some(0)) {
+            while current_address < end {
+                ensure!(
+                    matches!(read_u32(ctors_section, current_address.address), Some(0)),
+                    "{} data detected at {:#010X} after null pointer",
+                    ctors_section.name,
+                    current_address,
+                );
+                current_address += 4;
+            }
+            break;
+        }
         let function_addr = read_address(obj, ctors_section, current_address.address)?;
         log::debug!("Found {} entry: {:#010X}", ctors_section.name, function_addr);
 
