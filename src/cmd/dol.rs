@@ -578,6 +578,7 @@ struct ModuleInfo<'a> {
     config: &'a ModuleConfig,
     symbols_cache: Option<FileReadInfo>,
     splits_cache: Option<FileReadInfo>,
+    dep: Vec<Utf8NativePathBuf>,
 }
 
 type ModuleMapByName<'a> = BTreeMap<String, ModuleInfo<'a>>;
@@ -1055,9 +1056,11 @@ fn split_write_obj(
     // Generate ldscript.lcf
     let ldscript_template = if let Some(template_path) = &module.config.ldscript_template {
         let template_path = template_path.with_encoding();
-        Some(fs::read_to_string(&template_path).with_context(|| {
+        let template = fs::read_to_string(&template_path).with_context(|| {
             format!("Failed to read linker script template '{}'", template_path)
-        })?)
+        })?;
+        module.dep.push(template_path);
+        Some(template)
     } else {
         None
     };
@@ -1245,6 +1248,7 @@ fn split(args: SplitArgs) -> Result<()> {
             config: &config.base,
             symbols_cache: result.symbols_cache,
             splits_cache: result.splits_cache,
+            dep: Default::default(),
         }
     };
     let mut function_count = dol.obj.symbols.by_kind(ObjSymbolKind::Function).count();
@@ -1259,6 +1263,7 @@ fn split(args: SplitArgs) -> Result<()> {
                 config: &config.modules[idx],
                 symbols_cache: result.symbols_cache,
                 splits_cache: result.splits_cache,
+                dep: Default::default(),
             }),
             Entry::Occupied(_) => bail!("Duplicate module name {}", result.obj.name),
         };
@@ -1440,6 +1445,10 @@ fn split(args: SplitArgs) -> Result<()> {
     }
 
     // Write dep file
+    dep.extend(dol.dep);
+    for module in modules.into_values() {
+        dep.extend(module.dep);
+    }
     {
         let dep_path = args.out_dir.join("dep");
         let mut dep_file = buf_writer(&dep_path)?;
