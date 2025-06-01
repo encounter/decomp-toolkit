@@ -644,7 +644,9 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
 
             // Check if symbol is missing data between the end of the symbol and the next symbol
             let symbol_end = (symbol.address + symbol.size) as u32;
-            if section.kind != ObjSectionKind::Code && next_address > symbol_end {
+            if !matches!(section.kind, ObjSectionKind::Code | ObjSectionKind::Bss)
+                && next_address > symbol_end
+            {
                 let data = section.data_range(symbol_end, next_address)?;
                 if data.iter().any(|&x| x != 0) {
                     log::debug!(
