@@ -209,7 +209,7 @@ fn print_line(ins_diff: &ObjInsDiff, base_addr: u64) -> Vec<Span> {
                 pad_to = 5;
             }
             DiffText::Address(addr) => {
-                label_text = format!("{:x}:", addr);
+                label_text = format!("{addr:x}:");
                 pad_to = 5;
             }
             DiffText::Opcode(mnemonic, _op) => {

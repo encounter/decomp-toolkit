@@ -85,7 +85,7 @@ fn file_info(
     metadata: &VfsMetadata,
 ) -> anyhow::Result<Columns<5>> {
     let format =
-        detect(file).with_context(|| format!("Failed to detect file format for {}", filename))?;
+        detect(file).with_context(|| format!("Failed to detect file format for {filename}"))?;
     let mut info: Columns<5> = [
         Size::from_bytes(metadata.len).to_string(),
         filename.to_string(),
@@ -97,9 +97,9 @@ fn file_info(
         let mut decompressed = decompress_file(file, kind)?;
         let metadata = decompressed
             .metadata()
-            .with_context(|| format!("Failed to fetch metadata for {}", filename))?;
+            .with_context(|| format!("Failed to fetch metadata for {filename}"))?;
         let format = detect(decompressed.as_mut())
-            .with_context(|| format!("Failed to detect file format for {}", filename))?;
+            .with_context(|| format!("Failed to detect file format for {filename}"))?;
         info[3] = format!("Decompressed: {}", Size::from_bytes(metadata.len));
         info[4] = format.to_string();
     }
@@ -112,11 +112,11 @@ pub fn ls(args: LsArgs) -> anyhow::Result<()> {
         OpenResult::File(mut file, path) => {
             let filename = path.file_name().ok_or_else(|| anyhow!("Path has no filename"))?;
             if args.short {
-                println!("{}", filename);
+                println!("{filename}");
             } else {
                 let metadata = file
                     .metadata()
-                    .with_context(|| format!("Failed to fetch metadata for {}", path))?;
+                    .with_context(|| format!("Failed to fetch metadata for {path}"))?;
                 files.push(file_info(filename, file.as_mut(), &metadata)?);
             }
         }
@@ -131,10 +131,10 @@ pub fn ls(args: LsArgs) -> anyhow::Result<()> {
             for (i, column) in entry.iter().enumerate() {
                 if widths[i] > 0 {
                     if written > 0 {
-                        print!("{}", SEPARATOR);
+                        print!("{SEPARATOR}");
                     }
                     written += 1;
-                    print!("{}", column);
+                    print!("{column}");
                     let remain = widths[i].saturating_sub(column.width_cjk());
                     if remain > 0 {
                         print!("{:width$}", "", width = remain);
@@ -161,25 +161,25 @@ fn ls_directory(
         let display_path = base_filename.join(&filename);
         let metadata = fs
             .metadata(&entry_path)
-            .with_context(|| format!("Failed to fetch metadata for {}", entry_path))?;
+            .with_context(|| format!("Failed to fetch metadata for {entry_path}"))?;
         match metadata.file_type {
             VfsFileType::File => {
                 let mut file = fs
                     .open(&entry_path)
-                    .with_context(|| format!("Failed to open file {}", entry_path))?;
+                    .with_context(|| format!("Failed to open file {entry_path}"))?;
                 if args.short {
-                    println!("{}", display_path);
+                    println!("{display_path}");
                 } else {
                     files.push(file_info(display_path.as_str(), file.as_mut(), &metadata)?);
                 }
             }
             VfsFileType::Directory => {
                 if args.short {
-                    println!("{}/", display_path);
+                    println!("{display_path}/");
                 } else {
                     files.push([
                         "        ".to_string(),
-                        format!("{}/", display_path),
+                        format!("{display_path}/"),
                         "Directory".to_string(),
                         String::new(),
                         String::new(),
@@ -206,7 +206,7 @@ pub fn cp(mut args: CpArgs) -> anyhow::Result<()> {
             OpenResult::File(file, path) => {
                 let dest = if dest_is_dir {
                     fs::create_dir_all(&dest)
-                        .with_context(|| format!("Failed to create directory {}", dest))?;
+                        .with_context(|| format!("Failed to create directory {dest}"))?;
                     let filename =
                         path.file_name().ok_or_else(|| anyhow!("Path has no filename"))?;
                     dest.join(filename)
@@ -234,12 +234,12 @@ fn cp_file(
     if let FileFormat::Compressed(kind) = detect(file.as_mut())? {
         if auto_decompress {
             file = decompress_file(file.as_mut(), kind)
-                .with_context(|| format!("Failed to decompress file {}", dest))?;
+                .with_context(|| format!("Failed to decompress file {dest}"))?;
             compression = Some(kind);
         }
     }
     let metadata =
-        file.metadata().with_context(|| format!("Failed to fetch metadata for {}", dest))?;
+        file.metadata().with_context(|| format!("Failed to fetch metadata for {dest}"))?;
     if !quiet {
         if let Some(kind) = compression {
             println!(
@@ -254,10 +254,10 @@ fn cp_file(
         }
     }
     let mut dest_file =
-        File::create(dest).with_context(|| format!("Failed to create file {}", dest))?;
+        File::create(dest).with_context(|| format!("Failed to create file {dest}"))?;
     buf_copy(file.as_mut(), &mut dest_file)
-        .with_context(|| format!("Failed to copy file {}", dest))?;
-    dest_file.flush().with_context(|| format!("Failed to flush file {}", dest))?;
+        .with_context(|| format!("Failed to copy file {dest}"))?;
+    dest_file.flush().with_context(|| format!("Failed to flush file {dest}"))?;
     Ok(())
 }
 
@@ -268,18 +268,18 @@ fn cp_recursive(
     auto_decompress: bool,
     quiet: bool,
 ) -> anyhow::Result<()> {
-    fs::create_dir_all(dest).with_context(|| format!("Failed to create directory {}", dest))?;
+    fs::create_dir_all(dest).with_context(|| format!("Failed to create directory {dest}"))?;
     let entries = fs.read_dir(path)?;
     for filename in entries {
         let entry_path = path.join(&filename);
         let metadata = fs
             .metadata(&entry_path)
-            .with_context(|| format!("Failed to fetch metadata for {}", entry_path))?;
+            .with_context(|| format!("Failed to fetch metadata for {entry_path}"))?;
         match metadata.file_type {
             VfsFileType::File => {
                 let file = fs
                     .open(&entry_path)
-                    .with_context(|| format!("Failed to open file {}", entry_path))?;
+                    .with_context(|| format!("Failed to open file {entry_path}"))?;
                 cp_file(file, &entry_path, &dest.join(filename), auto_decompress, quiet)?;
             }
             VfsFileType::Directory => {

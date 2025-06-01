@@ -127,16 +127,16 @@ fn extract(args: ExtractArgs) -> Result<()> {
         }
         std::fs::create_dir_all(&out_dir)?;
         if !args.quiet {
-            println!("Extracting {} to {}", path, out_dir);
+            println!("Extracting {path} to {out_dir}");
         }
 
         let mut file = open_file(path, false)?;
         let mut archive = ar::Archive::new(file.map()?);
         while let Some(entry) = archive.next_entry() {
-            let mut entry = entry.with_context(|| format!("Processing entry in {}", path))?;
+            let mut entry = entry.with_context(|| format!("Processing entry in {path}"))?;
             let file_name = std::str::from_utf8(entry.header().identifier())?;
             if !args.quiet && args.verbose {
-                println!("\t{}", file_name);
+                println!("\t{file_name}");
             }
             let mut file_path = out_dir.clone();
             for segment in file_name.split(&['/', '\\']) {
@@ -146,7 +146,7 @@ fn extract(args: ExtractArgs) -> Result<()> {
                 std::fs::create_dir_all(parent)?;
             }
             let mut file = File::create(&file_path)
-                .with_context(|| format!("Failed to create file {}", file_path))?;
+                .with_context(|| format!("Failed to create file {file_path}"))?;
             std::io::copy(&mut entry, &mut file)?;
             file.flush()?;
 
@@ -154,7 +154,7 @@ fn extract(args: ExtractArgs) -> Result<()> {
         }
     }
     if !args.quiet {
-        println!("Extracted {} files", num_files);
+        println!("Extracted {num_files} files");
     }
     Ok(())
 }

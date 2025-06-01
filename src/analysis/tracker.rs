@@ -576,7 +576,7 @@ impl Tracker {
             let relocation_target = relocation_target_for(obj, from, None).ok().flatten();
             if !matches!(relocation_target, None | Some(RelocationTarget::External)) {
                 // VM should have already handled this
-                panic!("Relocation already exists for {:#010X} (from {:#010X})", addr, from);
+                panic!("Relocation already exists for {addr:#010X} (from {from:#010X})");
             }
         }
         // Remainder of this function is for executable objects only
@@ -668,7 +668,7 @@ impl Tracker {
                 0
             };
             let new_name =
-                if module_id == 0 { name.to_string() } else { format!("{}:{}", name, module_id) };
+                if module_id == 0 { name.to_string() } else { format!("{name}:{module_id}") };
             log::debug!("Renaming {} to {}", section.name, new_name);
             section.name = new_name;
         }

@@ -80,7 +80,7 @@ fn compress(args: CompressArgs) -> Result<()> {
             path.as_path().to_cow()
         };
         fs::write(out_path.as_ref(), data)
-            .with_context(|| format!("Failed to write '{}'", out_path))?;
+            .with_context(|| format!("Failed to write '{out_path}'"))?;
     }
     Ok(())
 }
@@ -92,7 +92,7 @@ fn decompress(args: DecompressArgs) -> Result<()> {
         let data = {
             let mut file = open_file(&path, false)?;
             decompress_yaz0(file.map()?)
-                .with_context(|| format!("Failed to decompress '{}' using Yaz0", path))?
+                .with_context(|| format!("Failed to decompress '{path}' using Yaz0"))?
         };
         let out_path = if let Some(output) = &args.output {
             if single_file {
@@ -104,7 +104,7 @@ fn decompress(args: DecompressArgs) -> Result<()> {
             path.as_path().to_cow()
         };
         fs::write(out_path.as_ref(), data)
-            .with_context(|| format!("Failed to write '{}'", out_path))?;
+            .with_context(|| format!("Failed to write '{out_path}'"))?;
     }
     Ok(())
 }

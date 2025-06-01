@@ -209,7 +209,7 @@ impl<'a> RarcView<'a> {
             )
         })?;
         let c_string = CStr::from_bytes_until_nul(name_buf)
-            .map_err(|_| format!("RARC: name at offset {} not null-terminated", offset))?;
+            .map_err(|_| format!("RARC: name at offset {offset} not null-terminated"))?;
         Ok(c_string.to_string_lossy())
     }
 

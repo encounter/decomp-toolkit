@@ -58,7 +58,7 @@ impl FromReader for MWComment {
         if magic != MAGIC {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("Invalid .comment section magic: {:?}", magic),
+                format!("Invalid .comment section magic: {magic:?}"),
             ));
         }
         // 0xB
@@ -78,7 +78,7 @@ impl FromReader for MWComment {
             value => {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidData,
-                    format!("Invalid value for pool_data: {}", value),
+                    format!("Invalid value for pool_data: {value}"),
                 ))
             }
         };
@@ -93,7 +93,7 @@ impl FromReader for MWComment {
             v => {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidData,
-                    format!("Expected header size {:#X}, got {:#X}", HEADER_SIZE, v),
+                    format!("Expected header size {HEADER_SIZE:#X}, got {v:#X}"),
                 ))
             }
         }
@@ -102,7 +102,7 @@ impl FromReader for MWComment {
         if flags & !7 != 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("Unexpected flag value {:#X}", flags),
+                format!("Unexpected flag value {flags:#X}"),
             ));
         }
         if flags & 1 == 1 {
@@ -221,14 +221,14 @@ impl FromReader for CommentSym {
         if value != 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("Unexpected value after active_flags (1): {:#X}", value),
+                format!("Unexpected value after active_flags (1): {value:#X}"),
             ));
         }
         let value = u8::from_reader(reader, e)?;
         if value != 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("Unexpected value after active_flags (2): {:#X}", value),
+                format!("Unexpected value after active_flags (2): {value:#X}"),
             ));
         }
         Ok(out)

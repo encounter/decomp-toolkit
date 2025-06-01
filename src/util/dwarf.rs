@@ -1145,8 +1145,8 @@ fn structure_type_string(
             struct_def_string(info, typedefs, t)?
         } else if include_keyword {
             match t.kind {
-                StructureKind::Struct => format!("struct {}", name),
-                StructureKind::Class => format!("class {}", name),
+                StructureKind::Struct => format!("struct {name}"),
+                StructureKind::Class => format!("class {name}"),
             }
         } else {
             name.clone()
@@ -1178,7 +1178,7 @@ fn enumeration_type_string(
         if name.starts_with('@') {
             enum_def_string(t)?
         } else if include_keyword {
-            format!("enum {}", name)
+            format!("enum {name}")
         } else {
             name.clone()
         }
@@ -1203,7 +1203,7 @@ fn union_type_string(
         if name.starts_with('@') {
             union_def_string(info, typedefs, t)?
         } else if include_keyword {
-            format!("union {}", name)
+            format!("union {name}")
         } else {
             name.clone()
         }
@@ -1306,7 +1306,7 @@ pub fn subroutine_type_string(
                 write!(parameters, "{}{}", ts.prefix, ts.suffix)?;
             }
             if let Some(location) = &parameter.location {
-                write!(parameters, " /* {} */", location)?;
+                write!(parameters, " /* {location} */")?;
             }
         }
         if t.var_args {
@@ -1322,7 +1322,7 @@ pub fn subroutine_type_string(
         let base_name = tag
             .string_attribute(AttributeKind::Name)
             .ok_or_else(|| anyhow!("member_of tag {} has no name attribute", member_of))?;
-        out.member = format!("{}::", base_name);
+        out.member = format!("{base_name}::");
     }
     Ok(out)
 }
@@ -1337,7 +1337,7 @@ pub fn subroutine_def_string(
     if is_erased {
         out.push_str("// Erased\n");
     } else if let (Some(start), Some(end)) = (t.start_address, t.end_address) {
-        writeln!(out, "// Range: {:#X} -> {:#X}", start, end)?;
+        writeln!(out, "// Range: {start:#X} -> {end:#X}")?;
     }
     let rt = type_string(info, typedefs, &t.return_type, true)?;
     if t.local {
@@ -1361,15 +1361,15 @@ pub fn subroutine_def_string(
         let base_name = tag
             .string_attribute(AttributeKind::Name)
             .ok_or_else(|| anyhow!("member_of tag {} has no name attribute", member_of))?;
-        write!(out, "{}::", base_name)?;
+        write!(out, "{base_name}::")?;
 
         // Handle constructors and destructors
         if let Some(name) = t.name.as_ref() {
             if name == "__dt" {
-                write!(out, "~{}", base_name)?;
+                write!(out, "~{base_name}")?;
                 name_written = true;
             } else if name == "__ct" {
-                write!(out, "{}", base_name)?;
+                write!(out, "{base_name}")?;
                 name_written = true;
             }
         }
@@ -1398,7 +1398,7 @@ pub fn subroutine_def_string(
                 write!(parameters, "{}{}", ts.prefix, ts.suffix)?;
             }
             if let Some(location) = &parameter.location {
-                write!(parameters, " /* {} */", location)?;
+                write!(parameters, " /* {location} */")?;
             }
         }
         if t.var_args {
@@ -1420,7 +1420,7 @@ pub fn subroutine_def_string(
                 ts.suffix
             )?;
             if let Some(location) = &variable.location {
-                write!(var_out, " // {}", location)?;
+                write!(var_out, " // {location}")?;
             }
             writeln!(var_out)?;
         }
@@ -1435,7 +1435,7 @@ pub fn subroutine_def_string(
                 .get(&reference)
                 .ok_or_else(|| anyhow!("Failed to locate reference tag {}", reference))?;
             if tag.kind == TagKind::Padding {
-                writeln!(out, "    // -> ??? ({})", reference)?;
+                writeln!(out, "    // -> ??? ({reference})")?;
                 continue;
             }
             let variable = process_variable_tag(info, tag)?;
@@ -1477,13 +1477,13 @@ fn subroutine_block_string(
 ) -> Result<String> {
     let mut out = String::new();
     if let Some(name) = &block.name {
-        write!(out, "{}: ", name)?;
+        write!(out, "{name}: ")?;
     } else {
         out.push_str("/* anonymous block */ ");
     }
     out.push_str("{\n");
     if let (Some(start), Some(end)) = (block.start_address, block.end_address) {
-        writeln!(out, "    // Range: {:#X} -> {:#X}", start, end)?;
+        writeln!(out, "    // Range: {start:#X} -> {end:#X}")?;
     }
     let mut var_out = String::new();
     for variable in &block.variables {
@@ -1496,7 +1496,7 @@ fn subroutine_block_string(
             ts.suffix
         )?;
         if let Some(location) = &variable.location {
-            write!(var_out, " // {}", location)?;
+            write!(var_out, " // {location}")?;
         }
         writeln!(var_out)?;
     }
@@ -1635,9 +1635,9 @@ pub fn struct_def_string(
     };
     if let Some(name) = t.name.as_ref() {
         if name.starts_with('@') {
-            write!(out, " /* {} */", name)?;
+            write!(out, " /* {name} */")?;
         } else {
-            write!(out, " {}", name)?;
+            write!(out, " {name}")?;
         }
     }
     let mut wrote_base = false;
@@ -1665,7 +1665,7 @@ pub fn struct_def_string(
     }
     out.push_str(" {\n");
     if let Some(byte_size) = t.byte_size {
-        writeln!(out, "    // total size: {:#X}", byte_size)?;
+        writeln!(out, "    // total size: {byte_size:#X}")?;
     }
     let mut vis = match t.kind {
         StructureKind::Struct => Visibility::Public,
@@ -1751,9 +1751,9 @@ pub fn enum_def_string(t: &EnumerationType) -> Result<String> {
     let mut out = match t.name.as_ref() {
         Some(name) => {
             if name.starts_with('@') {
-                format!("enum /* {} */ {{\n", name)
+                format!("enum /* {name} */ {{\n")
             } else {
-                format!("enum {} {{\n", name)
+                format!("enum {name} {{\n")
             }
         }
         None => "enum {\n".to_string(),
@@ -1769,9 +1769,9 @@ pub fn union_def_string(info: &DwarfInfo, typedefs: &TypedefMap, t: &UnionType) 
     let mut out = match t.name.as_ref() {
         Some(name) => {
             if name.starts_with('@') {
-                format!("union /* {} */ {{\n", name)
+                format!("union /* {name} */ {{\n")
             } else {
-                format!("union {} {{\n", name)
+                format!("union {name} {{\n")
             }
         }
         None => "union {\n".to_string(),
@@ -2029,7 +2029,7 @@ fn process_array_tag(info: &DwarfInfo, tag: &Tag) -> Result<ArrayType> {
             (AttributeKind::SubscrData, AttributeValue::Block(data)) => {
                 subscr_data =
                     Some(process_array_subscript_data(data, info.e, tag.is_erased).with_context(
-                        || format!("Failed to process SubscrData for tag: {:?}", tag),
+                        || format!("Failed to process SubscrData for tag: {tag:?}"),
                     )?)
             }
             (AttributeKind::Ordering, val) => match val {
@@ -2615,13 +2615,13 @@ pub fn process_type(attr: &Attribute, e: Endian) -> Result<Type> {
     match (attr.kind, &attr.value) {
         (AttributeKind::FundType, &AttributeValue::Data2(type_id)) => {
             let fund_type = FundType::parse_int(type_id)
-                .with_context(|| format!("Invalid fundamental type ID '{:04X}'", type_id))?;
+                .with_context(|| format!("Invalid fundamental type ID '{type_id:04X}'"))?;
             Ok(Type { kind: TypeKind::Fundamental(fund_type), modifiers: vec![] })
         }
         (AttributeKind::ModFundType, AttributeValue::Block(ops)) => {
             let type_id = u16::from_bytes(ops[ops.len() - 2..].try_into()?, e);
             let fund_type = FundType::parse_int(type_id)
-                .with_context(|| format!("Invalid fundamental type ID '{:04X}'", type_id))?;
+                .with_context(|| format!("Invalid fundamental type ID '{type_id:04X}'"))?;
             let modifiers = process_modifiers(&ops[..ops.len() - 2])?;
             Ok(Type { kind: TypeKind::Fundamental(fund_type), modifiers })
         }
@@ -2762,7 +2762,7 @@ pub fn tag_type_string(
             match ud {
                 UserDefinedType::Structure(_)
                 | UserDefinedType::Enumeration(_)
-                | UserDefinedType::Union(_) => Ok(format!("{};", ud_str)),
+                | UserDefinedType::Union(_) => Ok(format!("{ud_str};")),
                 _ => Ok(ud_str),
             }
         }
@@ -2789,9 +2789,9 @@ fn variable_string(
     out.push(';');
     if include_extra {
         let size = variable.kind.size(info)?;
-        out.push_str(&format!(" // size: {:#X}", size));
+        out.push_str(&format!(" // size: {size:#X}"));
         if let Some(addr) = variable.address {
-            out.push_str(&format!(", address: {:#X}", addr));
+            out.push_str(&format!(", address: {addr:#X}"));
         }
     }
     Ok(out)

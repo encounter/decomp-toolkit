@@ -164,7 +164,7 @@ pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
                             hash_map::Entry::Vacant(e) => e.insert(0),
                         };
                         *index += 1;
-                        let new_name = format!("{}_{}", file_name, index);
+                        let new_name = format!("{file_name}_{index}");
                         // log::info!("Renaming {} to {}", file_name, new_name);
                         file_name.clone_from(&new_name);
                         match section_starts.entry(new_name.clone()) {

@@ -316,7 +316,7 @@ fn make(args: MakeArgs) -> Result<()> {
                 .unwrap_or(idx as u32);
             load_obj(file.map()?)
                 .map(|o| LoadedModule { module_id, file: o, path: path.clone() })
-                .with_context(|| format!("Failed to load '{}'", path))
+                .with_context(|| format!("Failed to load '{path}'"))
         })
         .collect::<Result<Vec<_>>>()?;
 
@@ -395,7 +395,7 @@ fn make(args: MakeArgs) -> Result<()> {
         let rel_path = module_info.path.with_extension("rel");
         let mut w = buf_writer(&rel_path)?;
         write_rel(&mut w, &info, &module_info.file, relocations)
-            .with_context(|| format!("Failed to write '{}'", rel_path))?;
+            .with_context(|| format!("Failed to write '{rel_path}'"))?;
         w.flush()?;
     }
 

@@ -95,7 +95,7 @@ fn bin2c_symbol(
         } else {
             output.push(' ');
         }
-        output.push_str(&format!("0x{:02X},", byte));
+        output.push_str(&format!("0x{byte:02X},"));
     }
     output.push_str("\n};\n");
     output
@@ -111,7 +111,7 @@ fn bin2c_raw(data: &[u8]) -> String {
                 output.push(' ');
             }
         }
-        output.push_str(&format!("0x{:02X},", byte));
+        output.push_str(&format!("0x{byte:02X},"));
     }
     output.push('\n');
     output

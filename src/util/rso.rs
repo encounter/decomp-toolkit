@@ -147,14 +147,14 @@ impl FromReader for RsoHeader {
         if next != 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("Expected 'next' to be 0, got {:#X}", next),
+                format!("Expected 'next' to be 0, got {next:#X}"),
             ));
         }
         let prev = u32::from_reader(reader, e)?;
         if prev != 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("Expected 'prev' to be 0, got {:#X}", prev),
+                format!("Expected 'prev' to be 0, got {prev:#X}"),
             ));
         }
         let num_sections = u32::from_reader(reader, e)?;
@@ -170,7 +170,7 @@ impl FromReader for RsoHeader {
         if bss_section != 0 {
             return Err(io::Error::new(
                 io::ErrorKind::InvalidData,
-                format!("Expected 'bssSection' to be 0, got {:#X}", bss_section),
+                format!("Expected 'bssSection' to be 0, got {bss_section:#X}"),
             ));
         }
         let prolog_offset = u32::from_reader(reader, e)?;
@@ -440,7 +440,7 @@ where R: Read + Seek + ?Sized {
         // println!("Section {} offset {:#X} size {:#X}", idx, offset, size);
 
         sections.push(ObjSection {
-            name: format!(".section{}", idx),
+            name: format!(".section{idx}"),
             kind: if offset == 0 {
                 ObjSectionKind::Bss
             } else if section.exec() {

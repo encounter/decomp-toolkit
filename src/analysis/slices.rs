@@ -227,7 +227,7 @@ impl FunctionSlices {
             })?;
         }
         self.check_epilogue(section, ins_addr, ins)
-            .with_context(|| format!("While processing {:#010X}: {:#?}", function_start, self))?;
+            .with_context(|| format!("While processing {function_start:#010X}: {self:#?}"))?;
         if !self.has_conditional_blr && is_conditional_blr(ins) {
             self.has_conditional_blr = true;
         }

@@ -161,7 +161,7 @@ impl FromReader for AlfSymbolKind {
         match u32::from_reader(reader, e)? {
             0 => Ok(Self::Function),
             1 => Ok(Self::Object),
-            v => Err(Error::new(ErrorKind::InvalidData, format!("invalid ALF symbol kind: {}", v))),
+            v => Err(Error::new(ErrorKind::InvalidData, format!("invalid ALF symbol kind: {v}"))),
         }
     }
 }

@@ -442,12 +442,12 @@ where
         match parse_extab(symbols, entry, section) {
             Ok(s) => {
                 for line in s.trim_end().lines() {
-                    writeln!(w, " * {}", line)?;
+                    writeln!(w, " * {line}")?;
                 }
             }
             Err(e) => {
                 log::warn!("Failed to decode extab entry {}: {}", symbol.name, e);
-                writeln!(w, " * Failed to decode extab entry: {}", e)?;
+                writeln!(w, " * Failed to decode extab entry: {e}")?;
             }
         }
         writeln!(w, " */")?;
@@ -505,7 +505,7 @@ where
                 }
                 current_symbol_kind = find_symbol_kind(current_symbol_kind, symbols, vec)?;
                 current_data_kind = find_data_kind(current_data_kind, symbols, vec)
-                    .with_context(|| format!("At address {:#010X}", sym_addr))?;
+                    .with_context(|| format!("At address {sym_addr:#010X}"))?;
                 entry = entry_iter.next();
             } else if current_address > sym_addr {
                 let dbg_symbols = vec.iter().map(|e| &symbols[e.index as usize]).collect_vec();
@@ -660,8 +660,8 @@ where W: Write + ?Sized {
             '\x0D' => write!(w, "\\r")?,
             '\\' => write!(w, "\\\\")?,
             '"' => write!(w, "\\\"")?,
-            c if c.is_ascii_graphic() || c.is_ascii_whitespace() => write!(w, "{}", c)?,
-            _ => write!(w, "\\{:03o}", b)?,
+            c if c.is_ascii_graphic() || c.is_ascii_whitespace() => write!(w, "{c}")?,
+            _ => write!(w, "\\{b:03o}")?,
         }
     }
     writeln!(w, "\"")?;
@@ -684,13 +684,13 @@ where W: Write + ?Sized {
     for c in cow.chars() {
         match c {
             '#' => write!(w, "\\#")?,
-            _ => write!(w, "{}", c)?,
+            _ => write!(w, "{c}")?,
         }
     }
 
     write!(w, "\n\t.byte ")?;
     for (i, &b) in data.iter().enumerate() {
-        write!(w, "0x{:02X}", b)?;
+        write!(w, "0x{b:02X}")?;
         if i + 1 != data.len() {
             write!(w, ", ")?;
         }
@@ -721,7 +721,7 @@ where W: Write + ?Sized {
                 '\x0D' => write!(w, "\\r")?,
                 '\\' => write!(w, "\\\\")?,
                 '"' => write!(w, "\\\"")?,
-                c if c.is_ascii_graphic() || c.is_ascii_whitespace() => write!(w, "{}", c)?,
+                c if c.is_ascii_graphic() || c.is_ascii_whitespace() => write!(w, "{c}")?,
                 _ => write!(w, "\\{:#X}", c as u32)?,
             }
         }
@@ -793,7 +793,7 @@ where W: Write + ?Sized {
     };
     for chunk in remain.chunks(chunk_size) {
         if data_kind == ObjDataKind::Byte || matches!(chunk.len(), 1 | 3 | 5..=7) {
-            let bytes = chunk.iter().map(|c| format!("{:#04X}", c)).collect::<Vec<String>>();
+            let bytes = chunk.iter().map(|c| format!("{c:#04X}")).collect::<Vec<String>>();
             writeln!(w, "\t.byte {}", bytes.join(", "))?;
         } else {
             match chunk.len() {

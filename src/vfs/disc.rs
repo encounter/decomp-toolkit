@@ -333,7 +333,7 @@ impl VfsFile for DiscFile {
 
 pub fn nod_to_io_error(e: nod::Error) -> io::Error {
     match e {
-        nod::Error::Io(msg, e) => io::Error::new(e.kind(), format!("{}: {}", msg, e)),
+        nod::Error::Io(msg, e) => io::Error::new(e.kind(), format!("{msg}: {e}")),
         e => io::Error::new(io::ErrorKind::InvalidData, e),
     }
 }

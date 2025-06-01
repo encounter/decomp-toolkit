@@ -398,7 +398,7 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
             idx => match dol_section.kind {
                 DolSectionKind::Text => (format!(".text{idx}"), ObjSectionKind::Code, false),
                 DolSectionKind::Data => (format!(".data{idx}"), ObjSectionKind::Data, false),
-                DolSectionKind::Bss => (format!(".bss{}", idx), ObjSectionKind::Bss, false),
+                DolSectionKind::Bss => (format!(".bss{idx}"), ObjSectionKind::Bss, false),
             },
         };
 
@@ -453,7 +453,7 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
             );
 
             sections.push(ObjSection {
-                name: format!(".bss{}", idx),
+                name: format!(".bss{idx}"),
                 kind: ObjSectionKind::Bss,
                 address: addr as u64,
                 size: size as u64,
@@ -699,7 +699,7 @@ pub fn process_dol(buf: &[u8], name: &str) -> Result<ObjInfo> {
             };
             obj.add_symbol(
                 ObjSymbol {
-                    name: format!("@etb_{:08X}", addr),
+                    name: format!("@etb_{addr:08X}"),
                     address: addr as u64,
                     section: Some(extab_section_index),
                     size: size as u64,

@@ -403,7 +403,7 @@ impl ObjSymbols {
     pub fn iter_ordered(&self) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
         self.symbols_by_section
             .iter()
-            .flat_map(|v| v.iter().map(|(_, v)| v))
+            .flat_map(|v| v.values())
             .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u as usize])))
     }
 
@@ -450,7 +450,7 @@ impl ObjSymbols {
         self.symbols_by_section
             .get(section_idx as usize)
             .into_iter()
-            .flat_map(|v| v.iter().map(|(_, v)| v))
+            .flat_map(|v| v.values())
             .flat_map(move |v| v.iter().map(move |u| (*u, &self.symbols[*u as usize])))
     }
 

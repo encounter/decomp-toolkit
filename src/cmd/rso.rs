@@ -143,7 +143,7 @@ fn make_rso(
 
             let si = sym
                 .section_index()
-                .with_context(|| format!("Failed to find symbol `{}` section index", name))?;
+                .with_context(|| format!("Failed to find symbol `{name}` section index"))?;
             let addr = sym.address();
 
             *index = si.0 as u8;

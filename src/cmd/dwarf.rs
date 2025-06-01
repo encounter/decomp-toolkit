@@ -104,16 +104,16 @@ fn dump(args: DumpArgs) -> Result<()> {
                 // TODO make a basename method
                 let name = name.trim_start_matches("D:").replace('\\', "/");
                 let name = name.rsplit_once('/').map(|(_, b)| b).unwrap_or(&name);
-                let file_path = out_path.join(format!("{}.txt", name));
+                let file_path = out_path.join(format!("{name}.txt"));
                 let mut file = buf_writer(&file_path)?;
                 dump_debug_section(&args, &mut file, &obj_file, debug_section)?;
                 file.flush()?;
             } else if args.no_color {
-                println!("\n// File {}:", name);
+                println!("\n// File {name}:");
                 dump_debug_section(&args, &mut stdout(), &obj_file, debug_section)?;
             } else {
                 let mut writer = HighlightWriter::new(syntax_set.clone(), syntax.clone(), theme);
-                writeln!(writer, "\n// File {}:", name)?;
+                writeln!(writer, "\n// File {name}:")?;
                 dump_debug_section(&args, &mut writer, &obj_file, debug_section)?;
             }
         }
@@ -209,26 +209,25 @@ where
                     }
                     writeln!(w, "\n/*\n    Compile unit: {}", unit.name)?;
                     if let Some(producer) = unit.producer {
-                        writeln!(w, "    Producer: {}", producer)?;
+                        writeln!(w, "    Producer: {producer}")?;
                     }
                     if let Some(comp_dir) = unit.comp_dir {
-                        writeln!(w, "    Compile directory: {}", comp_dir)?;
+                        writeln!(w, "    Compile directory: {comp_dir}")?;
                     }
                     if let Some(language) = unit.language {
-                        writeln!(w, "    Language: {}", language)?;
+                        writeln!(w, "    Language: {language}")?;
                     }
                     if let (Some(start), Some(end)) = (unit.start_address, unit.end_address) {
-                        writeln!(w, "    Code range: {:#010X} -> {:#010X}", start, end)?;
+                        writeln!(w, "    Code range: {start:#010X} -> {end:#010X}")?;
                     }
                     if let Some(gcc_srcfile_name_offset) = unit.gcc_srcfile_name_offset {
                         writeln!(
                             w,
-                            "    GCC Source File Name Offset: {:#010X}",
-                            gcc_srcfile_name_offset
+                            "    GCC Source File Name Offset: {gcc_srcfile_name_offset:#010X}"
                         )?;
                     }
                     if let Some(gcc_srcinfo_offset) = unit.gcc_srcinfo_offset {
-                        writeln!(w, "    GCC Source Info Offset: {:#010X}", gcc_srcinfo_offset)?;
+                        writeln!(w, "    GCC Source Info Offset: {gcc_srcinfo_offset:#010X}")?;
                     }
                     writeln!(w, "*/")?;
 
@@ -269,7 +268,7 @@ where
                             continue;
                         }
                         match tag_type_string(&info, &typedefs, &tag_type, child.is_erased) {
-                            Ok(s) => writeln!(w, "{}", s)?,
+                            Ok(s) => writeln!(w, "{s}")?,
                             Err(e) => {
                                 log::error!(
                                     "Failed to emit tag {:X} (unit {}): {}",

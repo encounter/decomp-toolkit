@@ -175,7 +175,7 @@ fn symbol(args: SymbolArgs) -> Result<()> {
     if let Some(vec) = entries.unit_references.get_vec(&symbol_ref) {
         println!("\nGenerated in TUs:");
         for x in vec {
-            println!(">>> {}", x);
+            println!(">>> {x}");
         }
     }
     println!("\n");

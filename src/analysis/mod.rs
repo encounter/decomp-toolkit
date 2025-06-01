@@ -183,8 +183,7 @@ fn get_jump_table_entries(
                     let (section_index, _) =
                         obj.sections.at_address(entry_addr).with_context(|| {
                             format!(
-                                "Invalid jump table entry {:#010X} at {:#010X}",
-                                entry_addr, cur_addr
+                                "Invalid jump table entry {entry_addr:#010X} at {cur_addr:#010X}"
                             )
                         })?;
                     entries.push(SectionAddress::new(section_index, entry_addr));

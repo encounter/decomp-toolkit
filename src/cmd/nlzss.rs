@@ -59,7 +59,7 @@ fn decompress(args: DecompressArgs) -> Result<()> {
             path.as_path().to_cow()
         };
         fs::write(out_path.as_ref(), data)
-            .with_context(|| format!("Failed to write '{}'", out_path))?;
+            .with_context(|| format!("Failed to write '{out_path}'"))?;
     }
     Ok(())
 }

@@ -191,7 +191,7 @@ impl AnalyzerState {
             };
             obj.add_symbol(
                 ObjSymbol {
-                    name: format!("jumptable_{}", address_str),
+                    name: format!("jumptable_{address_str}"),
                     address: addr.address as u64,
                     section: Some(addr.section),
                     size: size as u64,
@@ -275,7 +275,7 @@ impl AnalyzerState {
             let (section_index, _) = obj
                 .sections
                 .at_address(entry)
-                .context(format!("Entry point {:#010X} outside of any section", entry))?;
+                .context(format!("Entry point {entry:#010X} outside of any section"))?;
             self.process_function_at(obj, SectionAddress::new(section_index, entry))?;
         }
         // Locate bounds for referenced functions until none are left
@@ -530,7 +530,7 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
     let (section_index, _) = obj
         .sections
         .at_address(entry as u32)
-        .context(format!("Entry point {:#010X} outside of any section", entry))?;
+        .context(format!("Entry point {entry:#010X} outside of any section"))?;
     let entry_addr = SectionAddress::new(section_index, entry as u32);
 
     let mut executor = Executor::new(obj);
@@ -589,7 +589,7 @@ pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
     let (section_index, _) = obj
         .sections
         .at_address(entry as u32)
-        .context(format!("Entry point {:#010X} outside of any section", entry))?;
+        .context(format!("Entry point {entry:#010X} outside of any section"))?;
     let entry_addr = SectionAddress::new(section_index, entry as u32);
 
     let mut executor = Executor::new(obj);

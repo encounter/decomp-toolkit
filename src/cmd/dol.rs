@@ -536,7 +536,7 @@ pub fn info(args: InfoArgs) -> Result<()> {
 
     println!("{}:", obj.name);
     if let Some(entry) = obj.entry {
-        println!("Entry point: {:#010X}", entry);
+        println!("Entry point: {entry:#010X}");
     }
     println!("\nSections:");
     println!("\t{: >10} | {: <10} | {: <10} | {: <10}", "Name", "Address", "Size", "File Off");
@@ -955,7 +955,7 @@ fn split_write_obj(
     DirBuilder::new()
         .recursive(true)
         .create(out_dir)
-        .with_context(|| format!("Failed to create out dir '{}'", out_dir))?;
+        .with_context(|| format!("Failed to create out dir '{out_dir}'"))?;
     let obj_dir = out_dir.join("obj");
     let entry = if module.obj.kind == ObjKind::Executable {
         module.obj.entry.and_then(|e| {
@@ -1056,9 +1056,8 @@ fn split_write_obj(
     // Generate ldscript.lcf
     let ldscript_template = if let Some(template_path) = &module.config.ldscript_template {
         let template_path = template_path.with_encoding();
-        let template = fs::read_to_string(&template_path).with_context(|| {
-            format!("Failed to read linker script template '{}'", template_path)
-        })?;
+        let template = fs::read_to_string(&template_path)
+            .with_context(|| format!("Failed to read linker script template '{template_path}'"))?;
         module.dep.push(template_path);
         Some(template)
     } else {
@@ -1076,8 +1075,7 @@ fn split_write_obj(
             let out_path = asm_dir.join(asm_path_for_unit(&unit.name));
 
             let mut w = buf_writer(&out_path)?;
-            write_asm(&mut w, split_obj)
-                .with_context(|| format!("Failed to write {}", out_path))?;
+            write_asm(&mut w, split_obj).with_context(|| format!("Failed to write {out_path}"))?;
             w.flush()?;
         }
     }
@@ -1094,7 +1092,7 @@ fn write_if_changed(path: &Utf8NativePath, contents: &[u8]) -> Result<()> {
             return Ok(());
         }
     }
-    fs::write(path, contents).with_context(|| format!("Failed to write file '{}'", path))?;
+    fs::write(path, contents).with_context(|| format!("Failed to write file '{path}'"))?;
     Ok(())
 }
 
@@ -2166,7 +2164,7 @@ impl ObjectBase {
                 }
                 base.join(path.with_encoding())
             }
-            ObjectBase::Vfs(base, _) => Utf8NativePathBuf::from(format!("{}:{}", base, path)),
+            ObjectBase::Vfs(base, _) => Utf8NativePathBuf::from(format!("{base}:{path}")),
         }
     }
 
@@ -2183,7 +2181,7 @@ impl ObjectBase {
             }
             ObjectBase::Vfs(vfs_path, vfs) => {
                 open_file_with_fs(vfs.clone(), &path.with_encoding(), true)
-                    .with_context(|| format!("Using disc image {}", vfs_path))
+                    .with_context(|| format!("Using disc image {vfs_path}"))
             }
         }
     }
@@ -2201,18 +2199,18 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
     if let Some(base) = &config.object_base {
         let base = base.with_encoding();
         // Search for disc images in the object base directory
-        for result in fs::read_dir(&base).with_context(|| format!("Reading directory {}", base))? {
-            let entry = result.with_context(|| format!("Reading entry in directory {}", base))?;
+        for result in fs::read_dir(&base).with_context(|| format!("Reading directory {base}"))? {
+            let entry = result.with_context(|| format!("Reading entry in directory {base}"))?;
             let Ok(path) = check_path_buf(entry.path()) else {
                 log::warn!("Path is not valid UTF-8: {:?}", entry.path());
                 continue;
             };
             let file_type =
-                entry.file_type().with_context(|| format!("Getting file type for {}", path))?;
+                entry.file_type().with_context(|| format!("Getting file type for {path}"))?;
             let is_file = if file_type.is_symlink() {
                 // Also traverse symlinks to files
                 fs::metadata(&path)
-                    .with_context(|| format!("Getting metadata for {}", path))?
+                    .with_context(|| format!("Getting metadata for {path}"))?
                     .is_file()
             } else {
                 file_type.is_file()
@@ -2220,7 +2218,7 @@ pub fn find_object_base(config: &ProjectConfig) -> Result<ObjectBase> {
             if is_file {
                 let mut file = open_file(&path, false)?;
                 let format = detect(file.as_mut())
-                    .with_context(|| format!("Detecting file type for {}", path))?;
+                    .with_context(|| format!("Detecting file type for {path}"))?;
                 match format {
                     FileFormat::Archive(ArchiveKind::Disc(format)) => {
                         let fs = open_fs(file, ArchiveKind::Disc(format))?;
@@ -2249,7 +2247,7 @@ fn extract_objects(config: &ProjectConfig, object_base: &ObjectBase) -> Result<U
     {
         let target_path = extracted_path(&target_dir, &config.base.object);
         if !fs::exists(&target_path)
-            .with_context(|| format!("Failed to check path '{}'", target_path))?
+            .with_context(|| format!("Failed to check path '{target_path}'"))?
         {
             object_paths.push((&config.base.object, config.base.hash.as_deref(), target_path));
         }
@@ -2257,7 +2255,7 @@ fn extract_objects(config: &ProjectConfig, object_base: &ObjectBase) -> Result<U
     if let Some(selfile) = &config.selfile {
         let target_path = extracted_path(&target_dir, selfile);
         if !fs::exists(&target_path)
-            .with_context(|| format!("Failed to check path '{}'", target_path))?
+            .with_context(|| format!("Failed to check path '{target_path}'"))?
         {
             object_paths.push((selfile, config.selfile_hash.as_deref(), target_path));
         }
@@ -2265,7 +2263,7 @@ fn extract_objects(config: &ProjectConfig, object_base: &ObjectBase) -> Result<U
     for module_config in &config.modules {
         let target_path = extracted_path(&target_dir, &module_config.object);
         if !fs::exists(&target_path)
-            .with_context(|| format!("Failed to check path '{}'", target_path))?
+            .with_context(|| format!("Failed to check path '{target_path}'"))?
         {
             object_paths.push((&module_config.object, module_config.hash.as_deref(), target_path));
         }
@@ -2284,12 +2282,12 @@ fn extract_objects(config: &ProjectConfig, object_base: &ObjectBase) -> Result<U
         let mut file = object_base.open(source_path)?;
         if let Some(parent) = target_path.parent() {
             fs::create_dir_all(parent)
-                .with_context(|| format!("Failed to create directory '{}'", parent))?;
+                .with_context(|| format!("Failed to create directory '{parent}'"))?;
         }
         let mut out = fs::File::create(&target_path)
-            .with_context(|| format!("Failed to create file '{}'", target_path))?;
+            .with_context(|| format!("Failed to create file '{target_path}'"))?;
         let hash_bytes = buf_copy_with_hash(&mut file, &mut out)
-            .with_context(|| format!("Failed to extract file '{}'", target_path))?;
+            .with_context(|| format!("Failed to extract file '{target_path}'"))?;
         if let Some(hash) = hash {
             check_hash_str(hash_bytes, hash).with_context(|| {
                 format!("Source file failed verification: '{}'", object_base.join(source_path))

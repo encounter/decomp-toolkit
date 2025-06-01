@@ -108,8 +108,8 @@ impl Display for VfsError {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             VfsError::NotFound => write!(f, "File or directory not found"),
-            VfsError::IoError(e) => write!(f, "{}", e),
-            VfsError::Other(e) => write!(f, "{}", e),
+            VfsError::IoError(e) => write!(f, "{e}"),
+            VfsError::Other(e) => write!(f, "{e}"),
             VfsError::NotADirectory => write!(f, "Path is a file, not a directory"),
             VfsError::IsADirectory => write!(f, "Path is a directory, not a file"),
         }
@@ -129,8 +129,8 @@ impl Display for FileFormat {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             FileFormat::Regular => write!(f, "File"),
-            FileFormat::Compressed(kind) => write!(f, "Compressed: {}", kind),
-            FileFormat::Archive(kind) => write!(f, "Archive: {}", kind),
+            FileFormat::Compressed(kind) => write!(f, "Compressed: {kind}"),
+            FileFormat::Archive(kind) => write!(f, "Archive: {kind}"),
         }
     }
 }
@@ -165,7 +165,7 @@ impl Display for ArchiveKind {
         match self {
             ArchiveKind::Rarc => write!(f, "RARC"),
             ArchiveKind::U8 => write!(f, "U8"),
-            ArchiveKind::Disc(format) => write!(f, "Disc ({})", format),
+            ArchiveKind::Disc(format) => write!(f, "Disc ({format})"),
             ArchiveKind::Wad => write!(f, "WAD"),
         }
     }
@@ -228,13 +228,13 @@ pub fn open_path_with_fs(
             let file_type = match fs.metadata(segment) {
                 Ok(metadata) => metadata.file_type,
                 Err(VfsError::NotFound) => return Err(anyhow!("{} not found", current_path)),
-                Err(e) => return Err(e).context(format!("Failed to open {}", current_path)),
+                Err(e) => return Err(e).context(format!("Failed to open {current_path}")),
             };
             match file_type {
                 VfsFileType::File => {
                     file = Some(
                         fs.open(segment)
-                            .with_context(|| format!("Failed to open {}", current_path))?,
+                            .with_context(|| format!("Failed to open {current_path}"))?,
                     );
                 }
                 VfsFileType::Directory => {
@@ -248,7 +248,7 @@ pub fn open_path_with_fs(
         }
         let mut current_file = file.take().unwrap();
         let format = detect(current_file.as_mut())
-            .with_context(|| format!("Failed to detect file type for {}", current_path))?;
+            .with_context(|| format!("Failed to detect file type for {current_path}"))?;
         if let Some(&next) = split.peek() {
             match next {
                 "nlzss" => {
@@ -256,7 +256,7 @@ pub fn open_path_with_fs(
                     file = Some(
                         decompress_file(current_file.as_mut(), CompressionKind::Nlzss)
                             .with_context(|| {
-                                format!("Failed to decompress {} with NLZSS", current_path)
+                                format!("Failed to decompress {current_path} with NLZSS")
                             })?,
                     );
                 }
@@ -265,7 +265,7 @@ pub fn open_path_with_fs(
                     file = Some(
                         decompress_file(current_file.as_mut(), CompressionKind::Yay0)
                             .with_context(|| {
-                                format!("Failed to decompress {} with Yay0", current_path)
+                                format!("Failed to decompress {current_path} with Yay0")
                             })?,
                     );
                 }
@@ -274,7 +274,7 @@ pub fn open_path_with_fs(
                     file = Some(
                         decompress_file(current_file.as_mut(), CompressionKind::Yaz0)
                             .with_context(|| {
-                                format!("Failed to decompress {} with Yaz0", current_path)
+                                format!("Failed to decompress {current_path} with Yaz0")
                             })?,
                     );
                 }
@@ -283,16 +283,15 @@ pub fn open_path_with_fs(
                         return Err(anyhow!("{} is not an archive", current_path))
                     }
                     FileFormat::Compressed(kind) => {
-                        file =
-                            Some(decompress_file(current_file.as_mut(), kind).with_context(
-                                || format!("Failed to decompress {}", current_path),
-                            )?);
+                        file = Some(
+                            decompress_file(current_file.as_mut(), kind)
+                                .with_context(|| format!("Failed to decompress {current_path}"))?,
+                        );
                         // Continue the loop to detect the new format
                     }
                     FileFormat::Archive(kind) => {
-                        fs = open_fs(current_file, kind).with_context(|| {
-                            format!("Failed to open container {}", current_path)
-                        })?;
+                        fs = open_fs(current_file, kind)
+                            .with_context(|| format!("Failed to open container {current_path}"))?;
                         // Continue the loop to open the next segment
                     }
                 },
@@ -302,7 +301,7 @@ pub fn open_path_with_fs(
             return match format {
                 FileFormat::Compressed(kind) if auto_decompress => Ok(OpenResult::File(
                     decompress_file(current_file.as_mut(), kind)
-                        .with_context(|| format!("Failed to decompress {}", current_path))?,
+                        .with_context(|| format!("Failed to decompress {current_path}"))?,
                     segment.to_path_buf(),
                 )),
                 _ => Ok(OpenResult::File(current_file, segment.to_path_buf())),

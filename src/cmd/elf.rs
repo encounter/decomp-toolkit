@@ -146,14 +146,14 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             let mut files_out = buf_writer(&args.out.join("link_order.txt"))?;
             for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
                 let out_name = file_stem_from_unit(&unit.name);
-                let out_path = asm_dir.join(format!("{}.s", out_name));
+                let out_path = asm_dir.join(format!("{out_name}.s"));
                 log::info!("Writing {}", out_path);
 
                 let mut w = buf_writer(&out_path)?;
                 write_asm(&mut w, split_obj)?;
                 w.flush()?;
 
-                writeln!(files_out, "{}.o", out_name)?;
+                writeln!(files_out, "{out_name}.o")?;
             }
             files_out.flush()?;
         }
@@ -402,7 +402,7 @@ fn signatures(args: SignaturesArgs) -> Result<()> {
             Ok(Some(signature)) => signature,
             Ok(None) => continue,
             Err(e) => {
-                eprintln!("Failed: {:?}", e);
+                eprintln!("Failed: {e:?}");
                 continue;
             }
         };
@@ -545,13 +545,13 @@ fn info(args: InfoArgs) -> Result<()> {
                     .context("While reading .note.split section")?;
             println!("\nSplit metadata (.note.split):");
             if let Some(generator) = &meta.generator {
-                println!("\tGenerator: {}", generator);
+                println!("\tGenerator: {generator}");
             }
             if let Some(module_name) = &meta.module_name {
-                println!("\tModule name: {}", module_name);
+                println!("\tModule name: {module_name}");
             }
             if let Some(module_id) = meta.module_id {
-                println!("\tModule ID: {}", module_id);
+                println!("\tModule ID: {module_id}");
             }
             if let Some(virtual_addresses) = &meta.virtual_addresses {
                 println!("\tVirtual addresses:");

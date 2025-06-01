@@ -26,7 +26,7 @@ pub fn buf_writer(path: &Utf8NativePath) -> Result<BufWriter<File>> {
     if let Some(parent) = path.parent() {
         DirBuilder::new().recursive(true).create(parent)?;
     }
-    let file = File::create(path).with_context(|| format!("Failed to create file '{}'", path))?;
+    let file = File::create(path).with_context(|| format!("Failed to create file '{path}'"))?;
     Ok(BufWriter::new(file))
 }
 

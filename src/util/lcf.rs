@@ -47,11 +47,11 @@ pub fn generate_ldscript(
 
     let out = template
         .unwrap_or(LCF_TEMPLATE)
-        .replace("$ORIGIN", &format!("{:#X}", origin))
+        .replace("$ORIGIN", &format!("{origin:#X}"))
         .replace("$SECTIONS", &section_defs)
         .replace("$LAST_SECTION_SYMBOL", &last_section_symbol)
         .replace("$LAST_SECTION_NAME", &last_section_name)
-        .replace("$STACKSIZE", &format!("{:#X}", stack_size))
+        .replace("$STACKSIZE", &format!("{stack_size:#X}"))
         .replace("$FORCEACTIVE", &force_active.join("\n    "))
         .replace("$ARENAHI", &format!("{:#X}", obj.arena_hi.unwrap_or(0x81700000)));
     Ok(out)
@@ -74,7 +74,7 @@ pub fn generate_ldscript_partial(
     // Some RELs have no entry point (`.text` was stripped) so mwld requires at least an empty
     // `.init` section to be present in the linker script, for some reason.
     if obj.entry.is_none() {
-        section_defs = format!(".init :{{}}\n        {}", section_defs);
+        section_defs = format!(".init :{{}}\n        {section_defs}");
     }
 
     let mut force_files = Vec::with_capacity(obj.link_order.len());

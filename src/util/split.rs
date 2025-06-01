@@ -655,7 +655,7 @@ fn add_padding_symbols(obj: &mut ObjInfo) -> Result<()> {
                         next_address
                     );
                     let name = if obj.module_id == 0 {
-                        format!("lbl_{:08X}", symbol_end)
+                        format!("lbl_{symbol_end:08X}")
                     } else {
                         format!(
                             "lbl_{}_{}_{:X}",
@@ -1465,7 +1465,7 @@ fn auto_unit_name(
     if unit_exists(&unit_name, obj, new_splits) {
         let mut i = 1;
         loop {
-            let new_unit_name = format!("{}_{}", unit_name, i);
+            let new_unit_name = format!("{unit_name}_{i}");
             if !unit_exists(&new_unit_name, obj, new_splits) {
                 unit_name = new_unit_name;
                 break;
