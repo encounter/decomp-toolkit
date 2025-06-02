@@ -10,6 +10,7 @@ pub mod diff;
 pub mod dol;
 pub mod dwarf;
 pub mod elf;
+pub mod extab;
 pub mod file;
 pub mod lcf;
 pub mod map;

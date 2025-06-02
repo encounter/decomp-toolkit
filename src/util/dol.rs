@@ -1,7 +1,7 @@
 use std::{
     collections::BTreeMap,
     io,
-    io::{Cursor, Read, Seek},
+    io::{Cursor, Read, Seek, SeekFrom, Write},
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
@@ -16,7 +16,7 @@ use crate::{
     util::{
         alf::{AlfFile, AlfSymbol, ALF_MAGIC},
         align_up,
-        reader::{skip_bytes, Endian, FromReader},
+        reader::{skip_bytes, Endian, FromReader, ToWriter},
     },
 };
 
@@ -131,7 +131,7 @@ impl FromReader for DolFile {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct DolHeader {
     pub text_offs: [u32; MAX_TEXT_SECTIONS],
     pub data_offs: [u32; MAX_DATA_SECTIONS],
@@ -165,6 +165,28 @@ impl FromReader for DolHeader {
         skip_bytes::<0x1C, _>(reader)?; // padding
         Ok(result)
     }
+}
+
+impl ToWriter for DolHeader {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        self.text_offs.to_writer(writer, e)?;
+        self.data_offs.to_writer(writer, e)?;
+        self.text_addrs.to_writer(writer, e)?;
+        self.data_addrs.to_writer(writer, e)?;
+        self.text_sizes.to_writer(writer, e)?;
+        self.data_sizes.to_writer(writer, e)?;
+        self.bss_addr.to_writer(writer, e)?;
+        self.bss_size.to_writer(writer, e)?;
+        self.entry_point.to_writer(writer, e)?;
+        // padding
+        for _ in 0..0x1C {
+            writer.write_all(&[0])?;
+        }
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { Self::STATIC_SIZE }
 }
 
 impl DolLike for DolFile {
@@ -846,4 +868,80 @@ fn validate_eti_init_info(
         }
     }
     Ok(false)
+}
+
+pub fn write_dol<W>(obj: &ObjInfo, out: &mut W) -> Result<()>
+where W: Write + Seek + ?Sized {
+    let mut header = DolHeader { entry_point: obj.entry.unwrap() as u32, ..Default::default() };
+    let mut offset = 0x100u32;
+    out.seek(SeekFrom::Start(offset as u64))?;
+
+    // Text sections
+    for (num_sections, (_, section)) in
+        obj.sections.iter().filter(|(_, s)| s.kind == ObjSectionKind::Code).enumerate()
+    {
+        log::debug!("Processing text section '{}'", section.name);
+        let size = align32(section.size as u32);
+        if num_sections >= MAX_TEXT_SECTIONS {
+            bail!("Too many text sections (while processing '{}')", section.name);
+        }
+        header.text_offs[num_sections] = offset;
+        header.text_addrs[num_sections] = section.address as u32;
+        header.text_sizes[num_sections] = size;
+        write_aligned(out, &section.data, size)?;
+        offset += size;
+    }
+
+    // Data sections
+    for (num_sections, (_, section)) in obj
+        .sections
+        .iter()
+        .filter(|(_, s)| matches!(s.kind, ObjSectionKind::Data | ObjSectionKind::ReadOnlyData))
+        .enumerate()
+    {
+        log::debug!("Processing data section '{}'", section.name);
+        let size = align32(section.size as u32);
+        if num_sections >= MAX_DATA_SECTIONS {
+            bail!("Too many data sections (while processing '{}')", section.name);
+        }
+        header.data_offs[num_sections] = offset;
+        header.data_addrs[num_sections] = section.address as u32;
+        header.data_sizes[num_sections] = size;
+        write_aligned(out, &section.data, size)?;
+        offset += size;
+    }
+
+    // BSS sections
+    for (_, section) in obj.sections.iter().filter(|(_, s)| s.kind == ObjSectionKind::Bss) {
+        let address = section.address as u32;
+        let size = section.size as u32;
+        if header.bss_addr == 0 {
+            header.bss_addr = address;
+        }
+        header.bss_size = (address + size) - header.bss_addr;
+    }
+
+    // Header
+    out.rewind()?;
+    header.to_writer(out, Endian::Big)?;
+
+    // Done!
+    out.flush()?;
+    Ok(())
+}
+
+#[inline]
+const fn align32(x: u32) -> u32 { (x + 31) & !31 }
+
+const ZERO_BUF: [u8; 32] = [0u8; 32];
+
+#[inline]
+fn write_aligned<T>(out: &mut T, bytes: &[u8], aligned_size: u32) -> std::io::Result<()>
+where T: Write + ?Sized {
+    out.write_all(bytes)?;
+    let padding = aligned_size - bytes.len() as u32;
+    if padding > 0 {
+        out.write_all(&ZERO_BUF[0..padding as usize])?;
+    }
+    Ok(())
 }

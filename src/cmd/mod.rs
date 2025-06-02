@@ -6,6 +6,7 @@ pub mod dol;
 pub mod dwarf;
 pub mod elf;
 pub mod elf2dol;
+pub mod extab;
 pub mod map;
 pub mod nlzss;
 pub mod rarc;

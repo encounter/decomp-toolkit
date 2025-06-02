@@ -263,6 +263,18 @@ impl ToWriter for Vec<u8> {
     fn write_size(&self) -> usize { self.len() }
 }
 
+impl<const N: usize> ToWriter for [u32; N] {
+    fn to_writer<W>(&self, writer: &mut W, e: Endian) -> io::Result<()>
+    where W: Write + ?Sized {
+        for &value in self {
+            value.to_writer(writer, e)?;
+        }
+        Ok(())
+    }
+
+    fn write_size(&self) -> usize { N * u32::STATIC_SIZE }
+}
+
 pub fn write_vec<T, W>(writer: &mut W, vec: &[T], e: Endian) -> io::Result<()>
 where
     T: ToWriter,

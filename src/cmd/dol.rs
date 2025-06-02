@@ -47,6 +47,7 @@ use crate::{
         diff::{calc_diff_ranges, print_diff, process_code},
         dol::process_dol,
         elf::{process_elf, write_elf},
+        extab::clean_extab,
         file::{
             buf_copy_with_hash, buf_writer, check_hash_str, touch, verify_hash, FileIterator,
             FileReadInfo,
@@ -293,6 +294,9 @@ pub struct ModuleConfig {
     pub block_relocations: Vec<BlockRelocationConfig>,
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub add_relocations: Vec<AddRelocationConfig>,
+    /// Process exception tables and zero out uninitialized data.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub clean_extab: Option<bool>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -818,17 +822,29 @@ struct AnalyzeResult {
     splits_cache: Option<FileReadInfo>,
 }
 
-fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<AnalyzeResult> {
-    let object_path = object_base.join(&config.base.object);
+fn load_dol_module(
+    config: &ModuleConfig,
+    object_base: &ObjectBase,
+) -> Result<(ObjInfo, Utf8NativePathBuf)> {
+    let object_path = object_base.join(&config.object);
     log::debug!("Loading {}", object_path);
     let mut obj = {
-        let mut file = object_base.open(&config.base.object)?;
+        let mut file = object_base.open(&config.object)?;
         let data = file.map()?;
-        if let Some(hash_str) = &config.base.hash {
+        if let Some(hash_str) = &config.hash {
             verify_hash(data, hash_str)?;
         }
-        process_dol(data, config.base.name())?
+        process_dol(data, config.name())?
     };
+    if config.clean_extab.unwrap_or(false) {
+        log::debug!("Cleaning extab for {}", config.name());
+        clean_extab(&mut obj)?;
+    }
+    Ok((obj, object_path))
+}
+
+fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<AnalyzeResult> {
+    let (mut obj, object_path) = load_dol_module(&config.base, object_base)?;
     let mut dep = vec![object_path];
 
     if let Some(comment_version) = config.mw_comment_version {
@@ -1658,15 +1674,7 @@ fn diff(args: DiffArgs) -> Result<()> {
     let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
     let object_base = find_object_base(&config)?;
 
-    log::info!("Loading {}", object_base.join(&config.base.object));
-    let mut obj = {
-        let mut file = object_base.open(&config.base.object)?;
-        let data = file.map()?;
-        if let Some(hash_str) = &config.base.hash {
-            verify_hash(data, hash_str)?;
-        }
-        process_dol(data, config.base.name())?
-    };
+    let (mut obj, _object_path) = load_dol_module(&config.base, &object_base)?;
 
     if let Some(symbols_path) = &config.base.symbols {
         apply_symbols_file(&symbols_path.with_encoding(), &mut obj)?;
@@ -1882,15 +1890,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
     let config: ProjectConfig = serde_yaml::from_reader(config_file.as_mut())?;
     let object_base = find_object_base(&config)?;
 
-    log::info!("Loading {}", object_base.join(&config.base.object));
-    let mut obj = {
-        let mut file = object_base.open(&config.base.object)?;
-        let data = file.map()?;
-        if let Some(hash_str) = &config.base.hash {
-            verify_hash(data, hash_str)?;
-        }
-        process_dol(data, config.base.name())?
-    };
+    let (mut obj, _object_path) = load_dol_module(&config.base, &object_base)?;
 
     let Some(symbols_path) = &config.base.symbols else {
         bail!("No symbols file specified in config");
