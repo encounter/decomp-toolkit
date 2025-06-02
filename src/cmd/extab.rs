@@ -30,15 +30,18 @@ enum SubCommand {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Rewrites extab data in a DOL or ELF file, zeroing out any uninitialized padding bytes.
+/// Rewrites extab data in a DOL or ELF file, replacing any uninitialized padding bytes.
 #[argp(subcommand, name = "clean")]
 pub struct CleanArgs {
     #[argp(positional, from_str_fn(native_path))]
-    /// path to input file
+    /// Path to input file
     input: Utf8NativePathBuf,
     #[argp(positional, from_str_fn(native_path))]
-    /// path to output file
+    /// Path to output file
     output: Utf8NativePathBuf,
+    #[argp(option, short = 'p')]
+    /// Data to replace padding bytes with, encoded as a hexadecimal string. If not specified, padding bytes will be zeroed instead.
+    padding: Option<String>,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -56,7 +59,13 @@ fn clean_extab(args: CleanArgs) -> Result<()> {
         let name = args.input.file_stem().unwrap_or_default();
         process_dol(file.map()?, name)?
     };
-    let num_cleaned = util::extab::clean_extab(&mut obj)?;
+    let padding: Vec<u8> = match args.padding {
+        None => Vec::new(),
+        Some(padding_str) => {
+            hex::decode(padding_str).context("Failed to decode padding bytes from hex")?
+        }
+    };
+    let num_cleaned = util::extab::clean_extab(&mut obj, padding.iter().copied())?;
     tracing::debug!("Cleaned {num_cleaned} extab symbols");
     let mut out = buf_writer(&args.output)?;
     if is_elf {
