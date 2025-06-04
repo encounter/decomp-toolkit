@@ -34,7 +34,7 @@ pub fn clean_extab(obj: &mut ObjInfo, mut padding: impl Iterator<Item = u8>) -> 
                     + action.action_offset as usize;
                 let mut clean_data: Vec<u8> = action.get_exaction_bytes(false);
                 // Write the two padding bytes
-                clean_data[index + 0] = padding.next().unwrap_or(0);
+                clean_data[index] = padding.next().unwrap_or(0);
                 clean_data[index + 1] = padding.next().unwrap_or(0);
 
                 let orig_data =
