@@ -45,7 +45,7 @@ pub fn clean_extab(obj: &mut ObjInfo, mut padding: impl Iterator<Item = u8>) -> 
         }
         if updated {
             tracing::debug!(
-                "Removed uninitialized bytes in {} (extab {:#010X}..{:#010X})",
+                "Replaced uninitialized bytes in {} (extab {:#010X}..{:#010X})",
                 symbol.name,
                 symbol.address,
                 symbol.address + symbol.size
