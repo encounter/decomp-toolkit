@@ -2,7 +2,7 @@ use anyhow::Result;
 
 use crate::{
     obj::{ObjDataKind, ObjInfo, ObjSectionKind, ObjSymbolKind, SymbolIndex},
-    util::split::is_linker_generated_label,
+    util::{config::is_auto_symbol, split::is_linker_generated_label},
 };
 
 pub fn detect_objects(obj: &mut ObjInfo) -> Result<()> {
@@ -134,7 +134,9 @@ pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
                 StringResult::None => {}
                 StringResult::String { length, terminated } => {
                     let size = if terminated { length + 1 } else { length };
-                    if !symbol.size_known || symbol.size == size as u64 {
+                    if symbol.size == size as u64
+                        || (is_auto_symbol(symbol) && symbol.size > size as u64)
+                    {
                         let str = String::from_utf8_lossy(&data[..length]);
                         log::debug!("Found string '{}' @ {}", str, symbol.name);
                         symbols_set.push((symbol_idx, ObjDataKind::String, size));
@@ -142,7 +144,9 @@ pub fn detect_strings(obj: &mut ObjInfo) -> Result<()> {
                 }
                 StringResult::WString { length, str } => {
                     let size = length + 2;
-                    if !symbol.size_known || symbol.size == size as u64 {
+                    if symbol.size == size as u64
+                        || (is_auto_symbol(symbol) && symbol.size > size as u64)
+                    {
                         log::debug!("Found wide string '{}' @ {}", str, symbol.name);
                         symbols_set.push((symbol_idx, ObjDataKind::String16, size));
                     }
