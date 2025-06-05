@@ -838,7 +838,7 @@ fn load_dol_module(
     };
     if config.clean_extab.unwrap_or(false) {
         log::debug!("Cleaning extab for {}", config.name());
-        clean_extab(&mut obj)?;
+        clean_extab(&mut obj, std::iter::empty())?;
     }
     Ok((obj, object_path))
 }

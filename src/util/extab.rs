@@ -3,7 +3,7 @@ use itertools::Itertools;
 
 use crate::obj::ObjInfo;
 
-pub fn clean_extab(obj: &mut ObjInfo) -> Result<usize> {
+pub fn clean_extab(obj: &mut ObjInfo, mut padding: impl Iterator<Item = u8>) -> Result<usize> {
     let (extab_section_index, extab_section) = obj
         .sections
         .iter_mut()
@@ -27,19 +27,25 @@ pub fn clean_extab(obj: &mut ObjInfo) -> Result<usize> {
         })?;
         let mut updated = false;
         for action in &decoded.exception_actions {
-            let section_offset =
-                (symbol.address - extab_section.address) as usize + action.action_offset as usize;
-            let clean_data = action.get_exaction_bytes(true);
-            let orig_data =
-                &mut extab_section.data[section_offset..section_offset + clean_data.len()];
-            if orig_data != clean_data {
-                updated = true;
+            // Check if the current action has padding
+            if let Some(padding_offset) = action.get_struct_padding_offset() {
+                let index = padding_offset as usize;
+                let section_offset = (symbol.address - extab_section.address) as usize
+                    + action.action_offset as usize;
+                let mut clean_data: Vec<u8> = action.get_exaction_bytes(false);
+                // Write the two padding bytes
+                clean_data[index] = padding.next().unwrap_or(0);
+                clean_data[index + 1] = padding.next().unwrap_or(0);
+
+                let orig_data =
+                    &mut extab_section.data[section_offset..section_offset + clean_data.len()];
                 orig_data.copy_from_slice(&clean_data);
+                updated = true;
             }
         }
         if updated {
             tracing::debug!(
-                "Removed uninitialized bytes in {} (extab {:#010X}..{:#010X})",
+                "Replaced uninitialized bytes in {} (extab {:#010X}..{:#010X})",
                 symbol.name,
                 symbol.address,
                 symbol.address + symbol.size
