@@ -297,6 +297,8 @@ Dumps DWARF 1.1 information from an ELF file. (Does **not** support DWARF 2+)
 
 ```shell
 $ dtk dwarf dump input.elf
+# or, to include data that was stripped by MWLD
+$ dtk dwarf dump input.elf --include-erased
 ```
 
 ### elf disasm
