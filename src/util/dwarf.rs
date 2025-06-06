@@ -358,6 +358,7 @@ pub struct Tag {
     pub kind: TagKind,
     pub is_erased: bool,      // Tag was deleted but has been reconstructed
     pub is_erased_root: bool, // Tag is erased and is the root of a tree of erased tags
+    pub data_endian: Endian, // Endianness of the tag data (could be different from the address endianness for erased tags)
     pub attributes: Vec<Attribute>,
 }
 
@@ -554,6 +555,7 @@ where
             kind: TagKind::Padding,
             is_erased,
             is_erased_root: false,
+            data_endian,
             attributes: Vec::new(),
         });
         return Ok(tags);
@@ -563,26 +565,42 @@ where
     let tag = TagKind::try_from(tag_num).context("Unknown DWARF tag type")?;
     if tag == TagKind::Padding {
         if include_erased {
-            // Erased entries that have become padding are little-endian, and we
-            // have to guess the length and tag of the first entry. We assume
-            // the entry is either a variable or a function, and read until we
-            // find the high_pc attribute. Only MwGlobalRef will follow, and
-            // these are unlikely to be confused with the length of the next
-            // entry.
+            // Erased entries that have become padding could be either
+            // little-endian or big-endian, and we have to guess the length and
+            // tag of the first entry. We assume the entry is either a variable
+            // or a function, and read until we find the high_pc attribute. Only
+            // MwGlobalRef will follow, and these are unlikely to be confused
+            // with the length of the next entry.
             let mut attributes = Vec::new();
             let mut is_function = false;
+
+            // Guess endianness based on first attribute
+            let data_endian = if is_erased {
+                data_endian
+            } else {
+                // Peek next two bytes
+                let mut buf = [0u8; 2];
+                reader.read_exact(&mut buf)?;
+                let attr_tag = u16::from_reader(&mut Cursor::new(&buf), data_endian)?;
+                reader.seek(SeekFrom::Current(-2))?;
+                match AttributeKind::try_from(attr_tag) {
+                    Ok(_) => data_endian,
+                    Err(_) => data_endian.flip(),
+                }
+            };
+
             while reader.stream_position()? < position + size as u64 {
                 // Peek next two bytes
                 let mut buf = [0u8; 2];
                 reader.read_exact(&mut buf)?;
-                let attr_tag = u16::from_reader(&mut Cursor::new(&buf), Endian::Little)?;
+                let attr_tag = u16::from_reader(&mut Cursor::new(&buf), data_endian)?;
                 reader.seek(SeekFrom::Current(-2))?;
 
                 if is_function && attr_tag != AttributeKind::MwGlobalRef as u16 {
                     break;
                 }
 
-                let attr = read_attribute(reader, Endian::Little, addr_endian)?;
+                let attr = read_attribute(reader, data_endian, addr_endian)?;
                 if attr.kind == AttributeKind::HighPc {
                     is_function = true;
                 }
@@ -594,12 +612,13 @@ where
                 kind,
                 is_erased: true,
                 is_erased_root: true,
+                data_endian,
                 attributes,
             });
 
             // Read the rest of the tags
             while reader.stream_position()? < position + size as u64 {
-                for tag in read_tags(reader, Endian::Little, addr_endian, include_erased, true)? {
+                for tag in read_tags(reader, data_endian, addr_endian, include_erased, true)? {
                     tags.push(tag);
                 }
             }
@@ -616,6 +635,7 @@ where
             kind: tag,
             is_erased,
             is_erased_root: false,
+            data_endian,
             attributes,
         });
     }
@@ -2028,9 +2048,9 @@ fn process_array_tag(info: &DwarfInfo, tag: &Tag) -> Result<ArrayType> {
             (AttributeKind::Sibling, _) => {}
             (AttributeKind::SubscrData, AttributeValue::Block(data)) => {
                 subscr_data =
-                    Some(process_array_subscript_data(data, info.e, tag.is_erased).with_context(
-                        || format!("Failed to process SubscrData for tag: {tag:?}"),
-                    )?)
+                    Some(process_array_subscript_data(data, info.e).with_context(|| {
+                        format!("Failed to process SubscrData for tag: {tag:?}")
+                    })?)
             }
             (AttributeKind::Ordering, val) => match val {
                 AttributeValue::Data2(d2) => {
@@ -2056,11 +2076,7 @@ fn process_array_tag(info: &DwarfInfo, tag: &Tag) -> Result<ArrayType> {
     Ok(ArrayType { element_type: Box::from(element_type), dimensions })
 }
 
-fn process_array_subscript_data(
-    data: &[u8],
-    e: Endian,
-    is_erased: bool,
-) -> Result<(Type, Vec<ArrayDimension>)> {
+fn process_array_subscript_data(data: &[u8], e: Endian) -> Result<(Type, Vec<ArrayDimension>)> {
     let mut element_type = None;
     let mut dimensions = Vec::new();
     let mut data = data;
@@ -2101,8 +2117,7 @@ fn process_array_subscript_data(
             SubscriptFormat::ElementType => {
                 let mut cursor = Cursor::new(data);
                 // TODO: is this the right endianness to use for erased tags?
-                let type_attr =
-                    read_attribute(&mut cursor, if is_erased { Endian::Little } else { e }, e)?;
+                let type_attr = read_attribute(&mut cursor, e, e)?;
                 element_type = Some(process_type(&type_attr, e)?);
                 data = &data[cursor.position() as usize..];
             }
@@ -2456,10 +2471,7 @@ fn process_subroutine_parameter_tag(info: &DwarfInfo, tag: &Tag) -> Result<Subro
             ) => kind = Some(process_type(attr, info.e)?),
             (AttributeKind::Location, AttributeValue::Block(block)) => {
                 if !block.is_empty() {
-                    location = Some(process_variable_location(
-                        block,
-                        if tag.is_erased { Endian::Little } else { info.e },
-                    )?);
+                    location = Some(process_variable_location(block, tag.data_endian)?);
                 }
             }
             (AttributeKind::MwDwarf2Location, AttributeValue::Block(_block)) => {
@@ -2514,10 +2526,7 @@ fn process_local_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineV
             ) => kind = Some(process_type(attr, info.e)?),
             (AttributeKind::Location, AttributeValue::Block(block)) => {
                 if !block.is_empty() {
-                    location = Some(process_variable_location(
-                        block,
-                        if tag.is_erased { Endian::Little } else { info.e },
-                    )?);
+                    location = Some(process_variable_location(block, tag.data_endian)?);
                 }
             }
             (AttributeKind::MwDwarf2Location, AttributeValue::Block(_block)) => {
