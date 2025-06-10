@@ -45,6 +45,17 @@ type BlockRange = Range<SectionAddress>;
 
 type InsCheck = dyn Fn(Ins) -> bool;
 
+/// Stop searching for prologue/epilogue sequences if the next instruction
+/// is a branch or uses r0 or r1.
+fn is_end_of_seq(next: &Ins) -> bool {
+    next.is_branch()
+        || next
+            .defs()
+            .iter()
+            .chain(next.uses().iter())
+            .any(|a| matches!(a, ppc750cl::Argument::GPR(ppc750cl::GPR(0 | 1))))
+}
+
 #[inline(always)]
 fn check_sequence(
     section: &ObjSection,
@@ -52,29 +63,26 @@ fn check_sequence(
     ins: Option<Ins>,
     sequence: &[(&InsCheck, &InsCheck)],
 ) -> Result<bool> {
-    let mut found = false;
+    let ins = ins
+        .or_else(|| disassemble(section, addr.address))
+        .with_context(|| format!("Failed to disassemble instruction at {addr:#010X}"))?;
     for &(first, second) in sequence {
-        let Some(ins) = ins.or_else(|| disassemble(section, addr.address)) else {
-            continue;
-        };
         if !first(ins) {
             continue;
         }
-        let Some(next) = disassemble(section, addr.address + 4) else {
-            continue;
-        };
-        if second(next)
-            // Also check the following instruction, in case the scheduler
-            // put something in between.
-            || (!next.is_branch()
-                && matches!(disassemble(section, addr.address + 8), Some(ins) if second(ins)))
-        {
-            found = true;
-            break;
+        let mut current_addr = addr.address + 4;
+        while let Some(next) = disassemble(section, current_addr) {
+            if second(next) {
+                return Ok(true);
+            }
+            if is_end_of_seq(&next) {
+                // If we hit a branch or an instruction that uses r0 or r1, stop searching.
+                break;
+            }
+            current_addr += 4;
         }
     }
-
-    Ok(found)
+    Ok(false)
 }
 
 fn check_prologue_sequence(
@@ -97,7 +105,11 @@ fn check_prologue_sequence(
         // stw r0, d(r1)
         ins.op == Opcode::Stw && ins.field_rs() == 0 && ins.field_ra() == 1
     }
-    check_sequence(section, addr, ins, &[(&is_stwu, &is_mflr), (&is_mflr, &is_stw)])
+    check_sequence(section, addr, ins, &[
+        (&is_stwu, &is_mflr),
+        (&is_mflr, &is_stw),
+        (&is_mflr, &is_stwu),
+    ])
 }
 
 impl FunctionSlices {
@@ -148,7 +160,28 @@ impl FunctionSlices {
         }
         if check_prologue_sequence(section, addr, Some(ins))? {
             if let Some(prologue) = self.prologue {
-                if prologue != addr && prologue != addr - 4 {
+                let invalid_seq = if prologue == addr {
+                    false
+                } else if prologue > addr {
+                    true
+                } else {
+                    // Check if any instructions between the prologue and this address
+                    // are branches or use r0 or r1.
+                    let mut current_addr = prologue.address + 4;
+                    loop {
+                        if current_addr == addr.address {
+                            break false;
+                        }
+                        let next = disassemble(section, current_addr).with_context(|| {
+                            format!("Failed to disassemble {current_addr:#010X}")
+                        })?;
+                        if is_end_of_seq(&next) {
+                            break true;
+                        }
+                        current_addr += 4;
+                    }
+                };
+                if invalid_seq {
                     bail!("Found multiple functions inside a symbol: {:#010X} and {:#010X}. Check symbols.txt?", prologue, addr)
                 }
             } else {
