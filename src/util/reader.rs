@@ -20,6 +20,15 @@ impl From<object::Endianness> for Endian {
     }
 }
 
+impl Endian {
+    pub fn flip(self) -> Self {
+        match self {
+            Endian::Big => Endian::Little,
+            Endian::Little => Endian::Big,
+        }
+    }
+}
+
 pub const DYNAMIC_SIZE: usize = 0;
 
 pub const fn struct_size<const N: usize>(fields: [usize; N]) -> usize {
