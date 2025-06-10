@@ -420,6 +420,10 @@ impl Tracker {
                 BranchTarget::Unknown
                 | BranchTarget::Return
                 | BranchTarget::JumpTable { address: RelocationTarget::External, .. } => {
+                    let next_addr = ins_addr + 4;
+                    if next_addr < function_end {
+                        possible_missed_branches.insert(ins_addr + 4, vm.clone_all());
+                    }
                     Ok(ExecCbResult::EndBlock)
                 }
                 BranchTarget::Address(addr) => {
