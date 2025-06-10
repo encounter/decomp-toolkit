@@ -417,8 +417,8 @@ impl Tracker {
                 Ok(ExecCbResult::Continue)
             }
             StepResult::Jump(target) => match target {
+                BranchTarget::Return => Ok(ExecCbResult::EndBlock),
                 BranchTarget::Unknown
-                | BranchTarget::Return
                 | BranchTarget::JumpTable { address: RelocationTarget::External, .. } => {
                     let next_addr = ins_addr + 4;
                     if next_addr < function_end {
