@@ -16,5 +16,6 @@ pub mod shasum;
 pub mod u8_arc;
 pub mod vfs;
 pub mod wad;
+pub mod xex;
 pub mod yay0;
 pub mod yaz0;
