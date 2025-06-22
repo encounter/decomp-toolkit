@@ -7,6 +7,7 @@ use std::{
 
 use anyhow::{anyhow, ensure, Context, Result};
 use argp::FromArgs;
+use itertools::Itertools;
 use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
 use object::{
     elf,
@@ -81,6 +82,25 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // step 3. find common functions (save/restore reg funcs, XAPI calls)
     // rename the save/restore gpr/fpr funcs that were previously found in pdata
     FindSaveRestSledsXbox::execute(&mut state, &obj)?;
+
+    // for (k, v) in state.functions {
+    //     // log::info!("fn: 0x{:X} - 0x{:X}", k.address, v.end.unwrap().address);
+    // }
+
+    let mut count = 0;
+
+    // Process known functions first
+    for addr in state.functions.keys().cloned().collect_vec() {
+        log::info!("Processing function at 0x{:X}", addr.address);
+        state.process_function_at(&obj, addr)?;
+        // let func = state.functions.get(&addr).unwrap();
+        // log::info!("Analyzed? {}", func.is_analyzed());
+        // log::info!("End: 0x{:X}", func.end.unwrap().address);
+        // log::info!("Slices? {:?}", func.slices);
+        count += 1;
+        if count == 1 { break; }
+        // break;
+    }
 
     // state.detect_functions(&obj)?;
     // log::debug!(

@@ -384,7 +384,7 @@ dependencies = [
  "once_cell",
  "orthrus-ncompress",
  "owo-colors",
- "ppc750cl",
+ "ppc750cl 0.3.3",
  "rayon",
  "regex",
  "rustc-hash",
@@ -972,7 +972,7 @@ dependencies = [
  "num-traits",
  "object",
  "pbjson-build",
- "ppc750cl",
+ "ppc750cl 0.3.2",
  "prost-build",
  "serde",
  "similar",
@@ -1102,6 +1102,11 @@ name = "ppc750cl"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be8e5b9d48ab30323e8ece6d655d20fc16a570e4f1af0de6890d3e9ebd284ba0"
+
+[[package]]
+name = "ppc750cl"
+version = "0.3.3"
+source = "git+https://github.com/rjkiv/ppc750cl.git#f4762494e8f167dbd21fac29e04223fc407ae888"
 
 [[package]]
 name = "prettyplease"

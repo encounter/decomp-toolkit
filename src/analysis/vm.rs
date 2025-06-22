@@ -195,6 +195,7 @@ impl VM {
     pub fn step(&mut self, obj: &ObjInfo, ins_addr: SectionAddress, ins: Ins) -> StepResult {
         match ins.op {
             Opcode::Illegal => {
+                log::info!("Warning! Illegal inst found at 0x{:X}", ins_addr.address);
                 return StepResult::Illegal;
             }
             // add rD, rA, rB
