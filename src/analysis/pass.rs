@@ -1,3 +1,5 @@
+use std::ops::Add;
+
 use anyhow::{bail, ensure, Result};
 use flagset::FlagSet;
 use itertools::Itertools;
@@ -110,6 +112,117 @@ impl AnalysisPass for FindSaveRestSleds {
                     });
                 }
             }
+        }
+        Ok(())
+    }
+}
+
+pub struct FindSaveRestSledsXbox {}
+
+#[allow(clippy::type_complexity)]
+const SLEDS_XBOX: [([u8; 8], &str, &str, u32, u32, u32); 8] = [
+    ([0xf9, 0xc1, 0xff, 0x68, 0xf9, 0xe1, 0xff, 0x70], "__savegprlr", "__savegprlr_", 14, 32, 4),
+    ([0xe9, 0xc1, 0xff, 0x68, 0xe9, 0xe1, 0xff, 0x70], "__restgprlr", "__restgprlr_", 14, 32, 4),
+    ([0xd9, 0xcc, 0xff, 0x70, 0xd9, 0xec, 0xff, 0x78], "__savefpr", "__savefpr_", 14, 32, 4),
+    ([0xc9, 0xcc, 0xff, 0x70, 0xc9, 0xec, 0xff, 0x78], "__restfpr", "__restfpr_", 14, 32, 4),
+    ([0x39, 0x60, 0xfe, 0xe0, 0x7d, 0xcb, 0x61, 0xce], "__savevmx", "__savevmx_", 14, 32, 8),
+    ([0x39, 0x60, 0xfc, 0x00, 0x10, 0x0b, 0x61, 0xcb], "__savevmx_upper", "__savevmx_", 64, 128, 8),
+    ([0x39, 0x60, 0xfe, 0xe0, 0x7d, 0xcb, 0x60, 0xce], "__restvmx", "__restvmx_", 14, 32, 8),
+    ([0x39, 0x60, 0xfc, 0x00, 0x10, 0x0b, 0x60, 0xcb], "__restvmx_upper", "__restvmx_", 64, 128, 8),
+];
+
+// Runtime.PPCEABI.H.a runtime.c
+impl AnalysisPass for FindSaveRestSledsXbox {
+    fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
+        for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
+            for (needle, func, label, reg_start, reg_end, step_size) in SLEDS_XBOX {
+                let Some(pos) = memmem::find(&section.data, &needle) else {
+                    continue;
+                };
+                let start = SectionAddress::new(section_index, section.address as u32 + pos as u32);
+                log::debug!("Found {} @ {:#010X}", func, start);
+                let mut sled_size = (reg_end - reg_start) * step_size + 4 /* blr */;
+                // if we found the reg intrinsic from pdata...
+                if state.functions.contains_key(&start) {
+                    // get the established function end, and set size = end - start
+                    sled_size = state.functions.get(&start).unwrap().end.unwrap().address - start.address;
+                }
+                state.functions.insert(start, FunctionInfo {
+                    analyzed: false,
+                    end: Some(start + sled_size),
+                    slices: None,
+                });
+                // log::info!("Found {} 0x{:08X}-0x{:08X}", func.to_string(), start.address as u64, start.address as u64 + sled_size as u64);
+                // ignore the upper vmx "functions", because the saving/restoring of regs 14-127 is actually one large function
+                if !func.contains("_upper") {
+                    state.known_symbols.entry(start).or_default().push(ObjSymbol {
+                        name: func.to_string(),
+                        address: start.address as u64,
+                        section: Some(start.section),
+                        size: sled_size as u64,
+                        size_known: true,
+                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                        kind: ObjSymbolKind::Function,
+                        ..Default::default()
+                    });
+                }
+                for i in reg_start..reg_end {
+                    let addr = start + (i - reg_start) * step_size;
+                    state.known_symbols.entry(addr).or_default().push(ObjSymbol {
+                        name: format!("{label}{i}"),
+                        address: addr.address as u64,
+                        section: Some(start.section),
+                        size_known: true,
+                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                        ..Default::default()
+                    });
+                }
+            }
+        }
+        Ok(())
+    }
+}
+
+pub struct FindFromPdata {}
+
+// xbox exclusive thing
+impl AnalysisPass for FindFromPdata {
+    fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
+        let pdata_section = obj.sections.by_name(".pdata")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".pdata section not found"))?;
+        let text_index = obj.sections.by_name(".text")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".text section not found"))?.elf_index;
+                
+        for (i, chunk) in pdata_section.data.chunks_exact(8).enumerate() {
+            // the addr where this function begins
+            let start_addr = u32::from_be_bytes(chunk[0..4].try_into().unwrap());
+            // if we encounter 0's, that's the end of usable pdata entries
+            if start_addr == 0 {
+                log::debug!("Encountered 0 at addr 0x{:08X}", pdata_section.address + (8 * i) as u64);
+                break;
+            }
+            // some metadata for this function, including function size
+            let word = u32::from_be_bytes(chunk[4..8].try_into().unwrap());
+            let num_prologue_insts = word & 0xFF;
+            let num_insts_in_func = (word >> 8) & 0x3FFFFF;
+            let flag_32bit = (word & 0x4000) != 0;
+            let exception_flag = (word & 0x8000) != 0;
+            
+            // log::info!("Found func from 0x{:08X}-0x{:08X}", inst, inst + (num_insts_in_func * 4));
+            let start = SectionAddress::new(text_index, start_addr);
+            state.functions.insert(start, FunctionInfo {
+                analyzed: false,
+                end: Some(start + num_insts_in_func * 4),
+                slices: None,
+            });
+            // state.known_symbols.entry(start).or_default().push(ObjSymbol {
+            //     name: format!("fn_{start_addr:X}"),
+            //     address: start.address as u64,
+            //     section: Some(start.section),
+            //     size: (num_insts_in_func * 4) as u64,
+            //     size_known: true,
+            //     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+            //     kind: ObjSymbolKind::Function,
+            //     ..Default::default()
+            // });
         }
         Ok(())
     }

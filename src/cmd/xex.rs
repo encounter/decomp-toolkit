@@ -17,10 +17,9 @@ use object::{
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    obj::ObjKind,
-    util::{
+    analysis::{cfa::AnalyzerState, pass::{AnalysisPass, FindFromPdata, FindSaveRestSledsXbox}}, obj::ObjKind, util::{
         asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::process_xex, IntoCow, ToCow
-    }, vfs::open_file,
+    }, vfs::open_file
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -66,41 +65,28 @@ pub fn run(args: Args) -> Result<()> {
     }
 }
 
+// look at dol info function too!
 fn disasm(args: DisasmArgs) -> Result<()> {
     log::info!("Loading {}", args.xex_file);
-    process_xex(&args.xex_file);
-    // let xex = process_xex(&args.xex_file)?;
-    // let obj = process_elf(&args.elf_file)?;
-    // match obj.kind {
-    //     ObjKind::Executable => {
-    //         log::info!("Splitting {} objects", obj.link_order.len());
-    //         let split_objs = split_obj(&obj, None)?;
 
-    //         let asm_dir = args.out.join("asm");
-    //         let include_dir = args.out.join("include");
-    //         DirBuilder::new().recursive(true).create(&include_dir)?;
-    //         fs::write(include_dir.join("macros.inc"), include_bytes!("../../assets/macros.inc"))?;
+    // step 1. process xex, and return an ObjInfo a la process_dol
+    let mut obj = process_xex(&args.xex_file)?;
+    
+    // apply_signatures(&mut obj)?;
 
-    //         let mut files_out = buf_writer(&args.out.join("link_order.txt"))?;
-    //         for (unit, split_obj) in obj.link_order.iter().zip(&split_objs) {
-    //             let out_name = file_stem_from_unit(&unit.name);
-    //             let out_path = asm_dir.join(format!("{out_name}.s"));
-    //             log::info!("Writing {}", out_path);
+    // step 2. browse pdata and find function boundaries there
+    let mut state = AnalyzerState::default();
+    FindFromPdata::execute(&mut state, &obj);
 
-    //             let mut w = buf_writer(&out_path)?;
-    //             write_asm(&mut w, split_obj)?;
-    //             w.flush()?;
+    // step 3. find common functions (save/restore reg funcs, XAPI calls)
+    // rename the save/restore gpr/fpr funcs that were previously found in pdata
+    FindSaveRestSledsXbox::execute(&mut state, &obj)?;
 
-    //             writeln!(files_out, "{out_name}.o")?;
-    //         }
-    //         files_out.flush()?;
-    //     }
-    //     ObjKind::Relocatable => {
-    //         let mut w = buf_writer(&args.out)?;
-    //         write_asm(&mut w, &obj)?;
-    //         w.flush()?;
-    //     }
-    // }
+    // state.detect_functions(&obj)?;
+    // log::debug!(
+    //     "Discovered {} functions",
+    //     state.functions.iter().filter(|(_, i)| i.end.is_some()).count()
+    // );
     Ok(())
 }
 
