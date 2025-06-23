@@ -400,6 +400,23 @@ impl VM {
                 };
                 self.gpr[ins.field_ra() as usize].set_direct(value);
             }
+            // rldicl rA, rS, SH, MB
+            Opcode::Rldicl => {
+                let sh = (ins.field_sh2() << 5) | ins.field_sh1();
+                let mb64_to_split = (ins.code >> 5) & 0b111111;
+                let mb64 = ((mb64_to_split & 1) << 5) | ((mb64_to_split & 0b111110) >> 1);
+                println!("0x{:X}: rldicl r{}, r{}, {}, {}", ins_addr.address, ins.field_ra(), ins.field_rs(), sh, mb64);
+                // rotate the 64-bit value in rs by SH bits
+                // and then zero out the high bits from 0 to MB-1
+                // storing the result in ra
+            }
+            // rldicr rA, rS, SH, ME
+            Opcode::Rldicr => {
+                let sh = (ins.field_sh2() << 5) | ins.field_sh1();
+                let me64_to_split = (ins.code >> 5) & 0b111111;
+                let me64 = ((me64_to_split & 1) << 5) | ((me64_to_split & 0b111110) >> 1);
+                println!("0x{:X}: rldicr r{}, r{}, {}, {}", ins_addr.address, ins.field_ra(), ins.field_rs(), sh, me64);
+            }
             // b[l][a] target_addr
             // b[c][l][a] BO, BI, target_addr
             // b[c]ctr[l] BO, BI
@@ -569,6 +586,7 @@ impl VM {
                 return result;
             }
             _ => {
+                log::info!("Unhandled opcode at 0x{:08X}: {:?}", ins_addr.address, ins.op);
                 for argument in ins.defs() {
                     if let Argument::GPR(GPR(reg)) = argument {
                         self.gpr[reg as usize].set_direct(GprValue::Unknown);
@@ -695,6 +713,8 @@ pub fn is_load_op(op: Opcode) -> bool {
             | Opcode::Lmw
             | Opcode::Lwz
             | Opcode::Lwzu
+            | Opcode::Ld
+            | Opcode::Ldu
     )
 }
 
@@ -714,6 +734,8 @@ pub fn is_store_op(op: Opcode) -> bool {
             | Opcode::Stmw
             | Opcode::Stw
             | Opcode::Stwu
+            | Opcode::Std
+            | Opcode::Stdu
     )
 }
 
