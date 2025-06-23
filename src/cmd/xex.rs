@@ -98,7 +98,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
         log::info!("End: 0x{:X}", func.end.unwrap().address);
         log::info!("Slices: {:?}", func.slices);
         count += 1;
-        if count == 2 { break; }
+        if count == 1 { break; }
         // break;
     }
 

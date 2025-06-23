@@ -570,8 +570,8 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
     )?;
     match result {
         Some((sda2_base, sda_base)) => {
-            obj.sda2_base = Some(sda2_base);
-            obj.sda_base = Some(sda_base);
+            obj.sda2_base = Some(sda2_base as u32);
+            obj.sda_base = Some(sda_base as u32);
             Ok(true)
         }
         None => Ok(false),
@@ -617,7 +617,7 @@ pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
                                 }
                             } {
                                 if value == 0 && size > 0 {
-                                    bss_sections.push((addr, size));
+                                    bss_sections.push((addr as u32, size as u32));
                                 }
                             }
                         }

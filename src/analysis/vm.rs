@@ -13,13 +13,13 @@ pub enum GprValue {
     /// GPR value is unknown
     Unknown,
     /// GPR value is a constant
-    Constant(u32),
+    Constant(u64),
     /// GPR value is a known relocated address
     Address(RelocationTarget),
     /// Comparison result (CR field)
     ComparisonResult(u8),
     /// GPR value is within a range
-    Range { min: u32, max: u32, step: u32 },
+    Range { min: u64, max: u64, step: u64 },
     /// GPR value is loaded from an address with a max offset (jump table)
     LoadIndexed { address: RelocationTarget, max_offset: Option<NonZeroU32> },
 }
@@ -55,7 +55,7 @@ impl Gpr {
 
     fn address(&self, obj: &ObjInfo, ins_addr: SectionAddress) -> Option<RelocationTarget> {
         match self.value {
-            GprValue::Constant(value) => section_address_for(obj, ins_addr, value),
+            GprValue::Constant(value) => section_address_for(obj, ins_addr, value as u32),
             GprValue::Address(target) => Some(target),
             _ => None,
         }
@@ -156,10 +156,10 @@ impl VM {
     pub fn new_with_base(sda2_base: Option<u32>, sda_base: Option<u32>) -> Box<Self> {
         let mut vm = Self::new();
         if let Some(value) = sda2_base {
-            vm.gpr[2].value = GprValue::Constant(value);
+            vm.gpr[2].value = GprValue::Constant(value as u64);
         }
         if let Some(value) = sda_base {
-            vm.gpr[13].value = GprValue::Constant(value);
+            vm.gpr[13].value = GprValue::Constant(value as u64);
         }
         vm
     }
@@ -209,11 +209,11 @@ impl VM {
                     (
                         GprValue::Address(RelocationTarget::Address(left)),
                         GprValue::Constant(right),
-                    ) => GprValue::Address(RelocationTarget::Address(left.wrapping_add(right))),
+                    ) => GprValue::Address(RelocationTarget::Address(left.wrapping_add(right as u32))),
                     (
                         GprValue::Constant(left),
                         GprValue::Address(RelocationTarget::Address(right)),
-                    ) => GprValue::Address(RelocationTarget::Address(right.wrapping_add(left))),
+                    ) => GprValue::Address(RelocationTarget::Address(right.wrapping_add(left as u32))),
                     _ => GprValue::Unknown,
                 };
                 self.gpr[ins.field_rd() as usize].set_direct(value);
@@ -233,7 +233,7 @@ impl VM {
                     };
                     let value = match left {
                         GprValue::Constant(value) => {
-                            GprValue::Constant(value.wrapping_add((ins.field_simm() as u32) << 16))
+                            GprValue::Constant(value.wrapping_add((ins.field_simm() as u64) << 16))
                         }
                         _ => GprValue::Unknown,
                     };
@@ -266,7 +266,7 @@ impl VM {
                     };
                     let value = match left {
                         GprValue::Constant(value) => {
-                            GprValue::Constant(value.wrapping_add(ins.field_simm() as u32))
+                            GprValue::Constant(value.wrapping_add(ins.field_simm() as u64))
                         }
                         GprValue::Address(RelocationTarget::Address(address)) => GprValue::Address(
                             RelocationTarget::Address(address.offset(ins.field_simm() as i32)),
@@ -305,7 +305,7 @@ impl VM {
                 self.gpr[ins.field_rd() as usize].set_direct(
                     match self.gpr[ins.field_ra() as usize].value {
                         GprValue::Constant(value) => GprValue::Constant(
-                            (!value).wrapping_add(ins.field_simm() as u32).wrapping_add(1),
+                            (!value).wrapping_add(ins.field_simm() as u64).wrapping_add(1),
                         ),
                         _ => GprValue::Unknown,
                     },
@@ -324,7 +324,7 @@ impl VM {
                 } else {
                     let value = match self.gpr[ins.field_rs() as usize].value {
                         GprValue::Constant(value) => {
-                            GprValue::Constant(value | ins.field_uimm() as u32)
+                            GprValue::Constant(value | ins.field_uimm() as u64)
                         }
                         _ => GprValue::Unknown,
                     };
@@ -363,8 +363,8 @@ impl VM {
                     let (right, signed) = match ins.op {
                         Opcode::Cmp => (self.gpr[ins.field_rb() as usize].value, true),
                         Opcode::Cmpl => (self.gpr[ins.field_rb() as usize].value, false),
-                        Opcode::Cmpi => (GprValue::Constant(ins.field_simm() as u32), true),
-                        Opcode::Cmpli => (GprValue::Constant(ins.field_uimm() as u32), false),
+                        Opcode::Cmpi => (GprValue::Constant(ins.field_simm() as u64), true),
+                        Opcode::Cmpli => (GprValue::Constant(ins.field_uimm() as u64), false),
                         _ => unreachable!(),
                     };
                     let crf = ins.field_crfd();
@@ -378,12 +378,12 @@ impl VM {
                 let value = if let Some(shift) = match ins.op {
                     Opcode::Rlwinm => Some(ins.field_sh() as u32),
                     Opcode::Rlwnm => match self.gpr[ins.field_rb() as usize].value {
-                        GprValue::Constant(value) => Some(value),
+                        GprValue::Constant(value) => Some(value as u32),
                         _ => None,
                     },
                     _ => unreachable!(),
                 } {
-                    let mask = mask_value(ins.field_mb() as u32, ins.field_me() as u32);
+                    let mask = mask_value(ins.field_mb() as u32, ins.field_me() as u32) as u64;
                     match self.gpr[ins.field_rs() as usize].value {
                         GprValue::Constant(value) => {
                             GprValue::Constant(value.rotate_left(shift) & mask)
@@ -393,7 +393,7 @@ impl VM {
                             max: max.rotate_left(shift) & mask,
                             step: step.rotate_left(shift),
                         },
-                        _ => GprValue::Range { min: 0, max: mask, step: 1u32.rotate_left(shift) },
+                        _ => GprValue::Range { min: 0, max: mask, step: 1u64.rotate_left(shift) },
                     }
                 } else {
                     GprValue::Unknown
@@ -432,7 +432,7 @@ impl VM {
                         match self.ctr {
                             GprValue::Constant(value) => {
                                 // TODO only check valid target?
-                                if let Some(target) = section_address_for(obj, ins_addr, value) {
+                                if let Some(target) = section_address_for(obj, ins_addr, value as u32) {
                                     BranchTarget::Address(target)
                                 } else {
                                     BranchTarget::Unknown
@@ -510,14 +510,14 @@ impl VM {
                 let right = self.gpr[ins.field_rb() as usize].value;
                 let value = match (left, right) {
                     (Some(address), GprValue::Range { min: _, max, .. })
-                        if /*min == 0 &&*/ max < u32::MAX - 4 && max & 3 == 0 =>
+                        if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
                     {
-                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max) }
+                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max as u32) }
                     }
                     (Some(address), GprValue::Range { min: _, max, .. })
-                        if /*min == 0 &&*/ max < u32::MAX - 4 && max & 3 == 0 =>
+                        if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
                     {
-                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max) }
+                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max as u32) }
                     }
                     (Some(address), _) => {
                         GprValue::LoadIndexed { address, max_offset: None }
@@ -562,7 +562,7 @@ impl VM {
                         source_reg: source as u8,
                     };
                 } else if let GprValue::Constant(base) = self.gpr[source].value {
-                    let address = base.wrapping_add(ins.field_simm() as u32);
+                    let address = base.wrapping_add(ins.field_simm() as u64) as u32;
                     if let Some(target) = section_address_for(obj, ins_addr, address) {
                         if is_update_op(op) {
                             self.gpr[source].set_lo(
@@ -629,7 +629,7 @@ fn split_values_by_crb(crb: u8, left: GprValue, right: GprValue) -> (GprValue, G
             ),
             (_, GprValue::Constant(value)) => (
                 // left >= right
-                GprValue::Range { min: value, max: u32::MAX, step: 1 },
+                GprValue::Range { min: value, max: u64::MAX, step: 1 },
                 // left < right
                 GprValue::Range { min: 0, max: value.wrapping_sub(1), step: 1 },
             ),
@@ -655,7 +655,7 @@ fn split_values_by_crb(crb: u8, left: GprValue, right: GprValue) -> (GprValue, G
                 // left <= right
                 GprValue::Range { min: 0, max: value, step: 1 },
                 // left > right
-                GprValue::Range { min: value.wrapping_add(1), max: u32::MAX, step: 1 },
+                GprValue::Range { min: value.wrapping_add(1), max: u64::MAX, step: 1 },
             ),
             _ => (left, left),
         },

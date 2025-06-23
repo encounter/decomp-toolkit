@@ -253,7 +253,7 @@ impl Tracker {
     ) -> Option<RelocationTarget> {
         match *value {
             GprValue::Constant(value) => {
-                self.is_valid_address(obj, ins_addr, value).map(RelocationTarget::Address)
+                self.is_valid_address(obj, ins_addr, value as u32).map(RelocationTarget::Address)
             }
             GprValue::Address(address) => Some(address),
             _ => None,
@@ -283,9 +283,9 @@ impl Tracker {
                         if let Some(value) = self.gpr_address(obj, ins_addr, &vm.gpr[target].value)
                         {
                             if (source == 2
-                                && matches!(self.sda2_base, Some(v) if vm.gpr[2].value == GprValue::Constant(v)))
+                                && matches!(self.sda2_base, Some(v) if vm.gpr[2].value == GprValue::Constant(v as u64)))
                                 || (source == 13
-                                    && matches!(self.sda_base, Some(v) if vm.gpr[13].value == GprValue::Constant(v)))
+                                    && matches!(self.sda_base, Some(v) if vm.gpr[13].value == GprValue::Constant(v as u64)))
                             {
                                 self.relocations.insert(ins_addr, Relocation::Sda21(value));
                                 if let RelocationTarget::Address(address) = value {
@@ -344,9 +344,9 @@ impl Tracker {
             StepResult::LoadStore { address, source, source_reg } => {
                 if !obj.blocked_relocation_sources.contains(ins_addr) {
                     if (source_reg == 2
-                        && matches!(self.sda2_base, Some(v) if source.value == GprValue::Constant(v)))
+                        && matches!(self.sda2_base, Some(v) if source.value == GprValue::Constant(v as u64)))
                         || (source_reg == 13
-                            && matches!(self.sda_base, Some(v) if source.value == GprValue::Constant(v)))
+                            && matches!(self.sda_base, Some(v) if source.value == GprValue::Constant(v as u64)))
                     {
                         self.relocations.insert(ins_addr, Relocation::Sda21(address));
                         if let RelocationTarget::Address(address) = address {
