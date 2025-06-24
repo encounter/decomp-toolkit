@@ -383,17 +383,19 @@ impl VM {
                     },
                     _ => unreachable!(),
                 } {
-                    let mask = mask_value(ins.field_mb() as u32, ins.field_me() as u32) as u64;
+                    let mask = mask_value(ins.field_mb() as u32, ins.field_me() as u32);
                     match self.gpr[ins.field_rs() as usize].value {
+                        // set everything as u32s before rotating
+                        // because although regs are 64 bits on Xbox, 32-bit instructions run in 32-bit mode
                         GprValue::Constant(value) => {
-                            GprValue::Constant(value.rotate_left(shift) & mask)
+                            GprValue::Constant(((value as u32).rotate_left(shift) & mask) as u64)
                         }
                         GprValue::Range { min, max, step } => GprValue::Range {
-                            min: min.rotate_left(shift) & mask,
-                            max: max.rotate_left(shift) & mask,
-                            step: step.rotate_left(shift),
+                            min: ((min as u32).rotate_left(shift) & mask) as u64,
+                            max: ((max as u32).rotate_left(shift) & mask) as u64,
+                            step: ((step as u32).rotate_left(shift)) as u64,
                         },
-                        _ => GprValue::Range { min: 0, max: mask, step: 1u64.rotate_left(shift) },
+                        _ => GprValue::Range { min: 0, max: mask as u64, step: 1u64.rotate_left(shift) },
                     }
                 } else {
                     GprValue::Unknown
@@ -405,17 +407,38 @@ impl VM {
                 let sh = (ins.field_sh2() << 5) | ins.field_sh1();
                 let mb64_to_split = (ins.code >> 5) & 0b111111;
                 let mb64 = ((mb64_to_split & 1) << 5) | ((mb64_to_split & 0b111110) >> 1);
-                println!("0x{:X}: rldicl r{}, r{}, {}, {}", ins_addr.address, ins.field_ra(), ins.field_rs(), sh, mb64);
-                // rotate the 64-bit value in rs by SH bits
-                // and then zero out the high bits from 0 to MB-1
-                // storing the result in ra
+                let zero_mask = !(u64::MAX << (64 - mb64));
+                let value = match self.gpr[ins.field_rs() as usize].value {
+                    GprValue::Constant(value) => {
+                        GprValue::Constant(value.rotate_left(sh as u32) & zero_mask)
+                    }
+                    GprValue::Range { min, max, step } => GprValue::Range {
+                        min: min.rotate_left(sh as u32) & zero_mask,
+                        max: max.rotate_left(sh as u32) & zero_mask,
+                        step: step.rotate_left(sh as u32)
+                    },
+                    _ => GprValue::Range { min: 0, max: zero_mask, step: 1u64.rotate_left(sh as u32) }
+                };
+                self.gpr[ins.field_ra() as usize].set_direct(value);
             }
             // rldicr rA, rS, SH, ME
             Opcode::Rldicr => {
                 let sh = (ins.field_sh2() << 5) | ins.field_sh1();
                 let me64_to_split = (ins.code >> 5) & 0b111111;
                 let me64 = ((me64_to_split & 1) << 5) | ((me64_to_split & 0b111110) >> 1);
-                println!("0x{:X}: rldicr r{}, r{}, {}, {}", ins_addr.address, ins.field_ra(), ins.field_rs(), sh, me64);
+                let zero_mask = u64::MAX << me64;
+                let value = match self.gpr[ins.field_rs() as usize].value {
+                    GprValue::Constant(value) => {
+                        GprValue::Constant(value.rotate_left(sh as u32) & zero_mask)
+                    }
+                    GprValue::Range { min, max, step } => GprValue::Range {
+                        min: min.rotate_left(sh as u32) & zero_mask,
+                        max: max.rotate_left(sh as u32) & zero_mask,
+                        step: step.rotate_left(sh as u32)
+                    },
+                    _ => GprValue::Range { min: 0, max: zero_mask, step: 1u64.rotate_left(sh as u32) }
+                };
+                self.gpr[ins.field_ra() as usize].set_direct(value);
             }
             // b[l][a] target_addr
             // b[c][l][a] BO, BI, target_addr

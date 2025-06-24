@@ -91,14 +91,14 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 
     // Process known functions first
     for addr in state.functions.keys().cloned().collect_vec() {
-        log::info!("Processing function at 0x{:X}", addr.address);
+        log::info!("Processing function #{} at 0x{:X}", count, addr.address);
         state.process_function_at(&obj, addr)?;
         let func = state.functions.get(&addr).unwrap();
-        log::info!("Analyzed? {}", func.is_analyzed());
+        // log::info!("Analyzed? {}", func.is_analyzed());
         log::info!("End: 0x{:X}", func.end.unwrap().address);
-        log::info!("Slices: {:?}", func.slices);
+        // log::info!("Slices: {:?}", func.slices);
         count += 1;
-        if count == 1 { break; }
+        if count == 10 { break; }
         // break;
     }
 
