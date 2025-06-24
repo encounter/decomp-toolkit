@@ -97,8 +97,8 @@ fn check_prologue_sequence(
     }
     #[inline(always)]
     fn is_stwu(ins: Ins) -> bool {
-        // stwu r1, d(r1)
-        ins.op == Opcode::Stwu && ins.field_rs() == 1 && ins.field_ra() == 1
+        // stwu[x] r1, d(r1)
+        matches!(ins.op, Opcode::Stwu | Opcode::Stwux) && ins.field_rs() == 1 && ins.field_ra() == 1
     }
     #[inline(always)]
     fn is_stw(ins: Ins) -> bool {
@@ -213,7 +213,11 @@ impl FunctionSlices {
             ins.op == Opcode::Or && ins.field_rd() == 1
         }
 
-        if check_sequence(section, addr, Some(ins), &[(&is_mtlr, &is_addi), (&is_or, &is_mtlr)])? {
+        if check_sequence(section, addr, Some(ins), &[
+            (&is_mtlr, &is_addi),
+            (&is_mtlr, &is_or),
+            (&is_or, &is_mtlr),
+        ])? {
             if let Some(epilogue) = self.epilogue {
                 if epilogue != addr {
                     bail!("Found duplicate epilogue: {:#010X} and {:#010X}", epilogue, addr)
@@ -373,7 +377,14 @@ impl FunctionSlices {
                         function_end.or_else(|| self.end()),
                     )?;
                     log::debug!("-> size {}: {:?}", size, entries);
-                    if (entries.contains(&next_address) || self.blocks.contains_key(&next_address))
+                    let max_block = self
+                        .blocks
+                        .keys()
+                        .next_back()
+                        .copied()
+                        .unwrap_or(next_address)
+                        .max(next_address);
+                    if entries.iter().any(|&addr| addr > function_start && addr <= max_block)
                         && !entries.iter().any(|&addr| {
                             self.is_known_function(known_functions, addr)
                                 .is_some_and(|fn_addr| fn_addr != function_start)
@@ -736,7 +747,7 @@ impl FunctionSlices {
                 }
             }
             // If we discovered a function prologue, known tail call.
-            if slices.prologue.is_some() {
+            if slices.prologue.is_some() || slices.has_r1_load {
                 log::trace!("Prologue discovered; known tail call: {:#010X}", addr);
                 return TailCallResult::Is;
             }

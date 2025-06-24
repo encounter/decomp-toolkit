@@ -538,7 +538,9 @@ pub fn info(args: InfoArgs) -> Result<()> {
         apply_selfile(&mut obj, file.map()?)?;
     }
 
-    println!("{}:", obj.name);
+    if !obj.name.is_empty() {
+        println!("{}:", obj.name);
+    }
     if let Some(entry) = obj.entry {
         println!("Entry point: {entry:#010X}");
     }

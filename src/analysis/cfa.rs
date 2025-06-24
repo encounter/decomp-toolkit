@@ -1,6 +1,6 @@
 use std::{
     cmp::min,
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fmt::{Debug, Display, Formatter, UpperHex},
     ops::{Add, AddAssign, BitAnd, Sub},
 };
@@ -572,6 +572,26 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
         Some((sda2_base, sda_base)) => {
             obj.sda2_base = Some(sda2_base);
             obj.sda_base = Some(sda_base);
+            obj.add_symbol(
+                ObjSymbol {
+                    name: "_SDA2_BASE_".to_string(),
+                    address: sda2_base as u64,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    ..Default::default()
+                },
+                true,
+            )?;
+            obj.add_symbol(
+                ObjSymbol {
+                    name: "_SDA_BASE_".to_string(),
+                    address: sda_base as u64,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    ..Default::default()
+                },
+                true,
+            )?;
             Ok(true)
         }
         None => Ok(false),
@@ -581,7 +601,7 @@ pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
 /// ProDG hardcodes .bss and .sbss section initialization in `entry`
 /// This function locates the memset calls and returns a list of
 /// (address, size) pairs for the .bss sections.
-pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
+pub fn locate_bss_memsets(obj: &ObjInfo) -> Result<Vec<(u32, u32)>> {
     let mut bss_sections: Vec<(u32, u32)> = Vec::new();
     let Some(entry) = obj.entry else {
         return Ok(bss_sections);
@@ -631,4 +651,51 @@ pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
         },
     )?;
     Ok(bss_sections)
+}
+
+/// Execute VM from specified entry point following inner-section branches and function calls,
+/// noting all branch targets outside the current section.
+pub fn locate_cross_section_branch_targets(
+    obj: &ObjInfo,
+    entry: SectionAddress,
+) -> Result<BTreeSet<SectionAddress>> {
+    let mut branch_targets = BTreeSet::<SectionAddress>::new();
+    let mut executor = Executor::new(obj);
+    executor.push(entry, VM::new(), false);
+    executor.run(
+        obj,
+        |ExecCbData { executor, vm, result, ins_addr, section: _, ins: _, block_start: _ }| {
+            match result {
+                StepResult::Continue | StepResult::LoadStore { .. } => {
+                    Ok(ExecCbResult::<()>::Continue)
+                }
+                StepResult::Illegal => bail!("Illegal instruction @ {}", ins_addr),
+                StepResult::Jump(target) => {
+                    if let BranchTarget::Address(RelocationTarget::Address(addr)) = target {
+                        if addr.section == entry.section {
+                            executor.push(addr, vm.clone_all(), true);
+                        } else {
+                            branch_targets.insert(addr);
+                        }
+                    }
+                    Ok(ExecCbResult::EndBlock)
+                }
+                StepResult::Branch(branches) => {
+                    for branch in branches {
+                        if let BranchTarget::Address(RelocationTarget::Address(addr)) =
+                            branch.target
+                        {
+                            if addr.section == entry.section {
+                                executor.push(addr, branch.vm, true);
+                            } else {
+                                branch_targets.insert(addr);
+                            }
+                        }
+                    }
+                    Ok(ExecCbResult::Continue)
+                }
+            }
+        },
+    )?;
+    Ok(branch_targets)
 }

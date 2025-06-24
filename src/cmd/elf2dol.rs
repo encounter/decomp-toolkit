@@ -7,7 +7,6 @@ use typed_path::Utf8NativePathBuf;
 
 use crate::{
     util::{
-        alf::ALF_MAGIC,
         dol::{process_dol, write_dol},
         file::buf_writer,
         path::native_path,
@@ -16,11 +15,11 @@ use crate::{
 };
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
-/// Converts an ELF (or ALF) file to a DOL file.
+/// Converts an ELF, ALF, or BootStage file to a DOL file.
 #[argp(subcommand, name = "elf2dol")]
 pub struct Args {
     #[argp(positional, from_str_fn(native_path))]
-    /// path to input ELF or ALF file
+    /// path to input ELF, ALF or BootStage file
     elf_file: Utf8NativePathBuf,
     #[argp(positional, from_str_fn(native_path))]
     /// path to output DOL
@@ -54,8 +53,8 @@ const MAX_DATA_SECTIONS: usize = 11;
 pub fn run(args: Args) -> Result<()> {
     let mut file = open_file(&args.elf_file, true)?;
     let data = file.map()?;
-    if data.len() >= 4 && data[0..4] == ALF_MAGIC {
-        return convert_alf(args, data);
+    if data.len() >= 4 && data[0..4] != object::elf::ELFMAG {
+        return convert_dol_like(args, data);
     }
 
     let obj_file = object::read::File::parse(data)?;
@@ -163,7 +162,8 @@ pub fn run(args: Args) -> Result<()> {
     Ok(())
 }
 
-fn convert_alf(args: Args, data: &[u8]) -> Result<()> {
+/// Converts a DOL-like format (ALF or BootStage) to a DOL file.
+fn convert_dol_like(args: Args, data: &[u8]) -> Result<()> {
     let obj = process_dol(data, "")?;
     let mut out = buf_writer(&args.dol_file)?;
     write_dol(&obj, &mut out)?;
