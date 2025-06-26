@@ -141,25 +141,21 @@ impl AnalysisPass for FindSaveRestSledsXbox {
                 };
                 let start = SectionAddress::new(section_index, section.address as u32 + pos as u32);
                 log::debug!("Found {} @ {:#010X}", func, start);
-                let mut sled_size = (reg_end - reg_start) * step_size + 4 /* blr */;
-                // if we found the reg intrinsic from pdata...
-                if state.functions.contains_key(&start) {
-                    // get the established function end, and set size = end - start
-                    sled_size = state.functions.get(&start).unwrap().end.unwrap().address - start.address;
+                // let mut sled_size = (reg_end - reg_start) * step_size + 4 /* blr */;
+
+                // save/restore gpr/fpr/vmx should've been found in pdata
+                if !func.contains("_upper"){
+                    assert!(obj.known_functions.contains_key(&start),
+                        "Could not find reg intrinsic from pdata. Is that even possible for an xex?");
                 }
-                state.functions.insert(start, FunctionInfo {
-                    analyzed: false,
-                    end: Some(start + sled_size),
-                    slices: None,
-                });
-                // log::info!("Found {} 0x{:08X}-0x{:08X}", func.to_string(), start.address as u64, start.address as u64 + sled_size as u64);
-                // ignore the upper vmx "functions", because the saving/restoring of regs 14-127 is actually one large function
-                if !func.contains("_upper") {
+                // add known symbols for them
+                if obj.known_functions.contains_key(&start){
+                    let known_func_size = obj.known_functions.get(&start).unwrap().unwrap();
                     state.known_symbols.entry(start).or_default().push(ObjSymbol {
                         name: func.to_string(),
                         address: start.address as u64,
                         section: Some(start.section),
-                        size: sled_size as u64,
+                        size: known_func_size as u64,
                         size_known: true,
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
                         kind: ObjSymbolKind::Function,
@@ -178,51 +174,6 @@ impl AnalysisPass for FindSaveRestSledsXbox {
                     });
                 }
             }
-        }
-        Ok(())
-    }
-}
-
-pub struct FindFromPdata {}
-
-// xbox exclusive thing
-impl AnalysisPass for FindFromPdata {
-    fn execute(state: &mut AnalyzerState, obj: &ObjInfo) -> Result<()> {
-        let pdata_section = obj.sections.by_name(".pdata")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".pdata section not found"))?;
-        let text_index = obj.sections.by_name(".text")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".text section not found"))?.elf_index;
-                
-        for (i, chunk) in pdata_section.data.chunks_exact(8).enumerate() {
-            // the addr where this function begins
-            let start_addr = u32::from_be_bytes(chunk[0..4].try_into().unwrap());
-            // if we encounter 0's, that's the end of usable pdata entries
-            if start_addr == 0 {
-                log::debug!("Encountered 0 at addr 0x{:08X}", pdata_section.address + (8 * i) as u64);
-                break;
-            }
-            // some metadata for this function, including function size
-            let word = u32::from_be_bytes(chunk[4..8].try_into().unwrap());
-            let num_prologue_insts = word & 0xFF;
-            let num_insts_in_func = (word >> 8) & 0x3FFFFF;
-            let flag_32bit = (word & 0x4000) != 0;
-            let exception_flag = (word & 0x8000) != 0;
-            
-            // log::info!("Found func from 0x{:08X}-0x{:08X}", inst, inst + (num_insts_in_func * 4));
-            let start = SectionAddress::new(text_index, start_addr);
-            state.functions.insert(start, FunctionInfo {
-                analyzed: false,
-                end: Some(start + num_insts_in_func * 4),
-                slices: None,
-            });
-            // state.known_symbols.entry(start).or_default().push(ObjSymbol {
-            //     name: format!("fn_{start_addr:X}"),
-            //     address: start.address as u64,
-            //     section: Some(start.section),
-            //     size: (num_insts_in_func * 4) as u64,
-            //     size_known: true,
-            //     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            //     kind: ObjSymbolKind::Function,
-            //     ..Default::default()
-            // });
         }
         Ok(())
     }

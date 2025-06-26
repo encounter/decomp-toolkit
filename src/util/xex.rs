@@ -19,16 +19,14 @@ use object::{
 use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 
 use crate::{
-    array_ref,
-    obj::{
+    analysis::cfa::SectionAddress, array_ref, obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
         SectionIndex as ObjSectionIndex, SymbolIndex as ObjSymbolIndex,
-    },
-    util::{
+    }, util::{
         comment::{CommentSym, MWComment},
         reader::{Endian, FromReader, ToWriter},
-    },
+    }
 };
 
 pub fn process_xex(path: &Utf8NativePath) -> Result<ObjInfo> {
@@ -98,6 +96,30 @@ pub fn process_xex(path: &Utf8NativePath) -> Result<ObjInfo> {
     // Create object
     let mut obj = ObjInfo::new(kind, architecture, obj_name.to_string(), vec![], sections);
     obj.entry = NonZeroU64::new(obj_file.entry()).map(|n| n.get());
+
+    // add known function boundaries from pdata
+    let pdata_section = obj.sections.by_name(".pdata")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".pdata section not found"))?;
+    let text_index = obj.sections.by_name(".text")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".text section not found"))?.elf_index;
+            
+    for (i, chunk) in pdata_section.data.chunks_exact(8).enumerate() {
+        // the addr where this function begins
+        let start_addr = u32::from_be_bytes(chunk[0..4].try_into().unwrap());
+        // if we encounter 0's, that's the end of usable pdata entries
+        if start_addr == 0 {
+            log::debug!("Encountered 0 at addr 0x{:08X}", pdata_section.address + (8 * i) as u64);
+            break;
+        }
+        // some metadata for this function, including function size
+        let word = u32::from_be_bytes(chunk[4..8].try_into().unwrap());
+        let num_prologue_insts = word & 0xFF;
+        let num_insts_in_func = (word >> 8) & 0x3FFFFF;
+        let flag_32bit = (word & 0x4000) != 0;
+        let exception_flag = (word & 0x8000) != 0;
+        
+        // log::info!("Found func from 0x{:08X}-0x{:08X}", inst, inst + (num_insts_in_func * 4));
+        let start = SectionAddress::new(text_index, start_addr);
+        obj.known_functions.insert(start, Some(num_insts_in_func * 4));
+    }
 
     Ok(obj)
 }

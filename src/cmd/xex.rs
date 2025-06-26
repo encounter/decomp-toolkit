@@ -18,7 +18,7 @@ use object::{
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    analysis::{cfa::AnalyzerState, pass::{AnalysisPass, FindFromPdata, FindSaveRestSledsXbox}}, obj::ObjKind, util::{
+    analysis::{cfa::{AnalyzerState, FunctionInfo}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, obj::ObjKind, util::{
         asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::process_xex, IntoCow, ToCow
     }, vfs::open_file
 };
@@ -74,18 +74,25 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     let mut obj = process_xex(&args.xex_file)?;
     
     // apply_signatures(&mut obj)?;
-
-    // step 2. browse pdata and find function boundaries there
+    
     let mut state = AnalyzerState::default();
-    FindFromPdata::execute(&mut state, &obj);
 
-    // step 3. find common functions (save/restore reg funcs, XAPI calls)
+    // step 2. find common functions (save/restore reg funcs, XAPI calls)
     // rename the save/restore gpr/fpr funcs that were previously found in pdata
     FindSaveRestSledsXbox::execute(&mut state, &obj)?;
 
     // for (k, v) in state.functions {
     //     // log::info!("fn: 0x{:X} - 0x{:X}", k.address, v.end.unwrap().address);
     // }
+
+    // Apply known functions
+    for (&addr, &size) in &obj.known_functions {
+        state.functions.insert(addr, FunctionInfo {
+            analyzed: false,
+            end: size.map(|size| addr + size),
+            slices: None,
+        });
+    }
 
     let mut count = 0;
 
@@ -98,7 +105,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
         log::info!("End: 0x{:X}", func.end.unwrap().address);
         // log::info!("Slices: {:?}", func.slices);
         count += 1;
-        if count == 10 { break; }
+        if count == 35 { break; }
         // break;
     }
 

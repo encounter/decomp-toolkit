@@ -195,7 +195,7 @@ impl VM {
     pub fn step(&mut self, obj: &ObjInfo, ins_addr: SectionAddress, ins: Ins) -> StepResult {
         match ins.op {
             Opcode::Illegal => {
-                log::info!("Warning! Illegal inst found at 0x{:X}", ins_addr.address);
+                // log::info!("Warning! Illegal inst found at 0x{:X}", ins_addr.address);
                 return StepResult::Illegal;
             }
             // add rD, rA, rB
@@ -402,12 +402,13 @@ impl VM {
                 };
                 self.gpr[ins.field_ra() as usize].set_direct(value);
             }
+            // might not even need these cases? since these aren't used to index addresses or anything
             // rldicl rA, rS, SH, MB
             Opcode::Rldicl => {
                 let sh = (ins.field_sh2() << 5) | ins.field_sh1();
                 let mb64_to_split = (ins.code >> 5) & 0b111111;
                 let mb64 = ((mb64_to_split & 1) << 5) | ((mb64_to_split & 0b111110) >> 1);
-                let zero_mask = !(u64::MAX << (64 - mb64));
+                let zero_mask = if mb64 == 0 { u64::MAX } else { !(u64::MAX << (64 - mb64)) };
                 let value = match self.gpr[ins.field_rs() as usize].value {
                     GprValue::Constant(value) => {
                         GprValue::Constant(value.rotate_left(sh as u32) & zero_mask)
@@ -426,7 +427,7 @@ impl VM {
                 let sh = (ins.field_sh2() << 5) | ins.field_sh1();
                 let me64_to_split = (ins.code >> 5) & 0b111111;
                 let me64 = ((me64_to_split & 1) << 5) | ((me64_to_split & 0b111110) >> 1);
-                let zero_mask = u64::MAX << me64;
+                let zero_mask = if me64 == 64 { 0 } else { u64::MAX << me64 };
                 let value = match self.gpr[ins.field_rs() as usize].value {
                     GprValue::Constant(value) => {
                         GprValue::Constant(value.rotate_left(sh as u32) & zero_mask)
@@ -565,7 +566,7 @@ impl VM {
                 self.gpr[ins.field_rd() as usize].set_direct(value);
             }
             // rfi
-            Opcode::Rfi => {
+            Opcode::Rfi | Opcode::Rfid => {
                 return StepResult::Jump(BranchTarget::Unknown);
             }
             op if is_load_store_op(op) => {
@@ -609,7 +610,6 @@ impl VM {
                 return result;
             }
             _ => {
-                log::info!("Unhandled opcode at 0x{:08X}: {:?}", ins_addr.address, ins.op);
                 for argument in ins.defs() {
                     if let Argument::GPR(GPR(reg)) = argument {
                         self.gpr[reg as usize].set_direct(GprValue::Unknown);
@@ -734,6 +734,7 @@ pub fn is_load_op(op: Opcode) -> bool {
             | Opcode::Lhz
             | Opcode::Lhzu
             | Opcode::Lmw
+            | Opcode::Lwa
             | Opcode::Lwz
             | Opcode::Lwzu
             | Opcode::Ld
@@ -778,6 +779,8 @@ pub fn is_update_op(op: Opcode) -> bool {
         op,
         Opcode::Lbzu
             | Opcode::Lbzux
+            | Opcode::Ldu
+            | Opcode::Ldux
             | Opcode::Lfdu
             | Opcode::Lfdux
             | Opcode::Lfsu
@@ -786,10 +789,13 @@ pub fn is_update_op(op: Opcode) -> bool {
             | Opcode::Lhaux
             | Opcode::Lhzu
             | Opcode::Lhzux
+            | Opcode::Lwaux
             | Opcode::Lwzu
             | Opcode::Lwzux
             | Opcode::Stbu
             | Opcode::Stbux
+            | Opcode::Stdu
+            | Opcode::Stdux
             | Opcode::Stfdu
             | Opcode::Stfdux
             | Opcode::Stfsu

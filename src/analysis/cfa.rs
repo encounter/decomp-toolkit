@@ -439,7 +439,7 @@ impl AnalyzerState {
             }
             true
         } else {
-            log::debug!("Not a function @ {:#010X}", addr);
+            log::info!("Not a function @ {:#010X}", addr);
             let info = self.functions.entry(addr).or_default();
             info.analyzed = true;
             info.end = None;

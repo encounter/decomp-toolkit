@@ -470,6 +470,7 @@ impl FunctionSlices {
             return Ok(true);
         }
 
+        // FIXME: around here, despite knowing the size from pdata, it's acting like it doesn't know the ending for sure
         let mut executor = Executor::new(obj);
         executor.push(start, vm.unwrap_or_else(|| VM::new_from_obj(obj)), false);
         let result = executor.run(obj, |data| {
@@ -478,6 +479,7 @@ impl FunctionSlices {
         if matches!(result, Some(b) if !b) {
             return Ok(false);
         }
+        // doesn't make it here, seems to return Ok(false)
 
         // Visit unreachable blocks
         while let Some((first, _)) = self.first_disconnected_block() {
