@@ -81,23 +81,12 @@ pub fn process_xex(path: &Utf8NativePath) -> Result<ObjInfo> {
         });
     }
 
-    // for an xex, no mw_comment or split_meta
-
-        // pub symbols: ObjSymbols,
-
-        // // Extracted
-        // pub link_order: Vec<ObjUnit>,
-        // pub blocked_relocation_sources: AddressRanges,
-        // pub blocked_relocation_targets: AddressRanges,
-
-        // // From .ctors, .dtors and extab
-        // pub known_functions: BTreeMap<SectionAddress, Option<u32>>,
-
     // Create object
     let mut obj = ObjInfo::new(kind, architecture, obj_name.to_string(), vec![], sections);
     obj.entry = NonZeroU64::new(obj_file.entry()).map(|n| n.get());
 
     // add known function boundaries from pdata
+    // pdata info: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-pdata-section
     let pdata_section = obj.sections.by_name(".pdata")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".pdata section not found"))?;
     let text_index = obj.sections.by_name(".text")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".text section not found"))?.elf_index;
             
@@ -106,20 +95,39 @@ pub fn process_xex(path: &Utf8NativePath) -> Result<ObjInfo> {
         let start_addr = u32::from_be_bytes(chunk[0..4].try_into().unwrap());
         // if we encounter 0's, that's the end of usable pdata entries
         if start_addr == 0 {
-            log::debug!("Encountered 0 at addr 0x{:08X}", pdata_section.address + (8 * i) as u64);
+            log::info!("Found {} known funcs from pdata!", i);
+            // log::info!("Encountered 0 at addr 0x{:08X}", pdata_section.address + (8 * i) as u64);
             break;
         }
         // some metadata for this function, including function size
         let word = u32::from_be_bytes(chunk[4..8].try_into().unwrap());
-        let num_prologue_insts = word & 0xFF;
-        let num_insts_in_func = (word >> 8) & 0x3FFFFF;
-        let flag_32bit = (word & 0x4000) != 0;
-        let exception_flag = (word & 0x8000) != 0;
+        // let num_prologue_insts = word & 0xFF; // The number of instructions in the function's prolog.
+        let num_insts_in_func = (word >> 8) & 0x3FFFFF; // The number of instructions in the function.
+        // let flag_32bit = (word & 0x4000) != 0; // If set, the function consists of 32-bit instructions. If clear, the function consists of 16-bit instructions.
+        // let exception_flag = (word & 0x8000) != 0; // If set, an exception handler exists for the function. Otherwise, no exception handler exists.
         
-        // log::info!("Found func from 0x{:08X}-0x{:08X}", inst, inst + (num_insts_in_func * 4));
+        // log::info!("Found func {} from 0x{:08X}-0x{:08X}", i, start_addr, start_addr + (num_insts_in_func * 4));
         let start = SectionAddress::new(text_index, start_addr);
         obj.known_functions.insert(start, Some(num_insts_in_func * 4));
     }
+
+    // some xidata notes (idk where else to put them lol)
+    // part 1:
+    // seems to be many many lis/addi/mtctr/bctrs in sequence
+    // e.g. lis r11, 0x82XX / addi r11, r11, 0xXXXX / mtctr r11 / bctr
+    // indirect function calls? stubs?
+    // matches up just fine
+
+    // part 2: a bunch of 0's
+
+    // part 3:
+    // many lis/lwz/mtctr/bctrs in sequence
+    // e.g. lis r11, 0xXXXX / lwz r11, 0xXXXX(r11) / mtctr r11/ bctr / zero-padding
+    // this does not quite match up with the ground truth, but I suspect the difference comes from relocs
+
+    // .idata: partially zero'ed out and offsetted from ground truth in debug, completely gone from release
+    // .XBLD: zero'ed out in debug, completely gone from release
+    // .reloc: zero'ed out regardless
 
     Ok(obj)
 }

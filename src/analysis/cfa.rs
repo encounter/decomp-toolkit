@@ -241,7 +241,7 @@ impl AnalyzerState {
     }
 
     pub fn detect_functions(&mut self, obj: &ObjInfo) -> Result<()> {
-        // Apply known functions from extab
+        // Apply known functions from pdata
         for (&addr, &size) in &obj.known_functions {
             self.functions.insert(addr, FunctionInfo {
                 analyzed: false,
@@ -249,27 +249,56 @@ impl AnalyzerState {
                 slices: None,
             });
         }
-        // Apply known functions from symbols
-        for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {
-            let Some(section_index) = symbol.section else { continue };
-            let addr_ref = SectionAddress::new(section_index, symbol.address as u32);
-            self.functions.insert(addr_ref, FunctionInfo {
-                analyzed: false,
-                end: if symbol.size_known { Some(addr_ref + symbol.size as u32) } else { None },
-                slices: None,
-            });
-        }
+
+        // xex's sadly don't have embedded symbols
+        // // Apply known functions from symbols
+        // for (_, symbol) in obj.symbols.by_kind(ObjSymbolKind::Function) {
+        //     let Some(section_index) = symbol.section else { continue };
+        //     let addr_ref = SectionAddress::new(section_index, symbol.address as u32);
+        //     self.functions.insert(addr_ref, FunctionInfo {
+        //         analyzed: false,
+        //         end: if symbol.size_known { Some(addr_ref + symbol.size as u32) } else { None },
+        //         slices: None,
+        //     });
+        // }
+
+        // for xexes, i don't *think* we care about anything other than .text
+        let text_section = obj.sections.by_name(".text")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".text section not found"))?;
+        self.functions.entry(SectionAddress::new(text_section.elf_index, text_section.address as u32)).or_default();
+
         // Also check the beginning of every code section
-        for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            self.functions
-                .entry(SectionAddress::new(section_index, section.address as u32))
-                .or_default();
-        }
+        // for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
+        //     self.functions
+        //         .entry(SectionAddress::new(section_index, section.address as u32))
+        //         .or_default();
+        // }
+
+        let mut count = 0;
 
         // Process known functions first
         for addr in self.functions.keys().cloned().collect_vec() {
+            // println!("Processing function at {:?}", addr);
             self.process_function_at(obj, addr)?;
+
+            // some assertions, since we're working with known function boundaries
+            let func = self.functions.get(&addr).unwrap();
+            let known_end = addr.address + obj.known_functions.get(&addr).unwrap().unwrap();
+            assert_eq!(func.end.is_some(), true, "Function at {} has no detected end. There must be an error in processing!", addr);
+            assert_eq!(func.end.unwrap().address, known_end,
+                "Function at {} has known end addr 0x{:08X}, but during processing, ending was found to be {:08X}!",
+                addr, known_end, func.end.unwrap().address);
+            // assert something with slices?
+
+            count += 1;
+            // if count == 1 {
+            //     // just here for debugging, easier to look at one func than 10K
+            //     return Ok(());
+            // }
         }
+
+        // the rest...
+        println!("Known functions complete.");
+
         if let Some(entry) = obj.entry.map(|n| n as u32) {
             // Locate entry function bounds
             let (section_index, _) = obj

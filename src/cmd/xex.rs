@@ -67,6 +67,7 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 // look at dol info function too!
+// dol load_analyze_dol as well
 fn disasm(args: DisasmArgs) -> Result<()> {
     log::info!("Loading {}", args.xex_file);
 
@@ -81,33 +82,39 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // rename the save/restore gpr/fpr funcs that were previously found in pdata
     FindSaveRestSledsXbox::execute(&mut state, &obj)?;
 
+    state.detect_functions(&obj);
+    log::debug!(
+        "Discovered {} functions",
+        state.functions.iter().filter(|(_, i)| i.end.is_some()).count()
+    );
+
     // for (k, v) in state.functions {
     //     // log::info!("fn: 0x{:X} - 0x{:X}", k.address, v.end.unwrap().address);
     // }
 
-    // Apply known functions
-    for (&addr, &size) in &obj.known_functions {
-        state.functions.insert(addr, FunctionInfo {
-            analyzed: false,
-            end: size.map(|size| addr + size),
-            slices: None,
-        });
-    }
+    // // Apply known functions
+    // for (&addr, &size) in &obj.known_functions {
+    //     state.functions.insert(addr, FunctionInfo {
+    //         analyzed: false,
+    //         end: size.map(|size| addr + size),
+    //         slices: None,
+    //     });
+    // }
 
-    let mut count = 0;
+    // let mut count = 0;
 
-    // Process known functions first
-    for addr in state.functions.keys().cloned().collect_vec() {
-        log::info!("Processing function #{} at 0x{:X}", count, addr.address);
-        state.process_function_at(&obj, addr)?;
-        let func = state.functions.get(&addr).unwrap();
-        // log::info!("Analyzed? {}", func.is_analyzed());
-        log::info!("End: 0x{:X}", func.end.unwrap().address);
-        // log::info!("Slices: {:?}", func.slices);
-        count += 1;
-        if count == 35 { break; }
-        // break;
-    }
+    // // Process known functions first
+    // for addr in state.functions.keys().cloned().collect_vec() {
+    //     log::info!("Processing function #{} at 0x{:X}", count, addr.address);
+    //     state.process_function_at(&obj, addr)?;
+    //     let func = state.functions.get(&addr).unwrap();
+    //     // log::info!("Analyzed? {}", func.is_analyzed());
+    //     log::info!("End: 0x{:X}", func.end.unwrap().address);
+    //     // log::info!("Slices: {:?}", func.slices);
+    //     count += 1;
+    //     if count == 1 { break; }
+    //     // break;
+    // }
 
     // state.detect_functions(&obj)?;
     // log::debug!(

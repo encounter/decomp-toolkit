@@ -251,6 +251,9 @@ impl FunctionSlices {
     ) -> Result<ExecCbResult<bool>> {
         let ExecCbData { executor, vm, result, ins_addr, section, ins, block_start } = data;
 
+        // all the funcs with prologues are already tracked in pdata
+        // soooo...no need to specifically check for them?
+
         // Track discovered prologue(s) and epilogue(s)
         // HACK: ProDG sometimes uses LR as a storage register for int-to-float conversions
         // To our heuristic, this looks like a prologue, so first check LR for the magic number.
@@ -261,6 +264,7 @@ impl FunctionSlices {
         }
         self.check_epilogue(section, ins_addr, ins)
             .with_context(|| format!("While processing {function_start:#010X}: {self:#?}"))?;
+
         if !self.has_conditional_blr && is_conditional_blr(ins) {
             self.has_conditional_blr = true;
         }
@@ -470,7 +474,6 @@ impl FunctionSlices {
             return Ok(true);
         }
 
-        // FIXME: around here, despite knowing the size from pdata, it's acting like it doesn't know the ending for sure
         let mut executor = Executor::new(obj);
         executor.push(start, vm.unwrap_or_else(|| VM::new_from_obj(obj)), false);
         let result = executor.run(obj, |data| {
@@ -479,18 +482,33 @@ impl FunctionSlices {
         if matches!(result, Some(b) if !b) {
             return Ok(false);
         }
-        // doesn't make it here, seems to return Ok(false)
 
         // Visit unreachable blocks
         while let Some((first, _)) = self.first_disconnected_block() {
             let vm = self.possible_blocks.remove(&first.start);
             executor.push(first.end, vm.unwrap_or_else(|| VM::new_from_obj(obj)), true);
-            let result = executor.run(obj, |data| {
-                self.instruction_callback(data, obj, function_start, function_end, known_functions)
-            })?;
-            if matches!(result, Some(b) if !b) {
-                return Ok(false);
+
+
+            match executor.run(obj, |data| {
+                self.instruction_callback(
+                    data,
+                    obj,
+                    function_start,
+                    function_end,
+                    known_functions,
+                )
+            })? { 
+                Some(true) => continue,
+                Some(false) => return Ok(false),
+                None => break,
             }
+
+            // let result = executor.run(obj, |data| {
+            //     self.instruction_callback(data, obj, function_start, function_end, known_functions)
+            // })?;
+            // if matches!(result, Some(b) if !b) {
+            //     return Ok(false);
+            // }
         }
 
         // Visit trailing blocks
@@ -507,7 +525,7 @@ impl FunctionSlices {
                     // Skip nops
                     match disassemble(&obj.sections[end.section], end.address) {
                         Some(ins) => {
-                            if !is_nop(ins) {
+                            if ins.op != Opcode::Illegal && !is_nop(ins) {
                                 break;
                             }
                         }
@@ -516,7 +534,7 @@ impl FunctionSlices {
                     end += 4;
                 }
                 executor.push(end, VM::new_from_obj(obj), true);
-                let result = executor.run(obj, |data| {
+                match executor.run(obj, |data| {
                     self.instruction_callback(
                         data,
                         obj,
@@ -524,9 +542,10 @@ impl FunctionSlices {
                         function_end,
                         known_functions,
                     )
-                })?;
-                if matches!(result, Some(b) if !b) {
-                    return Ok(false);
+                })? { 
+                    Some(true) => continue,
+                    Some(false) => return Ok(false),
+                    None => break 'outer,
                 }
             }
         }

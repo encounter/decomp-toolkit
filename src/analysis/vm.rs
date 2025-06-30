@@ -195,7 +195,7 @@ impl VM {
     pub fn step(&mut self, obj: &ObjInfo, ins_addr: SectionAddress, ins: Ins) -> StepResult {
         match ins.op {
             Opcode::Illegal => {
-                // log::info!("Warning! Illegal inst found at 0x{:X}", ins_addr.address);
+                log::info!("Warning! Illegal inst found at 0x{:X}", ins_addr.address);
                 return StepResult::Illegal;
             }
             // add rD, rA, rB
@@ -399,45 +399,6 @@ impl VM {
                     }
                 } else {
                     GprValue::Unknown
-                };
-                self.gpr[ins.field_ra() as usize].set_direct(value);
-            }
-            // might not even need these cases? since these aren't used to index addresses or anything
-            // rldicl rA, rS, SH, MB
-            Opcode::Rldicl => {
-                let sh = (ins.field_sh2() << 5) | ins.field_sh1();
-                let mb64_to_split = (ins.code >> 5) & 0b111111;
-                let mb64 = ((mb64_to_split & 1) << 5) | ((mb64_to_split & 0b111110) >> 1);
-                let zero_mask = if mb64 == 0 { u64::MAX } else { !(u64::MAX << (64 - mb64)) };
-                let value = match self.gpr[ins.field_rs() as usize].value {
-                    GprValue::Constant(value) => {
-                        GprValue::Constant(value.rotate_left(sh as u32) & zero_mask)
-                    }
-                    GprValue::Range { min, max, step } => GprValue::Range {
-                        min: min.rotate_left(sh as u32) & zero_mask,
-                        max: max.rotate_left(sh as u32) & zero_mask,
-                        step: step.rotate_left(sh as u32)
-                    },
-                    _ => GprValue::Range { min: 0, max: zero_mask, step: 1u64.rotate_left(sh as u32) }
-                };
-                self.gpr[ins.field_ra() as usize].set_direct(value);
-            }
-            // rldicr rA, rS, SH, ME
-            Opcode::Rldicr => {
-                let sh = (ins.field_sh2() << 5) | ins.field_sh1();
-                let me64_to_split = (ins.code >> 5) & 0b111111;
-                let me64 = ((me64_to_split & 1) << 5) | ((me64_to_split & 0b111110) >> 1);
-                let zero_mask = if me64 == 64 { 0 } else { u64::MAX << me64 };
-                let value = match self.gpr[ins.field_rs() as usize].value {
-                    GprValue::Constant(value) => {
-                        GprValue::Constant(value.rotate_left(sh as u32) & zero_mask)
-                    }
-                    GprValue::Range { min, max, step } => GprValue::Range {
-                        min: min.rotate_left(sh as u32) & zero_mask,
-                        max: max.rotate_left(sh as u32) & zero_mask,
-                        step: step.rotate_left(sh as u32)
-                    },
-                    _ => GprValue::Range { min: 0, max: zero_mask, step: 1u64.rotate_left(sh as u32) }
                 };
                 self.gpr[ins.field_ra() as usize].set_direct(value);
             }
