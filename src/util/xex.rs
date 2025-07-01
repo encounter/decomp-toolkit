@@ -13,7 +13,7 @@ use indexmap::IndexMap;
 use itertools::Itertools;
 use objdiff_core::obj::split_meta::{SplitMeta, SHT_SPLITMETA, SPLITMETA_SECTION};
 use object::{
-    read::pe::PeFile64, Architecture, BinaryFormat, Endianness, File, Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection
+    read::pe::PeFile64, Architecture, BinaryFormat, Endianness, File, Import, Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection
 };
 use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 
@@ -35,7 +35,103 @@ pub enum XexError {
     #[error("XEX2 header not found!")]
     HeaderNotFound,
     #[error("No data found in optional header!")]
-    HeaderDataNotFound
+    HeaderDataNotFound,
+    #[error("Import library must have an even number of records!")]
+    InvalidLibRecordCount,
+    #[error("Resource info has unexpected length! (expected 16)")]
+    InvalidResourceInfoLength
+}
+
+// ----------------------------------------------------------------------
+// IMPORTLIBRARIES
+// ----------------------------------------------------------------------
+
+pub struct ImportLibraries {
+    pub libraries: Vec<ImportLibrary>,
+}
+
+pub struct ImportFunction {
+    pub address: u32,
+    pub ordinal: u32,
+    pub thunk: u32
+}
+
+pub struct ImportLibrary {
+    pub name: String,
+    pub records: Vec<u32>,
+    pub functions: Vec<ImportFunction>
+}
+
+impl ImportLibraries {
+    fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
+        let string_size = read_word(&data, 0);
+        let lib_count = read_word(&data, 4);
+
+        // populate the string table
+        let mut string_table: Vec<String> = vec![];
+        let mut pos: usize = 8;
+        let mut cur_str = String::new();
+        let cap: usize = (string_size + 8) as usize;
+        while pos < cap {
+            if data[pos] != 0 {
+                cur_str += &(data[pos] as char).to_string();
+            }
+            else {
+                while data[pos + 1] == 0 && pos < cap - 1 {
+                    pos += 1;
+                }
+                string_table.push(cur_str.clone());
+                cur_str.clear();
+            }
+            pos += 1;
+        }
+
+        // actually parse the import libraries
+        pos = cap;
+        let mut libraries: Vec<ImportLibrary> = vec![];
+        for n in 0..lib_count {
+            pos += 0x24;
+            let name_idx = u16::from_be_bytes([data[pos], data[pos + 1]]) as usize;
+            let count = u16::from_be_bytes([data[pos + 2], data[pos + 3]]) as usize;
+            // for each record pair, first = __imp__API, second = the actual API
+            if count % 2 != 0 {
+                return Err(XexError::InvalidLibRecordCount);
+            }
+            pos += 4;
+            let lib_name = &string_table[name_idx];
+            let mut records: Vec<u32> = vec![];
+            for i in 0..count {
+                records.push(read_word(data, pos + (i * 4)));
+                // println!("record {}: 0x{:X}", i, read_word(data, pos + (i * 4)))
+            }
+            pos += count * 4;
+            libraries.push(ImportLibrary { name: lib_name.clone(), records: records, functions: Vec::new() });
+        }
+        return Ok(Self { libraries } );
+
+    }
+}
+
+// ----------------------------------------------------------------------
+// RESOURCEINFO
+// ----------------------------------------------------------------------
+
+pub struct ResourceInfo {
+    pub title_id: String,
+    pub rsrc_start: u32,
+    pub rsrc_end: u32
+}
+
+impl ResourceInfo {
+    pub fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
+        if data.len() != 16 {
+            return Err(XexError::InvalidResourceInfoLength);
+        }
+        let title_id = String::from_utf8(data[0..8].to_vec()).ok().unwrap();
+        let rsrc_start = read_word(&data, 8);
+        let rsrc_end = rsrc_start + read_word(&data, 12);
+        return Ok(Self { title_id, rsrc_start, rsrc_end });
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -70,13 +166,14 @@ impl XexHeader {
 // ----------------------------------------------------------------------
 
 pub struct XexOptionalHeaderData {
-    // Vec<XexOptionalHeader>?
+    // Vec<XexOptionalHeader>? should we keep the vector of optional headers we find?
     pub original_name: String,
     pub entry_point: u32,
     pub image_base: u32,
+    pub resource_info: ResourceInfo,
     // BaseFileFormat
     // PatchDescriptor
-    // ImportLibraries
+    pub import_libs: ImportLibraries,
 }
 
 impl XexOptionalHeaderData {
@@ -91,6 +188,8 @@ impl XexOptionalHeaderData {
         let mut original_name = String::new();
         let mut entry_point = 0;
         let mut image_base = 0;
+        let mut import_libs = ImportLibraries { libraries: Vec::new() };
+        let mut resource_info = ResourceInfo { title_id: String::new(), rsrc_start: 0, rsrc_end: 0 };
 
         // and now, process them
         for header in opt_headers {
@@ -99,7 +198,11 @@ impl XexOptionalHeaderData {
             }
             match header.id {
                 XexOptionalHeaderID::ResourceInfo => {
-                    log::info!("Resource info: {:?}", String::from_utf8(header.data.clone()));
+                    log::info!("Reading Resource info...");
+                    resource_info = match ResourceInfo::parse(&header.data) {
+                        Ok(info) => info,
+                        Err(e) => return Err(e),
+                    };
                 }
                 XexOptionalHeaderID::BaseFileFormat => {
                     log::info!("handle base file format here");
@@ -108,19 +211,22 @@ impl XexOptionalHeaderData {
                     log::info!("TODO: handle patch descriptor");
                 }
                 XexOptionalHeaderID::BoundingPath => {
-                    log::info!("bounding path here");
+                    log::info!("TODO: handle bounding path");
                 }
                 XexOptionalHeaderID::EntryPoint => {
-                    entry_point = header.value;
+                    entry_point = read_word(&header.data, 0);
                     log::info!("Entry point addr: 0x{:X}", entry_point);
                 }
                 XexOptionalHeaderID::ImageBaseAddress => {
-                    image_base = header.value;
+                    image_base = read_word(&header.data, 0);
                     log::info!("Image base addr: 0x{:X}", image_base);
                 }
                 XexOptionalHeaderID::ImportLibraries => {
-                    log::info!("import libs here");
-                    // log::info!("{:?}", header.data);
+                    log::info!("Reading Import libraries...");
+                    import_libs = match ImportLibraries::parse(&header.data) {
+                        Ok(libs) => {libs}
+                        Err(e) => return Err(e)
+                    }
                 }
                 XexOptionalHeaderID::OriginalPEName => {
                     original_name = String::from_utf8(header.data.clone()).ok().unwrap();
@@ -131,7 +237,7 @@ impl XexOptionalHeaderData {
                 }
             }
         }
-        return Ok(Self { original_name, entry_point, image_base });
+        return Ok(Self { original_name, entry_point, image_base, resource_info, import_libs });
     }
 }
 
@@ -159,7 +265,7 @@ pub enum XexOptionalHeaderID {
     DefaultHeapSize = 0x20401,
     PageHeapSizeAndFlags = 0x28002,
     SystemFlags = 0x30000,
-    // extra flag found! 0x30100
+    Unknown30100 = 0x30100,
     ExecutionID = 0x40006,
     ServiceIDList = 0x401FF,
     TitleWorkspaceSize = 0x40201,
@@ -194,7 +300,7 @@ impl XexOptionalHeader {
         else if mask < 2 {
             // data = value as a Vec<u8>
             // println!("for ID 0x{:X}, value = 0x{:X}", id_as_u32, hdr.value);
-            hdr.data = data[index..index + 4].to_vec();
+            hdr.data = data[index + 4..index + 8].to_vec();
         }
         else {
             let len = mask * 4;
