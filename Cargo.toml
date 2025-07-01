@@ -74,6 +74,7 @@ sha-1 = "0.10"
 size = "0.4"
 supports-color = "3.0"
 syntect = { version = "5.2", features = ["parsing", "regex-fancy", "dump-load"], default-features = false }
+thiserror = "2"
 tracing = "0.1"
 tracing-attributes = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

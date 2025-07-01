@@ -19,7 +19,7 @@ use typed_path::Utf8NativePathBuf;
 
 use crate::{
     analysis::{cfa::{AnalyzerState, FunctionInfo}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, obj::ObjKind, util::{
-        asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::process_xex, IntoCow, ToCow
+        asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::{extract_exe, process_xex}, IntoCow, ToCow
     }, vfs::open_file
 };
 
@@ -35,6 +35,7 @@ pub struct Args {
 #[argp(subcommand)]
 enum SubCommand {
     Disasm(DisasmArgs),
+    Extract(ExtractArgs),
     Info(InfoArgs),
 }
 
@@ -51,6 +52,18 @@ pub struct DisasmArgs {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Extracts an exe from an Xex file.
+#[argp(subcommand, name = "extract")]
+pub struct ExtractArgs {
+    #[argp(positional, from_str_fn(native_path))]
+    /// input file
+    xex_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
+    /// output file
+    exe_file: Utf8NativePathBuf,
+}
+
+#[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Prints information about an Xex file.
 #[argp(subcommand, name = "info")]
 pub struct InfoArgs {
@@ -62,14 +75,27 @@ pub struct InfoArgs {
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Disasm(c_args) => disasm(c_args),
+        SubCommand::Extract(c_args) => extract(c_args),
         SubCommand::Info(c_args) => info(c_args),
     }
+}
+
+// references:
+// https://github.com/zeroKilo/XEXLoaderWV/blob/master/XEXLoaderWV/src/main/java/xexloaderwv/XEXHeader.java#L120
+// https://github.com/emoose/idaxex/blob/5b7de7b964e67fc049db0c61e4cba5d13ee69cec/formats/xex.hpp
+
+fn extract(args: ExtractArgs) -> Result<()> {
+    extract_exe(&args.xex_file);
+    Ok(())
 }
 
 // look at dol info function too!
 // dol load_analyze_dol as well
 fn disasm(args: DisasmArgs) -> Result<()> {
     log::info!("Loading {}", args.xex_file);
+
+    extract_exe(&args.xex_file);
+    return Ok(());
 
     // step 1. process xex, and return an ObjInfo a la process_dol
     let mut obj = process_xex(&args.xex_file)?;
@@ -82,45 +108,13 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // rename the save/restore gpr/fpr funcs that were previously found in pdata
     FindSaveRestSledsXbox::execute(&mut state, &obj)?;
 
-    state.detect_functions(&obj);
+    // FindXAPISleds::execute;
+
+    state.detect_functions(&obj)?;
     log::debug!(
         "Discovered {} functions",
         state.functions.iter().filter(|(_, i)| i.end.is_some()).count()
     );
-
-    // for (k, v) in state.functions {
-    //     // log::info!("fn: 0x{:X} - 0x{:X}", k.address, v.end.unwrap().address);
-    // }
-
-    // // Apply known functions
-    // for (&addr, &size) in &obj.known_functions {
-    //     state.functions.insert(addr, FunctionInfo {
-    //         analyzed: false,
-    //         end: size.map(|size| addr + size),
-    //         slices: None,
-    //     });
-    // }
-
-    // let mut count = 0;
-
-    // // Process known functions first
-    // for addr in state.functions.keys().cloned().collect_vec() {
-    //     log::info!("Processing function #{} at 0x{:X}", count, addr.address);
-    //     state.process_function_at(&obj, addr)?;
-    //     let func = state.functions.get(&addr).unwrap();
-    //     // log::info!("Analyzed? {}", func.is_analyzed());
-    //     log::info!("End: 0x{:X}", func.end.unwrap().address);
-    //     // log::info!("Slices: {:?}", func.slices);
-    //     count += 1;
-    //     if count == 1 { break; }
-    //     // break;
-    // }
-
-    // state.detect_functions(&obj)?;
-    // log::debug!(
-    //     "Discovered {} functions",
-    //     state.functions.iter().filter(|(_, i)| i.end.is_some()).count()
-    // );
     Ok(())
 }
 
