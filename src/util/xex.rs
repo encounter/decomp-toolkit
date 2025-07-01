@@ -94,9 +94,10 @@ impl ImportLibraries {
             let name_idx = u16::from_be_bytes([data[pos], data[pos + 1]]) as usize;
             let count = u16::from_be_bytes([data[pos + 2], data[pos + 3]]) as usize;
             // for each record pair, first = __imp__API, second = the actual API
-            if count % 2 != 0 {
-                return Err(XexError::InvalidLibRecordCount);
-            }
+            // scratch that, DC3 has an odd number...dunno what for yet, but it does
+            // if count % 2 != 0 {
+            //     return Err(XexError::InvalidLibRecordCount);
+            // }
             pos += 4;
             let lib_name = &string_table[name_idx];
             let mut records: Vec<u32> = vec![];
@@ -170,10 +171,10 @@ pub struct XexOptionalHeaderData {
     pub original_name: String,
     pub entry_point: u32,
     pub image_base: u32,
-    pub resource_info: ResourceInfo,
+    pub resource_info: Option<ResourceInfo>,
     // BaseFileFormat
     // PatchDescriptor
-    pub import_libs: ImportLibraries,
+    pub import_libs: Option<ImportLibraries>,
 }
 
 impl XexOptionalHeaderData {
@@ -188,8 +189,8 @@ impl XexOptionalHeaderData {
         let mut original_name = String::new();
         let mut entry_point = 0;
         let mut image_base = 0;
-        let mut import_libs = ImportLibraries { libraries: Vec::new() };
-        let mut resource_info = ResourceInfo { title_id: String::new(), rsrc_start: 0, rsrc_end: 0 };
+        let mut import_libs = None;
+        let mut resource_info = None;
 
         // and now, process them
         for header in opt_headers {
@@ -198,9 +199,8 @@ impl XexOptionalHeaderData {
             }
             match header.id {
                 XexOptionalHeaderID::ResourceInfo => {
-                    log::info!("Reading Resource info...");
                     resource_info = match ResourceInfo::parse(&header.data) {
-                        Ok(info) => info,
+                        Ok(info) => Some(info),
                         Err(e) => return Err(e),
                     };
                 }
@@ -215,22 +215,19 @@ impl XexOptionalHeaderData {
                 }
                 XexOptionalHeaderID::EntryPoint => {
                     entry_point = read_word(&header.data, 0);
-                    log::info!("Entry point addr: 0x{:X}", entry_point);
                 }
                 XexOptionalHeaderID::ImageBaseAddress => {
                     image_base = read_word(&header.data, 0);
-                    log::info!("Image base addr: 0x{:X}", image_base);
                 }
                 XexOptionalHeaderID::ImportLibraries => {
                     log::info!("Reading Import libraries...");
                     import_libs = match ImportLibraries::parse(&header.data) {
-                        Ok(libs) => {libs}
+                        Ok(libs) => Some(libs),
                         Err(e) => return Err(e)
                     }
                 }
                 XexOptionalHeaderID::OriginalPEName => {
                     original_name = String::from_utf8(header.data.clone()).ok().unwrap();
-                    log::info!("Original PE Name: {}", original_name);
                 }
                 _ => {
                     log::info!("unhandled header ID {:?}", header.id);
@@ -365,7 +362,13 @@ pub fn read_word(data: &Vec<u8>, index: usize) -> u32 {
 
 pub fn extract_exe(path: &Utf8NativePath) -> Result<()> {
     println!("xex: {path}");
-    let xex = XexInfo::from_file(path);
+    let xex = match XexInfo::from_file(path) {
+        Ok(xex) => xex,
+        Err(e) => {
+            println!("Error trying to read xex file: {}", e);
+            return Ok(());
+        }
+    };
     // after this line, the XexInfo should have all of its relevant metadata parsed
     // so, try to read the PE image
 
