@@ -85,7 +85,23 @@ pub fn run(args: Args) -> Result<()> {
 // https://github.com/emoose/idaxex/blob/5b7de7b964e67fc049db0c61e4cba5d13ee69cec/formats/xex.hpp
 
 fn extract(args: ExtractArgs) -> Result<()> {
-    extract_exe(&args.xex_file);
+    let exe_bytes = match extract_exe(&args.xex_file) {
+        Ok(exe) => exe,
+        Err(e) => {
+            println!("Could not extract exe: {}", e);
+            return Ok(());
+        }
+    };
+    // &args.exe_file
+    
+    // if let Some(parent) = args.exe_file.parent() {
+    //     fs::create_dir_all(parent)?;
+    // }
+    // let mut file = std::fs::File::create(args.exe_file)?;
+    // file.write_all(&exe_bytes)?;
+    // file.flush()?;
+
+    std::fs::write(std::path::Path::new("D:\\DC3 Debug\\decomp-toolkit\\jeff.exe"), exe_bytes)?;
     Ok(())
 }
 
@@ -94,7 +110,7 @@ fn extract(args: ExtractArgs) -> Result<()> {
 fn disasm(args: DisasmArgs) -> Result<()> {
     log::info!("Loading {}", args.xex_file);
 
-    extract_exe(&args.xex_file);
+    // extract_exe(&args.xex_file);
     return Ok(());
 
     // step 1. process xex, and return an ObjInfo a la process_dol
