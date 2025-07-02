@@ -23,12 +23,20 @@ use crate::{
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
         SectionIndex as ObjSectionIndex, SymbolIndex as ObjSymbolIndex,
     }, util::{
-        comment::{CommentSym, MWComment},
-        reader::{Endian, FromReader, ToWriter},
+        comment::{CommentSym, MWComment}, crypto::decrypt_aes128_cbc_no_padding, reader::{Endian, FromReader, ToWriter}
     }
 };
 
 use num_enum::{ TryFromPrimitive, IntoPrimitive };
+
+// quick and ez ways to read data from a block of bytes
+pub fn read_halfword(data: &Vec<u8>, index: usize) -> u16 {
+    return u16::from_be_bytes([data[index], data[index + 1]]);
+}
+
+pub fn read_word(data: &Vec<u8>, index: usize) -> u32 {
+    return u32::from_be_bytes([data[index], data[index + 1], data[index + 2], data[index + 3]]);
+}
 
 #[derive(thiserror::Error, Debug)]
 pub enum XexError {
@@ -39,7 +47,59 @@ pub enum XexError {
     #[error("Import library must have an even number of records!")]
     InvalidLibRecordCount,
     #[error("Resource info has unexpected length! (expected 16)")]
-    InvalidResourceInfoLength
+    InvalidResourceInfoLength,
+    #[error("Xex has unhandled compression type!")]
+    UnhandledCompressionType,
+    #[error("Could not derive session key!")]
+    InvalidSessionKey
+}
+
+// ----------------------------------------------------------------------
+// BASEFILEFORMAT
+// ----------------------------------------------------------------------
+
+pub struct BasicCompression {
+    pub data_size: u32,
+    pub zero_size: u32   
+}
+
+pub struct NormalCompression {
+    pub window_size: u32,
+    pub block_size: u32,
+    pub block_hash: [u8; 20]
+}
+
+pub struct BaseFileFormat {
+    pub encryption: u16, // 0 = no, 1 = yes
+    pub compression: u16, // 0 = none, 1 = raw, 2 = compressed, 3 = delta compressed
+    pub basics: Vec<BasicCompression>,
+    pub normal: Option<NormalCompression>
+}
+
+impl BaseFileFormat {
+    fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
+        let encryption = read_halfword(&data, 0);
+        let compression = read_halfword(&data, 2);
+        let mut basics: Vec<BasicCompression> = vec![];
+        let mut normal = None;
+        match compression {
+            // none
+            0 => {}
+            // raw
+            1 => {
+                let count = (data.len() / 8) - 1;
+                for i in 0..count {
+                    basics.push(BasicCompression { data_size: read_word(&data, 4 + i * 8), zero_size: read_word(&data, 8 + i * 8) });
+                }
+            }
+            // compressed or delta compressed
+            2 | 3 => {
+                normal = Some(NormalCompression { window_size: read_word(&data, 4), block_size: read_word(&data, 8), block_hash: data[12..32].try_into().unwrap() });
+            }
+            _ => { return Err(XexError::UnhandledCompressionType); }
+        }
+        return Ok(Self { encryption, compression, basics, normal } );
+    }
 }
 
 // ----------------------------------------------------------------------
@@ -91,8 +151,8 @@ impl ImportLibraries {
         let mut libraries: Vec<ImportLibrary> = vec![];
         for n in 0..lib_count {
             pos += 0x24;
-            let name_idx = u16::from_be_bytes([data[pos], data[pos + 1]]) as usize;
-            let count = u16::from_be_bytes([data[pos + 2], data[pos + 3]]) as usize;
+            let name_idx = read_halfword(&data, pos) as usize;
+            let count = read_halfword(&data, pos + 2) as usize;
             // for each record pair, first = __imp__API, second = the actual API
             // scratch that, DC3 has an odd number...dunno what for yet, but it does
             // if count % 2 != 0 {
@@ -103,7 +163,6 @@ impl ImportLibraries {
             let mut records: Vec<u32> = vec![];
             for i in 0..count {
                 records.push(read_word(data, pos + (i * 4)));
-                // println!("record {}: 0x{:X}", i, read_word(data, pos + (i * 4)))
             }
             pos += count * 4;
             libraries.push(ImportLibrary { name: lib_name.clone(), records: records, functions: Vec::new() });
@@ -172,7 +231,7 @@ pub struct XexOptionalHeaderData {
     pub entry_point: u32,
     pub image_base: u32,
     pub resource_info: Option<ResourceInfo>,
-    // BaseFileFormat
+    pub base_file_format: Option<BaseFileFormat>,
     // PatchDescriptor
     pub import_libs: Option<ImportLibraries>,
 }
@@ -191,6 +250,7 @@ impl XexOptionalHeaderData {
         let mut image_base = 0;
         let mut import_libs = None;
         let mut resource_info = None;
+        let mut base_file_format = None;
 
         // and now, process them
         for header in opt_headers {
@@ -205,7 +265,10 @@ impl XexOptionalHeaderData {
                     };
                 }
                 XexOptionalHeaderID::BaseFileFormat => {
-                    log::info!("handle base file format here");
+                    base_file_format = match BaseFileFormat::parse(&header.data) {
+                        Ok(bff) => Some(bff),
+                        Err(e) => return Err(e)
+                    };
                 }
                 XexOptionalHeaderID::DeltaPatchDescriptor => {
                     log::info!("TODO: handle patch descriptor");
@@ -220,7 +283,6 @@ impl XexOptionalHeaderData {
                     image_base = read_word(&header.data, 0);
                 }
                 XexOptionalHeaderID::ImportLibraries => {
-                    log::info!("Reading Import libraries...");
                     import_libs = match ImportLibraries::parse(&header.data) {
                         Ok(libs) => Some(libs),
                         Err(e) => return Err(e)
@@ -234,7 +296,7 @@ impl XexOptionalHeaderData {
                 }
             }
         }
-        return Ok(Self { original_name, entry_point, image_base, resource_info, import_libs });
+        return Ok(Self { original_name, entry_point, image_base, resource_info, base_file_format, import_libs });
     }
 }
 
@@ -309,11 +371,113 @@ impl XexOptionalHeader {
     }
 }
 
+// ----------------------------------------------------------------------
+// XEXLOADERINFO
+// ----------------------------------------------------------------------
+
+pub struct XexLoaderInfo {
+    pub header_size: u32,
+    pub image_size: u32,
+    pub rsa_signature: [u8; 256],
+    pub unknown: u32,
+    pub image_flags: u32,
+    pub load_address: u32,
+    pub section_digest: [u8; 20],
+    pub import_table_count: u32,
+    pub import_table_digest: [u8; 20],
+    pub media_id: [u8; 16],
+    pub file_key: [u8; 16],
+    pub export_table: u32,
+    pub header_digest: [u8; 20],
+    pub game_regions: u32,
+    pub media_flags: u32,
+}
+
+impl XexLoaderInfo {
+    fn parse(data: &Vec<u8>, security_offset: u32) -> Result<Self, XexError> {
+        let mut pos = security_offset as usize;
+        let header_size = read_word(&data, pos);
+        let image_size = read_word(&data, pos + 4);
+        pos += 8;
+        let rsa_signature = data[pos..pos + 256].try_into().unwrap();
+        pos += 256;
+        let unknown = read_word(&data, pos);
+        let image_flags = read_word(&data, pos + 4);
+        let load_address = read_word(&data, pos + 8);
+        pos += 12;
+        let section_digest = data[pos..pos + 20].try_into().unwrap();
+        pos += 20;
+        let import_table_count = read_word(&data, pos);
+        pos += 4;
+        let import_table_digest = data[pos..pos + 20].try_into().unwrap();
+        pos += 20;
+        let media_id = data[pos..pos + 16].try_into().unwrap();
+        pos += 16;
+        let file_key = data[pos..pos + 16].try_into().unwrap();
+        pos += 16;
+        let export_table = read_word(&data, pos);
+        pos += 4;
+        let header_digest = data[pos..pos + 20].try_into().unwrap();
+        pos += 20;
+        let game_regions = read_word(&data, pos);
+        let media_flags = read_word(&data, pos + 4);
+        return Ok(Self {
+            header_size, image_size, rsa_signature, unknown, image_flags, load_address,
+            section_digest, import_table_count, import_table_digest, media_id,
+            file_key, export_table, header_digest, game_regions, media_flags
+        });
+    }
+}
+
+// ----------------------------------------------------------------------
+// XEXSESSIONKEYS
+// ----------------------------------------------------------------------
+const RETAIL_KEY: [u8; 16] = [ 0x20, 0xB1, 0x85, 0xA5, 0x9D, 0x28, 0xFD, 0xC3, 0x40, 0x58, 0x3F, 0xBB, 0x08, 0x96, 0xBF, 0x91 ];
+const DEVKIT_KEY: [u8; 16] = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+
+pub struct XexSessionKeys {
+    pub session_key_retail: [u8; 16],
+    pub session_key_devkit: [u8; 16],
+}
+
+impl XexSessionKeys {
+    fn derive_keys(file_key: &[u8; 16]) -> Result<Self, XexError> {
+        let retail_derived_key: [u8; 16] = match decrypt_aes128_cbc_no_padding(&RETAIL_KEY, file_key){
+            Ok(the_key) => { the_key.try_into().unwrap()},
+            Err(e) => return Err(XexError::InvalidSessionKey),
+        };
+
+        let devkit_derived_key: [u8; 16] = match decrypt_aes128_cbc_no_padding(&DEVKIT_KEY, file_key){
+            Ok(the_key) => { the_key.try_into().unwrap()},
+            Err(e) => return Err(XexError::InvalidSessionKey),
+        };
+
+        print!("Retail session key: ");
+        for k in retail_derived_key {
+            print!("{:02X} ", k);
+        }
+        print!("\n");
+        print!("Devkit session key: ");
+        for k in devkit_derived_key {
+            print!("{:02X} ", k);
+        }
+        print!("\n");
+        return Ok( Self { session_key_retail: retail_derived_key, session_key_devkit: devkit_derived_key });
+    }
+}
+
+// ----------------------------------------------------------------------
+// XEXINFO
+// ----------------------------------------------------------------------
+
 const MODULE_FLAGS: [&str; 8] = [ "Title Module", "Exports To Title", "System Debugger", "DLL Module", "Module Patch", "Patch Full", "Patch Delta", "User Mode" ];
 
 pub struct XexInfo {
     pub header: XexHeader,
-    pub opt_header_data: XexOptionalHeaderData
+    pub opt_header_data: XexOptionalHeaderData,
+    pub loader_info: XexLoaderInfo,
+    pub session_keys: XexSessionKeys
+    // bool is_dev_kit
 }
 
 impl XexInfo {
@@ -331,33 +495,28 @@ impl XexInfo {
             Err(e) => return Err(e)
         };
 
-        // -- set up loader info
-        // -- try to deduce session key (could be retail, could be devkit, we dunno)
+        let xex_loader_info = match XexLoaderInfo::parse(&data, xex_header.security_info_offset) {
+            Ok(info) => info,
+            Err(e) => return Err(e)
+        };
+
+        let xex_session_keys = match XexSessionKeys::derive_keys(&xex_loader_info.file_key){
+            Ok(keys) => keys,
+            Err(e) => return Err(e)
+        };
+
+        // TODO: since we have the possible session keys at this point,
+        // try to retrieve the first 2 bytes of the exe and check for "MZ"
+
         // -- xexsection stuff??? (might not be needed?)
 
-        return Ok(Self { header: xex_header, opt_header_data: xex_optional_header_data });
+        return Ok(Self {
+            header: xex_header,
+            opt_header_data:xex_optional_header_data,
+            loader_info: xex_loader_info,
+            session_keys: xex_session_keys
+        });
     }
-}
-
-// struct XexInfo? after the exe is pulled out from the xex, transfer anything necessary to ObjInfo
-    // const uint XEX2_MAGIC = 0x58455832; // 'XEX2'
-    // public uint magic;
-    // public uint moduleFlags;
-    // public uint peDataOffset;
-    // public uint reserved;
-    // public uint securityInfoOffset;
-    // public uint optionalHeaderCount;
-    // public List<XexOptionalHeader> optionalHeaders;
-    // public BaseFileFormat baseFileFormat;
-    // public List<String> stringTable;
-    // public List<ImportLibrary> importLibs;
-    // public XexLoaderInfo loaderInfo = new();
-    // public byte[] sessionKey;
-    // public List<XexSection> sections = new();
-    // public byte[] peImage;
-
-pub fn read_word(data: &Vec<u8>, index: usize) -> u32 {
-    return u32::from_be_bytes([data[index], data[index + 1], data[index + 2], data[index + 3]]);
 }
 
 pub fn extract_exe(path: &Utf8NativePath) -> Result<()> {

@@ -5,6 +5,7 @@ pub mod asm;
 pub mod bin2c;
 pub mod comment;
 pub mod config;
+pub mod crypto;
 pub mod dep;
 pub mod diff;
 pub mod dol;
