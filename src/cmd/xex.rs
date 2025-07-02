@@ -85,6 +85,19 @@ pub fn run(args: Args) -> Result<()> {
 // https://github.com/emoose/idaxex/blob/5b7de7b964e67fc049db0c61e4cba5d13ee69cec/formats/xex.hpp
 
 fn extract(args: ExtractArgs) -> Result<()> {
+    // validate that our input is an .xex
+    let xex_ext = args.xex_file.extension();
+    if xex_ext.is_none() || xex_ext.unwrap() != "xex" {
+        println!("Need to provide a valid input xex!");
+        return Ok(())
+    }
+    // and our output is an .exe
+    let exe_ext = args.exe_file.extension();
+    if exe_ext.is_none() || exe_ext.unwrap() != "exe" {
+        println!("Need to provide a valid output exe path!");
+        return Ok(())
+    }
+    // then, grab the exe
     let exe_bytes = match extract_exe(&args.xex_file) {
         Ok(exe) => exe,
         Err(e) => {
@@ -92,16 +105,8 @@ fn extract(args: ExtractArgs) -> Result<()> {
             return Ok(());
         }
     };
-    // &args.exe_file
-    
-    // if let Some(parent) = args.exe_file.parent() {
-    //     fs::create_dir_all(parent)?;
-    // }
-    // let mut file = std::fs::File::create(args.exe_file)?;
-    // file.write_all(&exe_bytes)?;
-    // file.flush()?;
-
-    std::fs::write(std::path::Path::new("D:\\DC3 Debug\\decomp-toolkit\\jeff.exe"), exe_bytes)?;
+    // ...and write it to the desired output path
+    std::fs::write(args.exe_file, exe_bytes)?;
     Ok(())
 }
 

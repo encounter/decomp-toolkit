@@ -654,7 +654,6 @@ impl XexInfo {
 pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>, XexError> {
     println!("xex: {input}");
     let xex = XexInfo::from_file(input)?;
-    println!("Xex info successfully read!");
     // after this line, the XexInfo should have all of its relevant metadata parsed
     // so, try to read the PE image
     return xex.get_exe();
