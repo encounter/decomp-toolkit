@@ -1,17 +1,8 @@
 use std::{
-    collections::{hash_map, HashMap},
-    fs,
-    io::Cursor,
-    num::NonZeroU64,
-    path::Path,
+    borrow::Cow, collections::{hash_map, HashMap}, fs, io::Cursor, num::NonZeroU64, path::Path
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Error, Result};
-use cwdemangle::demangle;
-use flagset::Flags;
-use indexmap::IndexMap;
-use itertools::Itertools;
-use objdiff_core::obj::split_meta::{SplitMeta, SHT_SPLITMETA, SPLITMETA_SECTION};
 use object::{
     read::pe::PeFile64, Architecture, BinaryFormat, Endianness, File, Import, Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection
 };
@@ -50,8 +41,14 @@ pub enum XexError {
     InvalidResourceInfoLength,
     #[error("Xex has unhandled compression type!")]
     UnhandledCompressionType,
+    #[error("Xex has unhandled encryption type!")]
+    UnhandledEncryptionType,
     #[error("Could not derive session key!")]
-    InvalidSessionKey
+    InvalidSessionKey,
+    #[error("Base file format not found!")]
+    BaseFileFormatNotFound,
+    #[error("Could not deduce exe type!")]
+    InvalidExeType
 }
 
 // ----------------------------------------------------------------------
@@ -259,16 +256,10 @@ impl XexOptionalHeaderData {
             }
             match header.id {
                 XexOptionalHeaderID::ResourceInfo => {
-                    resource_info = match ResourceInfo::parse(&header.data) {
-                        Ok(info) => Some(info),
-                        Err(e) => return Err(e),
-                    };
+                    resource_info = Some(ResourceInfo::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::BaseFileFormat => {
-                    base_file_format = match BaseFileFormat::parse(&header.data) {
-                        Ok(bff) => Some(bff),
-                        Err(e) => return Err(e)
-                    };
+                    base_file_format = Some(BaseFileFormat::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::DeltaPatchDescriptor => {
                     log::info!("TODO: handle patch descriptor");
@@ -283,10 +274,7 @@ impl XexOptionalHeaderData {
                     image_base = read_word(&header.data, 0);
                 }
                 XexOptionalHeaderID::ImportLibraries => {
-                    import_libs = match ImportLibraries::parse(&header.data) {
-                        Ok(libs) => Some(libs),
-                        Err(e) => return Err(e)
-                    }
+                    import_libs = Some(ImportLibraries::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::OriginalPEName => {
                     original_name = String::from_utf8(header.data.clone()).ok().unwrap();
@@ -295,6 +283,10 @@ impl XexOptionalHeaderData {
                     log::info!("unhandled header ID {:?}", header.id);
                 }
             }
+        }
+        // at the very minimum, we should have a base file format, as that contains encryption/compression information
+        if base_file_format.is_none() {
+            return Err(XexError::BaseFileFormatNotFound);
         }
         return Ok(Self { original_name, entry_point, image_base, resource_info, base_file_format, import_libs });
     }
@@ -473,11 +465,12 @@ impl XexSessionKeys {
 const MODULE_FLAGS: [&str; 8] = [ "Title Module", "Exports To Title", "System Debugger", "DLL Module", "Module Patch", "Patch Full", "Patch Delta", "User Mode" ];
 
 pub struct XexInfo {
+    pub raw_bytes: Vec<u8>,
     pub header: XexHeader,
     pub opt_header_data: XexOptionalHeaderData,
     pub loader_info: XexLoaderInfo,
-    pub session_keys: XexSessionKeys
-    // bool is_dev_kit
+    pub session_key: [u8; 16],
+    pub is_dev_kit: bool,
 }
 
 impl XexInfo {
@@ -485,36 +478,102 @@ impl XexInfo {
         let std_path = path.to_path_buf();
         let data = fs::read(std_path).expect("Failed to read file");
 
-        let xex_header = match XexHeader::parse(&data) {
-            Ok(header) => header,
-            Err(e) => return Err(e)
-        };
+        let xex_header = XexHeader::parse(&data)?;
+        let xex_optional_header_data = XexOptionalHeaderData::parse(&data)?;
+        let xex_loader_info = XexLoaderInfo::parse(&data, xex_header.security_info_offset)?;
+        let xex_session_keys = XexSessionKeys::derive_keys(&xex_loader_info.file_key)?;
+        let confirmed_session_key: [u8; 16];
+        let is_dev_kit: bool;
 
-        let xex_optional_header_data = match XexOptionalHeaderData::parse(&data){
-            Ok(data) => data,
-            Err(e) => return Err(e)
-        };
+        // this is where we'd parse xexsection related info...but it might not be needed?
 
-        let xex_loader_info = match XexLoaderInfo::parse(&data, xex_header.security_info_offset) {
-            Ok(info) => info,
-            Err(e) => return Err(e)
-        };
-
-        let xex_session_keys = match XexSessionKeys::derive_keys(&xex_loader_info.file_key){
-            Ok(keys) => keys,
-            Err(e) => return Err(e)
-        };
-
-        // TODO: since we have the possible session keys at this point,
+        // Since we have the possible session keys at this point,
         // try to retrieve the first 2 bytes of the exe and check for "MZ"
+        let pe_vec = data[xex_header.pe_offset as usize..data.len()].to_vec();
+        let compressed_retail: Cow<[u8]>;
+        let compressed_devkit: Cow<[u8]>;
+        let bff = xex_optional_header_data.base_file_format.as_ref().unwrap();
 
-        // -- xexsection stuff??? (might not be needed?)
+        match bff.encryption {
+            // not encrypted
+            0 => {
+                // if unencrypted, can we assume devkit?
+                compressed_retail = Cow::Borrowed(&pe_vec);
+                compressed_devkit = Cow::Borrowed(&pe_vec);
+            }
+            // encrypted
+            1 => {
+                compressed_retail = Cow::Owned(
+                    decrypt_aes128_cbc_no_padding(
+                        &xex_session_keys.session_key_retail, &pe_vec
+                    ).map_err(|_| XexError::InvalidSessionKey)?
+                );
+                compressed_devkit = Cow::Owned(
+                    decrypt_aes128_cbc_no_padding(
+                        &xex_session_keys.session_key_devkit, &pe_vec
+                    ).map_err(|_| XexError::InvalidSessionKey)?
+                );
+            }
+            _ => { return Err(XexError::UnhandledEncryptionType); }
+        }
+        
+        // we're only checking the first two bytes
+        let mut retail_bytes: [u8; 2] = [ 0, 0 ];
+        let mut devkit_bytes: [u8; 2] = [ 0, 0 ];
+        
+        match bff.compression {
+            1 => {
+                let mut posIn: usize = 0;
+                let mut posOut: usize = 0;
+                let mut should_break = false;
+                for bc in &bff.basics {
+                    for i in 0..bc.data_size {
+                        let idx = i as usize;
+                        if posIn + idx >= compressed_retail.len() { break; } 
+                        if (idx + posOut >= 2) || (idx + posIn >= 2) {
+                            should_break = true;
+                            break;
+                        }
+                        retail_bytes[idx + posOut] = compressed_retail[posIn + idx];
+                        devkit_bytes[idx + posOut] = compressed_devkit[posIn + idx];
+                    }
+                    posOut += (bc.data_size + bc.zero_size) as usize;
+                    posIn += bc.data_size as usize;
+                    if should_break { break; }
+                }
+            }
+            0 | 3 => {
+                retail_bytes = compressed_retail[0..2].try_into().unwrap();
+                devkit_bytes = compressed_devkit[0..2].try_into().unwrap();
+            }
+            2 => {
+                println!("TODO: handle case 2");
+                return Err(XexError::UnhandledCompressionType);
+            }
+            _ => { return Err(XexError::UnhandledCompressionType); }
+        }
+
+        if retail_bytes[0] == 'M' as u8 && retail_bytes[1] == 'Z' as u8 {
+            // println!("This xex was built in retail mode!");
+            confirmed_session_key = xex_session_keys.session_key_retail;
+            is_dev_kit = false;
+        }
+        else if devkit_bytes[0] == 'M' as u8 && devkit_bytes[1] == 'Z' as u8 {
+            // println!("This xex was built in devkit mode!");
+            confirmed_session_key = xex_session_keys.session_key_devkit;
+            is_dev_kit = true;
+        }
+        else {
+            return Err(XexError::InvalidExeType);
+        }
 
         return Ok(Self {
+            raw_bytes: data,
             header: xex_header,
             opt_header_data:xex_optional_header_data,
             loader_info: xex_loader_info,
-            session_keys: xex_session_keys
+            session_key: confirmed_session_key,
+            is_dev_kit: is_dev_kit
         });
     }
 }
@@ -528,6 +587,7 @@ pub fn extract_exe(path: &Utf8NativePath) -> Result<()> {
             return Ok(());
         }
     };
+    println!("Xex info successfully read!");
     // after this line, the XexInfo should have all of its relevant metadata parsed
     // so, try to read the PE image
 
