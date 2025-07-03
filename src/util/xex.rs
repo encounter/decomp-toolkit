@@ -30,30 +30,6 @@ pub fn read_word(data: &Vec<u8>, index: usize) -> u32 {
     return u32::from_be_bytes([data[index], data[index + 1], data[index + 2], data[index + 3]]);
 }
 
-#[derive(thiserror::Error, Debug)]
-pub enum XexError {
-    #[error("XEX2 header not found!")]
-    HeaderNotFound,
-    #[error("No data found in optional header!")]
-    HeaderDataNotFound,
-    #[error("Import library must have an even number of records!")]
-    InvalidLibRecordCount,
-    #[error("Resource info has unexpected length! (expected 16)")]
-    InvalidResourceInfoLength,
-    #[error("Xex has unhandled compression type!")]
-    UnhandledCompressionType,
-    #[error("Xex has unhandled encryption type!")]
-    UnhandledEncryptionType,
-    #[error("Could not derive session key!")]
-    InvalidSessionKey,
-    #[error("Base file format not found!")]
-    BaseFileFormatNotFound,
-    #[error("Could not deduce exe type!")]
-    InvalidExeType,
-    #[error("Could not extract exe!")]
-    ExeExtractionFailed
-}
-
 // ----------------------------------------------------------------------
 // BASEFILEFORMAT
 // ----------------------------------------------------------------------
@@ -77,7 +53,7 @@ pub struct BaseFileFormat {
 }
 
 impl BaseFileFormat {
-    fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
+    fn parse(data: &Vec<u8>) -> Result<Self> {
         let encryption = read_halfword(&data, 0);
         let compression = read_halfword(&data, 2);
         let mut basics: Vec<BasicCompression> = vec![];
@@ -96,7 +72,7 @@ impl BaseFileFormat {
             2 | 3 => {
                 normal = Some(NormalCompression { window_size: read_word(&data, 4), block_size: read_word(&data, 8), block_hash: data[12..32].try_into().unwrap() });
             }
-            _ => { return Err(XexError::UnhandledCompressionType); }
+            _ => { bail!("Xex has unhandled compression type!"); }
         }
         return Ok(Self { encryption, compression, basics, normal } );
     }
@@ -123,7 +99,7 @@ pub struct ImportLibrary {
 }
 
 impl ImportLibraries {
-    fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
+    fn parse(data: &Vec<u8>) -> Result<Self> {
         let string_size = read_word(&data, 0);
         let lib_count = read_word(&data, 4);
 
@@ -153,11 +129,6 @@ impl ImportLibraries {
             pos += 0x24;
             let name_idx = read_halfword(&data, pos) as usize;
             let count = read_halfword(&data, pos + 2) as usize;
-            // for each record pair, first = __imp__API, second = the actual API
-            // scratch that, DC3 has an odd number...dunno what for yet, but it does
-            // if count % 2 != 0 {
-            //     return Err(XexError::InvalidLibRecordCount);
-            // }
             pos += 4;
             let lib_name = &string_table[name_idx];
             let mut records: Vec<u32> = vec![];
@@ -183,10 +154,8 @@ pub struct ResourceInfo {
 }
 
 impl ResourceInfo {
-    pub fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
-        if data.len() != 16 {
-            return Err(XexError::InvalidResourceInfoLength);
-        }
+    pub fn parse(data: &Vec<u8>) -> Result<Self> {
+        ensure!(data.len() == 16, "Resource info has unexpected length! (expected 16)");
         let title_id = String::from_utf8(data[0..8].to_vec()).ok().unwrap();
         let rsrc_start = read_word(&data, 8);
         let rsrc_end = rsrc_start + read_word(&data, 12);
@@ -208,11 +177,9 @@ pub struct XexHeader {
 }
 
 impl XexHeader {
-    fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
+    fn parse(data: &Vec<u8>) -> Result<Self> {
         let magic = read_word(&data, 0);
-        if magic != 0x58455832 {
-            return Err(XexError::HeaderNotFound);
-        }
+        ensure!(magic == 0x58455832, "XEX2 magic header not found!");
         let module_flags = read_word(&data, 4);
         let pe_offset = read_word(&data, 8);
         // reserved is at data index 12, but it's unused so who cares
@@ -252,7 +219,7 @@ pub struct XexOptionalHeaderData {
 }
 
 impl XexOptionalHeaderData {
-    fn parse(data: &Vec<u8>) -> Result<Self, XexError> {
+    fn parse(data: &Vec<u8>) -> Result<Self> {
         // read in the optional headers
         let num_optional_headers = read_word(&data, 20);
         let mut opt_headers: Vec<XexOptionalHeader> = vec![];
@@ -271,9 +238,7 @@ impl XexOptionalHeaderData {
 
         // and now, process them
         for header in opt_headers {
-            if header.data.is_empty() {
-                return Err(XexError::HeaderDataNotFound);
-            }
+            ensure!(!header.data.is_empty(), "No data found in optional header!");
             match header.id {
                 XexOptionalHeaderID::ResourceInfo => {
                     resource_info = Some(ResourceInfo::parse(&header.data)?);
@@ -322,9 +287,7 @@ impl XexOptionalHeaderData {
             }
         }
         // at the very minimum, we should have a base file format, as that contains encryption/compression information
-        if base_file_format.is_none() {
-            return Err(XexError::BaseFileFormatNotFound);
-        }
+        ensure!(base_file_format.is_some(), "Base file format not found!");
         return Ok(Self { original_name, entry_point, image_base, file_timestamp, resource_info, base_file_format, static_libs, import_libs });
     }
 }
@@ -423,7 +386,7 @@ pub struct XexLoaderInfo {
 }
 
 impl XexLoaderInfo {
-    fn parse(data: &Vec<u8>, security_offset: u32) -> Result<Self, XexError> {
+    fn parse(data: &Vec<u8>, security_offset: u32) -> Result<Self> {
         let mut pos = security_offset as usize;
         let header_size = read_word(&data, pos);
         let image_size = read_word(&data, pos + 4);
@@ -470,17 +433,9 @@ pub struct XexSessionKeys {
 }
 
 impl XexSessionKeys {
-    fn derive_keys(file_key: &[u8; 16]) -> Result<Self, XexError> {
-        let retail_derived_key: [u8; 16] = match decrypt_aes128_cbc_no_padding(&RETAIL_KEY, file_key){
-            Ok(the_key) => { the_key.try_into().unwrap()},
-            Err(e) => return Err(XexError::InvalidSessionKey),
-        };
-
-        let devkit_derived_key: [u8; 16] = match decrypt_aes128_cbc_no_padding(&DEVKIT_KEY, file_key){
-            Ok(the_key) => { the_key.try_into().unwrap()},
-            Err(e) => return Err(XexError::InvalidSessionKey),
-        };
-
+    fn derive_keys(file_key: &[u8; 16]) -> Result<Self> {
+        let retail_derived_key: [u8; 16] = decrypt_aes128_cbc_no_padding(&RETAIL_KEY, file_key)?.try_into().unwrap();
+        let devkit_derived_key: [u8; 16] = decrypt_aes128_cbc_no_padding(&DEVKIT_KEY, file_key)?.try_into().unwrap();
         // print!("Retail session key: ");
         // for k in retail_derived_key {
         //     print!("{:02X} ", k);
@@ -511,7 +466,7 @@ pub struct XexInfo {
 }
 
 impl XexInfo {
-    pub fn from_file(path: &Utf8NativePathBuf) -> Result<Self, XexError> {
+    pub fn from_file(path: &Utf8NativePathBuf) -> Result<Self> {
         let std_path = path.to_path_buf();
         let data = fs::read(std_path).expect("Failed to read file");
 
@@ -543,15 +498,15 @@ impl XexInfo {
                 compressed_retail = Cow::Owned(
                     decrypt_aes128_cbc_no_padding(
                         &xex_session_keys.session_key_retail, &pe_vec
-                    ).map_err(|_| XexError::InvalidSessionKey)?
+                    )?
                 );
                 compressed_devkit = Cow::Owned(
                     decrypt_aes128_cbc_no_padding(
                         &xex_session_keys.session_key_devkit, &pe_vec
-                    ).map_err(|_| XexError::InvalidSessionKey)?
+                    )?
                 );
             }
-            _ => { return Err(XexError::UnhandledEncryptionType); }
+            _ => { bail!("Xex has unhandled encryption type!"); }
         }
         
         // we're only checking the first two bytes
@@ -583,10 +538,9 @@ impl XexInfo {
                 devkit_bytes = compressed_devkit[0..2].try_into().unwrap();
             }
             2 => {
-                println!("TODO: handle case 2");
-                return Err(XexError::UnhandledCompressionType);
+                bail!("Xex has compression type 2, which is not currently implemented. Please send the xex my way so it can be!");
             }
-            _ => { return Err(XexError::UnhandledCompressionType); }
+            _ => { bail!("Xex has unhandled compression type!"); }
         }
 
         if retail_bytes[0] == 'M' as u8 && retail_bytes[1] == 'Z' as u8 {
@@ -599,9 +553,7 @@ impl XexInfo {
             confirmed_session_key = xex_session_keys.session_key_devkit;
             is_dev_kit = true;
         }
-        else {
-            return Err(XexError::InvalidExeType);
-        }
+        else { bail!("Could not deduce exe type!"); }
 
         return Ok(Self {
             raw_bytes: data,
@@ -613,7 +565,7 @@ impl XexInfo {
         });
     }
 
-    pub fn get_exe(&self) -> Result<Vec<u8>, XexError> {
+    pub fn get_exe(&self) -> Result<Vec<u8>> {
         assert!(!&self.raw_bytes.is_empty());
         
         let pe_vec = &self.raw_bytes[self.header.pe_offset as usize..self.raw_bytes.len()].to_vec();
@@ -625,12 +577,9 @@ impl XexInfo {
             0 => { compressed = Cow::Borrowed(&pe_vec); }
             // encrypted
             1 => {
-                compressed = Cow::Owned(
-                    decrypt_aes128_cbc_no_padding(&self.session_key, &pe_vec)
-                    .map_err(|_| XexError::InvalidSessionKey)?
-                );
+                compressed = Cow::Owned(decrypt_aes128_cbc_no_padding(&self.session_key, &pe_vec)?);
             }
-            _ => { return Err(XexError::UnhandledEncryptionType); }
+            _ => { bail!("Xex has unhandled encryption type!"); }
         }
         let mut pe_image: Vec<u8> = vec![];
         pe_image.resize(self.loader_info.image_size as usize, 0);
@@ -650,10 +599,9 @@ impl XexInfo {
             }
             0 | 3 => { pe_image = compressed.to_vec(); }
             2 => {
-                println!("TODO: handle case 2");
-                return Err(XexError::UnhandledCompressionType);
+                bail!("Xex has compression type 2, which is not currently implemented. Please send the xex my way so it can be!");
             }
-            _ => { return Err(XexError::UnhandledCompressionType); }
+            _ => { bail!("Xex has unhandled compression type!"); }
         }
 
         // adjust the byte offsets, because virtual addresses have been thrown off in the initial exe reconstruction process
@@ -686,12 +634,16 @@ impl XexInfo {
     }
 }
 
-pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>, XexError> {
+pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>> {
     println!("xex: {input}");
     let xex = XexInfo::from_file(input)?;
+    return match xex.get_exe() {
+        Ok(exe) => { Ok(exe) }
+        Err(e) => { Err(e.into()) }
+    }
     // after this line, the XexInfo should have all of its relevant metadata parsed
     // so, try to read the PE image
-    return xex.get_exe();
+    // return ;
 }
 
 pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {

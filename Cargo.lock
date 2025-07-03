@@ -433,7 +433,6 @@ dependencies = [
  "size",
  "supports-color 3.0.1",
  "syntect",
- "thiserror 2.0.12",
  "tracing",
  "tracing-attributes",
  "tracing-subscriber",

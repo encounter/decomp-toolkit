@@ -1,4 +1,5 @@
 use aes::{cipher::{consts::U16, generic_array::GenericArray, BlockDecrypt, KeyInit}, Aes128Dec};
+use anyhow::{anyhow, bail, ensure, Context, Error, Result};
 
 /// AES-128-CBC decrypt with zero IV and no padding.
 /// 
@@ -9,13 +10,13 @@ use aes::{cipher::{consts::U16, generic_array::GenericArray, BlockDecrypt, KeyIn
 pub fn decrypt_aes128_cbc_no_padding(
     key: &[u8; 16],
     ciphertext: &[u8],
-) -> Result<Vec<u8>, &'static str> {
+) -> Result<Vec<u8>> {
     if ciphertext.len() % 16 != 0 {
-        return Err("ciphertext length must be a multiple of 16 bytes");
+        bail!("ciphertext length must be a multiple of 16 bytes");
     }
 
     let cipher = Aes128Dec::new_from_slice(key)
-        .map_err(|_| "invalid key")?;
+        .map_err(|_| anyhow!("invalid key"))?;
 
     let mut prev_block = [0u8; 16]; // zero IV
     let mut plaintext = Vec::with_capacity(ciphertext.len());
