@@ -694,41 +694,6 @@ pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>, XexError> {
     return xex.get_exe();
 }
 
-// TODO: return None or some Error if the va couldn't be found
-fn va_to_rva(exe: &PeFile32, va: u32) -> u32 {
-    let search = va - exe.relative_address_base() as u32;
-    for sec in exe.section_table().iter(){
-        let va_start = sec.virtual_address.get(endian::LittleEndian);
-        let va_end = va_start + sec.virtual_size.get(endian::LittleEndian);
-        // println!("Checking 0x{:08X} within bounds 0x{:08X}-0x{:08X}", search, va_start, va_end);
-
-        // if we've reached the section containing the supplied VA
-        if va_start <= search && search < va_end {
-            // println!("found!");
-            let offset = search - va_start;
-            return sec.pointer_to_raw_data.get(endian::LittleEndian) + offset;
-        }
-    }
-    return 0;
-}
-
-// debug only, lists section bounds
-fn list_exe_sections(exe: &PeFile32){
-    println!("Sections:");
-    for sec in exe.section_table().iter(){
-        let name = std::str::from_utf8(&sec.name)
-            .unwrap_or("")
-            .trim_end_matches('\0');
-        println!("Name: {}", name);
-        println!("  VirtualSize: 0x{:08X}", sec.virtual_size.get(endian::LittleEndian));
-        println!("  VirtualAddress: 0x{:08X}", sec.virtual_address.get(endian::LittleEndian));
-        println!("  SizeOfRawData: 0x{:08X}", sec.size_of_raw_data.get(endian::LittleEndian));
-        println!("  PointerToRawData: 0x{:08X}", sec.pointer_to_raw_data.get(endian::LittleEndian));
-        println!("  Has uninitialized data? {}", sec.characteristics.get(endian::LittleEndian) & 0x80 != 0);
-        println!("");
-    }
-}
-
 pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     // look at cmd\dol\split
     println!("xex: {path}");
@@ -796,8 +761,9 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 // the last 3 bytes (00 01 94) is the ordinal, the first byte (01) is the itype
                 // if 0, it's a func, if 1, it's a thunk
 
-                let raw_offset = va_to_rva(&obj_file, *record);
-                let value = read_word(&the_exe, raw_offset as usize);
+                let sec = obj.sections.at_address(*record)?.1;
+                let offset_within_sec = record - sec.address as u32;
+                let value = read_word(&sec.data, offset_within_sec as usize);
                 let ordinal = value & 0xFFFF;
                 let itype = value >> 24;
                 match itype {
@@ -821,7 +787,19 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
                 if func.address != 0 {
                     // println!("__imp_ at 0x{:08X} for {}", func.address, lib.name);
-                    // create a symbol/func for an __imp_ - will always be size 0x4
+                    // create a symbol for an __imp_ - will always be size 0x4
+                    // use obj.add_symbol for this!
+
+                    // obj.add_symbol(ObjSymbol {
+                    //     name: "imp",
+                    //     address: 0 as u64,
+                    //     section: 0,
+                    //     size: 0,
+                    //     size_known: true,
+                    //     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global),
+                    //     kind: ObjSymbolKind::Object,
+                    //     ..Default::default()
+                    // }, false );
                     
                     // to unstrip an __imp_, swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
                     // then slap an 80 at the end (90 01 00 80)
@@ -910,4 +888,34 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     // .reloc: zero'ed out regardless
 
     Ok(obj)
+}
+
+fn replace_ordinal(lib_name: String, ordinal: u32) -> String {
+    if lib_name == "xam.xex" {
+
+    }
+    else if lib_name == "xboxkrnl.exe" {
+
+    }
+    else if lib_name == "xbdm.xex" {
+
+    }
+    return String::new();
+}
+
+// debug only, lists section bounds
+fn list_exe_sections(exe: &PeFile32){
+    println!("Sections:");
+    for sec in exe.section_table().iter(){
+        let name = std::str::from_utf8(&sec.name)
+            .unwrap_or("")
+            .trim_end_matches('\0');
+        println!("Name: {}", name);
+        println!("  VirtualSize: 0x{:08X}", sec.virtual_size.get(endian::LittleEndian));
+        println!("  VirtualAddress: 0x{:08X}", sec.virtual_address.get(endian::LittleEndian));
+        println!("  SizeOfRawData: 0x{:08X}", sec.size_of_raw_data.get(endian::LittleEndian));
+        println!("  PointerToRawData: 0x{:08X}", sec.pointer_to_raw_data.get(endian::LittleEndian));
+        println!("  Has uninitialized data? {}", sec.characteristics.get(endian::LittleEndian) & 0x80 != 0);
+        println!("");
+    }
 }
