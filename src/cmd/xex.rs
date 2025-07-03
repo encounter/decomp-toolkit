@@ -1,12 +1,12 @@
 use std::{
     collections::{btree_map, BTreeMap, HashMap},
-    fs,
-    fs::DirBuilder,
-    io::{Cursor, Write},
+    fs::{self, DirBuilder},
+    io::{Cursor, Write}, time::UNIX_EPOCH,
 };
 
 use anyhow::{anyhow, ensure, Context, Result};
 use argp::FromArgs;
+use chrono::FixedOffset;
 use itertools::Itertools;
 use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
 use object::{
@@ -19,7 +19,7 @@ use typed_path::Utf8NativePathBuf;
 
 use crate::{
     analysis::{cfa::{AnalyzerState, FunctionInfo}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, obj::ObjKind, util::{
-        asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::{extract_exe, process_xex}, IntoCow, ToCow
+        asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::{extract_exe, process_xex, XexInfo}, IntoCow, ToCow
     }, vfs::open_file
 };
 
@@ -396,147 +396,39 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 // }
 
 fn info(args: InfoArgs) -> Result<()> {
-    // let in_buf = fs::read(&args.input)
-    //     .with_context(|| format!("Failed to open input file: '{}'", args.input))?;
-    // let in_file = object::read::File::parse(&*in_buf).context("Failed to parse input ELF")?;
+    let xex = XexInfo::from_file(&args.input)?;
+    println!("Jeff: Retrieving Xex info...");
+    println!("shoutouts go to xorloser for the original XexTool!\n");
 
-    // println!("ELF type: {:?}", in_file.kind());
-    // println!("Section count: {}", in_file.sections().count());
-    // println!("Symbol count: {}", in_file.symbols().count());
-    // println!(
-    //     "Relocation count: {}",
-    //     in_file.sections().map(|s| s.relocations().count()).sum::<usize>()
-    // );
+    println!("Xex Info:");
+    println!("  {}", if xex.is_dev_kit { "Devkit" } else { "Retail"} );
+    let bff = xex.opt_header_data.base_file_format.as_ref().unwrap();
+    println!("  {}", if bff.compression == 0 { "Uncompressed" } else { "Compressed"} );
+    println!("  {}", if bff.encryption == 0 { "Unencrypted" } else { "Encrypted"} );
+    println!("");
 
-    // println!("\nSections:");
-    // println!(
-    //     "{: >15} | {: <10} | {: <10} | {: <10} | {: <10}",
-    //     "Name", "Type", "Size", "File Off", "Index"
-    // );
-    // for section in in_file.sections() {
-    //     let kind_str = match section.kind() {
-    //         SectionKind::Text => "code".to_cow(),
-    //         SectionKind::Data => "data".to_cow(),
-    //         SectionKind::ReadOnlyData => "rodata".to_cow(),
-    //         SectionKind::UninitializedData => "bss".to_cow(),
-    //         SectionKind::Metadata => continue, // "metadata".to_cow()
-    //         SectionKind::Other => "other".to_cow(),
-    //         _ => format!("unknown: {:?}", section.kind()).into_cow(),
-    //     };
-    //     println!(
-    //         "{: >15} | {: <10} | {: <#10X} | {: <#10X} | {: <10}",
-    //         section.name()?,
-    //         kind_str,
-    //         section.size(),
-    //         section.file_range().unwrap_or_default().0,
-    //         section.index().0
-    //     );
-    // }
+    println!("Basefile Info:");
+    println!("  Original PE Name: {}", xex.opt_header_data.original_name);
+    println!("  Load address: 0x{:08X}", xex.opt_header_data.image_base);
+    println!("  Entry point: 0x{:08X}", xex.opt_header_data.entry_point);
+    print!("  File time: 0x{:08X} - ", xex.opt_header_data.file_timestamp);
+    // formatting in EST because EST is the superior timezone and i will not hear otherwise
+    let dur = std::time::Duration::from_secs(xex.opt_header_data.file_timestamp as u64);
+    let datetime = chrono::DateTime::<chrono::Utc>::from(UNIX_EPOCH + dur);
+    let est = FixedOffset::west_opt(5 * 3600).unwrap();
+    let dt_est = datetime.with_timezone(&est);
+    println!("{}", dt_est.format("%a %b %d %H:%M:%S %Y"));
+    println!("");
 
-    // println!("\nSymbols:");
-    // println!("{: >15} | {: <10} | {: <10} | {: <10}", "Section", "Address", "Size", "Name");
-    // for symbol in in_file.symbols().filter(|s| s.is_definition()) {
-    //     let section_str = if let Some(section) = symbol.section_index() {
-    //         in_file.section_by_index(section)?.name()?.to_string().into_cow()
-    //     } else {
-    //         "ABS".to_cow()
-    //     };
-    //     let size_str = if symbol.section_index().is_none() {
-    //         "ABS".to_cow()
-    //     } else {
-    //         format!("{:#X}", symbol.size()).into_cow()
-    //     };
-    //     println!(
-    //         "{: >15} | {: <#10X} | {: <10} | {: <10}",
-    //         section_str,
-    //         symbol.address(),
-    //         size_str,
-    //         symbol.name()?
-    //     );
-    // }
+    println!("Static Libraries:");
+    let mut idx = 1;
+    for lib in xex.opt_header_data.static_libs {
+        println!("  {}. {}: v{}.{}.{}.{}", idx, lib.name, lib.major, lib.minor, lib.build, lib.qfe);
+        idx += 1;
+    }
+    println!("");
 
-    // if let Some(comment_section) = in_file.section_by_name(".comment") {
-    //     let data = comment_section.uncompressed_data()?;
-    //     if !data.is_empty() {
-    //         let mut reader = Cursor::new(&*data);
-    //         let header = MWComment::from_reader(&mut reader, Endian::Big)
-    //             .context("While reading .comment section")?;
-    //         println!("\nMetrowerks metadata (.comment):");
-    //         println!("\tVersion: {}", header.version);
-    //         println!(
-    //             "\tCompiler version: {}.{}.{}.{}",
-    //             header.compiler_version[0],
-    //             header.compiler_version[1],
-    //             header.compiler_version[2],
-    //             header.compiler_version[3]
-    //         );
-    //         println!("\tPool data: {}", header.pool_data);
-    //         println!("\tFloat: {:?}", header.float);
-    //         println!(
-    //             "\tProcessor: {}",
-    //             if header.processor == 0x16 {
-    //                 "Gekko".to_cow()
-    //             } else {
-    //                 format!("{:#X}", header.processor).into_cow()
-    //             }
-    //         );
-    //         println!(
-    //             "\tIncompatible return small structs: {}",
-    //             header.incompatible_return_small_structs
-    //         );
-    //         println!(
-    //             "\tIncompatible sfpe double params: {}",
-    //             header.incompatible_sfpe_double_params
-    //         );
-    //         println!("\tUnsafe global reg vars: {}", header.unsafe_global_reg_vars);
-    //         println!("\n{: >10} | {: <6} | {: <6} | {: <10}", "Align", "Vis", "Active", "Symbol");
-    //         CommentSym::from_reader(&mut reader, Endian::Big)?; // ELF null symbol
-    //         for symbol in in_file.symbols() {
-    //             let comment_sym = CommentSym::from_reader(&mut reader, Endian::Big)?;
-    //             if symbol.is_definition() {
-    //                 println!(
-    //                     "{: >10} | {: <#6X} | {: <#6X} | {: <10}",
-    //                     comment_sym.align,
-    //                     comment_sym.vis_flags,
-    //                     comment_sym.active_flags,
-    //                     symbol.name()?
-    //                 );
-    //             }
-    //         }
-    //         ensure!(
-    //             data.len() - reader.position() as usize == 0,
-    //             ".comment section data not fully read"
-    //         );
-    //     }
-    // }
-
-    // if let Some(split_meta_section) = in_file.section_by_name(SPLITMETA_SECTION) {
-    //     let data = split_meta_section.uncompressed_data()?;
-    //     if !data.is_empty() {
-    //         let meta =
-    //             SplitMeta::from_section(split_meta_section, in_file.endianness(), in_file.is_64())
-    //                 .context("While reading .note.split section")?;
-    //         println!("\nSplit metadata (.note.split):");
-    //         if let Some(generator) = &meta.generator {
-    //             println!("\tGenerator: {generator}");
-    //         }
-    //         if let Some(module_name) = &meta.module_name {
-    //             println!("\tModule name: {module_name}");
-    //         }
-    //         if let Some(module_id) = meta.module_id {
-    //             println!("\tModule ID: {module_id}");
-    //         }
-    //         if let Some(virtual_addresses) = &meta.virtual_addresses {
-    //             println!("\tVirtual addresses:");
-    //             println!("\t{: >10} | {: <10}", "Addr", "Symbol");
-    //             for (symbol, addr) in in_file.symbols().zip(virtual_addresses.iter().skip(1)) {
-    //                 if symbol.is_definition() {
-    //                     println!("\t{: >10} | {: <10}", format!("{:#X}", addr), symbol.name()?);
-    //                 }
-    //             }
-    //         }
-    //     }
-    // }
+    // TODO: import libraries
 
     Ok(())
 }

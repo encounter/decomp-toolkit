@@ -222,6 +222,19 @@ impl XexHeader {
 }
 
 // ----------------------------------------------------------------------
+// STATICLIBRARY
+// ----------------------------------------------------------------------
+
+pub struct StaticLibrary {
+    pub name: String,
+    pub major: u16,
+    pub minor: u16,
+    pub build: u16,
+    pub qfe: u8,
+    pub approval_type: u8
+}
+
+// ----------------------------------------------------------------------
 // XEXOPTIONALHEADERDATA
 // ----------------------------------------------------------------------
 
@@ -230,9 +243,11 @@ pub struct XexOptionalHeaderData {
     pub original_name: String,
     pub entry_point: u32,
     pub image_base: u32,
+    pub file_timestamp: u32,
     pub resource_info: Option<ResourceInfo>,
     pub base_file_format: Option<BaseFileFormat>,
     // PatchDescriptor
+    pub static_libs: Vec<StaticLibrary>,
     pub import_libs: Option<ImportLibraries>,
 }
 
@@ -248,9 +263,11 @@ impl XexOptionalHeaderData {
         let mut original_name = String::new();
         let mut entry_point = 0;
         let mut image_base = 0;
+        let mut file_timestamp = 0;
         let mut import_libs = None;
         let mut resource_info = None;
         let mut base_file_format = None;
+        let mut static_libs: Vec<StaticLibrary> = vec![];
 
         // and now, process them
         for header in opt_headers {
@@ -282,6 +299,23 @@ impl XexOptionalHeaderData {
                 XexOptionalHeaderID::OriginalPEName => {
                     original_name = String::from_utf8(header.data.clone()).ok().unwrap();
                 }
+                XexOptionalHeaderID::ChecksumTimestamp => {
+                    file_timestamp = read_word(&header.data, 0);
+                }
+                XexOptionalHeaderID::StaticLibraries => {
+                    let num_libs = header.data.len() / 16;
+                    for i in 0..num_libs {
+                        let start = i * 16;
+                        static_libs.push(StaticLibrary {
+                            name: String::from_utf8(header.data[start..start + 8].to_vec()).ok().unwrap(),
+                            major: read_halfword(&header.data, start + 8),
+                            minor: read_halfword(&header.data, start + 10),
+                            build: read_halfword(&header.data, start + 12),
+                            qfe: header.data[start + 15],
+                            approval_type: header.data[start + 14]
+                        });
+                    }
+                }
                 _ => {
                     log::info!("unhandled header ID {:?}", header.id);
                 }
@@ -291,7 +325,7 @@ impl XexOptionalHeaderData {
         if base_file_format.is_none() {
             return Err(XexError::BaseFileFormatNotFound);
         }
-        return Ok(Self { original_name, entry_point, image_base, resource_info, base_file_format, import_libs });
+        return Ok(Self { original_name, entry_point, image_base, file_timestamp, resource_info, base_file_format, static_libs, import_libs });
     }
 }
 
