@@ -116,11 +116,11 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     log::info!("Loading {}", args.xex_file);
 
     // extract_exe(&args.xex_file);
-    return Ok(());
 
     // step 1. process xex, and return an ObjInfo a la process_dol
     let mut obj = process_xex(&args.xex_file)?;
     
+    return Ok(());
     // apply_signatures(&mut obj)?;
     
     let mut state = AnalyzerState::default();

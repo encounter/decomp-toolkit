@@ -87,7 +87,7 @@ impl BaseFileFormat {
             0 => {}
             // raw
             1 => {
-                let count = (data.len() / 8) - 1;
+                let count = (data.len() - 4) / 8;
                 for i in 0..count {
                     basics.push(BasicCompression { data_size: read_word(&data, 4 + i * 8), zero_size: read_word(&data, 8 + i * 8) });
                 }
@@ -636,6 +636,7 @@ impl XexInfo {
         pe_image.resize(self.loader_info.image_size as usize, 0);
         let mut pos_in: usize = 0;
         let mut pos_out: usize = 0;
+
         match bff.compression {
             1 => {
                 for bc in &bff.basics {
@@ -693,17 +694,50 @@ pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>, XexError> {
     return xex.get_exe();
 }
 
-pub fn process_xex(path: &Utf8NativePath) -> Result<ObjInfo> {
+// TODO: return None or some Error if the va couldn't be found
+fn va_to_rva(exe: &PeFile32, va: u32) -> u32 {
+    let search = va - exe.relative_address_base() as u32;
+    for sec in exe.section_table().iter(){
+        let va_start = sec.virtual_address.get(endian::LittleEndian);
+        let va_end = va_start + sec.virtual_size.get(endian::LittleEndian);
+        // println!("Checking 0x{:08X} within bounds 0x{:08X}-0x{:08X}", search, va_start, va_end);
+
+        // if we've reached the section containing the supplied VA
+        if va_start <= search && search < va_end {
+            // println!("found!");
+            let offset = search - va_start;
+            return sec.pointer_to_raw_data.get(endian::LittleEndian) + offset;
+        }
+    }
+    return 0;
+}
+
+// debug only, lists section bounds
+fn list_exe_sections(exe: &PeFile32){
+    println!("Sections:");
+    for sec in exe.section_table().iter(){
+        let name = std::str::from_utf8(&sec.name)
+            .unwrap_or("")
+            .trim_end_matches('\0');
+        println!("Name: {}", name);
+        println!("  VirtualSize: 0x{:08X}", sec.virtual_size.get(endian::LittleEndian));
+        println!("  VirtualAddress: 0x{:08X}", sec.virtual_address.get(endian::LittleEndian));
+        println!("  SizeOfRawData: 0x{:08X}", sec.size_of_raw_data.get(endian::LittleEndian));
+        println!("  PointerToRawData: 0x{:08X}", sec.pointer_to_raw_data.get(endian::LittleEndian));
+        println!("  Has uninitialized data? {}", sec.characteristics.get(endian::LittleEndian) & 0x80 != 0);
+        println!("");
+    }
+}
+
+pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     // look at cmd\dol\split
     println!("xex: {path}");
-    let std_path = path.to_path_buf();
-    let data = fs::read(std_path).expect("Failed to read file");
-    let obj_file = object::File::parse(&*data).expect("Failed to parse object file");
+    let xex = XexInfo::from_file(path)?;
+    let the_exe = xex.get_exe().expect("Could not retrieve exe!");
+    let obj_file = PeFile32::parse(&*the_exe).expect("Failed to parse object file");
     let architecture = ObjArchitecture::PowerPc;
     let kind = ObjKind::Executable;
-
-    // TODO: rename this to the underlying executable name found in the xex
-    let mut obj_name = "jeff";
+    let obj_name = xex.opt_header_data.original_name;
 
     let mut sections: Vec<ObjSection> = vec![];
     let mut section_indexes: Vec<Option<usize>> = vec![None /* ELF null section */];
@@ -747,6 +781,69 @@ pub fn process_xex(path: &Utf8NativePath) -> Result<ObjInfo> {
     // Create object
     let mut obj = ObjInfo::new(kind, architecture, obj_name.to_string(), vec![], sections);
     obj.entry = NonZeroU64::new(obj_file.entry()).map(|n| n.get());
+
+    // inspect the ImportLibraries
+    // https://github.com/zeroKilo/XEXLoaderWV/blob/master/XEXLoaderWV/src/main/java/xexloaderwv/XEXHeader.java#L211
+    let mut xex_libs = xex.opt_header_data.import_libs;
+    // if we even have import libraries
+    if let Some(imports) = xex_libs.as_mut() {
+        // first, retrieve the ImportFunctions
+        for lib in imports.libraries.iter_mut() {
+            for record in lib.records.iter() {
+                // so what needs to happen here:
+                // record = a virtual memory address
+                // get the value inside it, it should be something like (example: 01 00 01 94)
+                // the last 3 bytes (00 01 94) is the ordinal, the first byte (01) is the itype
+                // if 0, it's a func, if 1, it's a thunk
+
+                let raw_offset = va_to_rva(&obj_file, *record);
+                let value = read_word(&the_exe, raw_offset as usize);
+                let ordinal = value & 0xFFFF;
+                let itype = value >> 24;
+                // println!("found record 0x{:08X}, raw offset 0x{:08X}, value 0x{:08X}, ordinal 0x{:04X}, itype {}", record, raw_offset, value, ordinal, itype);
+                match itype {
+                    0 => {
+                        lib.functions.push(ImportFunction { address: *record, ordinal: ordinal, thunk: 0 });
+                    }
+                    1 => {
+                        if let Some(func) = lib.functions.last_mut() {
+                            // println!("Record 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, ordinal, *record);
+                            func.thunk = *record;
+                        }
+                    }
+                    _ => {} // shouldn't ever reach this branch, will always be 0 or 1
+                }
+            }
+        }
+        // now, process them
+        for lib in imports.libraries.iter(){
+            println!("Imports for {}:", lib.name);
+            for func in lib.functions.iter() {
+                // println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
+                if func.address != 0 {
+                    // println!("__imp_ at 0x{:08X} for {}", func.address, lib.name);
+                    // create a symbol/func for an __imp_ - will always be size 0x4
+                }
+                if func.thunk != 0 {
+                    // println!("thunk at 0x{:08X}", func.thunk);
+                    // create a symbol/func for the thunk - will always be size 0x10
+
+                    // if we have a thunk, this now means we can try to restore the strips
+                }
+
+                // stripped (0x82173e40)
+                // XamInputGetCapabilities: 01 00 01 90 02 00 01 90 7D 69 03 A6 4E 80 04 20
+                // unstripped
+                // XamInputGetCapabilities: 3D 60 82 71 81 6B 03 C4 7D 69 03 A6 4E 80 04 20
+
+                // stripped (0x827103c4)
+                // __imp_XamInputGetCapabilities: 00 00 01 90
+                // unstripped
+                // __imp_XamInputGetCapabilities: 90 01 00 80
+
+            }
+        }
+    }
 
     // add known function boundaries from pdata
     // pdata info: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-pdata-section
