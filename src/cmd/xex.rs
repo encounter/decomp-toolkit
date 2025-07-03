@@ -87,24 +87,12 @@ pub fn run(args: Args) -> Result<()> {
 fn extract(args: ExtractArgs) -> Result<()> {
     // validate that our input is an .xex
     let xex_ext = args.xex_file.extension();
-    if xex_ext.is_none() || xex_ext.unwrap() != "xex" {
-        println!("Need to provide a valid input xex!");
-        return Ok(())
-    }
+    ensure!(xex_ext.is_some() && xex_ext.unwrap() == "xex", "Need to provide a valid input xex!");
     // and our output is an .exe
     let exe_ext = args.exe_file.extension();
-    if exe_ext.is_none() || exe_ext.unwrap() != "exe" {
-        println!("Need to provide a valid output exe path!");
-        return Ok(())
-    }
+    ensure!(exe_ext.is_some() && exe_ext.unwrap() == "exe", "Need to provide a valid output exe path!");
     // then, grab the exe
-    let exe_bytes = match extract_exe(&args.xex_file) {
-        Ok(exe) => exe,
-        Err(e) => {
-            println!("Could not extract exe: {}", e);
-            return Ok(());
-        }
-    };
+    let exe_bytes = extract_exe(&args.xex_file)?;
     // ...and write it to the desired output path
     std::fs::write(args.exe_file, exe_bytes)?;
     Ok(())

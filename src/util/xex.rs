@@ -247,10 +247,10 @@ impl XexOptionalHeaderData {
                     base_file_format = Some(BaseFileFormat::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::DeltaPatchDescriptor => {
-                    log::info!("TODO: handle patch descriptor");
+                    log::debug!("TODO: handle patch descriptor");
                 }
                 XexOptionalHeaderID::BoundingPath => {
-                    log::info!("TODO: handle bounding path");
+                    log::debug!("TODO: handle bounding path");
                 }
                 XexOptionalHeaderID::EntryPoint => {
                     entry_point = read_word(&header.data, 0);
@@ -282,7 +282,7 @@ impl XexOptionalHeaderData {
                     }
                 }
                 _ => {
-                    log::info!("unhandled header ID {:?}", header.id);
+                    log::warn!("unhandled header ID {:?}", header.id);
                 }
             }
         }
@@ -637,13 +637,9 @@ impl XexInfo {
 pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>> {
     println!("xex: {input}");
     let xex = XexInfo::from_file(input)?;
-    return match xex.get_exe() {
-        Ok(exe) => { Ok(exe) }
-        Err(e) => { Err(e.into()) }
-    }
     // after this line, the XexInfo should have all of its relevant metadata parsed
     // so, try to read the PE image
-    // return ;
+    return xex.get_exe();
 }
 
 pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
