@@ -800,7 +800,6 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 let value = read_word(&the_exe, raw_offset as usize);
                 let ordinal = value & 0xFFFF;
                 let itype = value >> 24;
-                // println!("found record 0x{:08X}, raw offset 0x{:08X}, value 0x{:08X}, ordinal 0x{:04X}, itype {}", record, raw_offset, value, ordinal, itype);
                 match itype {
                     0 => {
                         lib.functions.push(ImportFunction { address: *record, ordinal: ordinal, thunk: 0 });
@@ -819,27 +818,25 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         for lib in imports.libraries.iter(){
             println!("Imports for {}:", lib.name);
             for func in lib.functions.iter() {
-                // println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
+                println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
                 if func.address != 0 {
                     // println!("__imp_ at 0x{:08X} for {}", func.address, lib.name);
                     // create a symbol/func for an __imp_ - will always be size 0x4
+                    
+                    // to unstrip an __imp_, swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
+                    // then slap an 80 at the end (90 01 00 80)
                 }
                 if func.thunk != 0 {
                     // println!("thunk at 0x{:08X}", func.thunk);
                     // create a symbol/func for the thunk - will always be size 0x10
 
-                    // if we have a thunk, this now means we can try to restore the strips
+                    // to unstrip a thunk,
+                    // you need the address of the __imp_ (i.e. __imp_XamInputGetCapabilities at 0x827103c4)
+                    // then add it into the first two words via an lis/addi
+                    // (example: XamInputGetCapabilities: 01 00 01 90 02 00 01 90 7D 69 03 A6 4E 80 04 20)
+                    // (change the first two words to lis/addi r11 to 0x827103c4: 3D 60 82 71 81 6B 03 C4)
+                    // (then it becomes: 3D 60 82 71 81 6B 03 C4 7D 69 03 A6 4E 80 04 20)
                 }
-
-                // stripped (0x82173e40)
-                // XamInputGetCapabilities: 01 00 01 90 02 00 01 90 7D 69 03 A6 4E 80 04 20
-                // unstripped
-                // XamInputGetCapabilities: 3D 60 82 71 81 6B 03 C4 7D 69 03 A6 4E 80 04 20
-
-                // stripped (0x827103c4)
-                // __imp_XamInputGetCapabilities: 00 00 01 90
-                // unstripped
-                // __imp_XamInputGetCapabilities: 90 01 00 80
 
             }
         }
