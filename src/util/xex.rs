@@ -466,15 +466,13 @@ impl XexSessionKeys {
 // XEXINFO
 // ----------------------------------------------------------------------
 
-const MODULE_FLAGS: [&str; 8] = [ "Title Module", "Exports To Title", "System Debugger", "DLL Module", "Module Patch", "Patch Full", "Patch Delta", "User Mode" ];
-
 pub struct XexInfo {
-    pub raw_bytes: Vec<u8>,
     pub header: XexHeader,
     pub opt_header_data: XexOptionalHeaderData,
     pub loader_info: XexLoaderInfo,
     pub session_key: [u8; 16],
     pub is_dev_kit: bool,
+    pub exe_bytes: Vec<u8>
 }
 
 impl XexInfo {
@@ -488,106 +486,57 @@ impl XexInfo {
         let xex_session_keys = XexSessionKeys::derive_keys(&xex_loader_info.file_key)?;
         let confirmed_session_key: [u8; 16];
         let is_dev_kit: bool;
+        let exe_bytes: Vec<u8>;
 
         // this is where we'd parse xexsection related info...but it might not be needed?
 
-        // Since we have the possible session keys at this point,
-        // try to retrieve the first 2 bytes of the exe and check for "MZ"
-        let pe_vec = data[xex_header.pe_offset as usize..data.len()].to_vec();
-        let compressed_retail: Cow<[u8]>;
-        let compressed_devkit: Cow<[u8]>;
+        let pe_vec = &data[xex_header.pe_offset as usize..data.len()].to_vec();
         let bff = xex_optional_header_data.base_file_format.as_ref().unwrap();
-
-        match bff.encryption {
-            XexEncryption::No => {
-                // if unencrypted, can we assume devkit?
-                compressed_retail = Cow::Borrowed(&pe_vec);
-                compressed_devkit = Cow::Borrowed(&pe_vec);
+        match XexInfo::try_get_exe(pe_vec, &xex_session_keys.session_key_retail, bff, xex_loader_info.image_size) {
+            Ok(exe) => {
+                // println!("This xex was built in retail mode!");
+                confirmed_session_key = xex_session_keys.session_key_retail;
+                is_dev_kit = false;
+                exe_bytes = exe;
             }
-            XexEncryption::Yes => {
-                compressed_retail = Cow::Owned(
-                    decrypt_aes128_cbc_no_padding(
-                        &xex_session_keys.session_key_retail, &pe_vec
-                    )?
-                );
-                compressed_devkit = Cow::Owned(
-                    decrypt_aes128_cbc_no_padding(
-                        &xex_session_keys.session_key_devkit, &pe_vec
-                    )?
-                );
-            }
-        }
-        
-        // we're only checking the first two bytes
-        let mut retail_bytes: [u8; 2] = [ 0, 0 ];
-        let mut devkit_bytes: [u8; 2] = [ 0, 0 ];
-        
-        match bff.compression {
-            XexCompression::Raw => {
-                let mut pos_in: usize = 0;
-                let mut pos_out: usize = 0;
-                let mut should_break = false;
-                for bc in &bff.basics {
-                    for i in 0..(bc.data_size as usize) {
-                        if pos_in + i >= compressed_retail.len() { break; } 
-                        if (i + pos_out >= 2) || (i + pos_in >= 2) {
-                            should_break = true;
-                            break;
-                        }
-                        retail_bytes[i + pos_out] = compressed_retail[pos_in + i];
-                        devkit_bytes[i + pos_out] = compressed_devkit[pos_in + i];
+            Err(_) => {
+                match XexInfo::try_get_exe(pe_vec, &xex_session_keys.session_key_devkit, bff, xex_loader_info.image_size){
+                    Ok(exe) => {
+                        // println!("This xex was built in devkit mode!");
+                        confirmed_session_key = xex_session_keys.session_key_devkit;
+                        is_dev_kit = true;
+                        exe_bytes = exe;
                     }
-                    pos_out += (bc.data_size + bc.zero_size) as usize;
-                    pos_in += bc.data_size as usize;
-                    if should_break { break; }
+                    Err(e) => {
+                        return Err(e); // here until case 2 is implemented
+                        bail!("Could not deduce exe type!");
+                    }
                 }
             }
-            XexCompression::None | XexCompression::DeltaCompressed => {
-                retail_bytes = compressed_retail[0..2].try_into()?;
-                devkit_bytes = compressed_devkit[0..2].try_into()?;
-            }
-            XexCompression::Compressed => {
-                bail!("Xex has compression type 2, which is not currently implemented. Please send the xex my way so it can be!");
-            }
         }
-
-        if retail_bytes[0] == 'M' as u8 && retail_bytes[1] == 'Z' as u8 {
-            // println!("This xex was built in retail mode!");
-            confirmed_session_key = xex_session_keys.session_key_retail;
-            is_dev_kit = false;
-        }
-        else if devkit_bytes[0] == 'M' as u8 && devkit_bytes[1] == 'Z' as u8 {
-            // println!("This xex was built in devkit mode!");
-            confirmed_session_key = xex_session_keys.session_key_devkit;
-            is_dev_kit = true;
-        }
-        else { bail!("Could not deduce exe type!"); }
 
         return Ok(Self {
-            raw_bytes: data,
             header: xex_header,
             opt_header_data:xex_optional_header_data,
             loader_info: xex_loader_info,
             session_key: confirmed_session_key,
-            is_dev_kit: is_dev_kit
+            is_dev_kit: is_dev_kit,
+            exe_bytes: exe_bytes
         });
     }
 
-    pub fn get_exe(&self) -> Result<Vec<u8>> {
-        assert!(!&self.raw_bytes.is_empty());
-        
-        let pe_vec = &self.raw_bytes[self.header.pe_offset as usize..self.raw_bytes.len()].to_vec();
+    pub fn try_get_exe(exe_data: &Vec<u8>, session_key: &[u8; 16], bff: &BaseFileFormat, img_size: u32) -> Result<Vec<u8>> {
         let compressed: Cow<[u8]>;
-        let bff = &self.opt_header_data.base_file_format.as_ref().unwrap();
 
         match bff.encryption {
-            XexEncryption::No => { compressed = Cow::Borrowed(&pe_vec); }
+            XexEncryption::No => { compressed = Cow::Borrowed(&exe_data); }
             XexEncryption::Yes => {
-                compressed = Cow::Owned(decrypt_aes128_cbc_no_padding(&self.session_key, &pe_vec)?);
+                compressed = Cow::Owned(decrypt_aes128_cbc_no_padding(&session_key, &exe_data)?);
             }
         }
+
         let mut pe_image: Vec<u8> = vec![];
-        pe_image.resize(self.loader_info.image_size as usize, 0);
+        pe_image.resize(img_size as usize, 0);
         let mut pos_in: usize = 0;
         let mut pos_out: usize = 0;
 
@@ -607,6 +556,8 @@ impl XexInfo {
                 bail!("Xex has compression type 2, which is not currently implemented. Please send the xex my way so it can be!");
             }
         }
+
+        ensure!(pe_image[0] == 'M' as u8 && pe_image[1] == 'Z' as u8, "This is not a valid exe!");
 
         // adjust the byte offsets, because virtual addresses have been thrown off in the initial exe reconstruction process
         let pe_file = PeFile32::parse(&*pe_image).expect("Failed to parse newly pulled out exe file");
@@ -642,16 +593,14 @@ pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>> {
     println!("xex: {input}");
     let xex = XexInfo::from_file(input)?;
     // after this line, the XexInfo should have all of its relevant metadata parsed
-    // so, try to read the PE image
-    return xex.get_exe();
+    return Ok(xex.exe_bytes);
 }
 
 pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     // look at cmd\dol\split
     println!("xex: {path}");
     let xex = XexInfo::from_file(path)?;
-    let the_exe = xex.get_exe().expect("Could not retrieve exe!");
-    let obj_file = PeFile32::parse(&*the_exe).expect("Failed to parse object file");
+    let obj_file = PeFile32::parse(&*xex.exe_bytes).expect("Failed to parse object file");
     let architecture = ObjArchitecture::PowerPc;
     let kind = ObjKind::Executable;
     let obj_name = xex.opt_header_data.original_name;

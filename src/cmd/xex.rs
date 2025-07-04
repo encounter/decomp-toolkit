@@ -378,6 +378,8 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 //     Ok(())
 // }
 
+// const MODULE_FLAGS: [&str; 8] = [ "Title Module", "Exports To Title", "System Debugger", "DLL Module", "Module Patch", "Patch Full", "Patch Delta", "User Mode" ];
+
 fn info(args: InfoArgs) -> Result<()> {
     let xex = XexInfo::from_file(&args.input)?;
     println!("Jeff: Retrieving Xex info...");
