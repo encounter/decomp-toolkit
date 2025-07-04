@@ -30,6 +30,7 @@ pub mod take_seek;
 pub mod toposort;
 pub mod u8_arc;
 pub mod xex;
+pub mod xex_imports;
 pub mod wad;
 
 #[inline]

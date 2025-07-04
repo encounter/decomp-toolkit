@@ -45,32 +45,45 @@ pub struct NormalCompression {
     pub block_hash: [u8; 20]
 }
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, TryFromPrimitive, IntoPrimitive)]
+#[repr(u16)]
+pub enum XexEncryption {
+    No = 0,
+    Yes = 1
+}
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq, TryFromPrimitive, IntoPrimitive)]
+#[repr(u16)]
+pub enum XexCompression {
+    None = 0,
+    Raw = 1,
+    Compressed = 2,
+    DeltaCompressed = 3
+}
+
 pub struct BaseFileFormat {
-    pub encryption: u16, // 0 = no, 1 = yes
-    pub compression: u16, // 0 = none, 1 = raw, 2 = compressed, 3 = delta compressed
+    pub encryption: XexEncryption,
+    pub compression: XexCompression,
     pub basics: Vec<BasicCompression>,
     pub normal: Option<NormalCompression>
 }
 
 impl BaseFileFormat {
     fn parse(data: &Vec<u8>) -> Result<Self> {
-        let encryption = read_halfword(&data, 0);
-        let compression = read_halfword(&data, 2);
+        let encryption = XexEncryption::try_from(read_halfword(&data, 0))?;
+        let compression = XexCompression::try_from(read_halfword(&data, 2))?;
         let mut basics: Vec<BasicCompression> = vec![];
         let mut normal = None;
         match compression {
-            // none
-            0 => {}
-            // raw
-            1 => {
+            XexCompression::None => {}
+            XexCompression::Raw => {
                 let count = (data.len() - 4) / 8;
                 for i in 0..count {
                     basics.push(BasicCompression { data_size: read_word(&data, 4 + i * 8), zero_size: read_word(&data, 8 + i * 8) });
                 }
             }
-            // compressed or delta compressed
-            2 | 3 => {
-                normal = Some(NormalCompression { window_size: read_word(&data, 4), block_size: read_word(&data, 8), block_hash: data[12..32].try_into().unwrap() });
+            XexCompression::Compressed | XexCompression::DeltaCompressed => {
+                normal = Some(NormalCompression { window_size: read_word(&data, 4), block_size: read_word(&data, 8), block_hash: data[12..32].try_into()? });
             }
             _ => { bail!("Xex has unhandled compression type!"); }
         }
@@ -156,7 +169,7 @@ pub struct ResourceInfo {
 impl ResourceInfo {
     pub fn parse(data: &Vec<u8>) -> Result<Self> {
         ensure!(data.len() == 16, "Resource info has unexpected length! (expected 16)");
-        let title_id = String::from_utf8(data[0..8].to_vec()).ok().unwrap();
+        let title_id = String::from_utf8(data[0..8].to_vec())?;
         let rsrc_start = read_word(&data, 8);
         let rsrc_end = rsrc_start + read_word(&data, 12);
         return Ok(Self { title_id, rsrc_start, rsrc_end });
@@ -262,7 +275,7 @@ impl XexOptionalHeaderData {
                     import_libs = Some(ImportLibraries::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::OriginalPEName => {
-                    original_name = String::from_utf8(header.data.clone()).ok().unwrap();
+                    original_name = String::from_utf8(header.data.clone())?;
                 }
                 XexOptionalHeaderID::ChecksumTimestamp => {
                     file_timestamp = read_word(&header.data, 0);
@@ -272,7 +285,7 @@ impl XexOptionalHeaderData {
                     for i in 0..num_libs {
                         let start = i * 16;
                         static_libs.push(StaticLibrary {
-                            name: String::from_utf8(header.data[start..start + 8].to_vec()).ok().unwrap(),
+                            name: String::from_utf8(header.data[start..start + 8].to_vec())?,
                             major: read_halfword(&header.data, start + 8),
                             minor: read_halfword(&header.data, start + 10),
                             build: read_halfword(&header.data, start + 12),
@@ -391,25 +404,25 @@ impl XexLoaderInfo {
         let header_size = read_word(&data, pos);
         let image_size = read_word(&data, pos + 4);
         pos += 8;
-        let rsa_signature = data[pos..pos + 256].try_into().unwrap();
+        let rsa_signature = data[pos..pos + 256].try_into()?;
         pos += 256;
         let unknown = read_word(&data, pos);
         let image_flags = read_word(&data, pos + 4);
         let load_address = read_word(&data, pos + 8);
         pos += 12;
-        let section_digest = data[pos..pos + 20].try_into().unwrap();
+        let section_digest = data[pos..pos + 20].try_into()?;
         pos += 20;
         let import_table_count = read_word(&data, pos);
         pos += 4;
-        let import_table_digest = data[pos..pos + 20].try_into().unwrap();
+        let import_table_digest = data[pos..pos + 20].try_into()?;
         pos += 20;
-        let media_id = data[pos..pos + 16].try_into().unwrap();
+        let media_id = data[pos..pos + 16].try_into()?;
         pos += 16;
-        let file_key = data[pos..pos + 16].try_into().unwrap();
+        let file_key = data[pos..pos + 16].try_into()?;
         pos += 16;
         let export_table = read_word(&data, pos);
         pos += 4;
-        let header_digest = data[pos..pos + 20].try_into().unwrap();
+        let header_digest = data[pos..pos + 20].try_into()?;
         pos += 20;
         let game_regions = read_word(&data, pos);
         let media_flags = read_word(&data, pos + 4);
@@ -487,14 +500,12 @@ impl XexInfo {
         let bff = xex_optional_header_data.base_file_format.as_ref().unwrap();
 
         match bff.encryption {
-            // not encrypted
-            0 => {
+            XexEncryption::No => {
                 // if unencrypted, can we assume devkit?
                 compressed_retail = Cow::Borrowed(&pe_vec);
                 compressed_devkit = Cow::Borrowed(&pe_vec);
             }
-            // encrypted
-            1 => {
+            XexEncryption::Yes => {
                 compressed_retail = Cow::Owned(
                     decrypt_aes128_cbc_no_padding(
                         &xex_session_keys.session_key_retail, &pe_vec
@@ -514,7 +525,7 @@ impl XexInfo {
         let mut devkit_bytes: [u8; 2] = [ 0, 0 ];
         
         match bff.compression {
-            1 => {
+            XexCompression::Raw => {
                 let mut pos_in: usize = 0;
                 let mut pos_out: usize = 0;
                 let mut should_break = false;
@@ -533,11 +544,11 @@ impl XexInfo {
                     if should_break { break; }
                 }
             }
-            0 | 3 => {
-                retail_bytes = compressed_retail[0..2].try_into().unwrap();
-                devkit_bytes = compressed_devkit[0..2].try_into().unwrap();
+            XexCompression::None | XexCompression::DeltaCompressed => {
+                retail_bytes = compressed_retail[0..2].try_into()?;
+                devkit_bytes = compressed_devkit[0..2].try_into()?;
             }
-            2 => {
+            XexCompression::Compressed => {
                 bail!("Xex has compression type 2, which is not currently implemented. Please send the xex my way so it can be!");
             }
             _ => { bail!("Xex has unhandled compression type!"); }
@@ -573,10 +584,8 @@ impl XexInfo {
         let bff = &self.opt_header_data.base_file_format.as_ref().unwrap();
 
         match bff.encryption {
-            // not encrypted
-            0 => { compressed = Cow::Borrowed(&pe_vec); }
-            // encrypted
-            1 => {
+            XexEncryption::No => { compressed = Cow::Borrowed(&pe_vec); }
+            XexEncryption::Yes => {
                 compressed = Cow::Owned(decrypt_aes128_cbc_no_padding(&self.session_key, &pe_vec)?);
             }
             _ => { bail!("Xex has unhandled encryption type!"); }
@@ -587,7 +596,7 @@ impl XexInfo {
         let mut pos_out: usize = 0;
 
         match bff.compression {
-            1 => {
+            XexCompression::Raw => {
                 for bc in &bff.basics {
                     for i in 0..(bc.data_size as usize) {
                         if pos_in + i as usize >= compressed.len() { break; }
@@ -597,8 +606,8 @@ impl XexInfo {
                     pos_in += bc.data_size as usize;
                 }
             }
-            0 | 3 => { pe_image = compressed.to_vec(); }
-            2 => {
+            XexCompression::None | XexCompression::DeltaCompressed => { pe_image = compressed.to_vec(); }
+            XexCompression::Compressed => {
                 bail!("Xex has compression type 2, which is not currently implemented. Please send the xex my way so it can be!");
             }
             _ => { bail!("Xex has unhandled compression type!"); }
@@ -680,8 +689,8 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             size: section.size(),
             data: section.uncompressed_data()?.to_vec(),
             align: section.align(),
-            // the index of the section in the exe - starts at 1 instead of 0 for some reason, so offset it by -1
-            elf_index: (section.index().0 - 1) as ObjSectionIndex,
+            // exe indices start at 1...why? i hate you that's why
+            elf_index: section.index().0 as ObjSectionIndex,
             // everything below this line doesn't really matter for the purposes of an xex
             relocations: Default::default(),
             virtual_address: None, // Loaded from section symbol
@@ -732,29 +741,41 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         for lib in imports.libraries.iter(){
             println!("Imports for {}:", lib.name);
             for func in lib.functions.iter() {
-                println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
-                if func.address != 0 {
-                    // println!("__imp_ at 0x{:08X} for {}", func.address, lib.name);
-                    // create a symbol for an __imp_ - will always be size 0x4
-                    // use obj.add_symbol for this!
+                // println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
+                assert_ne!(func.address, 0, "Should not have an empty import func address!");
+                
+                let (sec_idx, sec) = obj.sections.at_address_mut(func.address)?;
+                // TODO: make several very-big lookup tables corresponding to each ordinals' equivalent imported func name
+                // see xex_imports.rs
+                let sym_name = format!("__imp_{:04X}", func.ordinal);
+                // println!("name: {}", sym_name);
 
-                    // obj.add_symbol(ObjSymbol {
-                    //     name: "imp",
-                    //     address: 0 as u64,
-                    //     section: 0,
-                    //     size: 0,
-                    //     size_known: true,
-                    //     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global),
-                    //     kind: ObjSymbolKind::Object,
-                    //     ..Default::default()
-                    // }, false );
-                    
-                    // to unstrip an __imp_, swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
-                    // then slap an 80 at the end (90 01 00 80)
-                }
+                // to unstrip an __imp_,
+                // swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
+                // then slap an 80 at the end (90 01 00 80)
+                let offset_within_sec: usize = func.address as usize - sec.address as usize;
+                let stripped_slice = &mut sec.data[offset_within_sec..offset_within_sec + 4];
+                stripped_slice[0] = stripped_slice[3];
+                stripped_slice[1] = stripped_slice[2];
+                stripped_slice[2] = 0;
+                stripped_slice[3] = 0x80;
+
+                println!("  Adding symbol {} at 0x{:08X}", sym_name, func.address);
+                obj.add_symbol(ObjSymbol {
+                    name: sym_name,
+                    address: func.address as u64,
+                    section: Some(sec_idx),
+                    size: 4,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common),
+                    kind: ObjSymbolKind::Object,
+                    ..Default::default()
+                }, false)?;
+                
                 if func.thunk != 0 {
                     // println!("thunk at 0x{:08X}", func.thunk);
                     // create a symbol/func for the thunk - will always be size 0x10
+                    let (thunk_idx, thunk_sec) = obj.sections.at_address_mut(func.thunk)?;
 
                     // to unstrip a thunk,
                     // you need the address of the __imp_ (i.e. __imp_XamInputGetCapabilities at 0x827103c4)
@@ -762,37 +783,58 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     // (example: XamInputGetCapabilities: 01 00 01 90 02 00 01 90 7D 69 03 A6 4E 80 04 20)
                     // (change the first two words to lis/addi r11 to 0x827103c4: 3D 60 82 71 81 6B 03 C4)
                     // (then it becomes: 3D 60 82 71 81 6B 03 C4 7D 69 03 A6 4E 80 04 20)
-                }
+                    let offset_within_sec: usize = func.thunk as usize - thunk_sec.address as usize;
+                    let stripped_thunk_slice = &mut thunk_sec.data[offset_within_sec..offset_within_sec + 8];
+                    stripped_thunk_slice[0] = 0x3D; stripped_thunk_slice[1] = 0x60;
+                    stripped_thunk_slice[2] = ((func.address & 0xFF000000) >> 24) as u8;
+                    stripped_thunk_slice[3] = ((func.address & 0xFF0000) >> 16) as u8;
+                    stripped_thunk_slice[4] = 0x81; stripped_thunk_slice[5] = 0x6B;
+                    stripped_thunk_slice[6] = ((func.address & 0xFF00) >> 8) as u8;
+                    stripped_thunk_slice[7] = (func.address & 0xFF) as u8;
 
+                    let thunk_name = format!("fn_{:08X}", func.thunk);
+                    println!("  Adding symbol {} at 0x{:08X}", thunk_name, func.thunk);
+                    obj.known_functions.insert(SectionAddress::new(thunk_idx, func.thunk), Some(0x10));
+                    obj.add_symbol(ObjSymbol {
+                        name: thunk_name,
+                        address: func.thunk as u64,
+                        section: Some(thunk_idx),
+                        size: 0x10,
+                        size_known: true,
+                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common),
+                        kind: ObjSymbolKind::Function,
+                        ..Default::default()
+                    }, false)?;
+                }
             }
         }
     }
 
     // add known function boundaries from pdata
     // pdata info: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-pdata-section
-    let pdata_section = obj.sections.by_name(".pdata")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".pdata section not found"))?;
-    let text_index = obj.sections.by_name(".text")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".text section not found"))?.elf_index;
+    // let pdata_section = obj.sections.by_name(".pdata")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".pdata section not found"))?;
+    // let text_index = obj.sections.by_name(".text")?.map(|(_, s)| s).ok_or_else(|| anyhow::anyhow!(".text section not found"))?.elf_index;
             
-    for (i, chunk) in pdata_section.data.chunks_exact(8).enumerate() {
-        // the addr where this function begins
-        let start_addr = u32::from_be_bytes(chunk[0..4].try_into().unwrap());
-        // if we encounter 0's, that's the end of usable pdata entries
-        if start_addr == 0 {
-            log::info!("Found {} known funcs from pdata!", i);
-            // log::info!("Encountered 0 at addr 0x{:08X}", pdata_section.address + (8 * i) as u64);
-            break;
-        }
-        // some metadata for this function, including function size
-        let word = u32::from_be_bytes(chunk[4..8].try_into().unwrap());
-        // let num_prologue_insts = word & 0xFF; // The number of instructions in the function's prolog.
-        let num_insts_in_func = (word >> 8) & 0x3FFFFF; // The number of instructions in the function.
-        // let flag_32bit = (word & 0x4000) != 0; // If set, the function consists of 32-bit instructions. If clear, the function consists of 16-bit instructions.
-        // let exception_flag = (word & 0x8000) != 0; // If set, an exception handler exists for the function. Otherwise, no exception handler exists.
+    // for (i, chunk) in pdata_section.data.chunks_exact(8).enumerate() {
+    //     // the addr where this function begins
+    //     let start_addr = u32::from_be_bytes(chunk[0..4].try_into().unwrap());
+    //     // if we encounter 0's, that's the end of usable pdata entries
+    //     if start_addr == 0 {
+    //         log::info!("Found {} known funcs from pdata!", i);
+    //         // log::info!("Encountered 0 at addr 0x{:08X}", pdata_section.address + (8 * i) as u64);
+    //         break;
+    //     }
+    //     // some metadata for this function, including function size
+    //     let word = u32::from_be_bytes(chunk[4..8].try_into().unwrap());
+    //     // let num_prologue_insts = word & 0xFF; // The number of instructions in the function's prolog.
+    //     let num_insts_in_func = (word >> 8) & 0x3FFFFF; // The number of instructions in the function.
+    //     // let flag_32bit = (word & 0x4000) != 0; // If set, the function consists of 32-bit instructions. If clear, the function consists of 16-bit instructions.
+    //     // let exception_flag = (word & 0x8000) != 0; // If set, an exception handler exists for the function. Otherwise, no exception handler exists.
         
-        // log::info!("Found func {} from 0x{:08X}-0x{:08X}", i, start_addr, start_addr + (num_insts_in_func * 4));
-        let start = SectionAddress::new(text_index, start_addr);
-        obj.known_functions.insert(start, Some(num_insts_in_func * 4));
-    }
+    //     // log::info!("Found func {} from 0x{:08X}-0x{:08X}", i, start_addr, start_addr + (num_insts_in_func * 4));
+    //     let start = SectionAddress::new(text_index, start_addr);
+    //     obj.known_functions.insert(start, Some(num_insts_in_func * 4));
+    // }
 
     // if we have an .xidata section...
     //      then we have symbols like XamInputGetCapabilities to label within .xidata
@@ -838,9 +880,12 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     Ok(obj)
 }
 
-fn replace_ordinal(lib_name: String, ordinal: u32) -> String {
+fn replace_ordinal(lib_name: &String, ordinal: u32) -> &'static str {
     if lib_name == "xam.xex" {
-
+        match ordinal {
+            0x0190 => { return "XamInputGetCapabilities"; }
+            _ => { return "N/A"; }
+        }
     }
     else if lib_name == "xboxkrnl.exe" {
 
@@ -848,7 +893,7 @@ fn replace_ordinal(lib_name: String, ordinal: u32) -> String {
     else if lib_name == "xbdm.xex" {
 
     }
-    return String::new();
+    return "";
 }
 
 // debug only, lists section bounds

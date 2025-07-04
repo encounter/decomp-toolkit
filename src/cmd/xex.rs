@@ -19,7 +19,7 @@ use typed_path::Utf8NativePathBuf;
 
 use crate::{
     analysis::{cfa::{AnalyzerState, FunctionInfo}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, obj::ObjKind, util::{
-        asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::{extract_exe, process_xex, XexInfo}, IntoCow, ToCow
+        asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::{extract_exe, process_xex, XexCompression, XexEncryption, XexInfo}, IntoCow, ToCow
     }, vfs::open_file
 };
 
@@ -391,8 +391,8 @@ fn info(args: InfoArgs) -> Result<()> {
     println!("Xex Info:");
     println!("  {}", if xex.is_dev_kit { "Devkit" } else { "Retail"} );
     let bff = xex.opt_header_data.base_file_format.as_ref().unwrap();
-    println!("  {}", if bff.compression == 0 { "Uncompressed" } else { "Compressed"} );
-    println!("  {}", if bff.encryption == 0 { "Unencrypted" } else { "Encrypted"} );
+    println!("  {}", if bff.compression == XexCompression::Compressed { "Compressed" } else { "Uncompressed"} );
+    println!("  {}", if bff.encryption == XexEncryption::No { "Unencrypted" } else { "Encrypted"} );
     println!("");
 
     println!("Basefile Info:");
