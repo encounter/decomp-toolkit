@@ -117,7 +117,24 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // rename the save/restore gpr/fpr funcs that were previously found in pdata
     FindSaveRestSledsXbox::execute(&mut state, &obj)?;
 
-    // FindXAPISleds::execute;
+    // read through the xidata section here, if it exists
+    // the XAPI calls should've been covered at this point,
+    // so we'd just be reading the functions there, as well as noting where they bctr to
+    // and after that, the xidata section *should* be completely good to go!
+
+    // some xidata notes (idk where else to put them lol)
+    // part 1:
+    // seems to be many many lis/addi/mtctr/bctrs in sequence
+    // e.g. lis r11, 0x82XX / addi r11, r11, 0xXXXX / mtctr r11 / bctr
+    // indirect function calls? stubs?
+    // matches up just fine
+
+    // part 2: a bunch of 0's
+
+    // part 3:
+    // many lis/lwz/mtctr/bctrs in sequence
+    // e.g. lis r11, 0xXXXX / lwz r11, 0xXXXX(r11) / mtctr r11/ bctr / zero-padding
+    // this does not quite match up with the ground truth, but I suspect the difference comes from relocs
 
     state.detect_functions(&obj)?;
     log::debug!(
