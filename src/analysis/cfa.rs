@@ -278,11 +278,10 @@ impl AnalyzerState {
             self.process_function_at(obj, addr)?;
 
             // some assertions, since we're working with known function boundaries
-            let func = self.functions.get(&addr).unwrap();
-            assert_eq!(func.end.is_some(), true, "Function at {} has no detected end. There must be an error in processing!", addr);
-
             // if we got this from pdata or import data, there should be a known end
             if let Some(value) = obj.known_functions.get(&addr) {
+                let func = self.functions.get(&addr).unwrap();
+                assert_eq!(func.end.is_some(), true, "Function at {} has no detected end. There must be an error in processing!", addr);
                 if let Some(known_size) = value {
                     let known_end = addr.address + known_size;
                     let func_end = func.end.unwrap().address;

@@ -1166,7 +1166,7 @@ checksum = "be8e5b9d48ab30323e8ece6d655d20fc16a570e4f1af0de6890d3e9ebd284ba0"
 [[package]]
 name = "ppc750cl"
 version = "0.3.3"
-source = "git+https://github.com/rjkiv/ppc750cl.git#7f7df5bdb1cc05a1abf074921bdb2edfba35299f"
+source = "git+https://github.com/rjkiv/ppc750cl.git#2c17210df8ac910c50808ebca88808339e22dd97"
 
 [[package]]
 name = "prettyplease"
