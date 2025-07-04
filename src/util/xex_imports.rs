@@ -1,24 +1,31 @@
-use anyhow::ensure;
+#[inline]
+fn from_lut(lut: &[&'static str], ordinal: usize) -> Option<String> {
+    lut.get(ordinal)
+        .filter(|s| !s.contains("Unused"))
+        .map(|s| s.to_string())
+}
 
-fn replace_ordinal(lib_name: &String, ordinal: usize) -> String {
-    if lib_name == "xam.xex" {
-        return "".to_string();
+fn table_for(lib_name: &str) -> Option<&'static [&'static str]> {
+    if lib_name.contains("createprofile") { Some(&CREATEPROFILE_FUNCS) }
+    else if lib_name.contains("connectx") { Some(&CONNECTX_FUNCS) }
+    else if lib_name.contains("syscall")  { Some(&SYSCALL_FUNCS)  }
+    else if lib_name.contains("vk")       { Some(&VK_FUNCS)       }
+    else if lib_name.contains("xam")      { Some(&XAM_FUNCS)      }
+    else if lib_name.contains("xapi")     { Some(&XAPI_FUNCS)     }
+    else if lib_name.contains("xbdm")     { Some(&XBDM_FUNCS)     }
+    else if lib_name.contains("xboxkrnl") { Some(&XBOXKRNL_FUNCS) }
+    else { None }
+}
+
+pub fn replace_ordinal(lib_name: &String, ordinal: usize) -> String {
+    if let Some(table) = table_for(lib_name) {
+        if let Some(name) = from_lut(table, ordinal) {
+            return name;
+        }
     }
-    else if lib_name == "xboxkrnl.exe" {
-        return "".to_string();
-    }
-    else if lib_name == "xbdm.xex" {
-        return "".to_string();
-    }
-    else if lib_name.contains("createprofile") {
-        assert!(ordinal < CREATEPROFILE_FUNCS.len());
-        let res = CREATEPROFILE_FUNCS[ordinal];
-        assert!(!res.contains("Unused"));
-        return res.to_string();
-    }
-    else {
-        return format!("{:04X}", ordinal);
-    }
+
+    log::warn!("import library {} not found!", lib_name);
+    format!("{:04X}", ordinal)
 }
 
 const CREATEPROFILE_FUNCS: [&str; 3] = [

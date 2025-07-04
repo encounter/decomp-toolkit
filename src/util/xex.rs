@@ -15,7 +15,7 @@ use crate::{
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
         SectionIndex as ObjSectionIndex, SymbolIndex as ObjSymbolIndex,
     }, util::{
-        comment::{CommentSym, MWComment}, crypto::decrypt_aes128_cbc_no_padding, reader::{Endian, FromReader, ToWriter}
+        comment::{CommentSym, MWComment}, crypto::decrypt_aes128_cbc_no_padding, reader::{Endian, FromReader, ToWriter}, xex_imports::replace_ordinal
     }
 };
 
@@ -732,18 +732,20 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 }
             }
         }
+
+        let mut num_imps = 0;
+        let mut num_thunks = 0;
+
         // now, process them (add funcs/symbols and unstrip)
         for lib in imports.libraries.iter(){
-            println!("Imports for {}:", lib.name);
+            // println!("Imports for {}:", lib.name);
             for func in lib.functions.iter() {
                 // println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
                 assert_ne!(func.address, 0, "Should not have an empty import func address!");
                 
                 let (sec_idx, sec) = obj.sections.at_address_mut(func.address)?;
-                // TODO: make several very-big lookup tables corresponding to each ordinals' equivalent imported func name
-                // see xex_imports.rs
-                let sym_name = format!("__imp_{:04X}", func.ordinal);
-                // println!("name: {}", sym_name);
+                let lookup_name = replace_ordinal(&lib.name, func.ordinal as usize);
+                let sym_name = format!("__imp_{}", lookup_name);
 
                 // to unstrip an __imp_,
                 // swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
@@ -755,7 +757,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 stripped_slice[2] = 0;
                 stripped_slice[3] = 0x80;
 
-                println!("  Adding symbol {} at 0x{:08X}", sym_name, func.address);
+                // println!("  Adding symbol {} at 0x{:08X}", sym_name, func.address);
                 obj.add_symbol(ObjSymbol {
                     name: sym_name,
                     address: func.address as u64,
@@ -766,6 +768,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     kind: ObjSymbolKind::Object,
                     ..Default::default()
                 }, false)?;
+                num_imps += 1;
                 
                 if func.thunk != 0 {
                     // println!("thunk at 0x{:08X}", func.thunk);
@@ -787,8 +790,8 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     stripped_thunk_slice[6] = ((func.address & 0xFF00) >> 8) as u8;
                     stripped_thunk_slice[7] = (func.address & 0xFF) as u8;
 
-                    let thunk_name = format!("fn_{:08X}", func.thunk);
-                    println!("  Adding symbol {} at 0x{:08X}", thunk_name, func.thunk);
+                    let thunk_name = lookup_name;
+                    // println!("  Adding symbol {} at 0x{:08X}", thunk_name, func.thunk);
                     obj.known_functions.insert(SectionAddress::new(thunk_idx, func.thunk), Some(0x10));
                     obj.add_symbol(ObjSymbol {
                         name: thunk_name,
@@ -800,9 +803,11 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                         kind: ObjSymbolKind::Function,
                         ..Default::default()
                     }, false)?;
+                    num_thunks += 1;
                 }
             }
         }
+        log::info!("Found {} imps and {} corresponding functions from import data!", num_imps, num_thunks);
     }
 
     // add known function boundaries from pdata
