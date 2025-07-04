@@ -838,11 +838,35 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     }
     log::info!("Found {} known funcs from pdata!", num);
 
-    // TODO: the .idata in debug mode is stripped somewhat, and release it's entirely gone
-    // study up and try to piece together what it is so you can attempt to restore it
+    // if this xex has an .xidata section, mark down the funcs in there
+    if let Some(xidata_pair) = obj.sections.by_name(".xidata")? {
+        let xidata_idx = xidata_pair.0;
+        let xidata_sec = xidata_pair.1;
+
+        let mut num_xidatas = 0;
+        for (i, chunk) in xidata_sec.data.chunks_exact(16).enumerate(){
+            if i == 0 { continue; } // the first entry appears to be all 0's...but is every xidata like this?
+            let inst1 = u32::from_be_bytes(chunk[0..4].try_into()?);
+            // if we've reached 0's, that's the end of usable xidata info
+            if inst1 == 0 { break; }
+
+            assert_eq!(inst1 & 0xFFFF0000, 0x3D600000, "First instruction MUST be an lis to r11!");
+            let inst2 = u32::from_be_bytes(chunk[4..8].try_into()?);
+            assert_eq!(inst2 & 0xFFFF0000, 0x396B0000, "Second instruction MUST be an addi to r11!");
+            assert_eq!(u32::from_be_bytes(chunk[8..12].try_into()?), 0x7d6903a6, "Third instruction MUST be mtspr CTR, r11!");
+            assert_eq!(u32::from_be_bytes(chunk[12..16].try_into()?), 0x4e800420, "Fourth and final instruction MUST be bctr!");
+
+            let func_addr = (xidata_sec.address as usize + (i * 16)) as u32;
+            // println!("This xidata func's address: 0x{:08X}", func_addr);
+            obj.known_functions.insert(SectionAddress::new(xidata_idx, func_addr), Some(0x10));
+            num_xidatas += 1;
+        }
+        log::info!("Found {} known funcs from xidata!", num_xidatas);
+    }
 
     // .XBMOVIE: matches up with ground truth...but it's mostly a sea of 0's
     // .idata: partially zero'ed out and offsetted from ground truth in debug, completely gone from release
+    //      xidata/its relevant info seems to be covered, making idata a non-issue...i guess?
     // .XBLD: zero'ed out in debug, completely gone from release
     // .reloc: zero'ed out regardless
 
