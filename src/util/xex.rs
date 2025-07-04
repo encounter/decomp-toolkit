@@ -747,7 +747,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 
                 // to unstrip an __imp_,
                 // swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
-                // then slap an 80 at the end (90 01 00 80)
+                // then slap an 80 at the end (90 01 00 80) - the 80 tells the system that we're importing by ordinal
                 let offset_within_sec: usize = func.address as usize - sec.address as usize;
                 let stripped_slice = &mut sec.data[offset_within_sec..offset_within_sec + 4];
                 stripped_slice[0] = stripped_slice[3];
