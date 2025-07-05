@@ -553,7 +553,12 @@ impl XexInfo {
             }
             XexCompression::None | XexCompression::DeltaCompressed => { pe_image = compressed.to_vec(); }
             XexCompression::Compressed => {
-                bail!("Xex has compression type 2, which is not currently implemented. Please send the xex my way so it can be!");
+                bail!("This xex is compressed using LZX, which is not currently supported.");
+                // this is actually pretty hard to implement, it involves use of the NormalCompression we retrieved earlier,
+                // plus the use of microsoft's LZX decompression algorithms
+                // here are some references if you try to attempt this
+                // https://github.com/zeroKilo/XEXLoaderWV/blob/master/XEXLoaderWV/src/main/java/xexloaderwv/XEXHeader.java#L356
+                // https://github.com/emoose/idaxex/blob/master/formats/xex.cpp#L819
             }
         }
 
