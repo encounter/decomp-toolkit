@@ -780,14 +780,14 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 
         // some metadata for this function, including function size
         let word = u32::from_be_bytes(chunk[4..8].try_into()?);
-        let num_prologue_insts = word & 0xFF; // The number of instructions in the function's prolog.
+        // let num_prologue_insts = word & 0xFF; // The number of instructions in the function's prolog.
         let num_insts_in_func = (word >> 8) & 0x3FFFFF; // The number of instructions in the function.
         // let flag_32bit = (word & 0x4000) != 0; // If set, the function consists of 32-bit instructions. If clear, the function consists of 16-bit instructions.
         // let exception_flag = (word & 0x8000) != 0; // If set, an exception handler exists for the function. Otherwise, no exception handler exists.
 
         let section_addr = SectionAddress::new(text_idx, start_addr);
         obj.known_functions.insert(section_addr, Some(num_insts_in_func * 4));
-        obj.pdata_prologues.insert(section_addr, num_prologue_insts);
+        obj.pdata_funcs.push(section_addr);
         // println!("Func at 0x{:08X} has prologue length 0x{:06X}", start_addr, num_prologue_insts);
         num += 1;
     }
