@@ -1,22 +1,19 @@
-use std::{
-    borrow::Cow, collections::{hash_map, HashMap}, fs, io::Cursor, num::NonZeroU64, path::Path
-};
-
-use anyhow::{anyhow, bail, ensure, Context, Error, Result};
-use itertools::Itertools;
+use std::{ borrow::Cow, fs, num::NonZeroU64 };
+use anyhow::{anyhow, bail, ensure, Result};
 use object::{
-    endian, read::pe::{PeFile32, PeFile64}, Architecture, BinaryFormat, Endianness, File, Import, Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection
+    endian, read::pe::PeFile32, Architecture, BinaryFormat, Endianness, File, Import,
+    Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget,
+    SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection
 };
-use typed_path::{Utf8NativePath, Utf8NativePathBuf};
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    analysis::cfa::SectionAddress, array_ref, obj::{
+    analysis::cfa::SectionAddress, obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
         SectionIndex as ObjSectionIndex, SymbolIndex as ObjSymbolIndex,
-    }, util::{
-        comment::{CommentSym, MWComment}, crypto::decrypt_aes128_cbc_no_padding, reader::{Endian, FromReader, ToWriter}, xex_imports::replace_ordinal
-    }
+    },
+    util::{ crypto::decrypt_aes128_cbc_no_padding, xex_imports::replace_ordinal }
 };
 
 use num_enum::{ TryFromPrimitive, IntoPrimitive };
@@ -766,11 +763,11 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 
     // add known function boundaries from pdata
     // pdata info: https://learn.microsoft.com/en-us/windows/win32/debug/pe-format#the-pdata-section
-    let (pdata_idx, pdata_section) = match obj.sections.by_name(".pdata")? {
+    let (_pdata_idx, pdata_section) = match obj.sections.by_name(".pdata")? {
         Some(the_pair) => the_pair,
         None => { return Err(anyhow!(".pdata section not found. Is that even possible for an xex?")) }
     };
-    let (text_idx, text_section) = match obj.sections.by_name(".text")? {
+    let (text_idx, _text_section) = match obj.sections.by_name(".text")? {
         Some(the_pair) => the_pair,
         None => { return Err(anyhow!(".text section not found...how did we even get to this point?"))}
     };
@@ -782,12 +779,16 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         if start_addr == 0 { break; }
 
         // some metadata for this function, including function size
-        let word = u32::from_be_bytes(chunk[4..8].try_into().unwrap());
-        // let num_prologue_insts = word & 0xFF; // The number of instructions in the function's prolog.
+        let word = u32::from_be_bytes(chunk[4..8].try_into()?);
+        let num_prologue_insts = word & 0xFF; // The number of instructions in the function's prolog.
         let num_insts_in_func = (word >> 8) & 0x3FFFFF; // The number of instructions in the function.
         // let flag_32bit = (word & 0x4000) != 0; // If set, the function consists of 32-bit instructions. If clear, the function consists of 16-bit instructions.
         // let exception_flag = (word & 0x8000) != 0; // If set, an exception handler exists for the function. Otherwise, no exception handler exists.
-        obj.known_functions.insert(SectionAddress::new(text_idx, start_addr), Some(num_insts_in_func * 4));
+
+        let section_addr = SectionAddress::new(text_idx, start_addr);
+        obj.known_functions.insert(section_addr, Some(num_insts_in_func * 4));
+        obj.pdata_prologues.insert(section_addr, num_prologue_insts);
+        // println!("Func at 0x{:08X} has prologue length 0x{:06X}", start_addr, num_prologue_insts);
         num += 1;
     }
     log::info!("Found {} known funcs from pdata!", num);

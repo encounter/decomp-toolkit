@@ -80,6 +80,7 @@ pub struct ObjInfo {
 
     // From .ctors, .dtors and extab
     pub known_functions: BTreeMap<SectionAddress, Option<u32>>,
+    pub pdata_prologues: BTreeMap<SectionAddress, u32>,
 
     // REL
     /// Module ID (0 for main)
@@ -115,6 +116,7 @@ impl ObjInfo {
             blocked_relocation_sources: Default::default(),
             blocked_relocation_targets: Default::default(),
             known_functions: Default::default(),
+            pdata_prologues: Default::default(),
             module_id: 0,
             unresolved_relocations: vec![],
         }

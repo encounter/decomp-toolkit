@@ -1,26 +1,16 @@
-use std::{
-    collections::{btree_map, BTreeMap, HashMap},
-    fs::{self, DirBuilder},
-    io::{Cursor, Write}, time::UNIX_EPOCH,
-};
+use std::{ time::UNIX_EPOCH };
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{ensure, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
-use itertools::Itertools;
-use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
-use object::{
-    elf,
-    write::{Mangling, SectionId, SymbolId},
-    FileFlags, Object, ObjectSection, ObjectSymbol, RelocationTarget, SectionFlags, SectionIndex,
-    SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection,
-};
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    analysis::{cfa::{AnalyzerState, FunctionInfo}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, obj::ObjKind, util::{
-        asm::write_asm, comment::{CommentSym, MWComment}, config::{write_splits_file, write_symbols_file}, elf::process_elf, file::{buf_writer, process_rsp}, path::native_path, reader::{Endian, FromReader}, signatures::{compare_signature, generate_signature, FunctionSignature}, split::split_obj, xex::{extract_exe, process_xex, XexCompression, XexEncryption, XexInfo}, IntoCow, ToCow
-    }, vfs::open_file
+    analysis::{cfa::{AnalyzerState}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, 
+    util::{
+        path::native_path,
+        xex::{extract_exe, process_xex, XexCompression, XexEncryption, XexInfo}
+    }
 };
 
 #[derive(FromArgs, PartialEq, Debug)]

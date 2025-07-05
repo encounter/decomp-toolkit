@@ -943,6 +943,7 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
         blocked_relocation_sources: Default::default(),
         blocked_relocation_targets: Default::default(),
         known_functions: Default::default(),
+        pdata_prologues: Default::default(),
         module_id: 0,
         unresolved_relocations: vec![],
     };

@@ -26,6 +26,9 @@ pub struct FunctionSlices {
     pub jump_table_references: BTreeMap<SectionAddress, u32>,
     pub prologue: Option<SectionAddress>,
     pub epilogue: Option<SectionAddress>,
+    // for xbox
+    // if a function came from pdata, we know its prologue length and its confirmed end
+    pub from_pdata: bool,
     // Either a block or tail call
     pub possible_blocks: BTreeMap<SectionAddress, Box<VM>>,
     pub has_conditional_blr: bool,
@@ -85,6 +88,10 @@ fn check_sequence(
     Ok(false)
 }
 
+// xbox prologue sequences:
+// mfspr r12, LR / stw r12, -0x8(r1)
+// mfspr r12, LR / bl saveregintrinsic
+// subi r31, r12, XXXX / mfspr r12, LR (unwinds)
 fn check_prologue_sequence(
     section: &ObjSection,
     addr: SectionAddress,
@@ -251,19 +258,41 @@ impl FunctionSlices {
     ) -> Result<ExecCbResult<bool>> {
         let ExecCbData { executor, vm, result, ins_addr, section, ins, block_start } = data;
 
-        // all the funcs with prologues are already tracked in pdata
-        // soooo...no need to specifically check for them?
-
-        // Track discovered prologue(s) and epilogue(s)
-        // HACK: ProDG sometimes uses LR as a storage register for int-to-float conversions
-        // To our heuristic, this looks like a prologue, so first check LR for the magic number.
-        if vm.lr != GprValue::Constant(0x43300000) {
-            self.check_prologue(section, ins_addr, ins).with_context(|| {
-                format!("While processing {:#010X}: {:#?} {:#?}", function_start, self, vm.gpr)
-            })?;
+        // just so we can avoid setting the pdata bool multiple times
+        if ins_addr == function_start {
+            self.from_pdata = obj.pdata_prologues.contains_key(&function_start);
         }
-        self.check_epilogue(section, ins_addr, ins)
-            .with_context(|| format!("While processing {function_start:#010X}: {self:#?}"))?;
+
+        // // For funcs we found in pdata, we know the length of the prologue
+        // match obj.pdata_prologues.get(&function_start) {
+        //     Some(_) => {
+        //         self.from_pdata = true;
+        //         // // only set the prologue if we're at the very beginning of this func
+        //         // // so we can avoid repeatedly setting the prologue again and again
+        //         // if ins_addr == function_start {
+        //         //     self.prologue = Some(function_start);
+        //         // }
+        //     }
+        //     None => {
+        //         self.from_pdata = false;
+        //         // // Track discovered prologue(s) and epilogue(s)
+        //         // // HACK: ProDG sometimes uses LR as a storage register for int-to-float conversions
+        //         // // To our heuristic, this looks like a prologue, so first check LR for the magic number.
+        //         // if vm.lr != GprValue::Constant(0x43300000) {
+        //         //     self.check_prologue(section, ins_addr, ins).with_context(|| {
+        //         //         format!("While processing {:#010X}: {:#?} {:#?}", function_start, self, vm.gpr)
+        //         //     })?;
+        //         // }
+        //     }
+        // }
+
+        // // TODO: edit check epilogue for xbox
+        // // xbox epilogue sequences:
+        // // mtspr LR, r12 (7d 88 03 a6); any amount of insts (including none at all), blr (4e 80 00 20)
+        // // addi r1, r1, XX / b restoreregintrinsic - NOTE THAT THIS PARTICULAR EPILOGUE DOES NOT ALWAYS MEAN THE END OF THE FUNCTION
+        // // mtspr LR, r12 / blr (unwinds)
+        // self.check_epilogue(section, ins_addr, ins)
+        //     .with_context(|| format!("While processing {function_start:#010X}: {self:#?}"))?;
 
         if !self.has_conditional_blr && is_conditional_blr(ins) {
             self.has_conditional_blr = true;
@@ -318,16 +347,21 @@ impl FunctionSlices {
                     // Likely end of function
                     let next_addr = ins_addr + 4;
                     self.blocks.insert(block_start, Some(next_addr));
-                    // If this function has a prologue but no epilogue, and this
-                    // instruction is a bctr, we can assume it's an unrecovered
-                    // jump table and continue analysis.
-                    if self.prologue.is_some() && self.epilogue.is_none() {
-                        log::debug!("Assuming unrecovered jump table {:#010X}", next_addr);
-                        self.branches.insert(ins_addr, vec![next_addr]);
-                        if self.add_block_start(next_addr) {
-                            executor.push(next_addr, vm.clone_for_return(), true);
-                        }
-                    }
+
+                    // for xbox, this will never be reached
+                    // every function has either both a prologue and epilogue,
+                    // or no prologue and no epilogue
+
+                    // // If this function has a prologue but no epilogue, and this
+                    // // instruction is a bctr, we can assume it's an unrecovered
+                    // // jump table and continue analysis.
+                    // if self.prologue.is_some() && self.epilogue.is_none() {
+                    //     log::debug!("Assuming unrecovered jump table {:#010X}", next_addr);
+                    //     self.branches.insert(ins_addr, vec![next_addr]);
+                    //     if self.add_block_start(next_addr) {
+                    //         executor.push(next_addr, vm.clone_for_return(), true);
+                    //     }
+                    // }
                     Ok(ExecCbResult::EndBlock)
                 }
                 BranchTarget::Return => {
@@ -548,6 +582,15 @@ impl FunctionSlices {
                     None => break 'outer,
                 }
             }
+        }
+
+        // pdata sanity check
+        if self.from_pdata {
+            assert!(function_end.is_some(), "No known function end passed into pdata!");
+            // assert the last block's end == the function end
+            let (_last_key, last_value) = self.blocks.iter().last().unwrap();
+            assert!(last_value.is_some(), "Last block for function from pdata has no known end!");
+            assert_eq!(function_end, *last_value, "For pdata function at {}: known end {} != inferred end {}!", function_start, function_end.unwrap(), last_value.unwrap());
         }
 
         // Sanity check
