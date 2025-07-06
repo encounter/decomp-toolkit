@@ -686,6 +686,8 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 
         let mut num_imps = 0;
         let mut num_thunks = 0;
+        let mut min_api_addr: Option<u32> = None;
+        let mut max_api_addr: Option<u32> = None;
 
         // now, process them (add funcs/symbols and unstrip)
         for lib in imports.libraries.iter(){
@@ -722,6 +724,18 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 num_imps += 1;
                 
                 if func.thunk != 0 {
+                    if min_api_addr.is_some(){
+                        if func.thunk < min_api_addr.unwrap(){
+                            min_api_addr = Some(func.thunk);
+                        }
+                    }
+                    else { min_api_addr = Some(func.thunk); }
+                    if max_api_addr.is_some(){
+                        if func.thunk > max_api_addr.unwrap(){
+                            max_api_addr = Some(func.thunk);
+                        }
+                    }
+                    else { max_api_addr = Some(func.thunk); }
                     // println!("thunk at 0x{:08X}", func.thunk);
                     // create a symbol/func for the thunk - will always be size 0x10
                     let (thunk_idx, thunk_sec) = obj.sections.at_address_mut(func.thunk)?;
@@ -759,6 +773,22 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             }
         }
         log::info!("Found {} imps and {} corresponding functions from import data!", num_imps, num_thunks);
+
+        // this is done to catch any unused thunks that may end up being referenced in xidata later
+        if min_api_addr.is_some() && max_api_addr.is_some() {
+            let min_addr = min_api_addr.unwrap();
+            let max_addr = max_api_addr.unwrap();
+            let (import_idx, import_sec) = obj.sections.at_address_mut(min_addr)?;
+            let offset_within_sec: usize = min_addr as usize - import_sec.address as usize;
+            let end = offset_within_sec + (max_addr - min_addr) as usize;
+            for(i, chunk) in import_sec.data[offset_within_sec..end].chunks_exact(0x14).enumerate(){
+                let cur_addr = SectionAddress::new(import_idx, min_addr + (i * 0x14) as u32);
+                // TODO: find these missing funcs' corresponding imps so that you can unstrip them
+                if !obj.known_functions.contains_key(&cur_addr){
+                    obj.known_functions.insert(cur_addr, Some(0x10));
+                }
+            }
+        }
     }
 
     // add known function boundaries from pdata
