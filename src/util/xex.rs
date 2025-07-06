@@ -759,7 +759,6 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 }
             }
         }
-        log::info!("Found {} imps and {} corresponding functions from import data!", num_imps, num_thunks);
 
         // for SOME reason, microsoft can have imports/thunks that aren't referenced in the import libraries
         // but can be referenced in xidata later on
@@ -786,7 +785,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 if cur_imp != 0 && !captured_imps.contains(&i){
                     let sym_name = format!("__imp_{}",
                                            replace_ordinal(&imports.libraries[((cur_imp & 0x00FF0000) >> 16) as usize].name, (cur_imp & 0xFFFF) as usize));
-                    println!("Found missing imp {} at 0x{:08X}", sym_name, i);
+                    // println!("Found missing imp {} at 0x{:08X}", sym_name, i);
                     {
                         // obj borrowing scope moment
                         let sec = &mut obj.sections[import_idx];
@@ -826,7 +825,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     let cur_addr = SectionAddress::new(thunk_idx, i);
                     if !obj.known_functions.contains_key(&cur_addr){
                         let sym_name = replace_ordinal(&imports.libraries[((cur_thunk & 0x00FF0000) >> 16) as usize].name, (cur_thunk & 0xFFFF) as usize);
-                        println!("Found missing thunk {} at 0x{:08X}", sym_name, i);
+                        // println!("Found missing thunk {} at 0x{:08X}", sym_name, i);
                         let imp_name = format!("__imp_{}",sym_name);
                         let maybe_imp_sym = obj.symbols.by_name(&imp_name)?;
                         if maybe_imp_sym.is_some(){
@@ -834,11 +833,13 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                             unstrip_thunk(&mut obj.sections[thunk_idx].data[data_idx..data_idx + 8], maybe_imp_sym.unwrap().1.address as u32);
                         }
                         add_thunk(&mut obj, sym_name, cur_addr)?;
+                        num_thunks += 1;
                     }
                 }
                 i += 0x10;
             }
         }
+        log::info!("Found {} imps and {} import thunks from import data!", num_imps, num_thunks);
     }
 
     // add known function boundaries from pdata
