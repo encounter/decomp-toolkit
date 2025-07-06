@@ -1,4 +1,5 @@
 use std::{ borrow::Cow, fs, num::NonZeroU64 };
+use std::cmp::min;
 use anyhow::{anyhow, bail, ensure, Result};
 use object::{
     endian, read::pe::PeFile32, Architecture, BinaryFormat, Endianness, File, Import,
@@ -17,6 +18,7 @@ use crate::{
 };
 
 use num_enum::{ TryFromPrimitive, IntoPrimitive };
+use crate::obj::SymbolIndex;
 
 // quick and ez ways to read data from a block of bytes
 pub fn read_halfword(data: &Vec<u8>, index: usize) -> u16 {
@@ -686,8 +688,42 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 
         let mut num_imps = 0;
         let mut num_thunks = 0;
+        let mut min_imp_addr: Option<u32> = None;
+        let mut max_imp_addr: Option<u32> = None;
         let mut min_api_addr: Option<u32> = None;
         let mut max_api_addr: Option<u32> = None;
+        let mut captured_imps: Vec<u32> = vec![];
+
+        // to unstrip an __imp_,
+        // swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
+        // then slap an 80 at the end (90 01 00 80) - the 80 tells the system that we're importing by ordinal
+        fn unstrip_imp(imp: &mut [u8]){
+            imp[0] = imp[3]; imp[1] = imp[2]; imp[2] = 0; imp[3] = 0x80;
+        }
+        fn add_imp(obj: &mut ObjInfo, name: String, addr: SectionAddress) -> Result<SymbolIndex> {
+            return obj.add_symbol(ObjSymbol {
+               name, address: addr.address as u64, section: Some(addr.section), size: 4, size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common), kind: ObjSymbolKind::Object, ..Default::default()
+            }, false);
+        }
+        // to unstrip a thunk,
+        // you need the address of the __imp_ (i.e. __imp_XamInputGetCapabilities at 0x827103c4)
+        // then add it into the first two words via an lis/addi
+        // (example: XamInputGetCapabilities: 01 00 01 90 02 00 01 90 7D 69 03 A6 4E 80 04 20)
+        // (change the first two words to lis/addi r11 to 0x827103c4: 3D 60 82 71 81 6B 03 C4)
+        // (then it becomes: 3D 60 82 71 81 6B 03 C4 7D 69 03 A6 4E 80 04 20)
+        fn unstrip_thunk(thunk: &mut [u8], imp_addr: u32){
+            thunk[0] = 0x3D; thunk[1] = 0x60;
+            thunk[2] = ((imp_addr & 0xFF000000) >> 24) as u8;
+            thunk[3] = ((imp_addr & 0xFF0000) >> 16) as u8;
+            thunk[4] = 0x81; thunk[5] = 0x6B;
+            thunk[6] = ((imp_addr & 0xFF00) >> 8) as u8;
+            thunk[7] = (imp_addr & 0xFF) as u8;
+        }
+        fn add_thunk(obj: &mut ObjInfo, name: String, addr: SectionAddress) -> Result<SymbolIndex> {
+            obj.known_functions.insert(addr, Some(0x10));
+            return add_imp(obj, name, addr);
+        }
 
         // now, process them (add funcs/symbols and unstrip)
         for lib in imports.libraries.iter(){
@@ -695,98 +731,112 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             for func in lib.functions.iter() {
                 // println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
                 assert_ne!(func.address, 0, "Should not have an empty import func address!");
-                
+                min_imp_addr = Some(min_imp_addr.unwrap_or(func.address).min(func.address));
+                max_imp_addr = Some(max_imp_addr.unwrap_or(func.address).max(func.address));
+
                 let (sec_idx, sec) = obj.sections.at_address_mut(func.address)?;
                 let lookup_name = replace_ordinal(&lib.name, func.ordinal as usize);
                 let sym_name = format!("__imp_{}", lookup_name);
 
-                // to unstrip an __imp_,
-                // swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
-                // then slap an 80 at the end (90 01 00 80) - the 80 tells the system that we're importing by ordinal
                 let offset_within_sec: usize = func.address as usize - sec.address as usize;
-                let stripped_slice = &mut sec.data[offset_within_sec..offset_within_sec + 4];
-                stripped_slice[0] = stripped_slice[3];
-                stripped_slice[1] = stripped_slice[2];
-                stripped_slice[2] = 0;
-                stripped_slice[3] = 0x80;
-
+                unstrip_imp(&mut sec.data[offset_within_sec..offset_within_sec + 4]);
                 // println!("  Adding symbol {} at 0x{:08X}", sym_name, func.address);
-                obj.add_symbol(ObjSymbol {
-                    name: sym_name,
-                    address: func.address as u64,
-                    section: Some(sec_idx),
-                    size: 4,
-                    size_known: true,
-                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common),
-                    kind: ObjSymbolKind::Object,
-                    ..Default::default()
-                }, false)?;
+                add_imp(&mut obj, sym_name, SectionAddress::new(sec_idx, func.address))?;
+                captured_imps.push(func.address);
                 num_imps += 1;
                 
                 if func.thunk != 0 {
-                    if min_api_addr.is_some(){
-                        if func.thunk < min_api_addr.unwrap(){
-                            min_api_addr = Some(func.thunk);
-                        }
-                    }
-                    else { min_api_addr = Some(func.thunk); }
-                    if max_api_addr.is_some(){
-                        if func.thunk > max_api_addr.unwrap(){
-                            max_api_addr = Some(func.thunk);
-                        }
-                    }
-                    else { max_api_addr = Some(func.thunk); }
+                    min_api_addr = Some(min_api_addr.unwrap_or(func.thunk).min(func.thunk));
+                    max_api_addr = Some(max_api_addr.unwrap_or(func.thunk).max(func.thunk));
                     // println!("thunk at 0x{:08X}", func.thunk);
                     // create a symbol/func for the thunk - will always be size 0x10
                     let (thunk_idx, thunk_sec) = obj.sections.at_address_mut(func.thunk)?;
-
-                    // to unstrip a thunk,
-                    // you need the address of the __imp_ (i.e. __imp_XamInputGetCapabilities at 0x827103c4)
-                    // then add it into the first two words via an lis/addi
-                    // (example: XamInputGetCapabilities: 01 00 01 90 02 00 01 90 7D 69 03 A6 4E 80 04 20)
-                    // (change the first two words to lis/addi r11 to 0x827103c4: 3D 60 82 71 81 6B 03 C4)
-                    // (then it becomes: 3D 60 82 71 81 6B 03 C4 7D 69 03 A6 4E 80 04 20)
                     let offset_within_sec: usize = func.thunk as usize - thunk_sec.address as usize;
-                    let stripped_thunk_slice = &mut thunk_sec.data[offset_within_sec..offset_within_sec + 8];
-                    stripped_thunk_slice[0] = 0x3D; stripped_thunk_slice[1] = 0x60;
-                    stripped_thunk_slice[2] = ((func.address & 0xFF000000) >> 24) as u8;
-                    stripped_thunk_slice[3] = ((func.address & 0xFF0000) >> 16) as u8;
-                    stripped_thunk_slice[4] = 0x81; stripped_thunk_slice[5] = 0x6B;
-                    stripped_thunk_slice[6] = ((func.address & 0xFF00) >> 8) as u8;
-                    stripped_thunk_slice[7] = (func.address & 0xFF) as u8;
-
-                    let thunk_name = lookup_name;
+                    unstrip_thunk(&mut thunk_sec.data[offset_within_sec..offset_within_sec + 8], func.address);
                     // println!("  Adding symbol {} at 0x{:08X}", thunk_name, func.thunk);
-                    obj.known_functions.insert(SectionAddress::new(thunk_idx, func.thunk), Some(0x10));
-                    obj.add_symbol(ObjSymbol {
-                        name: thunk_name,
-                        address: func.thunk as u64,
-                        section: Some(thunk_idx),
-                        size: 0x10,
-                        size_known: true,
-                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common),
-                        kind: ObjSymbolKind::Function,
-                        ..Default::default()
-                    }, false)?;
+                    add_thunk(&mut obj, lookup_name, SectionAddress::new(thunk_idx, func.thunk))?;
                     num_thunks += 1;
                 }
             }
         }
         log::info!("Found {} imps and {} corresponding functions from import data!", num_imps, num_thunks);
 
-        // this is done to catch any unused thunks that may end up being referenced in xidata later
+        // for SOME reason, microsoft can have imports/thunks that aren't referenced in the import libraries
+        // but can be referenced in xidata later on
+        // so, this block of code serves to search for and capture them
+        if min_imp_addr.is_some() && max_imp_addr.is_some() {
+            let min_addr = min_imp_addr.unwrap();
+            let max_addr = max_imp_addr.unwrap();
+
+            // i had to write things this way because of how rust handles borrowing...thank you rust, very cool
+            let (import_idx, offset_within_sec) = {
+                let (idx, sec) = obj.sections.at_address(min_addr)?;
+                (idx, (min_addr - sec.address as u32) as usize)
+            };
+            let mut i = min_addr;
+            loop {
+                let data_idx = offset_within_sec + (i - min_addr) as usize;
+                let cur_imp = {
+                    let sec = &obj.sections[import_idx];
+                    if data_idx >= sec.data.len() { break; }
+                    read_word(&sec.data, data_idx)
+                };
+                if i > max_addr && cur_imp == 0 { break; }
+
+                if cur_imp != 0 && !captured_imps.contains(&i){
+                    let sym_name = format!("__imp_{}",
+                                           replace_ordinal(&imports.libraries[((cur_imp & 0x00FF0000) >> 16) as usize].name, (cur_imp & 0xFFFF) as usize));
+                    println!("Found missing imp {} at 0x{:08X}", sym_name, i);
+                    {
+                        // obj borrowing scope moment
+                        let sec = &mut obj.sections[import_idx];
+                        unstrip_imp(&mut sec.data[data_idx..data_idx + 4]);
+                    }
+                    add_imp(&mut obj, sym_name, SectionAddress::new(import_idx, i))?;
+                    num_imps += 1;
+                }
+
+                i += 4;
+            }
+        }
         if min_api_addr.is_some() && max_api_addr.is_some() {
             let min_addr = min_api_addr.unwrap();
             let max_addr = max_api_addr.unwrap();
-            let (import_idx, import_sec) = obj.sections.at_address_mut(min_addr)?;
-            let offset_within_sec: usize = min_addr as usize - import_sec.address as usize;
-            let end = offset_within_sec + (max_addr - min_addr) as usize;
-            for(i, chunk) in import_sec.data[offset_within_sec..end].chunks_exact(0x14).enumerate(){
-                let cur_addr = SectionAddress::new(import_idx, min_addr + (i * 0x14) as u32);
-                // TODO: find these missing funcs' corresponding imps so that you can unstrip them
-                if !obj.known_functions.contains_key(&cur_addr){
-                    obj.known_functions.insert(cur_addr, Some(0x10));
+
+            // i had to write things this way because of how rust handles borrowing...thank you rust, very cool
+            let (thunk_idx, offset_within_sec) = {
+                let (idx, sec) = obj.sections.at_address(min_addr)?;
+                (idx, (min_addr - sec.address as u32) as usize)
+            };
+
+            let mut i = min_addr;
+            loop {
+                let data_idx = offset_within_sec + (i - min_addr) as usize;
+                let cur_thunk = {
+                    let sec = &obj.sections[thunk_idx];
+                    if data_idx >= sec.data.len() { break; }
+                    read_word(&sec.data, data_idx)
+                };
+                if i > max_addr && cur_thunk == 0 { break; }
+                else if i < max_addr && cur_thunk == 0 {
+                    i += 4; continue;
                 }
+
+                if cur_thunk != 0 {
+                    let cur_addr = SectionAddress::new(thunk_idx, i);
+                    if !obj.known_functions.contains_key(&cur_addr){
+                        let sym_name = replace_ordinal(&imports.libraries[((cur_thunk & 0x00FF0000) >> 16) as usize].name, (cur_thunk & 0xFFFF) as usize);
+                        println!("Found missing thunk {} at 0x{:08X}", sym_name, i);
+                        let imp_name = format!("__imp_{}",sym_name);
+                        let maybe_imp_sym = obj.symbols.by_name(&imp_name)?;
+                        if maybe_imp_sym.is_some(){
+                            // println!("found sym {}", maybe_imp_sym.unwrap().1.name);
+                            unstrip_thunk(&mut obj.sections[thunk_idx].data[data_idx..data_idx + 8], maybe_imp_sym.unwrap().1.address as u32);
+                        }
+                        add_thunk(&mut obj, sym_name, cur_addr)?;
+                    }
+                }
+                i += 0x10;
             }
         }
     }
