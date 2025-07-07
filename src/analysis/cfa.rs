@@ -270,8 +270,6 @@ impl AnalyzerState {
             }
         }
 
-        let mut count = 0;
-
         // Process known functions first
         for addr in self.functions.keys().cloned().collect_vec() {
             self.process_function_at(obj, addr)?;
@@ -290,12 +288,6 @@ impl AnalyzerState {
                 }
             }
             // assert something with slices?
-
-            count += 1;
-            // if count == 1 {
-            //     // just here for debugging, easier to look at one func than 10K
-            //     return Ok(());
-            // }
         }
 
         // the rest...

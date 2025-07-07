@@ -4,7 +4,8 @@ use std::{
 };
 
 use anyhow::{bail, ensure, Context, Result};
-use ppc750cl::{Ins, Opcode};
+// use ppc750cl::{Ins, Opcode};
+use powerpc::{Ins, Opcode};
 
 use crate::{
     analysis::{
@@ -56,7 +57,7 @@ fn is_end_of_seq(next: &Ins) -> bool {
             .defs()
             .iter()
             .chain(next.uses().iter())
-            .any(|a| matches!(a, ppc750cl::Argument::GPR(ppc750cl::GPR(0 | 1))))
+            .any(|a| matches!(a, powerpc::Argument::GPR(powerpc::GPR(0 | 1))))
 }
 
 #[inline(always)]
@@ -430,12 +431,12 @@ impl FunctionSlices {
                                     _ => self.function_references.insert(addr),
                                 };
                             } else {
-                                out_branches.push(addr);
                                 // MSVC likes to end functions with bl sometimes
                                 // this lil hack will stop a new block from being added
                                 // if the current addr goes beyond our known function end addr
                                 // this should help our funcs from pdata that end in bl's
-                                if function_end.is_none() || addr < function_end.unwrap() {
+                                if function_end.is_none_or(|end| addr < end) {
+                                    out_branches.push(addr);
                                     if self.add_block_start(addr) {
                                         executor.push(addr, branch.vm, true);
                                     }

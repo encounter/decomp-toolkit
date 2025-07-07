@@ -1,7 +1,7 @@
 use std::{collections::BTreeSet, num::NonZeroU32};
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
-use ppc750cl::Ins;
+use powerpc::{Extensions, Ins};
 
 use crate::{
     analysis::cfa::SectionAddress,
@@ -21,7 +21,7 @@ pub mod tracker;
 pub mod vm;
 
 pub fn disassemble(section: &ObjSection, address: u32) -> Option<Ins> {
-    read_u32(section, address).map(Ins::new)
+    read_u32(section, address).map(|v| Ins::new(v, Extensions::xenon()))
 }
 
 pub fn read_u32(section: &ObjSection, address: u32) -> Option<u32> {

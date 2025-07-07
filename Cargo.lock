@@ -420,7 +420,7 @@ dependencies = [
  "once_cell",
  "orthrus-ncompress",
  "owo-colors",
- "ppc750cl 0.3.3",
+ "powerpc",
  "rayon",
  "regex",
  "rustc-hash",
@@ -1032,7 +1032,7 @@ dependencies = [
  "num-traits",
  "object",
  "pbjson-build",
- "ppc750cl 0.3.2",
+ "ppc750cl",
  "prost-build",
  "serde",
  "similar",
@@ -1158,15 +1158,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc9c68a3f6da06753e9335d63e27f6b9754dd1920d941135b7ea8224f141adb2"
 
 [[package]]
+name = "powerpc"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f9cac36a8d92f3c9d38ebfa606e3bbbbec229a8d757f03de0999898522856e33"
+
+[[package]]
 name = "ppc750cl"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "be8e5b9d48ab30323e8ece6d655d20fc16a570e4f1af0de6890d3e9ebd284ba0"
-
-[[package]]
-name = "ppc750cl"
-version = "0.3.3"
-source = "git+https://github.com/rjkiv/ppc750cl.git#2c17210df8ac910c50808ebca88808339e22dd97"
 
 [[package]]
 name = "prettyplease"

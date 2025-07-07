@@ -5,7 +5,7 @@ use std::{
 
 use anyhow::{bail, Result};
 use cwextab::decode_extab;
-use ppc750cl::Opcode;
+use powerpc::Opcode;
 use tracing::{debug_span, info_span};
 use tracing_attributes::instrument;
 

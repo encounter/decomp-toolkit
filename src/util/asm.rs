@@ -6,7 +6,7 @@ use std::{
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use itertools::Itertools;
-use ppc750cl::{Argument, Ins, InsIter, Opcode};
+use powerpc::{Argument, Extensions, Ins, InsIter, Opcode};
 
 use crate::{
     obj::{
@@ -67,7 +67,7 @@ where W: Write + ?Sized {
 
         // Generate local jump labels
         if section.kind == ObjSectionKind::Code {
-            for (addr, ins) in InsIter::new(&section.data, section.address as u32) {
+            for (addr, ins) in InsIter::new(&section.data, section.address as u32, Extensions::xenon()) {
                 if let Some(address) = ins.branch_dest(addr) {
                     if ins.field_aa() || !section.contains(address) {
                         continue;
@@ -247,7 +247,7 @@ fn write_code_chunk<W>(
 where
     W: Write + ?Sized,
 {
-    for (addr, ins) in InsIter::new(data, address) {
+    for (addr, ins) in InsIter::new(data, address, Extensions::xenon()) {
         let reloc = relocations.get(&addr);
         let file_offset = section.file_offset + (addr as u64 - section.address);
         write_ins(w, symbols, addr, ins, reloc, file_offset, section.virtual_address)?;

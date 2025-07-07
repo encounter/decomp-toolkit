@@ -1,6 +1,6 @@
 use anyhow::{ensure, Result};
 use fixedbitset::FixedBitSet;
-use ppc750cl::Ins;
+use powerpc::Ins;
 
 use crate::{
     analysis::{
