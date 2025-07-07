@@ -274,7 +274,6 @@ impl AnalyzerState {
 
         // Process known functions first
         for addr in self.functions.keys().cloned().collect_vec() {
-            // println!("Processing function at {:?}", addr);
             self.process_function_at(obj, addr)?;
 
             // some assertions, since we're working with known function boundaries

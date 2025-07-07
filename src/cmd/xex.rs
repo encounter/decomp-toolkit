@@ -3,6 +3,7 @@ use std::{ time::UNIX_EPOCH };
 use anyhow::{ensure, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
+use object::read::pe::PeFile32;
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
@@ -12,6 +13,7 @@ use crate::{
         xex::{extract_exe, process_xex, XexCompression, XexEncryption, XexInfo}
     }
 };
+use crate::util::xex::list_exe_sections;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing Xex files.
@@ -404,6 +406,7 @@ fn info(args: InfoArgs) -> Result<()> {
     println!("");
 
     // TODO: import libraries
+    list_exe_sections(&PeFile32::parse(&*xex.exe_bytes).expect("Failed to parse object file"));
 
     Ok(())
 }

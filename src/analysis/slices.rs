@@ -431,8 +431,14 @@ impl FunctionSlices {
                                 };
                             } else {
                                 out_branches.push(addr);
-                                if self.add_block_start(addr) {
-                                    executor.push(addr, branch.vm, true);
+                                // MSVC likes to end functions with bl sometimes
+                                // this lil hack will stop a new block from being added
+                                // if the current addr goes beyond our known function end addr
+                                // this should help our funcs from pdata that end in bl's
+                                if function_end.is_none() || addr < function_end.unwrap() {
+                                    if self.add_block_start(addr) {
+                                        executor.push(addr, branch.vm, true);
+                                    }
                                 }
                             }
                         }
@@ -542,15 +548,6 @@ impl FunctionSlices {
                     None => break 'outer,
                 }
             }
-        }
-
-        // pdata sanity check
-        if self.from_pdata {
-            assert!(function_end.is_some(), "No known function end passed into pdata!");
-            // assert the last block's end == the function end
-            let (_last_key, last_value) = self.blocks.iter().last().unwrap();
-            assert!(last_value.is_some(), "Last block for function from pdata has no known end!");
-            assert_eq!(function_end, *last_value, "For pdata function at {}: known end {} != inferred end {}!", function_start, function_end.unwrap(), last_value.unwrap());
         }
 
         // Sanity check

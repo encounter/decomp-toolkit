@@ -910,7 +910,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 }
 
 // debug only, lists section bounds
-fn list_exe_sections(exe: &PeFile32){
+pub fn list_exe_sections(exe: &PeFile32){
     println!("Sections:");
     for sec in exe.section_table().iter(){
         let name = std::str::from_utf8(&sec.name)
