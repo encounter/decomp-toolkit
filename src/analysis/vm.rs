@@ -6,6 +6,7 @@ use crate::{
     analysis::{cfa::SectionAddress, relocation_target_for, RelocationTarget},
     obj::{ObjInfo, ObjKind},
 };
+use crate::analysis::disassemble;
 
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum GprValue {
@@ -32,6 +33,8 @@ pub struct Gpr {
     pub hi_addr: Option<SectionAddress>,
     /// Address that loads the lo part of this GPR
     pub lo_addr: Option<SectionAddress>,
+    /// The register that this GPR should retrieve data from (used when identifying jump table bounds)
+    pub duplicate_of: Option<u8>,
 }
 
 impl Gpr {
@@ -567,6 +570,31 @@ impl VM {
                 }
                 if is_load_op(op) {
                     self.gpr[ins.field_rd() as usize].set_direct(GprValue::Unknown);
+                }
+                if op == Opcode::Lwz {
+                    // check for the evil microsoft jump table bound sequence
+                    let section = obj.sections.at_address(ins_addr.address).expect("no section").1;
+                    // is the second inst a cmplwi?
+                    if disassemble(section, ins_addr.address + 4).is_some_and(|i| i.op == Opcode::Cmpli && i.field_l() == 0)
+                    // is the third inst a bgt? condition: BO & 0b11110 == 12 && BI == 1
+                    && disassemble(section, ins_addr.address + 8).is_some_and(|i| i.op == Opcode::Bc && (i.field_bo() & 30) == 12 && (i.field_bi() & 3) == 1)
+                    {
+                        // finally, is the second inst an lwz, whose source reg and stack == the first lwz? furthermore, is the source reg R1?
+                        let the_second_lwz_maybe = disassemble(section, ins_addr.address + 12);
+                        if the_second_lwz_maybe.is_some_and(|i| i.op == Opcode::Lwz && i.field_ra() == ins.field_ra() && i.field_ra() == 1 && i.field_offset() == ins.field_offset()){
+                            // println!("possible evil microsoft section starting at {}!", ins_addr);
+                            // if we've found the sequence, mark the second lwz's dest reg as a duplicate of this one
+                            let the_second_lwz_rd = the_second_lwz_maybe.unwrap().field_rd();
+                            self.gpr[the_second_lwz_rd as usize].duplicate_of = Some(ins.field_rd());
+                        }
+                    }
+
+                    // if this lwz is a duplicate, retrieve the data
+                    if self.gpr[ins.field_rd() as usize].duplicate_of.is_some(){
+                        let original_reg = self.gpr[ins.field_rd() as usize].duplicate_of.unwrap();
+                        self.gpr[ins.field_rd() as usize].set_direct(self.gpr[original_reg as usize].value);
+                        self.gpr[ins.field_rd() as usize].duplicate_of = None;
+                    }
                 }
                 return result;
             }
