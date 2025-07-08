@@ -240,9 +240,9 @@ pub fn uniq_jump_table_entries(
     function_start: SectionAddress,
     function_end: Option<SectionAddress>,
 ) -> Result<(BTreeSet<SectionAddress>, u32)> {
-    if !is_valid_jump_table_addr(obj, addr) {
-        return Ok((BTreeSet::new(), 0));
-    }
+    // if !is_valid_jump_table_addr(obj, addr) {
+    //     return Ok((BTreeSet::new(), 0));
+    // }
     let (entries, size) =
         get_jump_table_entries(obj, addr, size, from, function_start, function_end).with_context(
             || format!("While fetching jump table entries starting at {addr:#010X}"),

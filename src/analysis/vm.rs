@@ -497,8 +497,24 @@ impl VM {
                 return StepResult::Branch(branches);
             }
             // lwzx rD, rA, rB
+            Opcode::Lwzx => {
+                let left = self.gpr[ins.field_ra() as usize].address(obj, ins_addr);
+                let right = self.gpr[ins.field_rb() as usize].value;
+                let value = match (left, right) {
+                    (Some(address), GprValue::Range { min: _, max, .. })
+                        if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
+                    {
+                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max as u32) }
+                    }
+                    (Some(address), _) => {
+                        GprValue::LoadIndexed { address, max_offset: None }
+                    }
+                    _ => GprValue::Unknown,
+                };
+                self.gpr[ins.field_rd() as usize].set_direct(value);
+            }
             // lbzx rD, rA, rB
-            Opcode::Lwzx | Opcode::Lbzx => {
+            Opcode::Lbzx => {
                 let left = self.gpr[ins.field_ra() as usize].address(obj, ins_addr);
                 let right = self.gpr[ins.field_rb() as usize].value;
                 let value = match (left, right) {

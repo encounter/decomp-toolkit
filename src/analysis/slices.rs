@@ -359,7 +359,7 @@ impl FunctionSlices {
                 }
                 BranchTarget::JumpTable { address: RelocationTarget::Address(address), size } => {
                     // End of block
-                    let next_address = ins_addr + 4;
+                    let next_address = ins_addr + 4 + size.unwrap().get(); // note: this will only be the case for ABSOLUTE addr jump tables!
                     self.blocks.insert(block_start, Some(next_address));
 
                     log::debug!("Fetching jump table entries @ {} with size {:?}", address, size);
