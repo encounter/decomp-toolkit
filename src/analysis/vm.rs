@@ -313,7 +313,11 @@ impl VM {
             }
             // ori rA, rS, UIMM
             Opcode::Ori => {
-                if let Some(target) =
+                // evil hack to get through what are effectively nops (ori rX, rX, 0)
+                if ins.field_uimm() == 0 && ins.field_ra() == ins.field_rs() {
+                    // don't do anything
+                }
+                else if let Some(target) =
                     relocation_target_for(obj, ins_addr, None /* TODO */).ok().flatten()
                 {
                     self.gpr[ins.field_ra() as usize].set_lo(
@@ -490,15 +494,11 @@ impl VM {
                 return StepResult::Branch(branches);
             }
             // lwzx rD, rA, rB
-            Opcode::Lwzx => {
+            // lbzx rD, rA, rB
+            Opcode::Lwzx | Opcode::Lbzx => {
                 let left = self.gpr[ins.field_ra() as usize].address(obj, ins_addr);
                 let right = self.gpr[ins.field_rb() as usize].value;
                 let value = match (left, right) {
-                    (Some(address), GprValue::Range { min: _, max, .. })
-                        if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
-                    {
-                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max as u32) }
-                    }
                     (Some(address), GprValue::Range { min: _, max, .. })
                         if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
                     {
