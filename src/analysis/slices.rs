@@ -4,6 +4,7 @@ use std::{
 };
 
 use anyhow::{bail, ensure, Context, Result};
+use object::Section;
 // use ppc750cl::{Ins, Opcode};
 use powerpc::{Ins, Opcode};
 
@@ -13,7 +14,7 @@ use crate::{
         disassemble,
         executor::{ExecCbData, ExecCbResult, Executor},
         uniq_jump_table_entries,
-        vm::{section_address_for, BranchTarget, GprValue, StepResult, VM},
+        vm::{section_address_for, BranchTarget, GprValue, JumpTableType, StepResult, VM},
         RelocationTarget,
     },
     obj::{ObjInfo, ObjKind, ObjSection, ObjSymbolKind},
@@ -319,7 +320,7 @@ impl FunctionSlices {
             StepResult::Jump(target) => match target {
                 BranchTarget::Unknown
                 | BranchTarget::Address(RelocationTarget::External)
-                | BranchTarget::JumpTable { address: RelocationTarget::External, .. } => {
+                | BranchTarget::JumpTable { jump_table_address: RelocationTarget::External, .. } => {
                     // Likely end of function
                     let next_addr = ins_addr + 4;
                     self.blocks.insert(block_start, Some(next_addr));
@@ -357,15 +358,28 @@ impl FunctionSlices {
                     }
                     Ok(ExecCbResult::EndBlock)
                 }
-                BranchTarget::JumpTable { address: RelocationTarget::Address(address), size } => {
+                BranchTarget::JumpTable { jump_table_type: jt, jump_table_address: RelocationTarget::Address(address), size } => {
+                    let next_addr_size = match jt {
+                        JumpTableType::Absolute => {
+                            match size {
+                                Some(num) => num.get(),
+                                None => 0,
+                            }
+                        },
+                        _ => { 0 },
+                    };
+
                     // End of block
-                    let next_address = ins_addr + 4 + size.unwrap().get(); // note: this will only be the case for ABSOLUTE addr jump tables!
+                    let next_address = ins_addr + 4 + next_addr_size;
                     self.blocks.insert(block_start, Some(next_address));
 
-                    log::debug!("Fetching jump table entries @ {} with size {:?}", address, size);
+                    log::debug!("Fetching {} jump table entries @ {} with size {:?}",
+                        if jt == JumpTableType::Absolute { "absolute" } else { "relative" },
+                        address, size);
                     let (entries, size) = uniq_jump_table_entries(
                         obj,
                         address,
+                        jt,
                         size,
                         ins_addr,
                         function_start,
@@ -374,9 +388,9 @@ impl FunctionSlices {
                     log::debug!("-> size {}: {:?}", size, entries);
                     if (entries.contains(&next_address) || self.blocks.contains_key(&next_address))
                         && !entries.iter().any(|&addr| {
-                            self.is_known_function(known_functions, addr)
-                                .is_some_and(|fn_addr| fn_addr != function_start)
-                        })
+                        self.is_known_function(known_functions, addr)
+                            .is_some_and(|fn_addr| fn_addr != function_start)
+                    })
                     {
                         self.jump_table_references.insert(address, size);
                         let mut branches = vec![];
@@ -443,7 +457,7 @@ impl FunctionSlices {
                                 }
                             }
                         }
-                        BranchTarget::JumpTable { address, size } => {
+                        BranchTarget::JumpTable { jump_table_type: jt, jump_table_address: address, size } => {
                             bail!(
                                 "Conditional jump table unsupported @ {:#010X} -> {:?} size {:#X?}",
                                 ins_addr,

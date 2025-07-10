@@ -8,6 +8,16 @@ use crate::{
 };
 use crate::analysis::disassemble;
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum JumpTableType {
+    // the table came from an lwzx, contains absolute addresses
+    Absolute,
+    // the table came from an lbzx, contains relative byte offsets (no rlwinm before the bctr)
+    Relative,
+    // the table came from an lbzx, contains relative byte offsets that we must multiply by 4
+    RelativeTimes4,
+}
+
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
 pub enum GprValue {
     #[default]
@@ -22,7 +32,7 @@ pub enum GprValue {
     /// GPR value is within a range
     Range { min: u64, max: u64, step: u64 },
     /// GPR value is loaded from an address with a max offset (jump table)
-    LoadIndexed { address: RelocationTarget, max_offset: Option<NonZeroU32> },
+    LoadIndexed { jump_table_type: JumpTableType, jump_table_address: RelocationTarget, max_offset: Option<NonZeroU32> }
 }
 
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
@@ -100,7 +110,7 @@ pub enum BranchTarget {
     /// Branch to address
     Address(RelocationTarget),
     /// Branch to jump table
-    JumpTable { address: RelocationTarget, size: Option<NonZeroU32> },
+    JumpTable { jump_table_type: JumpTableType, jump_table_address: RelocationTarget, size: Option<NonZeroU32> },
 }
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -217,6 +227,14 @@ impl VM {
                         GprValue::Constant(left),
                         GprValue::Address(RelocationTarget::Address(right)),
                     ) => GprValue::Address(RelocationTarget::Address(right.wrapping_add(left as u32))),
+                    (
+                        GprValue::Constant(left),
+                        GprValue::LoadIndexed { jump_table_type: jt, jump_table_address: ja, max_offset: m}
+                    ) => {
+                        // if we reached this point, this should be a relative jump table
+                        assert_ne!(jt, JumpTableType::Absolute);
+                        GprValue::LoadIndexed { jump_table_type: jt, jump_table_address: ja, max_offset: m }
+                    }
                     _ => GprValue::Unknown,
                 };
                 self.gpr[ins.field_rd() as usize].set_direct(value);
@@ -396,11 +414,28 @@ impl VM {
                         // because although regs are 64 bits on Xbox, 32-bit instructions run in 32-bit mode
                         GprValue::Constant(value) => {
                             GprValue::Constant(((value as u32).rotate_left(shift) & mask) as u64)
-                        }
+                        },
                         GprValue::Range { min, max, step } => GprValue::Range {
                             min: ((min as u32).rotate_left(shift) & mask) as u64,
                             max: ((max as u32).rotate_left(shift) & mask) as u64,
                             step: ((step as u32).rotate_left(shift)) as u64,
+                        },
+                        // if we've come across a rlwinm as a LoadIndexed...
+                        GprValue::LoadIndexed { jump_table_type: jt, jump_table_address: ja, max_offset: m} => {
+                            let ret = match jt {
+                                JumpTableType::Absolute => {
+                                    GprValue::LoadIndexed { jump_table_type: jt, jump_table_address: ja, max_offset: m }
+                                },
+                                // if the table type is currently relative, it means we need to multiply offsets by 4
+                                JumpTableType::Relative => {
+                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeTimes4, jump_table_address: ja, max_offset: m }
+                                },
+                                JumpTableType::RelativeTimes4 => {
+                                    log::warn!("Reached rlwinm with a JumpTableType of RelativeTimes4. Can we even reach this point? {}", ins_addr);
+                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeTimes4, jump_table_address: ja, max_offset: m }
+                                }
+                            };
+                            ret
                         },
                         _ => GprValue::Range { min: 0, max: mask as u64, step: 1u64.rotate_left(shift) },
                     }
@@ -431,11 +466,12 @@ impl VM {
                                 }
                             },
                             GprValue::Address(target) => BranchTarget::Address(target),
-                            GprValue::LoadIndexed { address, max_offset }
+                            GprValue::LoadIndexed { jump_table_type: jtype, jump_table_address: address, max_offset }
                             // FIXME: avoids treating bctrl indirect calls as jump tables
                             if !ins.field_lk() => {
-                                BranchTarget::JumpTable { address, size: max_offset.and_then(|n| n.checked_add(4)) }
-                            }
+                                BranchTarget::JumpTable { jump_table_type: jtype, jump_table_address: address,
+                                    size: max_offset.and_then(|n| n.checked_add( if jtype == JumpTableType::Absolute { 4 } else { 1 })) }
+                            },
                             _ => BranchTarget::Unknown,
                         }
                     }
@@ -504,10 +540,10 @@ impl VM {
                     (Some(address), GprValue::Range { min: _, max, .. })
                         if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
                     {
-                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max as u32) }
+                        GprValue::LoadIndexed { jump_table_type: JumpTableType::Absolute, jump_table_address: address, max_offset: NonZeroU32::new(max as u32) }
                     }
                     (Some(address), _) => {
-                        GprValue::LoadIndexed { address, max_offset: None }
+                        GprValue::LoadIndexed { jump_table_type: JumpTableType::Absolute, jump_table_address: address, max_offset: None }
                     }
                     _ => GprValue::Unknown,
                 };
@@ -519,12 +555,12 @@ impl VM {
                 let right = self.gpr[ins.field_rb() as usize].value;
                 let value = match (left, right) {
                     (Some(address), GprValue::Range { min: _, max, .. })
-                        if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
+                        if /*min == 0 &&*/ max < u64::MAX - 4 =>
                     {
-                        GprValue::LoadIndexed { address, max_offset: NonZeroU32::new(max as u32) }
+                        GprValue::LoadIndexed { jump_table_type: JumpTableType::Relative, jump_table_address: address, max_offset: NonZeroU32::new(max as u32) }
                     }
                     (Some(address), _) => {
-                        GprValue::LoadIndexed { address, max_offset: None }
+                        GprValue::LoadIndexed { jump_table_type: JumpTableType::Relative, jump_table_address: address, max_offset: None }
                     }
                     _ => GprValue::Unknown,
                 };
@@ -595,9 +631,9 @@ impl VM {
                     // is the third inst a bgt? condition: BO & 0b11110 == 12 && BI == 1
                     && disassemble(section, ins_addr.address + 8).is_some_and(|i| i.op == Opcode::Bc && (i.field_bo() & 30) == 12 && (i.field_bi() & 3) == 1)
                     {
-                        // finally, is the second inst an lwz, whose source reg and stack == the first lwz? furthermore, is the source reg R1?
+                        // finally, is the second inst an lwz, whose source reg and stack == the first lwz?
                         let the_second_lwz_maybe = disassemble(section, ins_addr.address + 12);
-                        if the_second_lwz_maybe.is_some_and(|i| i.op == Opcode::Lwz && i.field_ra() == ins.field_ra() && i.field_ra() == 1 && i.field_offset() == ins.field_offset()){
+                        if the_second_lwz_maybe.is_some_and(|i| i.op == Opcode::Lwz && i.field_ra() == ins.field_ra() && i.field_offset() == ins.field_offset()){
                             // println!("possible evil microsoft section starting at {}!", ins_addr);
                             // if we've found the sequence, mark the second lwz's dest reg as a duplicate of this one
                             let the_second_lwz_rd = the_second_lwz_maybe.unwrap().field_rd();

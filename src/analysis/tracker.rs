@@ -419,7 +419,7 @@ impl Tracker {
             StepResult::Jump(target) => match target {
                 BranchTarget::Return => Ok(ExecCbResult::EndBlock),
                 BranchTarget::Unknown
-                | BranchTarget::JumpTable { address: RelocationTarget::External, .. } => {
+                | BranchTarget::JumpTable { jump_table_address: RelocationTarget::External, .. } => {
                     let next_addr = ins_addr + 4;
                     if next_addr < function_end {
                         possible_missed_branches.insert(ins_addr + 4, vm.clone_all());
@@ -441,10 +441,11 @@ impl Tracker {
                     }
                     Ok(ExecCbResult::EndBlock)
                 }
-                BranchTarget::JumpTable { address: RelocationTarget::Address(address), size } => {
+                BranchTarget::JumpTable { jump_table_type: jt, jump_table_address: RelocationTarget::Address(address), size } => {
                     let (entries, _) = uniq_jump_table_entries(
                         obj,
                         address,
+                        jt,
                         size,
                         ins_addr,
                         function_start,
@@ -463,7 +464,7 @@ impl Tracker {
                     match branch.target {
                         BranchTarget::Unknown
                         | BranchTarget::Return
-                        | BranchTarget::JumpTable { address: RelocationTarget::External, .. } => {}
+                        | BranchTarget::JumpTable { jump_table_address: RelocationTarget::External, .. } => {}
                         BranchTarget::Address(target) => {
                             let (addr, is_fn_addr) = if let RelocationTarget::Address(addr) = target
                             {
@@ -482,12 +483,14 @@ impl Tracker {
                             }
                         }
                         BranchTarget::JumpTable {
-                            address: RelocationTarget::Address(address),
+                            jump_table_type: jt,
+                            jump_table_address: RelocationTarget::Address(address),
                             size,
                         } => {
                             let (entries, _) = uniq_jump_table_entries(
                                 obj,
                                 address,
+                                jt,
                                 size,
                                 ins_addr,
                                 function_start,

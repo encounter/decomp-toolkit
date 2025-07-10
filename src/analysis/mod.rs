@@ -5,6 +5,7 @@ use powerpc::{Extensions, Ins};
 
 use crate::{
     analysis::cfa::SectionAddress,
+    analysis::vm::JumpTableType,
     array_ref,
     obj::{
         ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbolKind, SectionIndex,
@@ -112,6 +113,7 @@ pub fn read_address(obj: &ObjInfo, section: &ObjSection, address: u32) -> Result
 }
 
 fn is_valid_jump_table_addr(obj: &ObjInfo, addr: SectionAddress) -> bool {
+    // addr must not be in code or bss
     !matches!(obj.sections[addr.section].kind, ObjSectionKind::Code | ObjSectionKind::Bss)
 }
 
@@ -137,14 +139,15 @@ pub fn relocation_target_for(
 
 fn get_jump_table_entries(
     obj: &ObjInfo,
-    addr: SectionAddress,
+    addr: SectionAddress, // the address the jump table is at
+    jump_table_type: JumpTableType,
     size: Option<NonZeroU32>,
-    from: SectionAddress,
+    from: SectionAddress, // the address of the bctr that uses the jump table
     function_start: SectionAddress,
     function_end: Option<SectionAddress>,
 ) -> Result<(Vec<SectionAddress>, u32)> {
     let section = &obj.sections[addr.section];
-
+    let is_relative = jump_table_type != JumpTableType::Absolute;
     // Check for an existing symbol with a known size, and use that if available.
     // Allows overriding jump table size analysis.
     let known_size = obj
@@ -155,42 +158,81 @@ fn get_jump_table_entries(
         .and_then(|(_, s)| if s.size_known { NonZeroU32::new(s.size as u32) } else { None });
 
     if let Some(size) = known_size.or(size).map(|n| n.get()) {
-        log::trace!(
+        log::debug!(
             "Located jump table @ {:#010X} with entry count {} (from {:#010X})",
             addr,
-            size / 4,
+            if is_relative { size } else { size / 4 }, // if relative, don't divide by 4
             from
         );
-        let mut entries = Vec::with_capacity(size as usize / 4);
+        let mut entries = Vec::with_capacity( if is_relative { size as usize } else { size as usize / 4 }); // if relative, don't divide by 4
         let mut data = section.data_range(addr.address, addr.address + size)?;
-        let mut cur_addr = addr;
-        loop {
-            if data.is_empty() {
-                break;
-            }
-            if let Some(target) =
-                relocation_target_for(obj, cur_addr, Some(ObjRelocKind::Absolute))?
-            {
-                match target {
-                    RelocationTarget::Address(addr) => entries.push(addr),
-                    RelocationTarget::External => {
-                        bail!("Jump table entry at {:#010X} points to external symbol", cur_addr)
+        // TODO: if relative, you need to add the entry's offset to the given relative_address
+        if is_relative {
+            // println!("relative");
+            let relative_addr = from + 4;
+            let mut cur_addr = addr; // cur_addr == the address of the current jump table entry we're analyzing
+            loop {
+                if data.is_empty() {
+                    break;
+                }
+                let offsetted_addr = relative_addr + (data[0] as u32 * if jump_table_type == JumpTableType::RelativeTimes4 { 4 } else { 1 }); // only times 4 if the enum tells us to
+                // println!("Base relative {} + offset (0x{:X} * 4) = {} at {}", relative_addr, data[0], offsetted_addr, cur_addr);
+                if let Some(target) =
+                    relocation_target_for(obj, offsetted_addr, Some(ObjRelocKind::Absolute))?
+                {
+                    match target {
+                        RelocationTarget::Address(addr) => entries.push(addr),
+                        RelocationTarget::External => {
+                            bail!("Jump table entry at {:#010X} points to external symbol", cur_addr)
+                        }
+                    }
+                } else {
+                    let entry_addr = offsetted_addr.address;
+                    if entry_addr > 0 {
+                        let (section_index, _) =
+                            obj.sections.at_address(entry_addr).with_context(|| {
+                                format!(
+                                    "Invalid jump table entry {entry_addr:#010X} at {cur_addr:#010X}"
+                                )
+                            })?;
+                        entries.push(SectionAddress::new(section_index, entry_addr));
                     }
                 }
-            } else {
-                let entry_addr = u32::from_be_bytes(*array_ref!(data, 0, 4));
-                if entry_addr > 0 {
-                    let (section_index, _) =
-                        obj.sections.at_address(entry_addr).with_context(|| {
-                            format!(
-                                "Invalid jump table entry {entry_addr:#010X} at {cur_addr:#010X}"
-                            )
-                        })?;
-                    entries.push(SectionAddress::new(section_index, entry_addr));
-                }
+                data = &data[1..];
+                cur_addr += 1;
             }
-            data = &data[4..];
-            cur_addr += 4;
+        }
+        else {
+            // println!("absolute");
+            let mut cur_addr = addr; // cur_addr == the address of the current jump table entry we're analyzing
+            loop {
+                if data.is_empty() {
+                    break;
+                }
+                if let Some(target) =
+                    relocation_target_for(obj, cur_addr, Some(ObjRelocKind::Absolute))?
+                {
+                    match target {
+                        RelocationTarget::Address(addr) => entries.push(addr),
+                        RelocationTarget::External => {
+                            bail!("Jump table entry at {:#010X} points to external symbol", cur_addr)
+                        }
+                    }
+                } else {
+                    let entry_addr = u32::from_be_bytes(*array_ref!(data, 0, 4));
+                    if entry_addr > 0 {
+                        let (section_index, _) =
+                            obj.sections.at_address(entry_addr).with_context(|| {
+                                format!(
+                                    "Invalid jump table entry {entry_addr:#010X} at {cur_addr:#010X}"
+                                )
+                            })?;
+                        entries.push(SectionAddress::new(section_index, entry_addr));
+                    }
+                }
+                data = &data[4..];
+                cur_addr += 4;
+            }
         }
         Ok((entries, size))
     } else {
@@ -235,16 +277,18 @@ fn get_jump_table_entries(
 pub fn uniq_jump_table_entries(
     obj: &ObjInfo,
     addr: SectionAddress,
+    jump_table_type: JumpTableType,
     size: Option<NonZeroU32>,
     from: SectionAddress,
     function_start: SectionAddress,
     function_end: Option<SectionAddress>,
 ) -> Result<(BTreeSet<SectionAddress>, u32)> {
-    // if !is_valid_jump_table_addr(obj, addr) {
-    //     return Ok((BTreeSet::new(), 0));
-    // }
+    // if absolute, jump table is in .text, in the middle of the func actually
+    if jump_table_type != JumpTableType::Absolute && !is_valid_jump_table_addr(obj, addr) {
+        return Ok((BTreeSet::new(), 0));
+    }
     let (entries, size) =
-        get_jump_table_entries(obj, addr, size, from, function_start, function_end).with_context(
+        get_jump_table_entries(obj, addr, jump_table_type, size, from, function_start, function_end).with_context(
             || format!("While fetching jump table entries starting at {addr:#010X}"),
         )?;
     Ok((BTreeSet::from_iter(entries.iter().cloned()), size))
