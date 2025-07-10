@@ -540,6 +540,9 @@ impl VM {
                     (Some(address), GprValue::Range { min: _, max, .. })
                         if /*min == 0 &&*/ max < u64::MAX - 4 && max & 3 == 0 =>
                     {
+                        // If the jump_table_address is within .text (supposed to be right after the bctr), this is a jump table
+                        // else, this is a data table (i.e. an array of strings)
+                        // but! since no bctr's come after data tables, these don't get treated like jump tables, soooooo I think this is fine?
                         GprValue::LoadIndexed { jump_table_type: JumpTableType::Absolute, jump_table_address: address, max_offset: NonZeroU32::new(max as u32) }
                     }
                     (Some(address), _) => {
