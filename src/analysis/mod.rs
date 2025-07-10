@@ -119,7 +119,7 @@ fn is_valid_jump_table_addr(obj: &ObjInfo, addr: SectionAddress, jump_table_type
             kind == ObjSectionKind::Code && kind != ObjSectionKind::Bss
         },
         // else, addr must not be in code or bss
-        JumpTableType::Relative | JumpTableType::RelativeTimes4 => {
+        JumpTableType::Relative(_) | JumpTableType::RelativeTimes4(_) => {
             !matches!(obj.sections[addr.section].kind, ObjSectionKind::Code | ObjSectionKind::Bss)
         },
     }
@@ -174,17 +174,23 @@ fn get_jump_table_entries(
         );
         let mut entries = Vec::with_capacity(num_entries as usize);
         let mut data = section.data_range(addr.address, addr.address + size)?;
-        let relative_addr = from + 4;
+        let relative_addr = match jump_table_type {
+            JumpTableType::Absolute => None,
+            JumpTableType::Relative(addr) | JumpTableType::RelativeTimes4(addr) => {
+                match addr.context("No relative address to apply jump table offsets to!")? {
+                    RelocationTarget::Address(addr) => Some(addr),
+                    _ => bail!("No relative address to apply jump table offsets to! (RelocationTarget is type External)"),
+                }
+            },
+        };
         let mut cur_addr = addr; // cur_addr == the address of the current jump table entry we're analyzing
         let increment = if jump_table_type == JumpTableType::Absolute { 4 } else { 1 } ;
         loop {
-            if data.is_empty() {
-                break;
-            }
+            if data.is_empty() { break; }
             let reloc_address = match jump_table_type {
                 JumpTableType::Absolute => cur_addr,
-                JumpTableType::Relative => relative_addr + data[0] as u32,
-                JumpTableType::RelativeTimes4 => relative_addr + (data[0] as u32 * 4),
+                JumpTableType::Relative(_) => { relative_addr.unwrap() + data[0] as u32 },
+                JumpTableType::RelativeTimes4(_) => { relative_addr.unwrap() + (data[0] as u32 * 4) },
             };
             if let Some(target) =
                 relocation_target_for(obj, reloc_address, Some(ObjRelocKind::Absolute))?
@@ -198,7 +204,7 @@ fn get_jump_table_entries(
             } else {
                 let entry_addr = match jump_table_type {
                     JumpTableType::Absolute => u32::from_be_bytes(*array_ref!(data, 0, 4)),
-                    JumpTableType::Relative | JumpTableType::RelativeTimes4 => reloc_address.address,
+                    JumpTableType::Relative(_) | JumpTableType::RelativeTimes4(_) => reloc_address.address,
                 };
                 if entry_addr > 0 {
                     let (section_index, _) =

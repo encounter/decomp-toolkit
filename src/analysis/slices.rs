@@ -457,7 +457,7 @@ impl FunctionSlices {
                                 }
                             }
                         }
-                        BranchTarget::JumpTable { jump_table_type: jt, jump_table_address: address, size } => {
+                        BranchTarget::JumpTable { jump_table_type: _, jump_table_address: address, size } => {
                             bail!(
                                 "Conditional jump table unsupported @ {:#010X} -> {:?} size {:#X?}",
                                 ins_addr,
