@@ -1,5 +1,4 @@
 use std::{collections::BTreeSet, num::NonZeroU32};
-
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use powerpc::{Extensions, Ins};
 
@@ -112,9 +111,18 @@ pub fn read_address(obj: &ObjInfo, section: &ObjSection, address: u32) -> Result
     }
 }
 
-fn is_valid_jump_table_addr(obj: &ObjInfo, addr: SectionAddress) -> bool {
-    // addr must not be in code or bss
-    !matches!(obj.sections[addr.section].kind, ObjSectionKind::Code | ObjSectionKind::Bss)
+fn is_valid_jump_table_addr(obj: &ObjInfo, addr: SectionAddress, jump_table_type: JumpTableType) -> bool {
+    match jump_table_type {
+        // if absolute, jump table is in .text, in the middle of the func actually
+        JumpTableType::Absolute => {
+            let kind = obj.sections[addr.section].kind;
+            kind == ObjSectionKind::Code && kind != ObjSectionKind::Bss
+        },
+        // else, addr must not be in code or bss
+        JumpTableType::Relative | JumpTableType::RelativeTimes4 => {
+            !matches!(obj.sections[addr.section].kind, ObjSectionKind::Code | ObjSectionKind::Bss)
+        },
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -147,7 +155,6 @@ fn get_jump_table_entries(
     function_end: Option<SectionAddress>,
 ) -> Result<(Vec<SectionAddress>, u32)> {
     let section = &obj.sections[addr.section];
-    let is_relative = jump_table_type != JumpTableType::Absolute;
     // Check for an existing symbol with a known size, and use that if available.
     // Allows overriding jump table size analysis.
     let known_size = obj
@@ -158,81 +165,53 @@ fn get_jump_table_entries(
         .and_then(|(_, s)| if s.size_known { NonZeroU32::new(s.size as u32) } else { None });
 
     if let Some(size) = known_size.or(size).map(|n| n.get()) {
+        let num_entries = if jump_table_type == JumpTableType::Absolute { size / 4 } else { size };
         log::debug!(
             "Located jump table @ {:#010X} with entry count {} (from {:#010X})",
             addr,
-            if is_relative { size } else { size / 4 }, // if relative, don't divide by 4
+            num_entries,
             from
         );
-        let mut entries = Vec::with_capacity( if is_relative { size as usize } else { size as usize / 4 }); // if relative, don't divide by 4
+        let mut entries = Vec::with_capacity(num_entries as usize);
         let mut data = section.data_range(addr.address, addr.address + size)?;
-        // TODO: if relative, you need to add the entry's offset to the given relative_address
-        if is_relative {
-            // println!("relative");
-            let relative_addr = from + 4;
-            let mut cur_addr = addr; // cur_addr == the address of the current jump table entry we're analyzing
-            loop {
-                if data.is_empty() {
-                    break;
-                }
-                let offsetted_addr = relative_addr + (data[0] as u32 * if jump_table_type == JumpTableType::RelativeTimes4 { 4 } else { 1 }); // only times 4 if the enum tells us to
-                // println!("Base relative {} + offset (0x{:X} * 4) = {} at {}", relative_addr, data[0], offsetted_addr, cur_addr);
-                if let Some(target) =
-                    relocation_target_for(obj, offsetted_addr, Some(ObjRelocKind::Absolute))?
-                {
-                    match target {
-                        RelocationTarget::Address(addr) => entries.push(addr),
-                        RelocationTarget::External => {
-                            bail!("Jump table entry at {:#010X} points to external symbol", cur_addr)
-                        }
-                    }
-                } else {
-                    let entry_addr = offsetted_addr.address;
-                    if entry_addr > 0 {
-                        let (section_index, _) =
-                            obj.sections.at_address(entry_addr).with_context(|| {
-                                format!(
-                                    "Invalid jump table entry {entry_addr:#010X} at {cur_addr:#010X}"
-                                )
-                            })?;
-                        entries.push(SectionAddress::new(section_index, entry_addr));
-                    }
-                }
-                data = &data[1..];
-                cur_addr += 1;
+        let relative_addr = from + 4;
+        let mut cur_addr = addr; // cur_addr == the address of the current jump table entry we're analyzing
+        let increment = if jump_table_type == JumpTableType::Absolute { 4 } else { 1 } ;
+        loop {
+            if data.is_empty() {
+                break;
             }
-        }
-        else {
-            // println!("absolute");
-            let mut cur_addr = addr; // cur_addr == the address of the current jump table entry we're analyzing
-            loop {
-                if data.is_empty() {
-                    break;
-                }
-                if let Some(target) =
-                    relocation_target_for(obj, cur_addr, Some(ObjRelocKind::Absolute))?
-                {
-                    match target {
-                        RelocationTarget::Address(addr) => entries.push(addr),
-                        RelocationTarget::External => {
-                            bail!("Jump table entry at {:#010X} points to external symbol", cur_addr)
-                        }
-                    }
-                } else {
-                    let entry_addr = u32::from_be_bytes(*array_ref!(data, 0, 4));
-                    if entry_addr > 0 {
-                        let (section_index, _) =
-                            obj.sections.at_address(entry_addr).with_context(|| {
-                                format!(
-                                    "Invalid jump table entry {entry_addr:#010X} at {cur_addr:#010X}"
-                                )
-                            })?;
-                        entries.push(SectionAddress::new(section_index, entry_addr));
+            let reloc_address = match jump_table_type {
+                JumpTableType::Absolute => cur_addr,
+                JumpTableType::Relative => relative_addr + data[0] as u32,
+                JumpTableType::RelativeTimes4 => relative_addr + (data[0] as u32 * 4),
+            };
+            if let Some(target) =
+                relocation_target_for(obj, reloc_address, Some(ObjRelocKind::Absolute))?
+            {
+                match target {
+                    RelocationTarget::Address(addr) => entries.push(addr),
+                    RelocationTarget::External => {
+                        bail!("Jump table entry at {:#010X} points to external symbol", cur_addr)
                     }
                 }
-                data = &data[4..];
-                cur_addr += 4;
+            } else {
+                let entry_addr = match jump_table_type {
+                    JumpTableType::Absolute => u32::from_be_bytes(*array_ref!(data, 0, 4)),
+                    JumpTableType::Relative | JumpTableType::RelativeTimes4 => reloc_address.address,
+                };
+                if entry_addr > 0 {
+                    let (section_index, _) =
+                        obj.sections.at_address(entry_addr).with_context(|| {
+                            format!(
+                                "Invalid jump table entry {entry_addr:#010X} at {cur_addr:#010X}"
+                            )
+                        })?;
+                    entries.push(SectionAddress::new(section_index, entry_addr));
+                }
             }
+            data = &data[increment..];
+            cur_addr += increment as u32;
         }
         Ok((entries, size))
     } else {
@@ -276,15 +255,14 @@ fn get_jump_table_entries(
 
 pub fn uniq_jump_table_entries(
     obj: &ObjInfo,
-    addr: SectionAddress,
+    addr: SectionAddress, // the address the jump table is at
     jump_table_type: JumpTableType,
     size: Option<NonZeroU32>,
-    from: SectionAddress,
+    from: SectionAddress, // the address of the bctr that uses the jump table
     function_start: SectionAddress,
     function_end: Option<SectionAddress>,
 ) -> Result<(BTreeSet<SectionAddress>, u32)> {
-    // if absolute, jump table is in .text, in the middle of the func actually
-    if jump_table_type != JumpTableType::Absolute && !is_valid_jump_table_addr(obj, addr) {
+    if !is_valid_jump_table_addr(obj, addr, jump_table_type) {
         return Ok((BTreeSet::new(), 0));
     }
     let (entries, size) =
