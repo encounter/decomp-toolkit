@@ -119,7 +119,8 @@ fn is_valid_jump_table_addr(obj: &ObjInfo, addr: SectionAddress, jump_table_type
             kind == ObjSectionKind::Code && kind != ObjSectionKind::Bss
         },
         // else, addr must not be in code or bss
-        JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) | JumpTableType::RelativeShorts(_) => {
+        JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) |
+        JumpTableType::RelativeShorts(_) | JumpTableType::RelativeShortsTimes2(_) => {
             !matches!(obj.sections[addr.section].kind, ObjSectionKind::Code | ObjSectionKind::Bss)
         },
     }
@@ -154,6 +155,9 @@ fn get_jump_table_entries(
     function_start: SectionAddress,
     function_end: Option<SectionAddress>,
 ) -> Result<(Vec<SectionAddress>, u32)> {
+    assert!(!matches!(jump_table_type, JumpTableType::RelativeShortsTimes2(_)),
+            "Somehow, we found a jump table type lhzx that needs its offsets multiplied at addr {} from {}", addr, from);
+
     let section = &obj.sections[addr.section];
     // Check for an existing symbol with a known size, and use that if available.
     // Allows overriding jump table size analysis.
@@ -168,7 +172,7 @@ fn get_jump_table_entries(
         let num_entries = match jump_table_type {
             JumpTableType::Absolute => size / 4,
             JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) => size,
-            JumpTableType::RelativeShorts(_) => size / 2,
+            JumpTableType::RelativeShorts(_) | JumpTableType::RelativeShortsTimes2(_) => size / 2,
         };
         log::debug!(
             "Located jump table @ {:#010X} with entry count {} (from {:#010X})",
@@ -180,9 +184,8 @@ fn get_jump_table_entries(
         let mut data = section.data_range(addr.address, addr.address + size)?;
         let relative_addr = match jump_table_type {
             JumpTableType::Absolute => None,
-            JumpTableType::RelativeBytes(addr) |
-            JumpTableType::RelativeBytesTimes4(addr) |
-            JumpTableType::RelativeShorts(addr) => {
+            JumpTableType::RelativeBytes(addr) | JumpTableType::RelativeBytesTimes4(addr) |
+            JumpTableType::RelativeShorts(addr) | JumpTableType::RelativeShortsTimes2(addr) => {
                 match addr.context("No relative address to apply jump table offsets to!")? {
                     RelocationTarget::Address(addr) => Some(addr),
                     _ => bail!("No relative address to apply jump table offsets to! (RelocationTarget is type External)"),
@@ -193,7 +196,7 @@ fn get_jump_table_entries(
         let increment = match jump_table_type {
             JumpTableType::Absolute => 4,
             JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) => 1,
-            JumpTableType::RelativeShorts(_) => 2,
+            JumpTableType::RelativeShorts(_) | JumpTableType::RelativeShortsTimes2(_) => 2,
         };
         loop {
             if data.is_empty() { break; }
@@ -202,6 +205,7 @@ fn get_jump_table_entries(
                 JumpTableType::RelativeBytes(_) => { relative_addr.unwrap() + data[0] as u32 },
                 JumpTableType::RelativeBytesTimes4(_) => { relative_addr.unwrap() + (data[0] as u32 * 4) },
                 JumpTableType::RelativeShorts(_) => { relative_addr.unwrap() + u16::from_be_bytes(*array_ref!(data, 0, 2)) as u32 },
+                JumpTableType::RelativeShortsTimes2(_) => { relative_addr.unwrap() + (u16::from_be_bytes(*array_ref!(data, 0, 2)) as u32 * 2) },
             };
             if let Some(target) =
                 relocation_target_for(obj, reloc_address, Some(ObjRelocKind::Absolute))?
@@ -215,7 +219,8 @@ fn get_jump_table_entries(
             } else {
                 let entry_addr = match jump_table_type {
                     JumpTableType::Absolute => u32::from_be_bytes(*array_ref!(data, 0, 4)),
-                    JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) | JumpTableType::RelativeShorts(_) => reloc_address.address,
+                    JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) |
+                    JumpTableType::RelativeShorts(_) | JumpTableType::RelativeShortsTimes2(_) => reloc_address.address,
                 };
                 if entry_addr > 0 {
                     let (section_index, _) =

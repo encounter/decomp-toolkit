@@ -847,10 +847,6 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         Some(the_pair) => the_pair,
         None => { return Err(anyhow!(".pdata section not found. Is that even possible for an xex?")) }
     };
-    let (text_idx, _text_section) = match obj.sections.by_name(".text")? {
-        Some(the_pair) => the_pair,
-        None => { return Err(anyhow!(".text section not found...how did we even get to this point?"))}
-    };
 
     let mut num = 0;
     for (_, chunk) in pdata_section.data.chunks_exact(8).enumerate(){
@@ -864,7 +860,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         let num_insts_in_func = (word >> 8) & 0x3FFFFF; // The number of instructions in the function.
         // let func_type = word >> 30; // The function type.
 
-        let section_addr = SectionAddress::new(text_idx, start_addr);
+        let section_addr = SectionAddress::new(obj.sections.at_address(start_addr)?.0, start_addr);
         obj.known_functions.insert(section_addr, Some(num_insts_in_func * 4));
         obj.pdata_funcs.push(section_addr);
         // if func_type == 3, there's an 8 byte struct (with 2 words) just before the function start that contains exception data

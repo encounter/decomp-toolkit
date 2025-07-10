@@ -18,6 +18,8 @@ pub enum JumpTableType {
     RelativeBytesTimes4(Option<RelocationTarget>),
     // the table came from an lhzx, contains relative short offsets (no rlwinm before the bctr)
     RelativeShorts(Option<RelocationTarget>),
+    // the table came from an lhzx, contains relative short offsets that we must multiply by 2
+    RelativeShortsTimes2(Option<RelocationTarget>),
 }
 
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
@@ -235,7 +237,10 @@ impl VM {
                     ) => {
                         match jt {
                             // if we reached this point, this should be a relative jump table
-                            JumpTableType::Absolute => unreachable!(),
+                            JumpTableType::Absolute => {
+                                // this probably isn't a jump table anyway, so just keep the load indexed value
+                                GprValue::LoadIndexed { jump_table_type: jt, jump_table_address: ja, max_offset: m }
+                            },
                             // anyways, mark down the relative address we should be adding offsets to
                             JumpTableType::RelativeBytes(addr) => {
                                 assert!(addr.is_none(), "Relative addr should not be known at this point!");
@@ -257,6 +262,14 @@ impl VM {
                                 assert!(addr.is_none(), "Relative addr should not be known at this point!");
                                 GprValue::LoadIndexed {
                                     jump_table_type: JumpTableType::RelativeShorts(Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, left as u32)))),
+                                    jump_table_address: ja,
+                                    max_offset: m
+                                }
+                            },
+                            JumpTableType::RelativeShortsTimes2(addr) => {
+                                assert!(addr.is_none(), "Relative addr should not be known at this point!");
+                                GprValue::LoadIndexed {
+                                    jump_table_type: JumpTableType::RelativeShortsTimes2(Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, left as u32)))),
                                     jump_table_address: ja,
                                     max_offset: m
                                 }
@@ -463,9 +476,11 @@ impl VM {
                                     GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeBytesTimes4(addr), jump_table_address: ja, max_offset: m }
                                 },
                                 JumpTableType::RelativeShorts(addr) => {
-                                    // FIXME: it doesn't seem like shortstimes4 is needed, but make a case for it anyway just in case it does
-                                    // because nx1, although it doesn't lead to a jump table, reaches this block
-                                    unreachable!(); // if this gets reached, oh god we need ShortsTimes4
+                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeShortsTimes2(addr), jump_table_address: ja, max_offset: m }
+                                },
+                                JumpTableType::RelativeShortsTimes2(addr) => {
+                                    log::warn!("Reached rlwinm with a JumpTableType of RelativeTimes2. Can we even reach this point? {}", ins_addr);
+                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeShortsTimes2(addr), jump_table_address: ja, max_offset: m }
                                 }
                             };
                             ret
@@ -505,7 +520,7 @@ impl VM {
                                 let add_increment = match jtype {
                                     JumpTableType::Absolute => 4,
                                     JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) => 1,
-                                    JumpTableType::RelativeShorts(_) => 2,
+                                    JumpTableType::RelativeShorts(_) | JumpTableType::RelativeShortsTimes2(_) => 2,
                                 };
                                 BranchTarget::JumpTable { jump_table_type: jtype, jump_table_address: address,
                                     size: max_offset.and_then(|n| n.checked_add( add_increment)) }
