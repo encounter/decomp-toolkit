@@ -107,7 +107,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     FindSaveRestSledsXbox::execute(&mut state, &obj)?;
 
     state.detect_functions(&obj)?;
-    log::debug!(
+    log::info!(
         "Discovered {} functions",
         state.functions.iter().filter(|(_, i)| i.end.is_some()).count()
     );

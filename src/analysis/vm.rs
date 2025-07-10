@@ -13,9 +13,11 @@ pub enum JumpTableType {
     // the table came from an lwzx, contains absolute addresses
     Absolute,
     // the table came from an lbzx, contains relative byte offsets (no rlwinm before the bctr)
-    Relative(Option<RelocationTarget>),
+    RelativeBytes(Option<RelocationTarget>),
     // the table came from an lbzx, contains relative byte offsets that we must multiply by 4
-    RelativeTimes4(Option<RelocationTarget>),
+    RelativeBytesTimes4(Option<RelocationTarget>),
+    // the table came from an lhzx, contains relative short offsets (no rlwinm before the bctr)
+    RelativeShorts(Option<RelocationTarget>),
 }
 
 #[derive(Default, Debug, Copy, Clone, Eq, PartialEq)]
@@ -235,22 +237,30 @@ impl VM {
                             // if we reached this point, this should be a relative jump table
                             JumpTableType::Absolute => unreachable!(),
                             // anyways, mark down the relative address we should be adding offsets to
-                            JumpTableType::Relative(addr) => {
+                            JumpTableType::RelativeBytes(addr) => {
                                 assert!(addr.is_none(), "Relative addr should not be known at this point!");
                                 GprValue::LoadIndexed {
-                                    jump_table_type: JumpTableType::Relative(Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, left as u32)))),
+                                    jump_table_type: JumpTableType::RelativeBytes(Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, left as u32)))),
                                     jump_table_address: ja,
                                     max_offset: m
                                 }
                             },
-                            JumpTableType::RelativeTimes4(addr) => {
+                            JumpTableType::RelativeBytesTimes4(addr) => {
                                 assert!(addr.is_none(), "Relative addr should not be known at this point!");
                                 GprValue::LoadIndexed {
-                                    jump_table_type: JumpTableType::RelativeTimes4(Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, left as u32)))),
+                                    jump_table_type: JumpTableType::RelativeBytesTimes4(Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, left as u32)))),
                                     jump_table_address: ja,
                                     max_offset: m
                                 }
                             },
+                            JumpTableType::RelativeShorts(addr) => {
+                                assert!(addr.is_none(), "Relative addr should not be known at this point!");
+                                GprValue::LoadIndexed {
+                                    jump_table_type: JumpTableType::RelativeShorts(Some(RelocationTarget::Address(SectionAddress::new(ins_addr.section, left as u32)))),
+                                    jump_table_address: ja,
+                                    max_offset: m
+                                }
+                            }
                         }
                     }
                     _ => GprValue::Unknown,
@@ -445,12 +455,17 @@ impl VM {
                                     GprValue::LoadIndexed { jump_table_type: jt, jump_table_address: ja, max_offset: m }
                                 },
                                 // if the table type is currently relative, it means we need to multiply offsets by 4
-                                JumpTableType::Relative(addr) => {
-                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeTimes4(addr), jump_table_address: ja, max_offset: m }
+                                JumpTableType::RelativeBytes(addr) => {
+                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeBytesTimes4(addr), jump_table_address: ja, max_offset: m }
                                 },
-                                JumpTableType::RelativeTimes4(addr) => {
+                                JumpTableType::RelativeBytesTimes4(addr) => {
                                     log::warn!("Reached rlwinm with a JumpTableType of RelativeTimes4. Can we even reach this point? {}", ins_addr);
-                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeTimes4(addr), jump_table_address: ja, max_offset: m }
+                                    GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeBytesTimes4(addr), jump_table_address: ja, max_offset: m }
+                                },
+                                JumpTableType::RelativeShorts(addr) => {
+                                    // FIXME: it doesn't seem like shortstimes4 is needed, but make a case for it anyway just in case it does
+                                    // because nx1, although it doesn't lead to a jump table, reaches this block
+                                    unreachable!(); // if this gets reached, oh god we need ShortsTimes4
                                 }
                             };
                             ret
@@ -487,8 +502,13 @@ impl VM {
                             GprValue::LoadIndexed { jump_table_type: jtype, jump_table_address: address, max_offset }
                             // FIXME: avoids treating bctrl indirect calls as jump tables
                             if !ins.field_lk() => {
+                                let add_increment = match jtype {
+                                    JumpTableType::Absolute => 4,
+                                    JumpTableType::RelativeBytes(_) | JumpTableType::RelativeBytesTimes4(_) => 1,
+                                    JumpTableType::RelativeShorts(_) => 2,
+                                };
                                 BranchTarget::JumpTable { jump_table_type: jtype, jump_table_address: address,
-                                    size: max_offset.and_then(|n| n.checked_add( if jtype == JumpTableType::Absolute { 4 } else { 1 })) }
+                                    size: max_offset.and_then(|n| n.checked_add( add_increment)) }
                             },
                             _ => BranchTarget::Unknown,
                         }
@@ -578,15 +598,32 @@ impl VM {
                     (Some(address), GprValue::Range { min: _, max, .. })
                         if /*min == 0 &&*/ max < u64::MAX - 4 =>
                     {
-                        GprValue::LoadIndexed { jump_table_type: JumpTableType::Relative(None), jump_table_address: address, max_offset: NonZeroU32::new(max as u32) }
+                        GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeBytes(None), jump_table_address: address, max_offset: NonZeroU32::new(max as u32) }
                     }
                     (Some(address), _) => {
-                        GprValue::LoadIndexed { jump_table_type: JumpTableType::Relative(None), jump_table_address: address, max_offset: None }
+                        GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeBytes(None), jump_table_address: address, max_offset: None }
                     }
                     _ => GprValue::Unknown,
                 };
                 self.gpr[ins.field_rd() as usize].set_direct(value);
             }
+            // lhzx rD, rA, rB
+            Opcode::Lhzx => {
+                let left = self.gpr[ins.field_ra() as usize].address(obj, ins_addr);
+                let right = self.gpr[ins.field_rb() as usize].value;
+                let value = match (left, right) {
+                    (Some(address), GprValue::Range { min: _, max, .. })
+                    if /*min == 0 &&*/ max < u64::MAX - 4 && max & 1 == 0 =>
+                        {
+                            GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeShorts(None), jump_table_address: address, max_offset: NonZeroU32::new(max as u32) }
+                        }
+                    (Some(address), _) => {
+                        GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeShorts(None), jump_table_address: address, max_offset: None }
+                    }
+                    _ => GprValue::Unknown,
+                };
+                self.gpr[ins.field_rd() as usize].set_direct(value);
+            },
             // mtspr SPR, rS
             Opcode::Mtspr => match ins.field_spr() {
                 8 => self.lr = self.gpr[ins.field_rs() as usize].value,
