@@ -869,6 +869,9 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         // if func_type == 3 {
         //     println!("Func at 0x{:08X} has exception handler at 0x{:08X}, and handler data at 0x{:08X}!", start_addr, start_addr - 8, start_addr - 4);
         // }
+
+        // TODO: mark exception handler stuff so we don't try to search their bounds later
+
         // TODO: mark start_addr - 8 as a function? (we don't know the end point of it)
         // and mark start_addr - 4 as a symbol to an exception handler data record?
         num += 1;
@@ -876,10 +879,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     log::info!("Found {} known funcs from pdata!", num);
 
     // if this xex has an .xidata section, mark down the funcs in there
-    if let Some(xidata_pair) = obj.sections.by_name(".xidata")? {
-        let xidata_idx = xidata_pair.0;
-        let xidata_sec = xidata_pair.1;
-
+    if let Some((xidata_idx, xidata_sec)) = obj.sections.by_name(".xidata")? {
         let mut num_xidatas = 0;
         for (i, chunk) in xidata_sec.data.chunks_exact(16).enumerate(){
             if i == 0 { continue; } // the first entry appears to be all 0's...but is every xidata like this?

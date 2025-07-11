@@ -236,7 +236,10 @@ fn get_jump_table_entries(
             cur_addr += increment as u32;
         }
         Ok((entries, size))
-    } else {
+    }
+    // FIXME: this guessing routine only works for absolute jump tables
+    // make one for relative jump tables!
+    else {
         let mut entries = Vec::new();
         let mut cur_addr = addr;
         loop {
@@ -265,7 +268,7 @@ fn get_jump_table_entries(
             cur_addr += 4;
         }
         let size = cur_addr.address - addr.address;
-        log::debug!(
+        log::info!(
             "Guessed jump table @ {:#010X} with entry count {} (from {:#010X})",
             addr,
             size / 4,

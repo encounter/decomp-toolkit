@@ -99,6 +99,8 @@ pub struct VM {
     pub lr: GprValue,
     /// Count register
     pub ctr: GprValue,
+    /// The last modified CR
+    pub last_modified_cr: u8,
 }
 
 impl VM {
@@ -436,6 +438,7 @@ impl VM {
                     let crf = ins.field_crfd();
                     self.cr[crf as usize] = Cr { signed, left, right };
                     self.gpr[left_reg].value = GprValue::ComparisonResult(crf);
+                    self.last_modified_cr = crf;
                 }
             }
             // rlwinm rA, rS, SH, MB, ME
@@ -613,7 +616,15 @@ impl VM {
                     (Some(address), GprValue::Range { min: _, max, .. })
                         if /*min == 0 &&*/ max < u64::MAX - 4 =>
                     {
-                        GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeBytes(None), jump_table_address: address, max_offset: NonZeroU32::new(max as u32) }
+                        // if we never encountered a bgt before this, we don't know the bounds for sure
+                        let bounds_known: bool = match self.cr[self.last_modified_cr as usize].right {
+                            GprValue::Constant(c) => { max == c },
+                            _ => false,
+                        };
+                        GprValue::LoadIndexed {
+                            jump_table_type: JumpTableType::RelativeBytes(None),
+                            jump_table_address: address,
+                            max_offset: if bounds_known { NonZeroU32::new(max as u32) } else { None } }
                     }
                     (Some(address), _) => {
                         GprValue::LoadIndexed { jump_table_type: JumpTableType::RelativeBytes(None), jump_table_address: address, max_offset: None }
