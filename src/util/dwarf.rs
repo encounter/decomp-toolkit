@@ -2142,9 +2142,16 @@ fn process_enumeration_tag(info: &DwarfInfo, tag: &Tag) -> Result<EnumerationTyp
             (AttributeKind::ElementList, AttributeValue::Block(data)) => {
                 let mut cursor = Cursor::new(data);
                 while cursor.position() < data.len() as u64 {
-                    let value = i32::from_reader(&mut cursor, info.e)?;
+                    let value = match byte_size {
+                        Some(1) => Some(i8::from_reader(&mut cursor, info.e)? as i32),
+                        Some(2) => Some(i16::from_reader(&mut cursor, info.e)? as i32),
+                        Some(4) => Some(i32::from_reader(&mut cursor, info.e)?),
+                        _ => None,
+                    };
                     let name = read_string(&mut cursor)?;
-                    members.push(EnumerationMember { name, value });
+                    if let Some(value) = value {
+                        members.push(EnumerationMember { name, value });
+                    }
                 }
             }
             (AttributeKind::Member, &AttributeValue::Reference(_key)) => {
