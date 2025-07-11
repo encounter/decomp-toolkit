@@ -28,9 +28,6 @@ pub struct FunctionSlices {
     pub jump_table_references: BTreeMap<SectionAddress, u32>,
     pub prologue: Option<SectionAddress>,
     pub epilogue: Option<SectionAddress>,
-    // for xbox
-    // if a function came from pdata, we know its prologue length and its confirmed end
-    pub from_pdata: bool,
     // Either a block or tail call
     pub possible_blocks: BTreeMap<SectionAddress, Box<VM>>,
     pub has_conditional_blr: bool,
@@ -594,20 +591,18 @@ impl FunctionSlices {
     ) -> Result<()> {
         ensure!(!self.finalized, "Already finalized");
         ensure!(self.can_finalize(), "Can't finalize");
-
-        if !self.from_pdata {
-            match (self.prologue, self.epilogue, self.has_r1_load) {
-                (Some(_), Some(_), _) | (None, None, _) => {}
-                (Some(_), None, _) => {
-                    // Likely __noreturn
-                }
-                (None, Some(e), false) => {
-                    log::warn!("{:#010X?}", self);
-                    bail!("Unpaired epilogue {:#010X}", e);
-                }
-                (None, Some(_), true) => {
-                    // Possible stack setup
-                }
+        
+        match (self.prologue, self.epilogue, self.has_r1_load) {
+            (Some(_), Some(_), _) | (None, None, _) => {}
+            (Some(_), None, _) => {
+                // Likely __noreturn
+            }
+            (None, Some(e), false) => {
+                log::warn!("{:#010X?}", self);
+                bail!("Unpaired epilogue {:#010X}", e);
+            }
+            (None, Some(_), true) => {
+                // Possible stack setup
             }
         }
 
