@@ -261,13 +261,11 @@ impl AnalyzerState {
             });
         }
 
-        // Also check the beginning of every code section that is NOT .xidata (because we already swept through that)
+        // Also check the beginning of every code section
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            if section.name != ".xidata" {
-                self.functions
-                    .entry(SectionAddress::new(section_index, section.address as u32))
-                    .or_default();
-            }
+            self.functions
+                .entry(SectionAddress::new(section_index, section.address as u32))
+                .or_default();
         }
 
         // Process known functions first
@@ -277,15 +275,17 @@ impl AnalyzerState {
             // some assertions, since we're working with known function boundaries
             // if we got this from pdata or import data, there should be a known end
             if let Some(value) = obj.known_functions.get(&addr) {
-                let func = self.functions.get(&addr).unwrap();
-                assert_eq!(func.end.is_some(), true, "Function at {} has no detected end. There must be an error in processing!", addr);
-                if let Some(known_size) = value {
-                    let known_end = addr.address + known_size;
-                    let func_end = func.end.unwrap().address;
-                    assert_eq!(func_end, known_end,
-                        "Function at {} has known end addr 0x{:08X}, but during processing, ending was found to be 0x{:08X}!",
-                        addr, known_end, func_end);
+                if let Some(func) = self.functions.get(&addr) {
+                    assert_eq!(func.end.is_some(), true, "Function at {} has no detected end. There must be an error in processing!", addr);
+                    if let Some(known_size) = value {
+                        let func_end = func.end.unwrap();
+                        let known_end = addr + *known_size;
+                        assert_eq!(func_end, known_end,
+                                   "Function at {} has known end addr {}, but during processing, ending was found to be {}!",
+                                   addr, known_end, func_end);
+                    }
                 }
+                else { unreachable!(); }
             }
             // assert something with slices?
         }
