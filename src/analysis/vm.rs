@@ -776,6 +776,10 @@ impl VM {
                     self.gpr[source].set_direct(GprValue::Unknown, None);
                 }
                 if op == Opcode::Lwz {
+                    // the following sequence checkers are terrible hacks
+                    // the "proper" way to do it would be to track values of stack offsets/memory offsets as they're written to/read from,
+                    // but for the life me i can't figure out how to do that
+                    // so until that system gets implemented, these hacks will have to do
                     let section = obj.sections.at_address(ins_addr.address).expect("no section").1;
                     // check for the evil microsoft jump table bound sequence: lwz, cmplwi, bgt, lwz
                     // we're gonna check for the sequence from the second lwz
@@ -788,8 +792,6 @@ impl VM {
                             let is_lwz = first_lwz.op == Opcode::Lwz && first_lwz.field_ra() == ins.field_ra() && first_lwz.field_offset() == ins.field_offset();
                             let is_cmplwi = cmp.op == Opcode::Cmpli && cmp.field_l() == 0;
                             let is_bgt = bgt.op == Opcode::Bc && (bgt.field_bo() & 30) == 12 && (bgt.field_bi() & 3) == 1;
-                            let is_ble = bgt.op == Opcode::Bc && (bgt.field_bo() & 30) == 4 && (bgt.field_bi() & 3) == 1;
-                            let is_jump_table_branch = is_bgt /* || is_ble */;
 
                             // if we've found the sequence, retrieve the data
                             if is_lwz && is_cmplwi && is_bgt {
