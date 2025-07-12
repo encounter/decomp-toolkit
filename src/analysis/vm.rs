@@ -776,23 +776,44 @@ impl VM {
                     self.gpr[source].set_direct(GprValue::Unknown, None);
                 }
                 if op == Opcode::Lwz {
-                    // check for the evil microsoft jump table bound sequence: lwz, cmplwi, bgt/ble, lwz
                     let section = obj.sections.at_address(ins_addr.address).expect("no section").1;
+                    // check for the evil microsoft jump table bound sequence: lwz, cmplwi, bgt, lwz
                     // we're gonna check for the sequence from the second lwz
                     if ins_addr.address - section.address as u32 >= 12 {
-                        if let (Some(first_lwz), Some(cmp), Some(branch)) = (
+                        if let (Some(first_lwz), Some(cmp), Some(bgt)) = (
                             disassemble(section, ins_addr.address.wrapping_sub(12)),
                             disassemble(section, ins_addr.address.wrapping_sub(8)),
                             disassemble(section, ins_addr.address.wrapping_sub(4)),
                         ){
                             let is_lwz = first_lwz.op == Opcode::Lwz && first_lwz.field_ra() == ins.field_ra() && first_lwz.field_offset() == ins.field_offset();
                             let is_cmplwi = cmp.op == Opcode::Cmpli && cmp.field_l() == 0;
-                            let is_bgt = branch.op == Opcode::Bc && (branch.field_bo() & 30) == 12 && (branch.field_bi() & 3) == 1;
-                            let is_ble = branch.op == Opcode::Bc && (branch.field_bo() & 30) == 4 && (branch.field_bi() & 3) == 1;
+                            let is_bgt = bgt.op == Opcode::Bc && (bgt.field_bo() & 30) == 12 && (bgt.field_bi() & 3) == 1;
+                            let is_ble = bgt.op == Opcode::Bc && (bgt.field_bo() & 30) == 4 && (bgt.field_bi() & 3) == 1;
                             let is_jump_table_branch = is_bgt /* || is_ble */;
 
                             // if we've found the sequence, retrieve the data
-                            if is_lwz && is_cmplwi && is_jump_table_branch {
+                            if is_lwz && is_cmplwi && is_bgt {
+                                // println!("found sequence at {}!", ins_addr);
+                                self.gpr[ins.field_rd() as usize].set_direct(self.gpr[first_lwz.field_rd() as usize].value, None);
+                                return result;
+                            }
+                        }
+                    }
+                    // check for the evil microsoft jump table bound sequence: lwz, cmplwi, ble, b, lwz
+                    if ins_addr.address - section.address as u32 >= 16 {
+                        if let (Some(first_lwz), Some(cmp), Some(ble), Some(branch)) = (
+                            disassemble(section, ins_addr.address.wrapping_sub(16)),
+                            disassemble(section, ins_addr.address.wrapping_sub(12)),
+                            disassemble(section, ins_addr.address.wrapping_sub(8)),
+                            disassemble(section, ins_addr.address.wrapping_sub(4)),
+                        ){
+                            let is_lwz = first_lwz.op == Opcode::Lwz && first_lwz.field_ra() == ins.field_ra() && first_lwz.field_offset() == ins.field_offset();
+                            let is_cmplwi = cmp.op == Opcode::Cmpli && cmp.field_l() == 0;
+                            let is_ble = ble.op == Opcode::Bc && (ble.field_bo() & 30) == 4 && (ble.field_bi() & 3) == 1;
+                            let is_branch = branch.op == Opcode::B && !branch.field_aa() && !branch.field_lk();
+
+                            // if we've found the sequence, retrieve the data
+                            if is_lwz && is_cmplwi && is_ble && is_branch {
                                 // println!("found sequence at {}!", ins_addr);
                                 self.gpr[ins.field_rd() as usize].set_direct(self.gpr[first_lwz.field_rd() as usize].value, None);
                                 return result;
