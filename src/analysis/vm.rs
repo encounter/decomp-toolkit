@@ -73,8 +73,6 @@ pub struct Gpr {
     pub hi_addr: Option<SectionAddress>,
     /// Address that loads the lo part of this GPR
     pub lo_addr: Option<SectionAddress>,
-    /// The register that this GPR should retrieve data from (used when identifying jump table bounds)
-    pub duplicate_of: Option<u8>,
     /// The source of this GPR's value
     pub source: GprSource,
     /// The revision of this GPR's value
@@ -777,33 +775,33 @@ impl VM {
                 } else if is_update_op(op) {
                     self.gpr[source].set_direct(GprValue::Unknown, None);
                 }
-                if is_load_op(op) {
-                    self.gpr[ins.field_rd() as usize].set_direct(GprValue::Unknown, None);
-                }
                 if op == Opcode::Lwz {
-                    // check for the evil microsoft jump table bound sequence
+                    // check for the evil microsoft jump table bound sequence: lwz, cmplwi, bgt/ble, lwz
                     let section = obj.sections.at_address(ins_addr.address).expect("no section").1;
-                    // is the second inst a cmplwi?
-                    if disassemble(section, ins_addr.address + 4).is_some_and(|i| i.op == Opcode::Cmpli && i.field_l() == 0)
-                    // is the third inst a bgt? condition: BO & 0b11110 == 12 && BI == 1
-                    && disassemble(section, ins_addr.address + 8).is_some_and(|i| i.op == Opcode::Bc && (i.field_bo() & 30) == 12 && (i.field_bi() & 3) == 1)
-                    {
-                        // finally, is the second inst an lwz, whose source reg and stack == the first lwz?
-                        let the_second_lwz_maybe = disassemble(section, ins_addr.address + 12);
-                        if the_second_lwz_maybe.is_some_and(|i| i.op == Opcode::Lwz && i.field_ra() == ins.field_ra() && i.field_offset() == ins.field_offset()){
-                            // println!("possible evil microsoft section starting at {}!", ins_addr);
-                            // if we've found the sequence, mark the second lwz's dest reg as a duplicate of this one
-                            let the_second_lwz_rd = the_second_lwz_maybe.unwrap().field_rd();
-                            self.gpr[the_second_lwz_rd as usize].duplicate_of = Some(ins.field_rd());
+                    // we're gonna check for the sequence from the second lwz
+                    if ins_addr.address - section.address as u32 >= 12 {
+                        if let (Some(first_lwz), Some(cmp), Some(branch)) = (
+                            disassemble(section, ins_addr.address.wrapping_sub(12)),
+                            disassemble(section, ins_addr.address.wrapping_sub(8)),
+                            disassemble(section, ins_addr.address.wrapping_sub(4)),
+                        ){
+                            let is_lwz = first_lwz.op == Opcode::Lwz && first_lwz.field_ra() == ins.field_ra() && first_lwz.field_offset() == ins.field_offset();
+                            let is_cmplwi = cmp.op == Opcode::Cmpli && cmp.field_l() == 0;
+                            let is_bgt = branch.op == Opcode::Bc && (branch.field_bo() & 30) == 12 && (branch.field_bi() & 3) == 1;
+                            let is_ble = branch.op == Opcode::Bc && (branch.field_bo() & 30) == 4 && (branch.field_bi() & 3) == 1;
+                            let is_jump_table_branch = is_bgt /* || is_ble */;
+
+                            // if we've found the sequence, retrieve the data
+                            if is_lwz && is_cmplwi && is_jump_table_branch {
+                                // println!("found sequence at {}!", ins_addr);
+                                self.gpr[ins.field_rd() as usize].set_direct(self.gpr[first_lwz.field_rd() as usize].value, None);
+                                return result;
+                            }
                         }
                     }
-
-                    // if this lwz is a duplicate, retrieve the data
-                    if self.gpr[ins.field_rd() as usize].duplicate_of.is_some(){
-                        let original_reg = self.gpr[ins.field_rd() as usize].duplicate_of.unwrap();
-                        self.gpr[ins.field_rd() as usize].set_direct(self.gpr[original_reg as usize].value, None);
-                        self.gpr[ins.field_rd() as usize].duplicate_of = None;
-                    }
+                }
+                if is_load_op(op) {
+                    self.gpr[ins.field_rd() as usize].set_direct(GprValue::Unknown, None);
                 }
                 return result;
             }
