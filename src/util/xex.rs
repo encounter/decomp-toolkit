@@ -162,19 +162,28 @@ impl ImportLibraries {
 // RESOURCEINFO
 // ----------------------------------------------------------------------
 
+pub struct ResourceInfos {
+    pub info: Vec<ResourceInfo>,
+}
+
 pub struct ResourceInfo {
     pub title_id: String,
     pub rsrc_start: u32,
     pub rsrc_end: u32
 }
 
-impl ResourceInfo {
+impl ResourceInfos {
     pub fn parse(data: &Vec<u8>) -> Result<Self> {
-        ensure!(data.len() == 16, "Resource info has unexpected length! (expected 16)");
-        let title_id = String::from_utf8(data[0..8].to_vec())?;
-        let rsrc_start = read_word(&data, 8);
-        let rsrc_end = rsrc_start + read_word(&data, 12);
-        return Ok(Self { title_id, rsrc_start, rsrc_end });
+        ensure!(data.len() % 16 == 0, "Resource info has unexpected length! (expected a multiple of 16)");
+        let num_resources = data.len() / 16;
+        let mut info: Vec<ResourceInfo> = vec![];
+        for (_, chunk) in data.chunks_exact(16).enumerate(){
+            let title_id = String::from_utf8(chunk[0..8].to_vec())?;
+            let rsrc_start = u32::from_be_bytes(chunk[8..12].try_into()?);
+            let rsrc_end = rsrc_start + u32::from_be_bytes(chunk[12..16].try_into()?);
+            info.push(ResourceInfo { title_id, rsrc_start, rsrc_end });
+        }
+        return Ok(Self { info });
     }
 }
 
@@ -226,7 +235,7 @@ pub struct XexOptionalHeaderData {
     pub entry_point: u32,
     pub image_base: u32,
     pub file_timestamp: u32,
-    pub resource_info: Option<ResourceInfo>,
+    pub resource_info: Option<ResourceInfos>,
     pub base_file_format: Option<BaseFileFormat>,
     // PatchDescriptor
     pub static_libs: Vec<StaticLibrary>,
@@ -256,7 +265,7 @@ impl XexOptionalHeaderData {
             ensure!(!header.data.is_empty(), "No data found in optional header!");
             match header.id {
                 XexOptionalHeaderID::ResourceInfo => {
-                    resource_info = Some(ResourceInfo::parse(&header.data)?);
+                    resource_info = Some(ResourceInfos::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::BaseFileFormat => {
                     base_file_format = Some(BaseFileFormat::parse(&header.data)?);
