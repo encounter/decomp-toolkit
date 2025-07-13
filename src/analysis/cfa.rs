@@ -263,9 +263,9 @@ impl AnalyzerState {
 
         // Also check the beginning of every code section
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            self.functions
-                .entry(SectionAddress::new(section_index, section.address as u32))
-                .or_default();
+            let this_sec_start = SectionAddress::new(section_index, section.address as u32);
+            if obj.symbols.by_name(&format!("ExceptionDataFor{:08X}", this_sec_start.address + 8))?.is_some(){ continue; }
+            self.functions.entry(this_sec_start).or_default();
         }
 
         // Process known functions first
