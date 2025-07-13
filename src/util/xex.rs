@@ -2,6 +2,7 @@ use std::{ borrow::Cow, fs, num::NonZeroU64 };
 use std::cmp::min;
 use std::collections::btree_map::Entry;
 use anyhow::{anyhow, bail, ensure, Result};
+use memchr::memmem;
 use object::{
     endian, read::pe::PeFile32, Architecture, BinaryFormat, Endianness, File, Import,
     Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget,
@@ -934,6 +935,36 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             num_xidatas += 1;
         }
         log::info!("Found {} known funcs from xidata!", num_xidatas);
+    }
+
+    const RTL_CHECK_STACK: [u8; 40] = [
+        // _RtlCheckStack
+        0x7d, 0x83, 0x00, 0xd0,
+        // _RtlCheckStack12
+        0x7d, 0x6c, 0x00, 0xd0, 0x38, 0x0b, 0x0f, 0xff, 0x7c, 0x00, 0x66, 0x71, 0x4c, 0x81, 0x00, 0x20,
+        0x7c, 0x2b, 0x0b, 0x78, 0x7c, 0x09, 0x03, 0xa6, 0x84, 0x0b, 0xf0, 0x00, 0x42, 0x00, 0xff, 0xfc,
+        0x4e, 0x80, 0x00, 0x20
+    ];
+
+    let mut api_syms: Vec<ObjSymbol> = vec![];
+    for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code){
+        let Some(pos) = memmem::find(&section.data, &RTL_CHECK_STACK) else { continue; };
+        let start = SectionAddress::new(section_index, section.address as u32 + pos as u32);
+        obj.known_functions.insert(start, Some(4));
+        obj.known_functions.insert(start + 4, Some(36));
+        api_syms.push(ObjSymbol {
+            name: String::from("_RtlCheckStack"), address: start.address as u64, section: Some(start.section),
+            size: 4, size_known: true, flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+            kind: ObjSymbolKind::Function, ..Default::default()
+        });
+        api_syms.push(ObjSymbol {
+            name: String::from("_RtlCheckStack"), address: (start.address + 4) as u64, section: Some(start.section),
+            size: 36, size_known: true, flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+            kind: ObjSymbolKind::Function, ..Default::default()
+        });
+    }
+    for sym in api_syms {
+        obj.add_symbol(sym, false)?;
     }
 
     // .XBMOVIE: matches up with ground truth...but it's mostly a sea of 0's
