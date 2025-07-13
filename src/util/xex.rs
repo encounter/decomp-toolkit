@@ -126,7 +126,9 @@ impl ImportLibraries {
                 cur_str += &(data[pos] as char).to_string();
             }
             else {
-                while data[pos + 1] == 0 && pos < cap - 1 {
+                // the values in between strings SHOULD be just zeros
+                // but some games have super small non-zero values (tomb raider legend)
+                while data[pos + 1] < 5 && pos < cap - 1 {
                     pos += 1;
                 }
                 string_table.push(cur_str.clone());
@@ -755,7 +757,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     let (thunk_idx, thunk_sec) = obj.sections.at_address_mut(func.thunk)?;
                     let offset_within_sec: usize = func.thunk as usize - thunk_sec.address as usize;
                     unstrip_thunk(&mut thunk_sec.data[offset_within_sec..offset_within_sec + 8], func.address);
-                    // println!("  Adding symbol {} at 0x{:08X}", thunk_name, func.thunk);
+                    // println!("  Adding symbol {} at 0x{:08X}", lookup_name, func.thunk);
                     add_thunk(&mut obj, lookup_name, SectionAddress::new(thunk_idx, func.thunk))?;
                     num_thunks += 1;
                 }
