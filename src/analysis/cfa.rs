@@ -501,6 +501,8 @@ impl AnalyzerState {
                             None => continue,
                         };
                         if second > addr {
+                            // don't try to add a function where there's an exception symbol
+                            if obj.symbols.by_name(&format!("ExceptionDataFor{:08X}", addr.address + 8))?.is_some(){ continue; }
                             log::trace!(
                                 "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X?})",
                                 addr,

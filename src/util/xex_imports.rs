@@ -24,7 +24,7 @@ pub fn replace_ordinal(lib_name: &String, ordinal: usize) -> String {
         }
     }
 
-    log::warn!("import library {} not found!", lib_name);
+    log::warn!("import library {} ordinal {:04X} not found!", lib_name, ordinal);
     format!("{:04X}", ordinal)
 }
 
