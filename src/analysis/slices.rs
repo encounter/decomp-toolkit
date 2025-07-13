@@ -287,7 +287,14 @@ impl FunctionSlices {
                     fn_addr,
                     ins_addr
                 );
-                return Ok(ExecCbResult::End(false));
+                // if we know the function end from pdata, just end the block here and continue processing
+                return match function_end {
+                    Some(end) => {
+                        self.blocks.insert(block_start, function_end);
+                        Ok(ExecCbResult::EndBlock)
+                    },
+                    None => Ok(ExecCbResult::End(false)),
+                };
             }
         }
 
