@@ -486,6 +486,7 @@ impl AnalyzerState {
     fn detect_new_functions(&mut self, obj: &ObjInfo) -> Result<bool> {
         let mut new_functions = vec![];
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
+            if section.name == ".xidata" { continue; } // because we already did our xidata processing at this point
             let section_start = SectionAddress::new(section_index, section.address as u32);
             let section_end = section_start + section.size as u32;
             let mut iter = self.functions.range(section_start..section_end).peekable();
