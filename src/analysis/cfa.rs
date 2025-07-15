@@ -276,10 +276,10 @@ impl AnalyzerState {
             // if we got this from pdata or import data, there should be a known end
             if let Some(value) = obj.known_functions.get(&addr) {
                 if let Some(func) = self.functions.get(&addr) {
-                    assert_eq!(func.end.is_some(), true, "Function at {} has no detected end. There must be an error in processing!", addr);
                     if let Some(known_size) = value {
-                        let func_end = func.end.unwrap();
                         let known_end = addr + *known_size;
+                        assert_eq!(func.end.is_some(), true, "Function at {} has no detected end rather than known end {}. There must be an error in processing!", addr, known_end);
+                        let func_end = func.end.unwrap();
                         assert_eq!(func_end, known_end,
                                    "Function at {} has known end addr {}, but during processing, ending was found to be {}!",
                                    addr, known_end, func_end);

@@ -308,6 +308,9 @@ impl FunctionSlices {
                     self.blocks.insert(block_start, Some(next_address));
                     self.branches.insert(ins_addr, vec![next_address]);
                     Ok(ExecCbResult::EndBlock)
+                } else if function_end.is_some_and(|end| next_address >= end){
+                    self.blocks.insert(block_start, Some(next_address));
+                    Ok(ExecCbResult::EndBlock)
                 } else {
                     Ok(ExecCbResult::Continue)
                 }
