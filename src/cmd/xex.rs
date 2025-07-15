@@ -13,6 +13,8 @@ use crate::{
         xex::{extract_exe, process_xex, XexCompression, XexEncryption, XexInfo}
     }
 };
+use crate::analysis::objects::detect_strings;
+use crate::analysis::tracker::Tracker;
 use crate::util::xex::list_exe_sections;
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -111,6 +113,22 @@ fn disasm(args: DisasmArgs) -> Result<()> {
         "Discovered {} functions",
         state.functions.iter().filter(|(_, i)| i.end.is_some()).count()
     );
+    // give each found function a symbol
+    state.apply(&mut obj)?;
+
+    println!("Checking for relocatable targets...");
+    // look at dol's split_write_obj
+    let mut tracker = Tracker::new(&obj);
+    // TODO: don't process imps
+    tracker.process(&obj)?;
+
+    println!("Applying relocatable targets...");
+    tracker.apply(&mut obj, true)?;
+
+    println!("Detecting strings");
+    detect_strings(&mut obj)?;
+    println!("Done!");
+
     Ok(())
 }
 
