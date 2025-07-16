@@ -736,7 +736,10 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         }
         fn add_thunk(obj: &mut ObjInfo, name: String, addr: SectionAddress) -> Result<SymbolIndex> {
             obj.known_functions.insert(addr, Some(0x10));
-            return add_imp(obj, name, addr);
+            obj.add_symbol(ObjSymbol {
+                name, address: addr.address as u64, section: Some(addr.section), size: 0x10, size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common), kind: ObjSymbolKind::Function, ..Default::default()
+            }, false)
         }
 
         // now, process them (add funcs/symbols and unstrip)

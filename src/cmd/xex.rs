@@ -15,6 +15,7 @@ use crate::{
 };
 use crate::analysis::objects::detect_strings;
 use crate::analysis::tracker::Tracker;
+use crate::util::config::write_symbols_file;
 use crate::util::xex::list_exe_sections;
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -128,6 +129,8 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     println!("Detecting strings");
     detect_strings(&mut obj)?;
     println!("Done!");
+
+    write_symbols_file(&args.out, &obj, None)?;
 
     Ok(())
 }

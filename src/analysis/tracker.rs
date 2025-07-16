@@ -215,7 +215,7 @@ impl Tracker {
             for (_, symbol) in obj
                 .symbols
                 .for_section(section_index)
-                .filter(|(_, symbol)| symbol.kind == ObjSymbolKind::Function && symbol.size_known)
+                .filter(|(_, symbol)| symbol.kind == ObjSymbolKind::Function && symbol.size_known && !symbol.name.contains("__imp"))
             {
                 let addr = SectionAddress::new(section_index, symbol.address as u32);
                 if !self.processed_functions.insert(addr) {
