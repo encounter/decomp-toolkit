@@ -14,8 +14,11 @@ use crate::{
     }
 };
 use crate::analysis::objects::detect_strings;
+use crate::analysis::objects::{detect_objects, detect_strings};
 use crate::analysis::tracker::Tracker;
+use crate::util::asm::write_asm;
 use crate::util::config::write_symbols_file;
+use crate::util::file::buf_writer;
 use crate::util::xex::list_exe_sections;
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -126,9 +129,16 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     println!("Applying relocatable targets...");
     tracker.apply(&mut obj, true)?;
 
+    println!("Detecting objects");
+    detect_objects(&mut obj)?;
+
     println!("Detecting strings");
     detect_strings(&mut obj)?;
-    println!("Done!");
+
+    println!("Writing asm");
+    // let mut w = buf_writer(&args.out)?;
+    // write_asm(&mut w, &obj)?;
+    // w.flush()?;
 
     write_symbols_file(&args.out, &obj, None)?;
 

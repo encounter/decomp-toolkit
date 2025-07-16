@@ -1,6 +1,7 @@
 use std::{ borrow::Cow, fs, num::NonZeroU64 };
 use std::cmp::min;
 use std::collections::btree_map::Entry;
+use std::ffi::CString;
 use anyhow::{anyhow, bail, ensure, Result};
 use memchr::memmem;
 use object::{
@@ -287,7 +288,7 @@ impl XexOptionalHeaderData {
                     import_libs = Some(ImportLibraries::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::OriginalPEName => {
-                    original_name = String::from_utf8(header.data.clone())?;
+                    original_name = CString::from_vec_with_nul(header.data.clone())?.into_string()?;
                 }
                 XexOptionalHeaderID::ChecksumTimestamp => {
                     file_timestamp = read_word(&header.data, 0);
@@ -296,8 +297,10 @@ impl XexOptionalHeaderData {
                     let num_libs = header.data.len() / 16;
                     for i in 0..num_libs {
                         let start = i * 16;
+                        let mut name = header.data[start..start + 8].to_vec();
+                        name.retain(|&x| x != 0);
                         static_libs.push(StaticLibrary {
-                            name: String::from_utf8(header.data[start..start + 8].to_vec())?,
+                            name: String::from_utf8(name)?,
                             major: read_halfword(&header.data, start + 8),
                             minor: read_halfword(&header.data, start + 10),
                             build: read_halfword(&header.data, start + 12),
@@ -643,13 +646,16 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             }
         };
         section_indexes.push(Some(sections.len()));
+        // because some exes like to give us data whose size < the virtual size
+        let mut section_data = section.uncompressed_data()?.to_vec();
+        section_data.resize(section.size() as usize, 0);
         // should we do anything with section.flags()? xex uses COFF
         sections.push(ObjSection {
             name: section_name.to_string(),
             kind: section_kind,
             address: section.address(),
             size: section.size(),
-            data: section.uncompressed_data()?.to_vec(),
+            data: section_data,
             align: section.align(),
             // exe indices start at 1...why? i hate you that's why
             elf_index: section.index().0 as ObjSectionIndex,
@@ -717,7 +723,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         fn add_imp(obj: &mut ObjInfo, name: String, addr: SectionAddress) -> Result<SymbolIndex> {
             return obj.add_symbol(ObjSymbol {
                name, address: addr.address as u64, section: Some(addr.section), size: 4, size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common), kind: ObjSymbolKind::Object, ..Default::default()
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
             }, false);
         }
         // to unstrip a thunk,
@@ -738,7 +744,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             obj.known_functions.insert(addr, Some(0x10));
             obj.add_symbol(ObjSymbol {
                 name, address: addr.address as u64, section: Some(addr.section), size: 0x10, size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common), kind: ObjSymbolKind::Function, ..Default::default()
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Function, ..Default::default()
             }, false)
         }
 
@@ -888,7 +894,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             obj.add_symbol(ObjSymbol {
                 name: format!("ExceptionDataFor{:08X}", start_addr), address: (start_addr - 8) as u64, section: Some(section_addr.section),
                 size: 8, size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common), kind: ObjSymbolKind::Object, ..Default::default()
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
             }, false)?;
             // word 1: the address of the function's exception handler
             if let Some(except_func) = read_u32(obj.sections.at_address(start_addr - 8)?.1, start_addr - 8) {
@@ -908,7 +914,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     obj.add_symbol(ObjSymbol {
                         name: format!("ExceptionRecordFor{:08X}", start_addr), address: except_record as u64, section: Some(except_record_section.section),
                         size: 4, size_known: false, // we don't know exactly how big this particular exception record may be
-                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Global | ObjSymbolFlags::Common), kind: ObjSymbolKind::Object, ..Default::default()
+                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
                     }, false)?;
                 }
             }
