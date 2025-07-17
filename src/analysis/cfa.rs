@@ -264,7 +264,7 @@ impl AnalyzerState {
         // Also check the beginning of every code section
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
             let this_sec_start = SectionAddress::new(section_index, section.address as u32);
-            if obj.symbols.by_name(&format!("ExceptionDataFor{:08X}", this_sec_start.address + 8))?.is_some(){ continue; }
+            if obj.symbols.by_name(&format!("except_data_{:08X}", this_sec_start.address + 8))?.is_some(){ continue; }
             self.functions.entry(this_sec_start).or_default();
         }
 
@@ -503,7 +503,7 @@ impl AnalyzerState {
                         };
                         if second > addr {
                             // don't try to add a function where there's an exception symbol
-                            if obj.symbols.by_name(&format!("ExceptionDataFor{:08X}", addr.address + 8))?.is_some(){ continue; }
+                            if obj.symbols.by_name(&format!("except_data_{:08X}", addr.address + 8))?.is_some(){ continue; }
                             log::trace!(
                                 "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X?})",
                                 addr,

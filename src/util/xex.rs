@@ -866,13 +866,13 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     }
 
     // add known function boundaries from pdata
-    let pdata_data = match obj.sections.by_name(".pdata")? {
-        Some((_, pdata_section)) => pdata_section.data.clone(),
+    let (pdata_addr, pdata_data) = match obj.sections.by_name(".pdata")? {
+        Some((idx, pdata_section)) => (SectionAddress::new(idx, pdata_section.address as u32), pdata_section.data.clone()),
         None => { return Err(anyhow!(".pdata section not found. Is that even possible for an xex?")) }
     };
 
     let mut num = 0;
-    for (_, chunk) in pdata_data.chunks_exact(8).enumerate(){
+    for (i, chunk) in pdata_data.chunks_exact(8).enumerate(){
         let start_addr = u32::from_be_bytes(chunk[0..4].try_into()?);
         // if we encounter 0's, that's the end of usable pdata entries
         if start_addr == 0 { break; }
@@ -883,6 +883,12 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         let num_insts_in_func = (word >> 8) & 0x3FFFFF; // The number of instructions in the function.
         let func_type = word >> 30; // The function type.
 
+        let this_entry_addr = pdata_addr + (i * 8) as u32;
+        obj.add_symbol(ObjSymbol {
+            name: format!("pdata@{:08X}", this_entry_addr.address), address: this_entry_addr.address as u64, section: Some(pdata_addr.section),
+            size: 8, size_known: true,
+            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
+        }, false)?;
         let section_addr = SectionAddress::new(obj.sections.at_address(start_addr)?.0, start_addr);
         obj.known_functions.insert(section_addr, Some(num_insts_in_func * 4));
         obj.pdata_funcs.push(section_addr);
@@ -892,7 +898,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         if func_type == 3 {
             // println!("Exception handler at {:08X}, record at {:08X}", start_addr - 8, start_addr - 4);
             obj.add_symbol(ObjSymbol {
-                name: format!("ExceptionDataFor{:08X}", start_addr), address: (start_addr - 8) as u64, section: Some(section_addr.section),
+                name: format!("except_data_{:08X}", start_addr), address: (start_addr - 8) as u64, section: Some(section_addr.section),
                 size: 8, size_known: true,
                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
             }, false)?;
@@ -912,7 +918,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 if except_record != 0 {
                     let except_record_section = SectionAddress::new(obj.sections.at_address(except_record)?.0, except_record);
                     obj.add_symbol(ObjSymbol {
-                        name: format!("ExceptionRecordFor{:08X}", start_addr), address: except_record as u64, section: Some(except_record_section.section),
+                        name: format!("except_record_{:08X}", start_addr), address: except_record as u64, section: Some(except_record_section.section),
                         size: 4, size_known: false, // we don't know exactly how big this particular exception record may be
                         flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
                     }, false)?;
