@@ -1,9 +1,16 @@
-use std::{ time::UNIX_EPOCH };
-
-use anyhow::{ensure, Result};
+use std::{fs, time::UNIX_EPOCH};
+use std::collections::BTreeMap;
+use std::io::Write;
+use anyhow::{anyhow, ensure, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
+use object::read::coff::{CoffFile, CoffHeader, ImageSymbol};
+use object::{pe, Architecture, BinaryFormat, Endianness, RelocationFlags, SectionKind, SymbolFlags, SymbolKind, SymbolScope};
+use object::pe::{ImageFileHeader};
+use object::endian::LittleEndian;
 use object::read::pe::PeFile32;
+use object::write::{Relocation, Symbol, SymbolId, SymbolSection};
+use object::write::Object;
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
@@ -13,12 +20,13 @@ use crate::{
         xex::{extract_exe, process_xex, XexCompression, XexEncryption, XexInfo}
     }
 };
-use crate::analysis::objects::detect_strings;
 use crate::analysis::objects::{detect_objects, detect_strings};
 use crate::analysis::tracker::Tracker;
+use crate::obj::{ObjDataKind, ObjRelocKind, ObjSymbolFlagSet, ObjSymbolKind, SectionIndex, SymbolIndex};
 use crate::util::asm::write_asm;
-use crate::util::config::write_symbols_file;
+use crate::util::config::{apply_splits_file, write_symbols_file};
 use crate::util::file::buf_writer;
+use crate::util::split::{split_obj, update_splits};
 use crate::util::xex::list_exe_sections;
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -123,7 +131,6 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     println!("Checking for relocatable targets...");
     // look at dol's split_write_obj
     let mut tracker = Tracker::new(&obj);
-    // TODO: don't process imps
     tracker.process(&obj)?;
 
     println!("Applying relocatable targets...");
@@ -135,12 +142,80 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     println!("Detecting strings");
     detect_strings(&mut obj)?;
 
-    println!("Writing asm");
+    // println!("Writing symbols.txt");
     // let mut w = buf_writer(&args.out)?;
     // write_asm(&mut w, &obj)?;
     // w.flush()?;
 
-    write_symbols_file(&args.out, &obj, None)?;
+    // write_symbols_file(&args.out, &obj, None)?;
+
+    // Gamepad Release
+    // Gamepad.obj bounds:
+    // .rdata: 8200092c - 820014d0
+    // .pdata: 8204d840 - 8204d8d0
+    // .text: 82062cb0 - 820659e0
+    apply_splits_file(&args.out, &mut obj)?;
+    update_splits(&mut obj, None, false)?;
+    let split_objs = split_obj(&mut obj, None)?;
+    let dummy_obj = match split_objs.iter().find(|&x| x.name == "GamepadMesh.cpp") {
+        Some(obj) => obj,
+        None => return Err(anyhow!("Didn't find GamepadMesh.cpp entry")),
+    };
+
+    // the process of writing a COFF file goes as follows:
+    // make the COFF
+    let mut coff = Object::new(
+        BinaryFormat::Coff,
+        Architecture::PowerPc,
+        Endianness::Big
+    );
+
+    // let mut text_id;
+    //
+    // // add the sections
+    // for (idx, section) in dummy_obj.sections.iter() {
+    //     println!("Section {}", section.name);
+    //     // when automating this, match section.kind with a kind that CoffFile likes
+    //     text_id = coff.add_section(section.data.clone(), section.name.clone().into_bytes(), SectionKind::Text);
+    // }
+
+    let (text_idx, text_section) = dummy_obj.sections.by_name(".text")?.unwrap();
+    let text_id = coff.add_section(text_section.data.clone(), text_section.name.clone().into_bytes(), SectionKind::Text);
+
+    let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
+
+    // add symbols
+    for (idx, sym) in dummy_obj.symbols.iter() {
+        let sym_offset_into_section = sym.address - text_section.address;
+        let sym_id = coff.add_symbol(Symbol {
+            name: sym.name.clone().into_bytes(),
+            value: sym_offset_into_section,
+            size: 0,
+            kind: SymbolKind::Text,
+            scope: SymbolScope::Linkage,
+            weak: false,
+            section: SymbolSection::Section(text_id),
+            flags: SymbolFlags::None,
+        });
+        sym_map.insert(idx, sym_id);
+    }
+
+    // add relocations
+    for (addr, reloc) in text_section.relocations.iter() {
+        let sym_id = sym_map.get(&reloc.target_symbol);
+        assert!(sym_id.is_some());
+        println!("offset 0x{:08X}, symbolid {:?}, addend {}, type 0x{:02X}", addr, sym_id, reloc.addend, reloc.to_coff());
+        coff.add_relocation(text_id, Relocation {
+            offset: addr as u64,
+            symbol: sym_id.unwrap().clone(),
+            addend: 0,
+            flags: RelocationFlags::Coff { typ: reloc.to_coff() }
+        })?;
+    }
+
+    // finally, write the COFF
+    let coff_data = coff.write()?;
+    std::fs::write("dummy.obj", coff_data)?;
 
     Ok(())
 }

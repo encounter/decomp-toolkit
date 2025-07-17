@@ -5,8 +5,10 @@ use std::{
     ops::RangeBounds,
 };
 
-use anyhow::Result;
+use anyhow::{bail, Result};
 use object::elf;
+use object::write::{coff};
+use object::pe;
 use serde::{Deserialize, Serialize};
 
 use crate::obj::SymbolIndex;
@@ -103,6 +105,33 @@ impl ObjReloc {
             }
         };
         (r_offset, r_type)
+    }
+
+    pub fn to_coff(&self) -> u16 {
+        match self.kind {
+            ObjRelocKind::Absolute => {
+                pe::IMAGE_REL_PPC_ADDR32
+            }
+            ObjRelocKind::PpcAddr16Hi => {
+                unreachable!();
+                pe::IMAGE_REL_PPC_ABSOLUTE
+            }
+            ObjRelocKind::PpcAddr16Ha => {
+                pe::IMAGE_REL_PPC_REFHI
+            }
+            ObjRelocKind::PpcAddr16Lo => {
+                pe::IMAGE_REL_PPC_REFLO
+            }
+            ObjRelocKind::PpcRel24 => {
+                pe::IMAGE_REL_PPC_ADDR24
+            }
+            ObjRelocKind::PpcRel14 => {
+                pe::IMAGE_REL_PPC_REL14
+            }
+            ObjRelocKind::PpcEmbSda21 => {
+                unreachable!();
+            }
+        }
     }
 }
 
