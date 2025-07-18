@@ -180,7 +180,8 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // }
 
     let (text_idx, text_section) = dummy_obj.sections.by_name(".text")?.unwrap();
-    let text_id = coff.add_section(text_section.data.clone(), text_section.name.clone().into_bytes(), SectionKind::Text);
+    let text_id = coff.add_section(Vec::new(), text_section.name.clone().into_bytes(), SectionKind::Text);
+    coff.append_section_data(text_id, &text_section.data, text_section.align);
 
     let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
 

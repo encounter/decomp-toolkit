@@ -123,7 +123,7 @@ impl ObjReloc {
                 pe::IMAGE_REL_PPC_REFLO
             }
             ObjRelocKind::PpcRel24 => {
-                pe::IMAGE_REL_PPC_ADDR24
+                pe::IMAGE_REL_PPC_REL24
             }
             ObjRelocKind::PpcRel14 => {
                 pe::IMAGE_REL_PPC_REL14
