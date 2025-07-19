@@ -24,8 +24,9 @@ use crate::analysis::objects::{detect_objects, detect_strings};
 use crate::analysis::tracker::Tracker;
 use crate::obj::{ObjDataKind, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
 use crate::util::asm::write_asm;
-use crate::util::config::{apply_splits_file, write_symbols_file};
+use crate::util::config::{apply_splits_file, write_splits_file, write_symbols_file};
 use crate::util::file::buf_writer;
+use crate::util::map_exe::process_map_exe;
 use crate::util::split::{split_obj, update_splits};
 use crate::util::xex::list_exe_sections;
 
@@ -43,6 +44,7 @@ enum SubCommand {
     Disasm(DisasmArgs),
     Extract(ExtractArgs),
     Info(InfoArgs),
+    Map(MapArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -78,11 +80,21 @@ pub struct InfoArgs {
     input: Utf8NativePathBuf,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Prints information about an Xex map file.
+#[argp(subcommand, name = "map")]
+pub struct MapArgs {
+    #[argp(positional, from_str_fn(native_path))]
+    /// input file
+    input: Utf8NativePathBuf,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Disasm(c_args) => disasm(c_args),
         SubCommand::Extract(c_args) => extract(c_args),
         SubCommand::Info(c_args) => info(c_args),
+        SubCommand::Map(c_args) => map(c_args),
     }
 }
 
@@ -146,7 +158,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // let mut w = buf_writer(&args.out)?;
     // write_asm(&mut w, &obj)?;
     // w.flush()?;
-
+    
     // write_symbols_file(&args.out, &obj, None)?;
 
     // Gamepad Release
@@ -249,68 +261,12 @@ fn disasm(args: DisasmArgs) -> Result<()> {
         let coff_data = cur_coff.write()?;
         std::fs::write(format!("{}.obj", root_name), coff_data)?;
     }
+    Ok(())
+}
 
-    // let dummy_obj = match split_objs.iter().find(|&x| x.name == "GamepadMesh.cpp") {
-    //     Some(obj) => obj,
-    //     None => return Err(anyhow!("Didn't find GamepadMesh.cpp entry")),
-    // };
-    //
-    // // the process of writing a COFF file goes as follows:
-    // // make the COFF
-    // let mut coff = Object::new(
-    //     BinaryFormat::Coff,
-    //     Architecture::PowerPc,
-    //     Endianness::Big
-    // );
-    //
-    // // let mut text_id;
-    // //
-    // // // add the sections
-    // // for (idx, section) in dummy_obj.sections.iter() {
-    // //     println!("Section {}", section.name);
-    // //     // when automating this, match section.kind with a kind that CoffFile likes
-    // //     text_id = coff.add_section(section.data.clone(), section.name.clone().into_bytes(), SectionKind::Text);
-    // // }
-    //
-    // let (text_idx, text_section) = dummy_obj.sections.by_name(".text")?.unwrap();
-    // let text_id = coff.add_section(Vec::new(), text_section.name.clone().into_bytes(), SectionKind::Text);
-    // coff.append_section_data(text_id, &text_section.data, text_section.align);
-    //
-    // let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
-    //
-    // // add symbols
-    // for (idx, sym) in dummy_obj.symbols.iter() {
-    //     let sym_offset_into_section = sym.address - text_section.address;
-    //     let sym_id = coff.add_symbol(Symbol {
-    //         name: sym.name.clone().into_bytes(),
-    //         value: sym_offset_into_section,
-    //         size: 0,
-    //         kind: SymbolKind::Text,
-    //         scope: SymbolScope::Linkage,
-    //         weak: false,
-    //         section: SymbolSection::Section(text_id),
-    //         flags: SymbolFlags::None,
-    //     });
-    //     sym_map.insert(idx, sym_id);
-    // }
-    //
-    // // add relocations
-    // for (addr, reloc) in text_section.relocations.iter() {
-    //     let sym_id = sym_map.get(&reloc.target_symbol);
-    //     assert!(sym_id.is_some());
-    //     println!("offset 0x{:08X}, symbolid {:?}, addend {}, type 0x{:02X}", addr, sym_id, reloc.addend, reloc.to_coff());
-    //     coff.add_relocation(text_id, Relocation {
-    //         offset: addr as u64,
-    //         symbol: sym_id.unwrap().clone(),
-    //         addend: 0,
-    //         flags: RelocationFlags::Coff { typ: reloc.to_coff() }
-    //     })?;
-    // }
-    //
-    // // finally, write the COFF
-    // let coff_data = coff.write()?;
-    // std::fs::write("dummy.obj", coff_data)?;
-
+fn map(args: MapArgs) -> Result<()> {
+    println!("map: {}", args.input);
+    process_map_exe(&args.input)?;
     Ok(())
 }
 

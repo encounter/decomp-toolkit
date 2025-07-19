@@ -15,6 +15,7 @@ pub mod extab;
 pub mod file;
 pub mod lcf;
 pub mod map;
+pub mod map_exe;
 pub mod ncompress;
 pub mod nested;
 pub mod nlzss;
