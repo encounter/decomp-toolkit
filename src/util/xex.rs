@@ -973,7 +973,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             kind: ObjSymbolKind::Function, ..Default::default()
         });
         api_syms.push(ObjSymbol {
-            name: String::from("_RtlCheckStack"), address: (start.address + 4) as u64, section: Some(start.section),
+            name: String::from("_RtlCheckStack12"), address: (start.address + 4) as u64, section: Some(start.section),
             size: 36, size_known: true, flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
             kind: ObjSymbolKind::Function, ..Default::default()
         });

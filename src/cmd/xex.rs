@@ -192,21 +192,21 @@ fn disasm(args: DisasmArgs) -> Result<()> {
             sect_map.insert(idx, sect_id);
         }
 
-        for (idx, sym) in coff_obj.symbols.iter() {
-            if sym.kind == ObjSymbolKind::Unknown {
-                println!("Unknown symbol {}!", sym.name);
-            }
-        }
+        // for (idx, sym) in coff_obj.symbols.iter() {
+        //     if sym.kind == ObjSymbolKind::Unknown {
+        //         println!("Unknown symbol {}!", sym.name);
+        //     }
+        // }
 
         // insert the symbols
         for (idx, sym) in coff_obj.symbols.iter(){
 
-            if sym.kind == ObjSymbolKind::Unknown {
-                let the_master_sym = obj.symbols.by_name(&sym.name)?;
-                if the_master_sym.is_some(){
-                    println!("{} kind: {:?}", sym.name, the_master_sym.unwrap().1.kind);
-                }
-            }
+            // if sym.kind == ObjSymbolKind::Unknown {
+            //     let the_master_sym = obj.symbols.by_name(&sym.name)?;
+            //     if the_master_sym.is_some(){
+            //         println!("{} kind: {:?}", sym.name, the_master_sym.unwrap().1.kind);
+            //     }
+            // }
 
             let sym_id = cur_coff.add_symbol(Symbol {
                 name: sym.name.clone().into_bytes(),
