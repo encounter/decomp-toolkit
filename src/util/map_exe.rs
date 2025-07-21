@@ -13,11 +13,18 @@ use crate::util::map::{SectionInfo, SymbolEntry, SymbolRef};
 // SymbolRef: the symbol name, and the obj it came from
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub enum ExeSectionType {
+    Code,
+    Data
+}
+
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub struct ExeSectionInfo {
     pub name: String,
     pub index: u32,
     pub offset: u32,
     pub size: u32,
+    pub section_type: ExeSectionType,
 }
 
 pub struct ExeSymbolEntry {
@@ -141,6 +148,11 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
                         index: u32::from_str_radix(&idx_and_offset[0], 16)?,
                         offset: u32::from_str_radix(&idx_and_offset[1], 16)?,
                         size: u32::from_str_radix(&size_str[0], 16)?,
+                        section_type: match sec_parts[3] {
+                            "CODE" => ExeSectionType::Code,
+                            "DATA" => ExeSectionType::Data,
+                            _ => unreachable!()
+                        }
                     });
                 }
             },
