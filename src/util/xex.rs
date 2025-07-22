@@ -288,7 +288,13 @@ impl XexOptionalHeaderData {
                     import_libs = Some(ImportLibraries::parse(&header.data)?);
                 }
                 XexOptionalHeaderID::OriginalPEName => {
-                    original_name = CString::from_vec_with_nul(header.data.clone())?.into_string()?;
+                    // trim off the 0's
+                    let mut name = header.data.clone();
+                    if let Some(i) = name.iter().rposition(|&x| x != 0){
+                        let new_len = i + 1;
+                        name.truncate(new_len);
+                    }
+                    original_name = String::from_utf8(name)?;
                 }
                 XexOptionalHeaderID::ChecksumTimestamp => {
                     file_timestamp = read_word(&header.data, 0);

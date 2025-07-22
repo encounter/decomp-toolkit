@@ -162,13 +162,13 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // write_symbols_file(&args.out, &obj, None)?;
 
     // Gamepad Release
-    apply_splits_file(&args.out, &mut obj)?;
+    // apply_splits_file(&args.out, &mut obj)?;
     update_splits(&mut obj, None, false)?;
     let split_objs = split_obj(&mut obj, None)?;
 
     for coff_obj in &split_objs {
         // skip autogenned splits for now
-        if coff_obj.name.contains("auto_"){ continue; }
+        // if coff_obj.name.contains("auto_"){ continue; }
 
         println!("Split object: {}", coff_obj.name);
         let root_name = coff_obj.name.split('.').next().unwrap();
@@ -222,7 +222,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
                     ObjSymbolKind::Function => SymbolKind::Text,
                     ObjSymbolKind::Object => SymbolKind::Data,
                     ObjSymbolKind::Section => SymbolKind::Section,
-                    ObjSymbolKind::Unknown => SymbolKind::Unknown,
+                    ObjSymbolKind::Unknown => SymbolKind::Label,
                 },
                 scope: match sym.flags.scope() {
                     ObjSymbolScope::Local => SymbolScope::Compilation,
