@@ -325,7 +325,7 @@ impl Tracker {
                             {
                                 let hi_reloc = self.relocations.get(&hi_addr).cloned();
                                 if hi_reloc.is_none() {
-                                    self.relocations.insert(hi_addr, Relocation::Hi(value));
+                                    self.relocations.insert(hi_addr, Relocation::Ha(value));
                                 }
                                 let lo_reloc = self.relocations.get(&lo_addr).cloned();
                                 if lo_reloc.is_none() {
