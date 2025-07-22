@@ -1,6 +1,8 @@
 use std::{fs, time::UNIX_EPOCH};
 use std::collections::BTreeMap;
+use std::fs::DirBuilder;
 use std::io::Write;
+use std::time::Instant;
 use anyhow::{anyhow, bail, ensure, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
@@ -22,13 +24,15 @@ use crate::{
 };
 use crate::analysis::objects::{detect_objects, detect_strings};
 use crate::analysis::tracker::Tracker;
+use crate::cmd::dol::ProjectConfig;
 use crate::obj::{ObjDataKind, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
 use crate::util::asm::write_asm;
 use crate::util::config::{apply_splits_file, write_splits_file, write_symbols_file};
-use crate::util::file::buf_writer;
+use crate::util::file::{buf_writer, touch};
 use crate::util::map_exe::process_map_exe;
 use crate::util::split::{split_obj, update_splits};
 use crate::util::xex::list_exe_sections;
+use crate::vfs::open_file;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing Xex files.
@@ -45,6 +49,7 @@ enum SubCommand {
     Extract(ExtractArgs),
     Info(InfoArgs),
     Map(MapArgs),
+    Split(SplitArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -89,13 +94,54 @@ pub struct MapArgs {
     input: Utf8NativePathBuf,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Splits an xex into relocatable objects.
+#[argp(subcommand, name = "split")]
+pub struct SplitArgs {
+    #[argp(positional, from_str_fn(native_path))]
+    /// input configuration file
+    config: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(native_path))]
+    /// output directory
+    out_dir: Utf8NativePathBuf
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Disasm(c_args) => disasm(c_args),
         SubCommand::Extract(c_args) => extract(c_args),
         SubCommand::Info(c_args) => info(c_args),
         SubCommand::Map(c_args) => map(c_args),
+        SubCommand::Split(c_args) => split(c_args),
     }
+}
+
+// look at dol split for this
+fn split(args: SplitArgs) -> Result<()> {
+    let command_start = Instant::now();
+    info!("Loading {}", args.config);
+    let mut config: ProjectConfig = {
+        let mut config_file = open_file(&args.config, true)?;
+        serde_yaml::from_reader(config_file.as_mut())?
+    };
+    println!("{:?}", config);
+
+    // Create out dirs
+    DirBuilder::new().recursive(true).create(&args.out_dir)?;
+
+    // extract and write exe
+    let xex_path = Utf8NativePathBuf::from(config.base.object.into_string());
+    let (exe_name, exe_bytes) = extract_exe(&xex_path)?;
+
+    std::fs::write(args.out_dir.join(exe_name), exe_bytes)?;
+
+    // DirBuilder::new().recursive(true).create(&args.out_dir)?;
+    // touch(&args.out_dir)?;
+    // let include_dir = args.out_dir.join("include");
+    // DirBuilder::new().recursive(true).create(&include_dir)?;
+    // fs::write(include_dir.join("macros.inc"), include_str!("../../assets/macros.inc"))?;
+
+    Ok(())
 }
 
 // references:
@@ -110,7 +156,7 @@ fn extract(args: ExtractArgs) -> Result<()> {
     let exe_ext = args.exe_file.extension();
     ensure!(exe_ext.is_some() && exe_ext.unwrap() == "exe", "Need to provide a valid output exe path!");
     // then, grab the exe
-    let exe_bytes = extract_exe(&args.xex_file)?;
+    let (exe_name, exe_bytes) = extract_exe(&args.xex_file)?;
     // ...and write it to the desired output path
     std::fs::write(args.exe_file, exe_bytes)?;
     Ok(())
@@ -162,7 +208,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // write_symbols_file(&args.out, &obj, None)?;
 
     // Gamepad Release
-    // apply_splits_file(&args.out, &mut obj)?;
+    apply_splits_file(&args.out, &mut obj)?;
     update_splits(&mut obj, None, false)?;
     let split_objs = split_obj(&mut obj, None)?;
 

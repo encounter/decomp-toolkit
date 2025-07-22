@@ -616,11 +616,11 @@ impl XexInfo {
     }
 }
 
-pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<Vec<u8>> {
+pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<(String, Vec<u8>)> {
     println!("xex: {input}");
     let xex = XexInfo::from_file(input)?;
     // after this line, the XexInfo should have all of its relevant metadata parsed
-    return Ok(xex.exe_bytes);
+    return Ok((xex.opt_header_data.original_name, xex.exe_bytes));
 }
 
 pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
