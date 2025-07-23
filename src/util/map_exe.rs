@@ -8,7 +8,7 @@ use crate::analysis::cfa::SectionAddress;
 use anyhow::Result;
 use indexmap::IndexMap;
 use multimap::MultiMap;
-use crate::obj::{ObjInfo, ObjReloc};
+use crate::obj::{ObjInfo, ObjReloc, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind};
 use crate::util::map::{MapInfo, SectionInfo, SymbolEntry, SymbolRef};
 
 // SymbolRef: the symbol name, and the obj it came from
@@ -188,9 +188,40 @@ pub fn apply_map_file_exe(
     apply_map_exe(map_info, obj)
 }
 
+fn is_reg_intrinsic(name: &String) -> bool {
+    (name.contains("__save") || name.contains("__rest"))
+    &&
+    (name.contains("gpr") || name.contains("fpr") || name.contains("vmx"))
+}
+
 pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
     // this is where you'd apply symbols to the ObjInfo,
     // as well as split bounds
+    for (idx, entries) in result.section_symbols.iter().enumerate() {
+        for sym in entries {
+            // we want to skip imps and save/restore reg intrinsics, since we'll find those ourselves later
+            if !sym.symbol.contains("__imp_") && !is_reg_intrinsic(&sym.symbol) {
+                // TODO: merged addrs should be marked "merged_{addr}"
+                match obj.sections.at_address(sym.addr.address) {
+                    Ok((sec_idx, sec)) => {
+                        obj.add_symbol(ObjSymbol {
+                            name: sym.symbol.clone(),
+                            address: sym.addr.address as u64,
+                            section: Some(sec_idx),
+                            size: 0, size_known: false,
+                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                            // hack because __NLG_Dispatch should be treated like a label, a la reg intrinsic
+                            kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
+                            ..Default::default()
+                        }, true)?;
+                    }
+                    // if we couldn't find the section (like maybe it was stripped), just continue on
+                    Err(e) => continue
+                };
+            }
+        }
+    }
+
     Ok(())
 }
 
