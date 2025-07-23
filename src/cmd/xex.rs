@@ -1,8 +1,8 @@
 use std::{fs, time::UNIX_EPOCH};
 use std::cmp::min;
 use std::collections::BTreeMap;
-use std::fs::DirBuilder;
-use std::io::Write;
+use std::fs::{DirBuilder, File};
+use std::io::{BufWriter, Write};
 use std::time::Instant;
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use argp::FromArgs;
@@ -237,6 +237,96 @@ fn split_write_obj_exe(
         .create(out_dir)
         .with_context(|| format!("Failed to create out dir '{out_dir}'"))?;
     let obj_dir = out_dir.join("obj");
+
+    for coff_obj in &split_objs {
+        let root_name = coff_obj.name.split('.').next().unwrap();
+        println!("Writing {}.obj", root_name);
+
+        // for each obj:
+        let mut cur_coff = Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
+        let mut sect_map: BTreeMap<SectionIndex, SectionId> = Default::default();
+        let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
+
+        // insert the sections
+        for (idx, sect) in coff_obj.sections.iter() {
+            // println!("Section: {}", sect.name);
+            let sect_id = cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
+                ObjSectionKind::Code => SectionKind::Text,
+                ObjSectionKind::Data => SectionKind::Data,
+                ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
+                ObjSectionKind::Bss => SectionKind::UninitializedData,
+            });
+            cur_coff.append_section_data(sect_id, &sect.data, sect.align);
+            sect_map.insert(idx, sect_id);
+        }
+
+        // insert the symbols
+        for (idx, sym) in coff_obj.symbols.iter(){
+            let sym_id = cur_coff.add_symbol(Symbol {
+                name: sym.name.clone().into_bytes(),
+                value: match sym.section {
+                    Some(idx) => match coff_obj.sections.get(idx) {
+                        Some(sect) => sym.address - sect.address,
+                        None => bail!("Could not find section for symbol {}!", sym.name),
+                    },
+                    None => 0,
+                },
+                size: 0,
+                kind: match sym.kind {
+                    ObjSymbolKind::Function => SymbolKind::Text,
+                    ObjSymbolKind::Object => SymbolKind::Data,
+                    ObjSymbolKind::Section => SymbolKind::Section,
+                    ObjSymbolKind::Unknown => SymbolKind::Label,
+                },
+                scope: match sym.flags.scope() {
+                    ObjSymbolScope::Local => SymbolScope::Compilation,
+                    _ => SymbolScope::Linkage,
+                    // ObjSymbolScope::Global => SymbolScope::Linkage,
+                    // ObjSymbolScope::Weak => SymbolScope::Linkage, // verify this
+                    // ObjSymbolScope::Unknown => SymbolScope::Unknown,
+                },
+                weak: false, // sym.flags.scope() == ObjSymbolScope::Weak,
+                section: match sym.section {
+                    Some(idx) => SymbolSection::Section(sect_map.get(&idx).unwrap().clone()),
+                    None => SymbolSection::Undefined,
+                },
+                flags: SymbolFlags::None,
+            });
+            sym_map.insert(idx, sym_id);
+        }
+
+        // insert the relocs
+        for (sect_idx, sect) in coff_obj.sections.iter() {
+            for (addr, reloc) in sect.relocations.iter() {
+                let sym_id = match sym_map.get(&reloc.target_symbol) {
+                    Some(id) => id,
+                    None => bail!("Could not find symbol ID for index {}", reloc.target_symbol),
+                };
+                cur_coff.add_relocation(sect_map.get(&sect_idx).unwrap().clone(), Relocation {
+                    offset: addr as u64,
+                    symbol: sym_id.clone(),
+                    addend: 0,
+                    flags: RelocationFlags::Coff { typ: reloc.to_coff() }
+                })?;
+            }
+        }
+
+        // finally, write the COFF
+        let coff_data = cur_coff.write()?;
+
+        // create any necessary folders
+        let mut full_path = obj_dir.clone();
+        full_path.push(format!("{}.obj", root_name));
+        if let Some(parent) = full_path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+
+        // write the file
+        let file = File::create(&full_path)?;
+        let mut writer = BufWriter::new(file);
+        writer.write_all(&coff_data)?;
+        writer.flush()?;
+    }
 
     Ok(())
 }
