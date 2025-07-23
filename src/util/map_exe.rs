@@ -204,16 +204,47 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                 // TODO: merged addrs should be marked "merged_{addr}"
                 match obj.sections.at_address(sym.addr.address) {
                     Ok((sec_idx, sec)) => {
-                        obj.add_symbol(ObjSymbol {
-                            name: sym.symbol.clone(),
-                            address: sym.addr.address as u64,
-                            section: Some(sec_idx),
-                            size: 0, size_known: false,
-                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                            // hack because __NLG_Dispatch should be treated like a label, a la reg intrinsic
-                            kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
-                            ..Default::default()
-                        }, true)?;
+
+                        // obj.add_symbol(ObjSymbol {
+                        //     name: sym.symbol.clone(),
+                        //     address: sym.addr.address as u64,
+                        //     section: Some(sec_idx),
+                        //     size: 0, size_known: false,
+                        //     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                        //     kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
+                        //     ..Default::default()
+                        // }, true)?;
+
+                        let mut sym_to_add: ObjSymbol = ObjSymbol::default();
+                        let sym_name = if result.merged_addrs.contains(&sym.addr) { format!("merged_{:08X}", sym.addr.address) } else { sym.symbol.clone() };
+                        // if func came from pdata, DO NOT override the size
+                        match obj.known_functions.entry(SectionAddress::new(sec_idx, sym.addr.address)) {
+                            btree_map::Entry::Occupied(o) => {
+                                sym_to_add = ObjSymbol {
+                                    name: sym_name,
+                                    address: sym.addr.address as u64,
+                                    section: Some(sec_idx),
+                                    size: o.get().unwrap() as u64,
+                                    size_known: true,
+                                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                                    kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
+                                    ..Default::default()
+                                };
+                            }
+                            btree_map::Entry::Vacant(v) => {
+                                sym_to_add = ObjSymbol {
+                                    name: sym_name,
+                                    address: sym.addr.address as u64,
+                                    section: Some(sec_idx),
+                                    size: 0, size_known: false, // shoutout to MSVC maps for not providing sizes
+                                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                                    kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
+                                    ..Default::default()
+                                };
+                            }
+                        }
+                        obj.add_symbol(sym_to_add, true)?;
+
                     }
                     // if we couldn't find the section (like maybe it was stripped), just continue on
                     Err(e) => continue
