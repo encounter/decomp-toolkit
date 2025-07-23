@@ -4,7 +4,7 @@ use std::collections::BTreeMap;
 use std::fs::DirBuilder;
 use std::io::Write;
 use std::time::Instant;
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{anyhow, bail, ensure, Context, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
 use object::read::coff::{CoffFile, CoffHeader, ImageSymbol};
@@ -16,7 +16,7 @@ use object::write::{Relocation, SectionId, Symbol, SymbolId, SymbolSection};
 use object::write::Object;
 use rayon::iter::IntoParallelRefIterator;
 use tracing::{debug, info, info_span};
-use typed_path::Utf8NativePathBuf;
+use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 
 use crate::{
     analysis::{cfa::{AnalyzerState}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, 
@@ -29,7 +29,7 @@ use crate::analysis::objects::{detect_objects, detect_strings};
 use crate::analysis::pass::{FindSaveRestSleds, FindTRKInterruptVectorTable};
 use crate::analysis::signatures::{apply_signatures, apply_signatures_post, update_ctors_dtors};
 use crate::analysis::tracker::Tracker;
-use crate::cmd::dol::{apply_add_relocations, apply_block_relocations, ProjectConfig};
+use crate::cmd::dol::{apply_add_relocations, apply_block_relocations, ModuleConfig, OutputModule, ProjectConfig};
 use crate::obj::{ObjDataKind, ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
 use crate::util::asm::write_asm;
 use crate::util::config::{apply_splits_file, apply_symbols_file, write_splits_file, write_symbols_file};
@@ -123,11 +123,19 @@ pub fn run(args: Args) -> Result<()> {
     }
 }
 
-pub struct ExeAnalyzeResult {
+struct ExeAnalyzeResult {
     pub obj: ObjInfo,
     pub dep: Vec<Utf8NativePathBuf>,
     pub symbols_cache: Option<FileReadInfo>,
     pub splits_cache: Option<FileReadInfo>,
+}
+
+struct ExeModuleInfo<'a> {
+    obj: ObjInfo,
+    config: &'a ModuleConfig,
+    symbols_cache: Option<FileReadInfo>,
+    splits_cache: Option<FileReadInfo>,
+    dep: Vec<Utf8NativePathBuf>,
 }
 
 // look at dol split for this
@@ -146,11 +154,25 @@ fn split(args: SplitArgs) -> Result<()> {
     // config.base.map: the path to the map as a Utf8UnixPathBuf, if it exists
 
     // get config.json path and create DepFile from it
+    let out_config_path = args.out_dir.join("config.json");
+    let mut dep = DepFile::new(out_config_path.clone());
+
     // load_analyze_dol is called here, takes in ProjectConfig and ObjectBase and returns a Result<AnalyzeResult>
     // load_dol_module - returns a Result<(ObjInfo, Utf8NativePathBuf)> - process_xex, then the path of the object
     info!("Loading and analyzing xex");
-    let xex_result: ExeAnalyzeResult = load_analyze_xex(&config)?;
-    let function_count = xex_result.obj.symbols.by_kind(ObjSymbolKind::Function).count();
+    let xex_result: Option<Result<ExeAnalyzeResult>> = Some(load_analyze_xex(&config));
+    let mut exe = {
+        let result = xex_result.unwrap()?;
+        dep.extend(result.dep);
+        ExeModuleInfo {
+            obj: result.obj,
+            config: &config.base,
+            symbols_cache: result.symbols_cache,
+            splits_cache: result.splits_cache,
+            dep: Default::default(),
+        }
+    };
+    let function_count = exe.obj.symbols.by_kind(ObjSymbolKind::Function).count();
     info!("Initial analysis completed (found {} functions)", function_count);
 
     // extract and write exe
@@ -162,6 +184,59 @@ fn split(args: SplitArgs) -> Result<()> {
 
     info!("Rebuilding relocations and splitting");
     // dol split_write_obj
+    split_write_obj_exe(&mut exe, &config, &args.out_dir, &args.out_dir)?;
+
+    Ok(())
+}
+
+fn split_write_obj_exe(
+    module: &mut ExeModuleInfo,
+    config: &ProjectConfig,
+    base_dir: &Utf8NativePath,
+    out_dir: &Utf8NativePath,
+) -> Result<()> {
+    debug!("Performing relocation analysis");
+    let mut tracker = Tracker::new(&module.obj);
+    tracker.process(&module.obj)?;
+
+    debug!("Applying relocations");
+    tracker.apply(&mut module.obj, false)?;
+
+    if !config.symbols_known && config.detect_objects {
+        debug!("Detecting object boundaries");
+        detect_objects(&mut module.obj)?;
+    }
+
+    if config.detect_strings {
+        debug!("Detecting strings");
+        detect_strings(&mut module.obj)?;
+    }
+
+    debug!("Adjusting splits");
+    update_splits(&mut module.obj, None, false)?;
+
+    debug!("Writing configuration");
+    if let Some(symbols_path) = &module.config.symbols {
+        write_symbols_file(&symbols_path.with_encoding(), &module.obj, module.symbols_cache)?;
+    }
+    if let Some(splits_path) = &module.config.splits {
+        write_splits_file(
+            &splits_path.with_encoding(),
+            &module.obj,
+            false,
+            module.splits_cache,
+        )?;
+    }
+
+    debug!("Splitting {} objects", module.obj.link_order.len());
+    let split_objs = split_obj(&module.obj, None)?;
+
+    debug!("Writing object files");
+    DirBuilder::new()
+        .recursive(true)
+        .create(out_dir)
+        .with_context(|| format!("Failed to create out dir '{out_dir}'"))?;
+    let obj_dir = out_dir.join("obj");
 
     Ok(())
 }
