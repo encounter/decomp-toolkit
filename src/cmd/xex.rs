@@ -1,4 +1,5 @@
 use std::{fs, time::UNIX_EPOCH};
+use std::cmp::min;
 use std::collections::BTreeMap;
 use std::fs::DirBuilder;
 use std::io::Write;
@@ -13,6 +14,8 @@ use object::endian::LittleEndian;
 use object::read::pe::PeFile32;
 use object::write::{Relocation, SectionId, Symbol, SymbolId, SymbolSection};
 use object::write::Object;
+use rayon::iter::IntoParallelRefIterator;
+use tracing::{debug, info, info_span};
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
@@ -23,12 +26,16 @@ use crate::{
     }
 };
 use crate::analysis::objects::{detect_objects, detect_strings};
+use crate::analysis::pass::{FindSaveRestSleds, FindTRKInterruptVectorTable};
+use crate::analysis::signatures::{apply_signatures, apply_signatures_post, update_ctors_dtors};
 use crate::analysis::tracker::Tracker;
-use crate::cmd::dol::ProjectConfig;
-use crate::obj::{ObjDataKind, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
+use crate::cmd::dol::{apply_add_relocations, apply_block_relocations, ProjectConfig};
+use crate::obj::{ObjDataKind, ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
 use crate::util::asm::write_asm;
-use crate::util::config::{apply_splits_file, write_splits_file, write_symbols_file};
-use crate::util::file::{buf_writer, touch};
+use crate::util::config::{apply_splits_file, apply_symbols_file, write_splits_file, write_symbols_file};
+use crate::util::dep::DepFile;
+use crate::util::file::{buf_writer, touch, verify_hash, FileReadInfo};
+use crate::util::map::apply_map_file;
 use crate::util::map_exe::process_map_exe;
 use crate::util::split::{split_obj, update_splits};
 use crate::util::xex::list_exe_sections;
@@ -116,6 +123,13 @@ pub fn run(args: Args) -> Result<()> {
     }
 }
 
+pub struct ExeAnalyzeResult {
+    pub obj: ObjInfo,
+    pub dep: Vec<Utf8NativePathBuf>,
+    pub symbols_cache: Option<FileReadInfo>,
+    pub splits_cache: Option<FileReadInfo>,
+}
+
 // look at dol split for this
 fn split(args: SplitArgs) -> Result<()> {
     let command_start = Instant::now();
@@ -124,24 +138,80 @@ fn split(args: SplitArgs) -> Result<()> {
         let mut config_file = open_file(&args.config, true)?;
         serde_yaml::from_reader(config_file.as_mut())?
     };
-    println!("{:?}", config);
+    // println!("{:?}", config);
+
+    // config.base.object: the path to the xex as a Utf8UnixPathBuf
+    // config.base.splits: the path to the splits.txt as a Utf8UnixPathBuf
+    // config.base.symbols: the path to the symbols.txt as a Utf8UnixPathBuf
+    // config.base.map: the path to the map as a Utf8UnixPathBuf, if it exists
+
+    // get config.json path and create DepFile from it
+    // load_analyze_dol is called here, takes in ProjectConfig and ObjectBase and returns a Result<AnalyzeResult>
+    // load_dol_module - returns a Result<(ObjInfo, Utf8NativePathBuf)> - process_xex, then the path of the object
+    info!("Loading and analyzing xex");
+    let xex_result: ExeAnalyzeResult = load_analyze_xex(&config)?;
+    let function_count = xex_result.obj.symbols.by_kind(ObjSymbolKind::Function).count();
+    info!("Initial analysis completed (found {} functions)", function_count);
+
+    // extract and write exe
+    let (exe_name, exe_bytes) = extract_exe(&config.base.object.with_encoding())?;
 
     // Create out dirs
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
-
-    // extract and write exe
-    let xex_path = Utf8NativePathBuf::from(config.base.object.into_string());
-    let (exe_name, exe_bytes) = extract_exe(&xex_path)?;
-
     std::fs::write(args.out_dir.join(exe_name), exe_bytes)?;
 
-    // DirBuilder::new().recursive(true).create(&args.out_dir)?;
-    // touch(&args.out_dir)?;
-    // let include_dir = args.out_dir.join("include");
-    // DirBuilder::new().recursive(true).create(&include_dir)?;
-    // fs::write(include_dir.join("macros.inc"), include_str!("../../assets/macros.inc"))?;
+    info!("Rebuilding relocations and splitting");
+    // dol split_write_obj
 
     Ok(())
+}
+
+// load_analyze_dol but for xexes
+fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
+    let object_path: Utf8NativePathBuf = config.base.object.with_encoding();
+    let mut obj = process_xex(&object_path)?;
+    let mut dep: Vec<Utf8NativePathBuf> = vec![object_path];
+
+    // TODO: xex map logic
+    // if let Some(map_path) = &config.base.map {
+    //     let map_path = map_path.with_encoding();
+    //     apply_map_file(&map_path, &mut obj, config.common_start, config.mw_comment_version)?;
+    //     dep.push(map_path);
+    // }
+
+    let splits_cache = if let Some(splits_path) = &config.base.splits {
+        let splits_path = splits_path.with_encoding();
+        let cache = apply_splits_file(&splits_path, &mut obj)?;
+        dep.push(splits_path);
+        cache
+    } else {
+        None
+    };
+
+    let symbols_cache = if let Some(symbols_path) = &config.base.symbols {
+        let symbols_path = symbols_path.with_encoding();
+        let cache = apply_symbols_file(&symbols_path, &mut obj)?;
+        dep.push(symbols_path);
+        cache
+    } else {
+        None
+    };
+
+    // Apply block relocations from config
+    apply_block_relocations(&mut obj, &config.base.block_relocations)?;
+
+    if !config.symbols_known && !config.quick_analysis {
+        let mut state = AnalyzerState::default();
+        debug!("Detecting function boundaries");
+        FindSaveRestSledsXbox::execute(&mut state, &obj)?;
+        state.detect_functions(&obj)?; // perform CFA
+        state.apply(&mut obj)?; // give each found function a symbol
+    }
+
+    // Apply additional relocations from config
+    apply_add_relocations(&mut obj, &config.base.add_relocations)?;
+
+    Ok(ExeAnalyzeResult { obj, dep, symbols_cache, splits_cache })
 }
 
 // references:

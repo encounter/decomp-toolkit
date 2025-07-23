@@ -2094,7 +2094,7 @@ fn config(args: ConfigArgs) -> Result<()> {
 }
 
 /// Applies the blocked relocation ranges from module config `blocked_relocations`
-fn apply_block_relocations(
+pub(crate) fn apply_block_relocations(
     obj: &mut ObjInfo,
     block_relocations: &[BlockRelocationConfig],
 ) -> Result<()> {
@@ -2121,7 +2121,7 @@ fn apply_block_relocations(
 }
 
 /// Applies the relocations from module config `add_relocations`.
-fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig]) -> Result<()> {
+pub(crate) fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig]) -> Result<()> {
     for reloc in relocations {
         let SectionAddress { section, address } = reloc.source.resolve(obj)?;
         let (target_symbol, _) = match obj.symbols.by_ref(&obj.sections, &reloc.target)? {
