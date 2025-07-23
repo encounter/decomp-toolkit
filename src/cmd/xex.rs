@@ -36,7 +36,7 @@ use crate::util::config::{apply_splits_file, apply_symbols_file, write_splits_fi
 use crate::util::dep::DepFile;
 use crate::util::file::{buf_writer, touch, verify_hash, FileReadInfo};
 use crate::util::map::apply_map_file;
-use crate::util::map_exe::process_map_exe;
+use crate::util::map_exe::{apply_map_file_exe, process_map_exe};
 use crate::util::split::{split_obj, update_splits};
 use crate::util::xex::list_exe_sections;
 use crate::vfs::open_file;
@@ -186,6 +186,10 @@ fn split(args: SplitArgs) -> Result<()> {
     // dol split_write_obj
     split_write_obj_exe(&mut exe, &config, &args.out_dir, &args.out_dir)?;
 
+    // Write output config here
+
+    // Write dep file here
+
     Ok(())
 }
 
@@ -326,6 +330,29 @@ fn split_write_obj_exe(
         let mut writer = BufWriter::new(file);
         writer.write_all(&coff_data)?;
         writer.flush()?;
+        // call write_if_changed here?
+    }
+
+    if config.write_asm {
+        debug!("Writing disassembly");
+        let asm_dir = out_dir.join("asm");
+        for asm_obj in &split_objs {
+            let root_name = asm_obj.name.split('.').next().unwrap();
+            println!("Writing {}.obj", root_name);
+
+            // create any necessary folders
+            let mut full_path = asm_dir.clone();
+            full_path.push(format!("{}.s", root_name));
+            if let Some(parent) = full_path.parent() {
+                std::fs::create_dir_all(parent)?;
+            }
+
+            // write the file
+            let file = File::create(&full_path)?;
+            let mut writer = BufWriter::new(file);
+            write_asm(&mut writer, &asm_obj).with_context(|| format!("Failed to write {full_path}"))?;
+            writer.flush()?;
+        }
     }
 
     Ok(())
@@ -337,12 +364,11 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
     let mut obj = process_xex(&object_path)?;
     let mut dep: Vec<Utf8NativePathBuf> = vec![object_path];
 
-    // TODO: xex map logic
-    // if let Some(map_path) = &config.base.map {
-    //     let map_path = map_path.with_encoding();
-    //     apply_map_file(&map_path, &mut obj, config.common_start, config.mw_comment_version)?;
-    //     dep.push(map_path);
-    // }
+    if let Some(map_path) = &config.base.map {
+        let map_path: Utf8NativePathBuf = map_path.with_encoding();
+        apply_map_file_exe(&map_path, &mut obj)?;
+        dep.push(map_path);
+    }
 
     let splits_cache = if let Some(splits_path) = &config.base.splits {
         let splits_path = splits_path.with_encoding();

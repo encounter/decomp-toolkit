@@ -1,5 +1,5 @@
 use std::collections::{btree_map, BTreeMap, BTreeSet, HashMap};
-use typed_path::Utf8NativePathBuf;
+use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 use std::fs::read_to_string;
 use std::str::SplitWhitespace;
 use anyhow::bail;
@@ -8,7 +8,8 @@ use crate::analysis::cfa::SectionAddress;
 use anyhow::Result;
 use indexmap::IndexMap;
 use multimap::MultiMap;
-use crate::util::map::{SectionInfo, SymbolEntry, SymbolRef};
+use crate::obj::{ObjInfo, ObjReloc};
+use crate::util::map::{MapInfo, SectionInfo, SymbolEntry, SymbolRef};
 
 // SymbolRef: the symbol name, and the obj it came from
 
@@ -156,7 +157,6 @@ impl ExeMapInfo {
                     self.merged_addrs.push(*addr);
                 }
             }
-
             entries.retain(|e| !symbols_to_remove.contains(&e.symbol));
         }
 
@@ -180,6 +180,20 @@ pub enum ExeMapState {
     ReadingStaticSymbols
 }
 
+pub fn apply_map_file_exe(
+    path: &Utf8NativePathBuf,
+    obj: &mut ObjInfo,
+) -> Result<()> {
+    let map_info = process_map_exe(path)?;
+    apply_map_exe(map_info, obj)
+}
+
+pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
+    // this is where you'd apply symbols to the ObjInfo,
+    // as well as split bounds
+    Ok(())
+}
+
 pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
     println!("map: {}", map_path);
 
@@ -191,7 +205,7 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
         if line.contains(PREFERRED_LOAD_ADDR_STR) {
             let entry_str = line.split(PREFERRED_LOAD_ADDR_STR).collect::<Vec<&str>>();
             assert_eq!(entry_str.len(), 2);
-            exe_map_info.set_preferred_load_addr(u32::from_str_radix(&entry_str[1].clone(), 16)?);
+            exe_map_info.set_preferred_load_addr(u32::from_str_radix(&entry_str[1], 16)?);
         }
         else if line == SECTION_STR {
             state = ExeMapState::ReadingSections;
