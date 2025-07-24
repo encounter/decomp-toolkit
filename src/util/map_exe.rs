@@ -30,7 +30,7 @@ pub struct ExeSectionInfo {
 
 #[derive(Clone)]
 pub struct ExeSymbolEntry {
-    pub addr: SectionAddress,
+    pub addr: u32,
     pub symbol: String,
     pub unit: String,
     pub is_function: bool,
@@ -45,7 +45,7 @@ pub struct ExeMapInfo {
     // the symbols found at each section of the map
     pub section_symbols: Vec<Vec<ExeSymbolEntry>>,
     // the addresses in the map that have more than one symbol for them
-    pub merged_addrs: Vec<SectionAddress>,
+    pub merged_addrs: Vec<u32>,
 
     // pub entry_point: String,
     // pub unit_entries: MultiMap<String, SymbolRef>,
@@ -89,7 +89,7 @@ impl ExeMapInfo {
         let section_symbol_idx = self.get_section_idx(sec_idx, sec_offset)?;
 
         self.section_symbols.get_mut(section_symbol_idx).unwrap().push(ExeSymbolEntry {
-            addr: SectionAddress::new(sec_idx, u32::from_str_radix(&symbol_parts[2], 16)?),
+            addr: u32::from_str_radix(&symbol_parts[2], 16)?,
             symbol: String::from(symbol_parts[1]),
             unit: String::from(*symbol_parts.last().unwrap()),
             is_function: flags_slice.contains(&"f"),
@@ -131,7 +131,7 @@ impl ExeMapInfo {
                 *counts.entry(entry.addr).or_insert(0) += 1;
             }
 
-            let mut dupe_map: MultiMap<SectionAddress, usize> = Default::default(); // store indices
+            let mut dupe_map: MultiMap<u32, usize> = Default::default(); // store indices
             for (idx, entry) in entries.iter().enumerate() {
                 if counts.get(&entry.addr).copied().unwrap_or(0) > 1 {
                     dupe_map.insert(entry.addr, idx);
@@ -195,34 +195,21 @@ fn is_reg_intrinsic(name: &String) -> bool {
 }
 
 pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
-    // this is where you'd apply symbols to the ObjInfo,
-    // as well as split bounds
+    // apply map symbols to ObjInfo
     for (idx, entries) in result.section_symbols.iter().enumerate() {
         for sym in entries {
             // we want to skip imps and save/restore reg intrinsics, since we'll find those ourselves later
             if !sym.symbol.contains("__imp_") && !is_reg_intrinsic(&sym.symbol) {
-                // TODO: merged addrs should be marked "merged_{addr}"
-                match obj.sections.at_address(sym.addr.address) {
+                match obj.sections.at_address(sym.addr) {
                     Ok((sec_idx, sec)) => {
-
-                        // obj.add_symbol(ObjSymbol {
-                        //     name: sym.symbol.clone(),
-                        //     address: sym.addr.address as u64,
-                        //     section: Some(sec_idx),
-                        //     size: 0, size_known: false,
-                        //     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                        //     kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
-                        //     ..Default::default()
-                        // }, true)?;
-
                         let mut sym_to_add: ObjSymbol = ObjSymbol::default();
-                        let sym_name = if result.merged_addrs.contains(&sym.addr) { format!("merged_{:08X}", sym.addr.address) } else { sym.symbol.clone() };
+                        let sym_name = if result.merged_addrs.contains(&sym.addr) { format!("merged_{:08X}", sym.addr) } else { sym.symbol.clone() };
                         // if func came from pdata, DO NOT override the size
-                        match obj.known_functions.entry(SectionAddress::new(sec_idx, sym.addr.address)) {
+                        match obj.known_functions.entry(SectionAddress::new(sec_idx, sym.addr)) {
                             btree_map::Entry::Occupied(o) => {
                                 sym_to_add = ObjSymbol {
                                     name: sym_name,
-                                    address: sym.addr.address as u64,
+                                    address: sym.addr as u64,
                                     section: Some(sec_idx),
                                     size: o.get().unwrap() as u64,
                                     size_known: true,
@@ -234,7 +221,7 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                             btree_map::Entry::Vacant(v) => {
                                 sym_to_add = ObjSymbol {
                                     name: sym_name,
-                                    address: sym.addr.address as u64,
+                                    address: sym.addr as u64,
                                     section: Some(sec_idx),
                                     size: 0, size_known: false, // shoutout to MSVC maps for not providing sizes
                                     flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
@@ -252,7 +239,15 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
             }
         }
     }
+    // identify split bounds and apply them to ObjInfo
+    for (idx, entries) in result.section_symbols.iter().enumerate() {
+        // MultiMap<u32, String>? track addresses and their associated obj names
+        // then iterate through each memory address?
+        // have a state machine that tracks the current obj being bound-detected?
+        for sym in entries {
 
+        }
+    }
     Ok(())
 }
 
