@@ -312,6 +312,14 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                 }
                 _ => unreachable!()
             }
+            // if we've reached the last addr in our collection
+            if let (Some(obj_name), Some(obj_start)) = (&cur_obj, &cur_start){
+                if addr == entries.last().unwrap().addr {
+                    // then we need to set the end bound to the section's end
+                    let section_end = entries.first().unwrap().addr + result.sections[idx].size;
+                    println!("\tlast obj: {} (0x{:08X}-0x{:08X})", obj_name, obj_start, section_end);
+                }
+            }
         }
     }
     Ok(())
