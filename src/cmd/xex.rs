@@ -244,7 +244,7 @@ fn split_write_obj_exe(
 
     for coff_obj in &split_objs {
         let root_name = coff_obj.name.split('.').next().unwrap();
-        println!("Writing {}.obj", root_name);
+        // println!("Writing {}.obj", root_name);
 
         // for each obj:
         let mut cur_coff = Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
@@ -338,7 +338,7 @@ fn split_write_obj_exe(
         let asm_dir = out_dir.join("asm");
         for asm_obj in &split_objs {
             let root_name = asm_obj.name.split('.').next().unwrap();
-            println!("Writing {}.obj", root_name);
+            // println!("Writing {}.obj", root_name);
 
             // create any necessary folders
             let mut full_path = asm_dir.clone();

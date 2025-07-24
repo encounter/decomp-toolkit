@@ -264,7 +264,7 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
         };
         let section_start = target_sec.address as u32 + result.sections[idx].offset;
         let section_end = section_start + result.sections[idx].size;
-        println!("Section {}: {:#X}-{:#X}", section_name, section_start, section_end);
+        // println!("Section {}: {:#X}-{:#X}", section_name, section_start, section_end);
 
         // the contiguous, ascending addresses associated with our entries,
         // as well as the objs that have symbols at these addresses
@@ -291,7 +291,7 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                 (None, None) => {
                     // if the start addr has multiple objs, we can't be sure which it belongs to...so skip it
                     if objs.len() > 1 {
-                        println!("  Warning! We can't deduce an obj bound for addr 0x{:08X}!", addr);
+                        // println!("  Warning! We can't deduce an obj bound for addr 0x{:08X}!", addr);
                         continue;
                     }
                     // else, note our first obj's name and starting addr
@@ -357,7 +357,7 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                                 cur_obj = Some(objs[0].clone());
                             }
                             else {
-                                println!("  Warning! We can't deduce an obj bound for addr 0x{:08X}!", addr);
+                                // println!("  Warning! We can't deduce an obj bound for addr 0x{:08X}!", addr);
                                 cur_start = None;
                                 cur_obj = None;
                             }
