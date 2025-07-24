@@ -241,11 +241,77 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
     }
     // identify split bounds and apply them to ObjInfo
     for (idx, entries) in result.section_symbols.iter().enumerate() {
-        // MultiMap<u32, String>? track addresses and their associated obj names
-        // then iterate through each memory address?
-        // have a state machine that tracks the current obj being bound-detected?
-        for sym in entries {
+        if entries.is_empty(){ continue; }
+        println!("Section {}:", result.sections[idx].name);
 
+        // the contiguous, ascending addresses associated with our entries,
+        // as well as the objs that have symbols at these addresses
+        let sorted_addr_map = {
+            let mut ret: BTreeMap<u32, Vec<String>> = BTreeMap::new();
+            for entry in entries {
+                match ret.entry(entry.addr) {
+                    btree_map::Entry::Occupied(mut o) => {
+                        o.get_mut().push(entry.unit.clone());
+                    }
+                    btree_map::Entry::Vacant(v) => {
+                        v.insert(vec![entry.unit.clone()]);
+                    }
+                }
+            }
+            ret
+        };
+
+        // state machine to iterate through our sorted_addr_map and deduce obj bounds
+        let mut cur_obj: Option<String> = None;
+        let mut cur_start: Option<u32> = None;
+        for (addr, objs) in sorted_addr_map {
+            match (&cur_obj, &cur_start) {
+                (None, None) => {
+                    // if the start addr has multiple objs, we can't be sure which it belongs to...so skip it
+                    if objs.len() > 1 {
+                        println!("  Warning! We can't deduce an obj bound for addr 0x{:08X}!", addr);
+                        continue;
+                    }
+                    // else, note our first obj's name and starting addr
+                    else {
+                        cur_start = Some(addr);
+                        cur_obj = Some(objs[0].clone());
+                    }
+                }
+                (Some(obj_name), Some(obj_start)) => {
+                    // if there's only one obj belonging to this address
+                    if objs.len() == 1 {
+                        // check that its obj is our cur_obj
+                        // if it's not, we have our obj bounds
+                        if objs[0] != *obj_name {
+                            println!("\t{} bounds: 0x{:08X} - 0x{:08X}!", obj_name, obj_start, addr);
+                            cur_start = Some(addr);
+                            cur_obj = Some(objs[0].clone());
+                        }
+                    }
+                    // if there's multiple objs belonging to this address (code merging moment)
+                    else if objs.len() > 1 {
+                        // if our current obj name is NOT within this address, we have bounds
+                        if !objs.contains(obj_name) {
+                            println!("\t{} bounds: 0x{:08X} - 0x{:08X}!", obj_name, obj_start, addr);
+                            // if every obj associated with this addr is the same
+                            if objs.iter().all(|x| x == &objs[0]) {
+                                // then we can infer a known start of a new obj
+                                cur_start = Some(addr);
+                                cur_obj = Some(objs[0].clone());
+                            }
+                            else {
+                                println!("  Warning! We can't deduce an obj bound for addr 0x{:08X}!", addr);
+                                cur_start = None;
+                                cur_obj = None;
+                            }
+                        }
+                    }
+                    // every address we've noted down should have at least 1 obj
+                    else { unreachable!() }
+                }
+                _ => unreachable!()
+            }
         }
     }
     Ok(())
