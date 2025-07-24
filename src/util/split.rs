@@ -836,6 +836,10 @@ fn trim_linker_generated_symbols(obj: &mut ObjInfo) -> Result<()> {
     Ok(())
 }
 
+fn split_pdata() -> Result<()> {
+    Ok(())
+}
+
 /// Perform any necessary adjustments to allow relinking.
 /// This includes:
 /// - Ensuring .ctors & .dtors entries are split with their associated function
@@ -844,35 +848,37 @@ fn trim_linker_generated_symbols(obj: &mut ObjInfo) -> Result<()> {
 /// - Resolving a new object link order
 #[instrument(level = "debug", skip(obj))]
 pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bool) -> Result<()> {
-    // Create splits for extab and extabindex entries
-    if let Some((section_index, section)) = obj.sections.by_name("extabindex")? {
-        if !section.data.is_empty() {
-            let start = SectionAddress::new(section_index, section.address as u32);
-            split_extabindex(obj, start)?;
-        }
-    }
+    // // Create splits for extab and extabindex entries
+    // if let Some((section_index, section)) = obj.sections.by_name("extabindex")? {
+    //     if !section.data.is_empty() {
+    //         let start = SectionAddress::new(section_index, section.address as u32);
+    //         split_extabindex(obj, start)?;
+    //     }
+    // }
 
-    // Create splits for .ctors entries
-    if let Some((section_index, section)) = obj.sections.by_name(".ctors")? {
-        if !section.data.is_empty() {
-            let start = SectionAddress::new(section_index, section.address as u32);
-            let end = start + (section.size as u32 - 4);
-            split_ctors_dtors(obj, start, end)?;
-        }
-    }
+    // // Create splits for .ctors entries
+    // if let Some((section_index, section)) = obj.sections.by_name(".ctors")? {
+    //     if !section.data.is_empty() {
+    //         let start = SectionAddress::new(section_index, section.address as u32);
+    //         let end = start + (section.size as u32 - 4);
+    //         split_ctors_dtors(obj, start, end)?;
+    //     }
+    // }
 
-    // Create splits for .dtors entries
-    if let Some((section_index, section)) = obj.sections.by_name(".dtors")? {
-        if !section.data.is_empty() {
-            let mut start = SectionAddress::new(section_index, section.address as u32);
-            let end = start + (section.size as u32 - 4);
-            if obj.kind == ObjKind::Executable {
-                // Skip __destroy_global_chain_reference
-                start += 4;
-            }
-            split_ctors_dtors(obj, start, end)?;
-        }
-    }
+    // // Create splits for .dtors entries
+    // if let Some((section_index, section)) = obj.sections.by_name(".dtors")? {
+    //     if !section.data.is_empty() {
+    //         let mut start = SectionAddress::new(section_index, section.address as u32);
+    //         let end = start + (section.size as u32 - 4);
+    //         if obj.kind == ObjKind::Executable {
+    //             // Skip __destroy_global_chain_reference
+    //             start += 4;
+    //         }
+    //         split_ctors_dtors(obj, start, end)?;
+    //     }
+    // }
+
+    // Create splits for .pdata entries
 
     // Remove linker generated symbols from splits
     trim_linker_generated_symbols(obj)?;
@@ -1118,13 +1124,13 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                     }
                 }
             }
-            ensure!(
-                current_address & (align as u32 - 1) == 0,
-                "Invalid alignment for split: {} {} {:#010X}",
-                split.unit,
-                section.name,
-                current_address
-            );
+            // ensure!(
+            //     current_address & (align as u32 - 1) == 0,
+            //     "Invalid alignment for split: {} {} {:#010X}",
+            //     split.unit,
+            //     section.name,
+            //     current_address
+            // );
 
             // Collect relocations; target_symbol will be updated later
             let out_relocations = section
