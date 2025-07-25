@@ -882,7 +882,9 @@ fn split_pdata(obj: &mut ObjInfo) -> Result<()> {
     }
     let pdata_sec_again = obj.sections.get_mut(pdata_idx).unwrap();
     for (start_addr, split) in pdata_splits {
-        pdata_sec_again.splits.push(start_addr, split);
+        if !pdata_sec_again.splits.has_split_at(start_addr){
+            pdata_sec_again.splits.push(start_addr, split);
+        }
     }
     Ok(())
 }
@@ -929,13 +931,13 @@ pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bo
     split_pdata(obj)?;
 
     // Remove linker generated symbols from splits
-    trim_linker_generated_symbols(obj)?;
+    // trim_linker_generated_symbols(obj)?;
 
     // Create gap splits
     create_gap_splits(obj)?;
 
     // Update common BSS splits
-    update_common_splits(obj, common_start)?;
+    // update_common_splits(obj, common_start)?;
 
     // Ensure splits don't overlap symbols or each other
     validate_splits(obj)?;

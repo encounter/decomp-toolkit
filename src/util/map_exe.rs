@@ -421,7 +421,9 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
         for (start_addr, split) in new_splits {
             let tu_name = split.unit.clone();
             println!("adding split for {} at {:#X}-{:#X}", tu_name, start_addr, split.end);
-            target_sec.splits.push(start_addr, split);
+            if !target_sec.splits.has_split_at(start_addr){
+                target_sec.splits.push(start_addr, split);
+            }
             // obj.add_split(target_sec_idx, start_addr, split)?;
             // if this TU isn't in the link order, add it
             if obj.link_order.iter().find(|&x| x.name == tu_name).is_none() {
