@@ -260,7 +260,9 @@ fn split_write_obj_exe(
                 ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
                 ObjSectionKind::Bss => SectionKind::UninitializedData,
             });
-            cur_coff.append_section_data(sect_id, &sect.data, sect.align);
+            if sect.kind != ObjSectionKind::Bss {
+                cur_coff.append_section_data(sect_id, &sect.data, sect.align);
+            }
             sect_map.insert(idx, sect_id);
         }
 
