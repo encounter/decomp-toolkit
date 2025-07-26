@@ -7,6 +7,7 @@ use std::time::Instant;
 use anyhow::{anyhow, bail, ensure, Context, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
+use itertools::Itertools;
 use object::read::coff::{CoffFile, CoffHeader, ImageSymbol};
 use object::{pe, Architecture, BinaryFormat, Endianness, RelocationFlags, SectionKind, SymbolFlags, SymbolKind, SymbolScope};
 use object::pe::{ImageFileHeader};
@@ -17,7 +18,7 @@ use object::write::Object;
 use rayon::iter::IntoParallelRefIterator;
 use tracing::{debug, info, info_span};
 use typed_path::{Utf8NativePath, Utf8NativePathBuf};
-
+use xxhash_rust::xxh3::xxh3_64;
 use crate::{
     analysis::{cfa::{AnalyzerState}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, 
     util::{
@@ -29,16 +30,18 @@ use crate::analysis::objects::{detect_objects, detect_strings};
 use crate::analysis::pass::{FindSaveRestSleds, FindTRKInterruptVectorTable};
 use crate::analysis::signatures::{apply_signatures, apply_signatures_post, update_ctors_dtors};
 use crate::analysis::tracker::Tracker;
-use crate::cmd::dol::{apply_add_relocations, apply_block_relocations, ModuleConfig, OutputModule, ProjectConfig};
-use crate::obj::{ObjDataKind, ObjInfo, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
+use crate::cmd::dol::{apply_add_relocations, apply_block_relocations, ModuleConfig, OutputConfig, OutputModule, OutputUnit, ProjectConfig};
+use crate::obj::{best_match_for_reloc, ObjDataKind, ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
 use crate::util::asm::write_asm;
 use crate::util::config::{apply_splits_file, apply_symbols_file, write_splits_file, write_symbols_file};
 use crate::util::dep::DepFile;
+use crate::util::elf::write_elf;
 use crate::util::file::{buf_writer, touch, verify_hash, FileReadInfo};
+use crate::util::lcf::obj_path_for_unit;
 use crate::util::map::apply_map_file;
 use crate::util::map_exe::{apply_map_file_exe, process_map_exe};
 use crate::util::split::{split_obj, update_splits};
-use crate::util::xex::list_exe_sections;
+use crate::util::xex::{coff_path_for_unit, list_exe_sections, write_coff};
 use crate::vfs::open_file;
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -78,9 +81,6 @@ pub struct ExtractArgs {
     #[argp(positional, from_str_fn(native_path))]
     /// input file
     xex_file: Utf8NativePathBuf,
-    #[argp(positional, from_str_fn(native_path))]
-    /// output file
-    exe_file: Utf8NativePathBuf,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -180,13 +180,28 @@ fn split(args: SplitArgs) -> Result<()> {
 
     // Create out dirs
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
-    std::fs::write(args.out_dir.join(exe_name), exe_bytes)?;
+    // write the exe in the same dir the xex is
+    let exe_path: Utf8NativePathBuf = config.base.object.with_encoding().parent().unwrap().join(&exe_name);
+    info!("Extracting exe to {exe_path}");
+    std::fs::write(exe_path, exe_bytes)?;
 
     info!("Rebuilding relocations and splitting");
     // dol split_write_obj
-    split_write_obj_exe(&mut exe, &config, &args.out_dir, &args.out_dir)?;
+    let output_module = split_write_obj_exe(&mut exe, &config, &args.out_dir, &args.out_dir)?;
+    // here, out_config = OutputConfig { the result of split_write_obj }
+    let mut out_config = OutputConfig {
+        version: env!("CARGO_PKG_VERSION").to_string(),
+        base: output_module,
+        modules: vec![],
+        links: vec![],
+    };
 
     // Write output config here
+    {
+        let mut out_file = buf_writer(&out_config_path)?;
+        serde_json::to_writer_pretty(&mut out_file, &out_config)?;
+        out_file.flush()?;
+    }
 
     // Write dep file here
 
@@ -198,7 +213,7 @@ fn split_write_obj_exe(
     config: &ProjectConfig,
     base_dir: &Utf8NativePath,
     out_dir: &Utf8NativePath,
-) -> Result<()> {
+) -> Result<OutputModule> {
     debug!("Performing relocation analysis");
     let mut tracker = Tracker::new(&module.obj);
     tracker.process(&module.obj)?;
@@ -217,6 +232,7 @@ fn split_write_obj_exe(
     }
 
     debug!("Adjusting splits");
+    let module_id = module.obj.module_id;
     update_splits(&mut module.obj, None, false)?;
 
     debug!("Writing configuration");
@@ -233,6 +249,7 @@ fn split_write_obj_exe(
     }
 
     debug!("Splitting {} objects", module.obj.link_order.len());
+    let module_name = module.config.name().to_string();
     let split_objs = split_obj(&module.obj, None)?;
 
     debug!("Writing object files");
@@ -241,99 +258,145 @@ fn split_write_obj_exe(
         .create(out_dir)
         .with_context(|| format!("Failed to create out dir '{out_dir}'"))?;
     let obj_dir = out_dir.join("obj");
-
-    for coff_obj in &split_objs {
-        let root_name = coff_obj.name.split('.').next().unwrap();
-        // println!("Writing {}.obj", root_name);
-
-        // for each obj:
-        let mut cur_coff = Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
-        let mut sect_map: BTreeMap<SectionIndex, SectionId> = Default::default();
-        let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
-
-        // insert the sections
-        for (idx, sect) in coff_obj.sections.iter() {
-            // println!("Section: {}", sect.name);
-            let sect_id = cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
-                ObjSectionKind::Code => SectionKind::Text,
-                ObjSectionKind::Data => SectionKind::Data,
-                ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
-                ObjSectionKind::Bss => SectionKind::UninitializedData,
-            });
-            if sect.kind != ObjSectionKind::Bss {
-                cur_coff.append_section_data(sect_id, &sect.data, sect.align);
-            }
-            sect_map.insert(idx, sect_id);
+    let entry = if module.obj.kind == ObjKind::Executable {
+        module.obj.entry.and_then(|e| {
+            let (section_index, _) = module.obj.sections.at_address(e as u32).ok()?;
+            let symbols =
+                module.obj.symbols.at_section_address(section_index, e as u32).collect_vec();
+            best_match_for_reloc(symbols, ObjRelocKind::PpcRel24).map(|(_, s)| s.name.clone())
+        })
+    } else {
+        module.obj.symbols.by_name("_prolog")?.map(|(_, s)| s.name.clone())
+    };
+    let mut out_config = OutputModule {
+        name: module_name,
+        module_id,
+        ldscript: out_dir.join("ldscript.lcf").with_unix_encoding(),
+        units: Vec::with_capacity(split_objs.len()),
+        entry,
+        extract: Vec::with_capacity(module.config.extract.len()),
+    };
+    for (unit, split_obj) in module.obj.link_order.iter().zip(&split_objs) {
+        // pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>>
+        let out_obj = write_coff(split_obj)?;
+        let obj_path = coff_path_for_unit(&unit.name);
+        let out_path = obj_dir.join(&obj_path);
+        out_config.units.push(OutputUnit {
+            object: out_path.with_unix_encoding(),
+            name: unit.name.clone(),
+            autogenerated: unit.autogenerated,
+            code_size: split_obj.code_size(),
+            data_size: split_obj.data_size(),
+        });
+        if let Some(parent) = out_path.parent() {
+            DirBuilder::new().recursive(true).create(parent)?;
         }
-
-        // insert the symbols
-        for (idx, sym) in coff_obj.symbols.iter(){
-            let sym_id = cur_coff.add_symbol(Symbol {
-                name: sym.name.clone().into_bytes(),
-                value: match sym.section {
-                    Some(idx) => match coff_obj.sections.get(idx) {
-                        Some(sect) => sym.address - sect.address,
-                        None => bail!("Could not find section for symbol {}!", sym.name),
-                    },
-                    None => 0,
-                },
-                size: 0,
-                kind: match sym.kind {
-                    ObjSymbolKind::Function => SymbolKind::Text,
-                    ObjSymbolKind::Object => SymbolKind::Data,
-                    ObjSymbolKind::Section => SymbolKind::Section,
-                    ObjSymbolKind::Unknown => SymbolKind::Label,
-                },
-                scope: match sym.flags.scope() {
-                    ObjSymbolScope::Local => SymbolScope::Compilation,
-                    _ => SymbolScope::Linkage,
-                    // ObjSymbolScope::Global => SymbolScope::Linkage,
-                    // ObjSymbolScope::Weak => SymbolScope::Linkage, // verify this
-                    // ObjSymbolScope::Unknown => SymbolScope::Unknown,
-                },
-                weak: false, // sym.flags.scope() == ObjSymbolScope::Weak,
-                section: match sym.section {
-                    Some(idx) => SymbolSection::Section(sect_map.get(&idx).unwrap().clone()),
-                    None => SymbolSection::Undefined,
-                },
-                flags: SymbolFlags::None,
-            });
-            sym_map.insert(idx, sym_id);
-        }
-
-        // insert the relocs
-        for (sect_idx, sect) in coff_obj.sections.iter() {
-            for (addr, reloc) in sect.relocations.iter() {
-                let sym_id = match sym_map.get(&reloc.target_symbol) {
-                    Some(id) => id,
-                    None => bail!("Could not find symbol ID for index {}", reloc.target_symbol),
-                };
-                cur_coff.add_relocation(sect_map.get(&sect_idx).unwrap().clone(), Relocation {
-                    offset: addr as u64,
-                    symbol: sym_id.clone(),
-                    addend: 0,
-                    flags: RelocationFlags::Coff { typ: reloc.to_coff() }
-                })?;
-            }
-        }
-
-        // finally, write the COFF
-        let coff_data = cur_coff.write()?;
-
-        // create any necessary folders
-        let mut full_path = obj_dir.clone();
-        full_path.push(format!("{}.obj", root_name));
-        if let Some(parent) = full_path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
-
-        // write the file
-        let file = File::create(&full_path)?;
-        let mut writer = BufWriter::new(file);
-        writer.write_all(&coff_data)?;
-        writer.flush()?;
-        // call write_if_changed here?
+        write_coff_if_changed(&out_path, &out_obj)?;
     }
+
+    // for coff_obj in &split_objs {
+    //     let root_name = coff_obj.name.split('.').next().unwrap();
+    //     // println!("Writing {}.obj", root_name);
+    // 
+    //     // for each obj:
+    //     let mut cur_coff = Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
+    //     let mut sect_map: BTreeMap<SectionIndex, SectionId> = Default::default();
+    //     let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
+    // 
+    //     // insert the sections
+    //     for (idx, sect) in coff_obj.sections.iter() {
+    //         // println!("Section: {}", sect.name);
+    //         let sect_id = cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
+    //             ObjSectionKind::Code => SectionKind::Text,
+    //             ObjSectionKind::Data => SectionKind::Data,
+    //             ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
+    //             ObjSectionKind::Bss => SectionKind::UninitializedData,
+    //         });
+    //         if sect.kind != ObjSectionKind::Bss {
+    //             cur_coff.append_section_data(sect_id, &sect.data, sect.align);
+    //         }
+    //         sect_map.insert(idx, sect_id);
+    //     }
+    // 
+    //     // insert the symbols
+    //     for (idx, sym) in coff_obj.symbols.iter(){
+    //         let sym_id = cur_coff.add_symbol(Symbol {
+    //             name: sym.name.clone().into_bytes(),
+    //             value: match sym.section {
+    //                 Some(idx) => match coff_obj.sections.get(idx) {
+    //                     Some(sect) => sym.address - sect.address,
+    //                     None => bail!("Could not find section for symbol {}!", sym.name),
+    //                 },
+    //                 None => 0,
+    //             },
+    //             size: 0,
+    //             kind: match sym.kind {
+    //                 ObjSymbolKind::Function => SymbolKind::Text,
+    //                 ObjSymbolKind::Object => SymbolKind::Data,
+    //                 ObjSymbolKind::Section => SymbolKind::Section,
+    //                 ObjSymbolKind::Unknown => SymbolKind::Label,
+    //             },
+    //             scope: match sym.flags.scope() {
+    //                 ObjSymbolScope::Local => SymbolScope::Compilation,
+    //                 _ => SymbolScope::Linkage,
+    //                 // ObjSymbolScope::Global => SymbolScope::Linkage,
+    //                 // ObjSymbolScope::Weak => SymbolScope::Linkage, // verify this
+    //                 // ObjSymbolScope::Unknown => SymbolScope::Unknown,
+    //             },
+    //             weak: false, // sym.flags.scope() == ObjSymbolScope::Weak,
+    //             section: match sym.section {
+    //                 Some(idx) => SymbolSection::Section(sect_map.get(&idx).unwrap().clone()),
+    //                 None => SymbolSection::Undefined,
+    //             },
+    //             flags: SymbolFlags::None,
+    //         });
+    //         sym_map.insert(idx, sym_id);
+    //     }
+    // 
+    //     // insert the relocs
+    //     for (sect_idx, sect) in coff_obj.sections.iter() {
+    //         for (addr, reloc) in sect.relocations.iter() {
+    //             let sym_id = match sym_map.get(&reloc.target_symbol) {
+    //                 Some(id) => id,
+    //                 None => bail!("Could not find symbol ID for index {}", reloc.target_symbol),
+    //             };
+    //             cur_coff.add_relocation(sect_map.get(&sect_idx).unwrap().clone(), Relocation {
+    //                 offset: addr as u64,
+    //                 symbol: sym_id.clone(),
+    //                 addend: 0,
+    //                 flags: RelocationFlags::Coff { typ: reloc.to_coff() }
+    //             })?;
+    //         }
+    //     }
+    // 
+    //     // finally, write the COFF
+    //     let coff_data = cur_coff.write()?;
+    // 
+    //     // out_config.units.push(OutputUnit {
+    //     //     object: out_path.with_unix_encoding(),
+    //     //     name: unit.name.clone(),
+    //     //     autogenerated: unit.autogenerated,
+    //     //     code_size: split_obj.code_size(),
+    //     //     data_size: split_obj.data_size(),
+    //     // });
+    //     // if let Some(parent) = out_path.parent() {
+    //     //     DirBuilder::new().recursive(true).create(parent)?;
+    //     // }
+    // 
+    //     // create any necessary folders
+    //     let mut full_path = obj_dir.clone();
+    //     full_path.push(format!("{}.obj", root_name));
+    //     if let Some(parent) = full_path.parent() {
+    //         std::fs::create_dir_all(parent)?;
+    //     }
+    // 
+    //     // write the file
+    //     let file = File::create(&full_path)?;
+    //     let mut writer = BufWriter::new(file);
+    //     writer.write_all(&coff_data)?;
+    //     writer.flush()?;
+    //     // call write_if_changed here?
+    // }
 
     if config.write_asm {
         debug!("Writing disassembly");
@@ -363,7 +426,20 @@ fn split_write_obj_exe(
             writer.flush()?;
         }
     }
+    Ok(out_config)
+}
 
+fn write_coff_if_changed(path: &Utf8NativePath, contents: &[u8]) -> Result<()> {
+    if fs::metadata(path).is_ok_and(|m| m.is_file()) {
+        let old_file = fs::read(path)?;
+        let old_data = &*old_file;
+        // If the file is the same size, check if the contents are the same
+        // Avoid writing if unchanged, since it will update the file's mtime
+        if old_data.len() == contents.len() && xxh3_64(old_data) == xxh3_64(contents) {
+            return Ok(());
+        }
+    }
+    fs::write(path, contents).with_context(|| format!("Failed to write file '{path}'"))?;
     Ok(())
 }
 
@@ -422,13 +498,12 @@ fn extract(args: ExtractArgs) -> Result<()> {
     // validate that our input is an .xex
     let xex_ext = args.xex_file.extension();
     ensure!(xex_ext.is_some() && xex_ext.unwrap() == "xex", "Need to provide a valid input xex!");
-    // and our output is an .exe
-    let exe_ext = args.exe_file.extension();
-    ensure!(exe_ext.is_some() && exe_ext.unwrap() == "exe", "Need to provide a valid output exe path!");
     // then, grab the exe
     let (exe_name, exe_bytes) = extract_exe(&args.xex_file)?;
-    // ...and write it to the desired output path
-    std::fs::write(args.exe_file, exe_bytes)?;
+    let xex_dir = args.xex_file.parent().unwrap();
+    // ...and write it to the same directory the xex is in
+    let out_path = xex_dir.join(exe_name);
+    std::fs::write(out_path, exe_bytes)?;
     Ok(())
 }
 

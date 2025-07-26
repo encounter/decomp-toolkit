@@ -1,15 +1,12 @@
 use std::{ borrow::Cow, fs, num::NonZeroU64 };
 use std::cmp::min;
 use std::collections::btree_map::Entry;
+use std::collections::BTreeMap;
 use std::ffi::CString;
 use anyhow::{anyhow, bail, ensure, Result};
 use memchr::memmem;
-use object::{
-    endian, read::pe::PeFile32, Architecture, BinaryFormat, Endianness, File, Import,
-    Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget,
-    SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection
-};
-use typed_path::Utf8NativePathBuf;
+use object::{endian, read::pe::PeFile32, Architecture, BinaryFormat, Endianness, File, Import, Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolFlags, SymbolKind, SymbolScope, SymbolSection};
+use typed_path::{Utf8NativePathBuf, Utf8UnixPath};
 
 use crate::{
     analysis::cfa::SectionAddress, obj::{
@@ -21,8 +18,9 @@ use crate::{
 };
 
 use num_enum::{ TryFromPrimitive, IntoPrimitive };
+use object::write::{SectionId, SymbolId};
 use crate::analysis::read_u32;
-use crate::obj::SymbolIndex;
+use crate::obj::{ObjSymbolScope, SectionIndex, SymbolIndex};
 
 // quick and ez ways to read data from a block of bytes
 pub fn read_halfword(data: &Vec<u8>, index: usize) -> u16 {
@@ -995,6 +993,90 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     // .reloc: zero'ed out regardless
 
     Ok(obj)
+}
+
+pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
+    let root_name = obj.name.split('.').next().unwrap();
+    // println!("Writing {}.obj", root_name);
+
+    // for each obj:
+    let mut cur_coff = object::write::Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
+    let mut sect_map: BTreeMap<SectionIndex, SectionId> = Default::default();
+    let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
+
+    // insert the sections
+    for (idx, sect) in obj.sections.iter() {
+        // println!("Section: {}", sect.name);
+        let sect_id = cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
+            ObjSectionKind::Code => SectionKind::Text,
+            ObjSectionKind::Data => SectionKind::Data,
+            ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
+            ObjSectionKind::Bss => SectionKind::UninitializedData,
+        });
+        if sect.kind != ObjSectionKind::Bss {
+            cur_coff.append_section_data(sect_id, &sect.data, sect.align);
+        }
+        sect_map.insert(idx, sect_id);
+    }
+
+    // insert the symbols
+    for (idx, sym) in obj.symbols.iter(){
+        let sym_id = cur_coff.add_symbol(object::write::Symbol {
+            name: sym.name.clone().into_bytes(),
+            value: match sym.section {
+                Some(idx) => match obj.sections.get(idx) {
+                    Some(sect) => sym.address - sect.address,
+                    None => bail!("Could not find section for symbol {}!", sym.name),
+                },
+                None => 0,
+            },
+            size: 0,
+            kind: match sym.kind {
+                ObjSymbolKind::Function => SymbolKind::Text,
+                ObjSymbolKind::Object => SymbolKind::Data,
+                ObjSymbolKind::Section => SymbolKind::Section,
+                ObjSymbolKind::Unknown => SymbolKind::Label,
+            },
+            scope: match sym.flags.scope() {
+                ObjSymbolScope::Local => SymbolScope::Compilation,
+                _ => SymbolScope::Linkage,
+                // ObjSymbolScope::Global => SymbolScope::Linkage,
+                // ObjSymbolScope::Weak => SymbolScope::Linkage, // verify this
+                // ObjSymbolScope::Unknown => SymbolScope::Unknown,
+            },
+            weak: false, // sym.flags.scope() == ObjSymbolScope::Weak,
+            section: match sym.section {
+                Some(idx) => object::write::SymbolSection::Section(sect_map.get(&idx).unwrap().clone()),
+                None => object::write::SymbolSection::Undefined,
+            },
+            flags: SymbolFlags::None,
+        });
+        sym_map.insert(idx, sym_id);
+    }
+
+    // insert the relocs
+    for (sect_idx, sect) in obj.sections.iter() {
+        for (addr, reloc) in sect.relocations.iter() {
+            let sym_id = match sym_map.get(&reloc.target_symbol) {
+                Some(id) => id,
+                None => bail!("Could not find symbol ID for index {}", reloc.target_symbol),
+            };
+            cur_coff.add_relocation(sect_map.get(&sect_idx).unwrap().clone(), object::write::Relocation {
+                offset: addr as u64,
+                symbol: sym_id.clone(),
+                addend: 0,
+                flags: RelocationFlags::Coff { typ: reloc.to_coff() }
+            })?;
+        }
+    }
+
+    // finally, write the COFF
+    let coff_data = cur_coff.write()?;
+    Ok(coff_data)
+}
+
+pub fn coff_path_for_unit(unit: &str) -> Utf8NativePathBuf {
+    Utf8UnixPath::new(unit).with_encoding().with_extension("obj")
 }
 
 // debug only, lists section bounds
