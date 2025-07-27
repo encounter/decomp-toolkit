@@ -951,7 +951,7 @@ where
             write!(w, "{}", section.name)?;
         }
         // .bss excluded to support < r40 devkitPro
-        ".data" | ".rdata" | ".rdata$r" | ".pdata" | ".rodata" if subsection == 0 => {
+        ".data" | ".rodata" if subsection == 0 => {
             write!(w, "{}", section.name)?;
         }
         ".text" | ".text$yc" | ".text$yd" | ".init" => {
@@ -962,7 +962,7 @@ where
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"wa\"")?;
         }
-        ".rodata" | ".sdata2" => {
+        ".rodata" | ".sdata2" | ".pdata" | ".rdata" | ".rdata$r" | ".xidata" => {
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"a\"")?;
         }
