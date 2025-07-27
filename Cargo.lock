@@ -1060,7 +1060,7 @@ dependencies = [
 [[package]]
 name = "object"
 version = "0.37.1"
-source = "git+https://github.com/rjkiv/object.git#1b9bda8ff36128c814bc1772aa4bcf3ae0f0b26f"
+source = "git+https://github.com/rjkiv/object.git#839a1c3d7f29c5f0f2c4414c44bc6ed68afa580d"
 dependencies = [
  "crc32fast",
  "flate2",
