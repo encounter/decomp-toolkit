@@ -1035,7 +1035,10 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
                 ObjSymbolKind::Function => SymbolKind::Text,
                 ObjSymbolKind::Object => SymbolKind::Data,
                 ObjSymbolKind::Section => SymbolKind::Section,
-                ObjSymbolKind::Unknown => SymbolKind::Label,
+                ObjSymbolKind::Unknown => match sym.section {
+                    Some(_) => SymbolKind::Label,
+                    None => SymbolKind::Unknown,
+                },
             },
             scope: match sym.flags.scope() {
                 ObjSymbolScope::Local => SymbolScope::Compilation,
