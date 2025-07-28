@@ -204,7 +204,7 @@ fn split(args: SplitArgs) -> Result<()> {
     }
 
     // Write dep file here
-
+    info!("Done!");
     Ok(())
 }
 

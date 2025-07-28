@@ -88,27 +88,14 @@ struct TopLevel {
 #[derive(FromArgs, Debug)]
 #[argp(subcommand)]
 enum SubCommand {
-    Alf(cmd::alf::Args),
-    Ar(cmd::ar::Args),
     Demangle(cmd::demangle::Args),
     Disc(cmd::disc::Args),
-    Dol(cmd::dol::Args),
     Dwarf(cmd::dwarf::Args),
-    Elf(cmd::elf::Args),
-    Elf2Dol(cmd::elf2dol::Args),
-    Extab(cmd::extab::Args),
     Map(cmd::map::Args),
-    Nlzss(cmd::nlzss::Args),
-    Rarc(cmd::rarc::Args),
-    Rel(cmd::rel::Args),
-    Rso(cmd::rso::Args),
     Shasum(cmd::shasum::Args),
-    U8(cmd::u8_arc::Args),
-    Vfs(cmd::vfs::Args),
     Xex(cmd::xex::Args),
     Yay0(cmd::yay0::Args),
     Yaz0(cmd::yaz0::Args),
-    Wad(cmd::wad::Args),
 }
 
 // Duplicated from supports-color so we can check early.
@@ -166,27 +153,14 @@ fn main() {
         });
     }
     result = result.and_then(|_| match args.command {
-        SubCommand::Alf(c_args) => cmd::alf::run(c_args),
-        SubCommand::Ar(c_args) => cmd::ar::run(c_args),
         SubCommand::Demangle(c_args) => cmd::demangle::run(c_args),
         SubCommand::Disc(c_args) => cmd::disc::run(c_args),
-        SubCommand::Dol(c_args) => cmd::dol::run(c_args),
         SubCommand::Dwarf(c_args) => cmd::dwarf::run(c_args),
-        SubCommand::Elf(c_args) => cmd::elf::run(c_args),
-        SubCommand::Elf2Dol(c_args) => cmd::elf2dol::run(c_args),
-        SubCommand::Extab(c_args) => cmd::extab::run(c_args),
         SubCommand::Map(c_args) => cmd::map::run(c_args),
-        SubCommand::Nlzss(c_args) => cmd::nlzss::run(c_args),
-        SubCommand::Rarc(c_args) => cmd::rarc::run(c_args),
-        SubCommand::Rel(c_args) => cmd::rel::run(c_args),
-        SubCommand::Rso(c_args) => cmd::rso::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
-        SubCommand::U8(c_args) => cmd::u8_arc::run(c_args),
-        SubCommand::Vfs(c_args) => cmd::vfs::run(c_args),
         SubCommand::Xex(c_args) => cmd::xex::run(c_args),
         SubCommand::Yay0(c_args) => cmd::yay0::run(c_args),
         SubCommand::Yaz0(c_args) => cmd::yaz0::run(c_args),
-        SubCommand::Wad(c_args) => cmd::wad::run(c_args),
     });
     if let Err(e) = result {
         eprintln!("Failed: {e:?}");
