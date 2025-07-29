@@ -840,6 +840,7 @@ fn split_pdata(obj: &mut ObjInfo) -> Result<()> {
     let (pdata_idx, pdata_sec) = obj.sections.by_name(".pdata")?.unwrap();
     let pdata_start = pdata_sec.address as u32;
     let mut pdata_splits: BTreeMap<u32, ObjSplit> = BTreeMap::new();
+    // should we remove all pdata splits before doing this? so we avoid duplicates and false "overlaps with split" errors?
 
     // for each code split you find, you must give the appropriate pdata bound for the obj
     for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {

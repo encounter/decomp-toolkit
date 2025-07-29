@@ -204,6 +204,14 @@ fn split(args: SplitArgs) -> Result<()> {
     }
 
     // Write dep file here
+    dep.extend(exe.dep);
+    {
+        let dep_path = args.out_dir.join("dep");
+        let mut dep_file = buf_writer(&dep_path)?;
+        dep.write(&mut dep_file)?;
+        dep_file.flush()?;
+    }
+
     info!("Done!");
     Ok(())
 }
