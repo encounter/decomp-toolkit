@@ -28,7 +28,6 @@ codegen-units = 1
 encoding_rs = "0.8"
 aes = "0.8"
 anyhow = { version = "1.0", features = ["backtrace"] }
-ar = { git = "https://github.com/bjorn3/rust-ar.git", branch = "write_symbol_table" }
 argp = "0.3"
 base16ct = "0.2"
 base64 = "0.22"
@@ -75,7 +74,6 @@ serde_yaml = "0.9"
 sha-1 = "0.10"
 size = "0.4"
 supports-color = "3.0"
-syntect = { version = "5.2", features = ["parsing", "regex-fancy", "dump-load"], default-features = false }
 tracing = "0.1"
 tracing-attributes = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }

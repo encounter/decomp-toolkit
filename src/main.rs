@@ -90,12 +90,9 @@ struct TopLevel {
 enum SubCommand {
     Demangle(cmd::demangle::Args),
     Disc(cmd::disc::Args),
-    Dwarf(cmd::dwarf::Args),
     Map(cmd::map::Args),
     Shasum(cmd::shasum::Args),
     Xex(cmd::xex::Args),
-    Yay0(cmd::yay0::Args),
-    Yaz0(cmd::yaz0::Args),
 }
 
 // Duplicated from supports-color so we can check early.
@@ -155,12 +152,9 @@ fn main() {
     result = result.and_then(|_| match args.command {
         SubCommand::Demangle(c_args) => cmd::demangle::run(c_args),
         SubCommand::Disc(c_args) => cmd::disc::run(c_args),
-        SubCommand::Dwarf(c_args) => cmd::dwarf::run(c_args),
         SubCommand::Map(c_args) => cmd::map::run(c_args),
         SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
         SubCommand::Xex(c_args) => cmd::xex::run(c_args),
-        SubCommand::Yay0(c_args) => cmd::yay0::run(c_args),
-        SubCommand::Yaz0(c_args) => cmd::yaz0::run(c_args),
     });
     if let Err(e) = result {
         eprintln!("Failed: {e:?}");
