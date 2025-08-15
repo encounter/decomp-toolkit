@@ -32,6 +32,7 @@ pub struct ObjSection {
     pub elf_index: SectionIndex,
     pub relocations: ObjRelocations,
     pub virtual_address: Option<u64>,
+    pub virtual_address_passed_in: bool,
     pub file_offset: u64,
     pub section_known: bool,
     pub splits: ObjSplits,
