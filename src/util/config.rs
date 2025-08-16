@@ -94,11 +94,11 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
             bail!("Section {} not found", section_name)
         };
 
- 
         // Adjust read in symbol if its section's virtual address was user defined
         let section_obj = obj.sections.get(section.unwrap()).unwrap();
         let (adjusted_addr, sym_vaddr) = if section_obj.virtual_address_passed_in {
-                (addr.saturating_sub(section_obj.virtual_address.unwrap() as u32), Some(addr as u64))
+                let section_virtual_offset = section_obj.virtual_address.unwrap() as u32;
+                (addr.saturating_sub(section_virtual_offset), Some(addr as u64))
         } else {
             (addr, None)
         };
@@ -470,7 +470,8 @@ where W: Write + ?Sized {
             };
             
             let (addr, end) = if section.virtual_address_passed_in {
-                    (addr + section.virtual_address.unwrap() as u32, end + section.virtual_address.unwrap() as u32)
+                let section_virtual_offset = section.virtual_address.unwrap() as u32;
+                (addr + section_virtual_offset, end + section_virtual_offset)
             } else {
                 (addr, end)
             };
@@ -575,7 +576,6 @@ fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLin
     if matches!(state, SplitState::Sections(_)) {
         let name = &captures["name"];
         let mut section = SectionDef { name: name.to_string(), kind: None, align: None, virtual_address: None, };
-
 
         for attr in captures["attrs"].split(' ').filter(|&s| !s.is_empty()) {
             if let Some((attr, value)) = attr.split_once(':') {
@@ -740,11 +740,10 @@ where R: BufRead + ?Sized {
                 }?;
                 let section = obj.sections.get_mut(section_index).unwrap();
                 
+                // If splits/symbols use virtual addresses, subtract by the section offset to get rel addresses.
                 let (start, end) = if section.virtual_address_passed_in {
-                    (
-                    start.saturating_sub(section.virtual_address.unwrap_or(0).try_into().unwrap()),
-                    end.saturating_sub(section.virtual_address.unwrap_or(0).try_into().unwrap())
-                    )
+                    let section_virtual_offset = section.virtual_address.unwrap_or(0) as u32;
+                    (start.saturating_sub(section_virtual_offset), end.saturating_sub(section_virtual_offset))
                 } else {
                     (start, end)
                 };

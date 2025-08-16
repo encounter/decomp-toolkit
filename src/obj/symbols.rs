@@ -189,7 +189,7 @@ pub struct ObjSymbol {
     pub name: String,
     pub demangled_name: Option<String>,
     pub address: u64,
-    pub virtual_address: Option<u64>,
+    pub virtual_address: Option<u64>, // Added for REL virtual address support
     pub section: Option<SectionIndex>,
     pub size: u64,
     pub size_known: bool,
