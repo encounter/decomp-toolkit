@@ -1163,6 +1163,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                     } else {
                         symbol.address - current_address.address as u64
                     },
+                    virtual_address: symbol.virtual_address,
                     section: if split.common { None } else { Some(out_section_idx) },
                     size: symbol.size,
                     size_known: symbol.size_known,
@@ -1203,6 +1204,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                     elf_index: out_section_idx + 1,
                     relocations: ObjRelocations::new(out_relocations)?,
                     virtual_address: Some(current_address.address as u64),
+                    virtual_address_passed_in: section.virtual_address_passed_in,
                     file_offset: section.file_offset
                         + (current_address.address as u64 - section.address),
                     section_known: true,
