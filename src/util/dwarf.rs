@@ -1147,7 +1147,7 @@ fn array_type_string(
         );
         match dim.size {
             None => out.suffix.insert_str(0, "[]"),
-            Some(size) => out.suffix = format!("[{}]{}", size, out.suffix),
+            Some(size) => out.suffix = format!("{}[{}]", out.suffix, size),
         };
     }
     Ok(out)
