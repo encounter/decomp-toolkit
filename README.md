@@ -22,8 +22,8 @@ but realized the potential jeff has to work with several other Xbox 360 games, a
 
 If you spot a bug or crash, please submit an issue, and I will try my best to help you through it.
 
-For use in a new decompilation project, see [dtk-template](https://github.com/encounter/dtk-template), which provides a
-project structure and build system that uses decomp-toolkit under the hood.
+For use in a new decompilation project, see [jeff-template](https://github.com/rjkiv/jeff-template), which provides a
+project structure and build system that uses jeff under the hood.
 
 ## Features
 - Can extract an exe from an xex using: `xex extract <xex location>`.
