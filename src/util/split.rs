@@ -992,7 +992,11 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
 
 /// Split an object into multiple relocatable objects.
 #[instrument(level = "debug", skip(obj))]
-pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo>> {
+pub fn split_obj(
+    obj: &ObjInfo,
+    module_name: Option<&str>,
+    globalize_symbols: bool,
+) -> Result<Vec<ObjInfo>> {
     let mut objects: Vec<ObjInfo> = vec![];
     let mut object_symbols: Vec<Vec<Option<SymbolIndex>>> = vec![];
     let mut name_to_obj: HashMap<String, usize> = HashMap::new();
@@ -1215,7 +1219,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
     }
 
     // Update relocations
-    let mut globalize_symbols = vec![];
+    let mut symbols_to_globalize = vec![];
     for (obj_idx, out_obj) in objects.iter_mut().enumerate() {
         let symbol_idxs = &mut object_symbols[obj_idx];
         for (_section_index, section) in out_obj.sections.iter_mut() {
@@ -1231,7 +1235,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
 
                         // If the symbol is local, we'll upgrade the scope to global
                         // and rename it to avoid conflicts
-                        if target_sym.flags.is_local() {
+                        if globalize_symbols && target_sym.flags.is_local() {
                             let address_str = if obj.module_id == 0 {
                                 format!("{:08X}", target_sym.address)
                             } else if let Some(section_index) = target_sym.section {
@@ -1250,7 +1254,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                             } else {
                                 format!("{}_{}", target_sym.name, address_str)
                             };
-                            globalize_symbols.push((reloc.target_symbol, new_name));
+                            symbols_to_globalize.push((reloc.target_symbol, new_name));
                         }
 
                         symbol_idxs[reloc.target_symbol as usize] = Some(out_sym_idx);
@@ -1295,16 +1299,18 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
     }
 
     // Upgrade local symbols to global if necessary
-    for (obj, symbol_map) in objects.iter_mut().zip(&object_symbols) {
-        for (globalize_idx, new_name) in &globalize_symbols {
-            if let Some(symbol_idx) = symbol_map[*globalize_idx as usize] {
-                let mut symbol = obj.symbols[symbol_idx].clone();
-                symbol.name.clone_from(new_name);
-                if symbol.flags.is_local() {
-                    log::debug!("Globalizing {} in {}", symbol.name, obj.name);
-                    symbol.flags.set_scope(ObjSymbolScope::Global);
+    if globalize_symbols {
+        for (obj, symbol_map) in objects.iter_mut().zip(&object_symbols) {
+            for (globalize_idx, new_name) in &symbols_to_globalize {
+                if let Some(symbol_idx) = symbol_map[*globalize_idx as usize] {
+                    let mut symbol = obj.symbols[symbol_idx].clone();
+                    symbol.name.clone_from(new_name);
+                    if symbol.flags.is_local() {
+                        log::debug!("Globalizing {} in {}", symbol.name, obj.name);
+                        symbol.flags.set_scope(ObjSymbolScope::Global);
+                    }
+                    obj.symbols.replace(symbol_idx, symbol)?;
                 }
-                obj.symbols.replace(symbol_idx, symbol)?;
             }
         }
     }
