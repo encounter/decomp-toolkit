@@ -200,7 +200,7 @@ impl<'a> RarcView<'a> {
     }
 
     /// Get a string from the string table at the given offset.
-    pub fn get_string(&self, offset: u32) -> Result<Cow<str>, String> {
+    pub fn get_string(&self, offset: u32) -> Result<Cow<'_, str>, String> {
         let name_buf = self.string_table.get(offset as usize..).ok_or_else(|| {
             format!(
                 "RARC: name offset {} out of bounds (string table size: {})",
