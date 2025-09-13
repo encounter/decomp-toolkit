@@ -41,7 +41,7 @@ impl WadFs {
         Ok(Self { file, wad, mtime })
     }
 
-    fn find(&self, path: &str) -> Option<WadFindResult> {
+    fn find(&self, path: &str) -> Option<WadFindResult<'_>> {
         let filename = path.trim_start_matches('/');
         if filename.contains('/') {
             return None;
