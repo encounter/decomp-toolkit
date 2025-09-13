@@ -313,6 +313,10 @@ pub struct ExtractConfig {
     /// Path is relative to `out_dir/include`.
     #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "Option::is_none")]
     pub header: Option<Utf8UnixPathBuf>,
+    /// If specified, any relocations within the symbol will be written to the given file in JSON
+    /// format. Path is relative to `out_dir/bin`.
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "Option::is_none")]
+    pub relocations: Option<Utf8UnixPathBuf>,
     /// The type for the extracted symbol in the header file. By default, the header will emit
     /// a full symbol declaration (a.k.a. `symbol`), but this can be set to `raw` to emit the raw
     /// data as a byte array. `none` avoids emitting a header entirely, in which case the `header`
@@ -399,9 +403,22 @@ pub struct OutputExtract {
     pub binary: Option<Utf8UnixPathBuf>,
     #[serde(with = "unix_path_serde_option")]
     pub header: Option<Utf8UnixPathBuf>,
+    #[serde(with = "unix_path_serde_option")]
+    pub relocations: Option<Utf8UnixPathBuf>,
     pub header_type: String,
     pub custom_type: Option<String>,
     pub custom_data: Option<serde_json::Value>,
+}
+
+#[derive(Serialize)]
+struct ExtractRelocInfo {
+    offset: u32,
+    #[serde(rename = "type")]
+    kind: ObjRelocKind,
+    target: String,
+    addend: i64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    module: Option<u32>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, Hash)]
@@ -1059,12 +1076,35 @@ fn split_write_obj(
             }
         }
 
+        if let Some(relocations) = &extract.relocations {
+            let start = symbol.address as u32 - section.address as u32;
+            let end = start + symbol.size as u32;
+            let mut reloc_entries = Vec::new();
+            for (addr, reloc) in section.relocations.range(start..end) {
+                let target_symbol = &module.obj.symbols[reloc.target_symbol];
+                reloc_entries.push(ExtractRelocInfo {
+                    offset: addr - start,
+                    kind: reloc.kind,
+                    target: target_symbol.name.clone(),
+                    addend: reloc.addend,
+                    module: reloc.module,
+                });
+            }
+            let relocations_json = serde_json::to_vec_pretty(&reloc_entries)?;
+            let out_path = base_dir.join("bin").join(relocations.with_encoding());
+            if let Some(parent) = out_path.parent() {
+                DirBuilder::new().recursive(true).create(parent)?;
+            }
+            write_if_changed(&out_path, &relocations_json)?;
+        }
+
         // Copy to output config
         out_config.extract.push(OutputExtract {
             symbol: symbol.name.clone(),
             rename: extract.rename.clone(),
             binary: extract.binary.clone(),
             header: extract.header.clone(),
+            relocations: extract.relocations.clone(),
             header_type: header_kind.to_string(),
             custom_type: extract.custom_type.clone(),
             custom_data: extract.custom_data.clone(),
