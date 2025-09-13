@@ -47,7 +47,7 @@ impl DiscFs {
         Ok(Self { disc, base, meta, mtime })
     }
 
-    fn find(&self, path: &Utf8UnixPath) -> VfsResult<DiscNode> {
+    fn find(&self, path: &Utf8UnixPath) -> VfsResult<DiscNode<'_>> {
         let path = path.as_str().trim_matches('/');
         let mut split = path.split('/');
         let mut segment = next_non_empty(&mut split);

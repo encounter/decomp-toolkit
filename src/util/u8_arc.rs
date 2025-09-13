@@ -121,10 +121,10 @@ impl<'a> U8View<'a> {
     }
 
     /// Iterate over the nodes in the U8 archive.
-    pub fn iter(&self) -> U8Iter { U8Iter { inner: self, idx: 1 } }
+    pub fn iter(&self) -> U8Iter<'_> { U8Iter { inner: self, idx: 1 } }
 
     /// Get the name of a node.
-    pub fn get_name(&self, node: U8Node) -> Result<Cow<str>, String> {
+    pub fn get_name(&self, node: U8Node) -> Result<Cow<'_, str>, String> {
         let name_buf = self.string_table.get(node.name_offset() as usize..).ok_or_else(|| {
             format!(
                 "U8: name offset {} out of bounds (string table size: {})",
