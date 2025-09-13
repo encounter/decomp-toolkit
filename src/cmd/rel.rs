@@ -123,7 +123,7 @@ pub fn run(args: Args) -> Result<()> {
     }
 }
 
-fn load_obj(buf: &[u8]) -> Result<File> {
+fn load_obj(buf: &[u8]) -> Result<File<'_>> {
     let obj = File::parse(buf)?;
     match obj.architecture() {
         Architecture::PowerPc => {}
