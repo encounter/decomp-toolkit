@@ -2018,12 +2018,15 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
             TagKind::GlobalVariable => {
                 // TODO
             }
-            TagKind::StructureType | TagKind::ClassType => inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?)),
-            TagKind::EnumerationType => inner_types.push(UserDefinedType::Enumeration(process_enumeration_tag(info, child)?)),
-            TagKind::UnionType => inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?)),
-            TagKind::ArrayType
-            | TagKind::SubroutineType
-            | TagKind::PtrToMemberType => {
+            TagKind::StructureType | TagKind::ClassType => {
+                inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?))
+            }
+            TagKind::EnumerationType => inner_types
+                .push(UserDefinedType::Enumeration(process_enumeration_tag(info, child)?)),
+            TagKind::UnionType => {
+                inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?))
+            }
+            TagKind::ArrayType | TagKind::SubroutineType | TagKind::PtrToMemberType => {
                 // Variable type, ignore
             }
             kind => bail!("Unhandled StructureType child {:?}", kind),
