@@ -740,6 +740,7 @@ pub struct StructureType {
     pub byte_size: Option<u32>,
     pub members: Vec<StructureMember>,
     pub bases: Vec<StructureBase>,
+    pub inner_types: Vec<UserDefinedType>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -1687,6 +1688,9 @@ pub fn struct_def_string(
     if let Some(byte_size) = t.byte_size {
         writeln!(out, "    // total size: {byte_size:#X}")?;
     }
+    for inner_type in &t.inner_types {
+        writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+    }
     let mut vis = match t.kind {
         StructureKind::Struct => Visibility::Public,
         StructureKind::Class => Visibility::Private,
@@ -1999,6 +2003,7 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
 
     let mut members = Vec::new();
     let mut bases = Vec::new();
+    let mut inner_types = Vec::new();
     for child in tag.children(&info.tags) {
         match child.kind {
             TagKind::Inheritance => bases.push(process_inheritance_tag(info, child)?),
@@ -2013,11 +2018,10 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
             TagKind::GlobalVariable => {
                 // TODO
             }
-            TagKind::StructureType
-            | TagKind::ArrayType
-            | TagKind::EnumerationType
-            | TagKind::UnionType
-            | TagKind::ClassType
+            TagKind::StructureType | TagKind::ClassType => inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?)),
+            TagKind::EnumerationType => inner_types.push(UserDefinedType::Enumeration(process_enumeration_tag(info, child)?)),
+            TagKind::UnionType => inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?)),
+            TagKind::ArrayType
             | TagKind::SubroutineType
             | TagKind::PtrToMemberType => {
                 // Variable type, ignore
@@ -2036,6 +2040,7 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
         byte_size,
         members,
         bases,
+        inner_types,
     })
 }
 
