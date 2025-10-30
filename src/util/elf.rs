@@ -100,6 +100,7 @@ pub fn process_elf(path: &Utf8NativePath) -> Result<ObjInfo> {
             elf_index: section.index().0 as ObjSectionIndex,
             relocations: Default::default(),
             virtual_address: None, // Loaded from section symbol
+            virtual_address_passed_in: false,
             file_offset: section.file_range().map(|(v, _)| v).unwrap_or_default(),
             section_known: true,
             splits: Default::default(),
@@ -628,7 +629,10 @@ pub fn write_elf(obj: &ObjInfo, export_all: bool) -> Result<Vec<u8>> {
         if let Some(virtual_addresses) =
             split_meta.as_mut().and_then(|(m, _)| m.virtual_addresses.as_mut())
         {
-            if let Some(section_vaddr) = section.and_then(|s| s.virtual_address) {
+            if symbol.virtual_address.is_some() {
+                virtual_addresses.push((symbol.virtual_address.unwrap()).into());
+            }
+            else if let Some(section_vaddr) = section.and_then(|s| s.virtual_address) {
                 virtual_addresses.push(section_vaddr + symbol.address);
             } else {
                 virtual_addresses.push(0);
