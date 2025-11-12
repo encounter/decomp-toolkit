@@ -300,7 +300,15 @@ fn make(args: MakeArgs) -> Result<()> {
     }
 
     // Load all modules
-    let mut files = paths.iter().map(|p| open_file(p, true)).collect::<Result<Vec<_>>>()?;
+    let mut files = paths
+        .iter()
+        .map(|p| {
+            let mut file = open_file(p, true)?;
+            // Immediately map to avoid keeping file handles open
+            file.map()?;
+            Ok(file)
+        })
+        .collect::<Result<Vec<_>>>()?;
     let modules = files
         .par_iter_mut()
         .enumerate()
