@@ -86,14 +86,17 @@ impl Seek for StdFile {
 
 impl VfsFile for StdFile {
     fn map(&mut self) -> io::Result<&[u8]> {
-        let file = match self.file {
-            Some(ref mut file) => file,
-            None => self.file.insert(BufReader::new(fs::File::open(&self.path)?)),
-        };
         let mmap = match self.mmap {
             Some(ref mmap) => mmap,
-            None => self.mmap.insert(unsafe { memmap2::Mmap::map(file.get_ref())? }),
+            None => {
+                let file = match self.file {
+                    Some(ref mut file) => file,
+                    None => self.file.insert(BufReader::new(fs::File::open(&self.path)?)),
+                };
+                self.mmap.insert(unsafe { memmap2::Mmap::map(file.get_ref())? })
+            }
         };
+        self.file = None; // Drop the BufReader to avoid holding the file handle
         Ok(mmap)
     }
 
