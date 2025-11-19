@@ -992,7 +992,11 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
 
 /// Split an object into multiple relocatable objects.
 #[instrument(level = "debug", skip(obj))]
-pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo>> {
+pub fn split_obj(
+    obj: &ObjInfo,
+    module_name: Option<&str>,
+    globalize_symbols: bool,
+) -> Result<Vec<ObjInfo>> {
     let mut objects: Vec<ObjInfo> = vec![];
     let mut object_symbols: Vec<Vec<Option<SymbolIndex>>> = vec![];
     let mut name_to_obj: HashMap<String, usize> = HashMap::new();

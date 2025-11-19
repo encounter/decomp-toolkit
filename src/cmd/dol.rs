@@ -234,6 +234,10 @@ pub struct ProjectConfig {
     /// Marks all emitted symbols as "exported" to prevent the linker from removing them.
     #[serde(default = "bool_true", skip_serializing_if = "is_true")]
     pub export_all: bool,
+    /// Enables global promotion of local symbols referenced outside of the current translation unit.
+    /// When disabled, this will emit a warning for affected symbols.
+    #[serde(default = "bool_true", skip_serializing_if = "is_true")]
+    pub globalize_symbols: bool,
     /// Optional base path for all object files.
     #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
     pub object_base: Option<Utf8UnixPathBuf>,
@@ -259,6 +263,7 @@ impl Default for ProjectConfig {
             symbols_known: false,
             fill_gaps: true,
             export_all: true,
+            globalize_symbols: true,
             object_base: None,
             extract_objects: true,
         }
@@ -967,7 +972,7 @@ fn split_write_obj(
 
     debug!("Splitting {} objects", module.obj.link_order.len());
     let module_name = module.config.name().to_string();
-    let split_objs = split_obj(&module.obj, Some(module_name.as_str()))?;
+    let split_objs = split_obj(&module.obj, Some(module_name.as_str()), config.globalize_symbols)?;
 
     debug!("Writing object files");
     DirBuilder::new()

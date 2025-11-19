@@ -157,6 +157,8 @@ fn main() {
             .init();
     }
 
+    vfs::wasm::init().unwrap();
+
     let mut result = Ok(());
     if let Some(dir) = &args.chdir {
         result = env::set_current_dir(dir).map_err(|e| {

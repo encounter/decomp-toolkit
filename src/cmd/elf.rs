@@ -136,7 +136,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     match obj.kind {
         ObjKind::Executable => {
             log::info!("Splitting {} objects", obj.link_order.len());
-            let split_objs = split_obj(&obj, None)?;
+            let split_objs = split_obj(&obj, None, false)?;
 
             let asm_dir = args.out.join("asm");
             let include_dir = args.out.join("include");

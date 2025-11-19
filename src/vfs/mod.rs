@@ -4,16 +4,17 @@ mod rarc;
 mod std_fs;
 mod u8_arc;
 mod wad;
+pub(crate) mod wasm;
 
 use std::{
     error::Error,
-    fmt::{Debug, Display, Formatter},
+    fmt::{Debug, Display, Formatter, Write},
     io,
     io::{BufRead, Read, Seek, SeekFrom},
     sync::Arc,
 };
 
-use anyhow::{anyhow, Context};
+use anyhow::{anyhow, ensure, Context};
 use common::{StaticFile, WindowedFile};
 use disc::{nod_to_io_error, DiscFs};
 use dyn_clone::DynClone;
@@ -24,14 +25,17 @@ pub use std_fs::StdFs;
 use typed_path::{Utf8NativePath, Utf8UnixPath, Utf8UnixPathBuf};
 use u8_arc::U8Fs;
 use wad::WadFs;
+use wasm::open_vfs_plugin;
 
 use crate::util::{
+    config::parse_u64,
     ncompress::{YAY0_MAGIC, YAZ0_MAGIC},
     nlzss,
     rarc::RARC_MAGIC,
     u8_arc::U8_MAGIC,
     wad::WAD_MAGIC,
 };
+use crate::vfs::wasm::OpenPluginResult;
 
 pub trait Vfs: DynClone + Send + Sync {
     fn open(&mut self, path: &Utf8UnixPath) -> VfsResult<Box<dyn VfsFile>>;
@@ -59,6 +63,7 @@ pub enum VfsFileType {
     Directory,
 }
 
+#[derive(Debug, Clone)]
 pub struct VfsMetadata {
     pub file_type: VfsFileType,
     pub len: u64,
@@ -88,9 +93,8 @@ impl From<io::Error> for VfsError {
     fn from(e: io::Error) -> Self {
         match e.kind() {
             io::ErrorKind::NotFound => VfsError::NotFound,
-            // TODO: stabilized in Rust 1.83
-            // io::ErrorKind::NotADirectory => VfsError::NotADirectory,
-            // io::ErrorKind::IsADirectory => VfsError::IsADirectory,
+            io::ErrorKind::NotADirectory => VfsError::NotADirectory,
+            io::ErrorKind::IsADirectory => VfsError::IsADirectory,
             _ => VfsError::IoError(e),
         }
     }
@@ -108,10 +112,10 @@ impl Display for VfsError {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
             VfsError::NotFound => write!(f, "File or directory not found"),
-            VfsError::IoError(e) => write!(f, "{e}"),
-            VfsError::Other(e) => write!(f, "{e}"),
             VfsError::NotADirectory => write!(f, "Path is a file, not a directory"),
             VfsError::IsADirectory => write!(f, "Path is a directory, not a file"),
+            VfsError::IoError(e) => write!(f, "{e}"),
+            VfsError::Other(e) => f.write_str(e),
         }
     }
 }
@@ -220,7 +224,11 @@ pub fn open_path_with_fs(
     loop {
         // Open the next segment if necessary
         if file.is_none() {
-            segment = Utf8UnixPath::new(split.next().unwrap());
+            let Some(next_segment) = split.next() else {
+                // We are at the root of a filesystem
+                return Ok(OpenResult::Directory(fs, Utf8UnixPathBuf::new()));
+            };
+            segment = Utf8UnixPath::new(next_segment);
             if !current_path.is_empty() {
                 current_path.push(':');
             }
@@ -278,21 +286,36 @@ pub fn open_path_with_fs(
                             })?,
                     );
                 }
-                _ => match format {
-                    FileFormat::Regular => {
-                        return Err(anyhow!("{} is not an archive", current_path))
-                    }
-                    FileFormat::Compressed(kind) => {
-                        file = Some(
-                            decompress_file(current_file.as_mut(), kind)
-                                .with_context(|| format!("Failed to decompress {current_path}"))?,
-                        );
-                        // Continue the loop to detect the new format
-                    }
-                    FileFormat::Archive(kind) => {
-                        fs = open_fs(current_file, kind)
-                            .with_context(|| format!("Failed to open container {current_path}"))?;
-                        // Continue the loop to open the next segment
+                _ => {
+                    current_file = match open_vfs_plugin(current_file, &current_path, &next)? {
+                        OpenPluginResult::File(next_file) => {
+                            file = Some(next_file);
+                            // Continue the loop to detect the new format
+                            continue;
+                        }
+                        OpenPluginResult::Directory(next_fs) => {
+                            fs = next_fs;
+                            // Continue the loop to open the next segment
+                            continue;
+                        }
+                        OpenPluginResult::None(file) => file,
+                    };
+                    match format {
+                        FileFormat::Regular => {
+                            return Err(anyhow!("{} is not an archive", current_path))
+                        }
+                        FileFormat::Compressed(kind) => {
+                            file = Some(
+                                decompress_file(current_file.as_mut(), kind)
+                                    .with_context(|| format!("Failed to decompress {current_path}"))?,
+                            );
+                            // Continue the loop to detect the new format
+                        }
+                        FileFormat::Archive(kind) => {
+                            fs = open_fs(current_file, kind)
+                                .with_context(|| format!("Failed to open container {current_path}"))?;
+                            // Continue the loop to open the next segment
+                        }
                     }
                 },
             }

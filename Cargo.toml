@@ -78,8 +78,13 @@ tracing = "0.1"
 tracing-attributes = "0.1"
 tracing-subscriber = { version = "0.3", features = ["env-filter"] }
 unicode-width = "0.2"
+wasmtime = { version = "35.0", features = ["std", "runtime", "component-model", "cranelift"], default-features = false }
+#wasmtime-wasi = { version = "35.0" }
 xxhash-rust = { version = "0.8", features = ["xxh3"] }
 zerocopy = { version = "0.8", features = ["derive"] }
 
 [target.'cfg(target_env = "musl")'.dependencies]
 mimalloc = "0.1"
+
+[build-dependencies]
+wit-deps = "0.5"

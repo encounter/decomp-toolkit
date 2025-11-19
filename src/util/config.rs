@@ -35,6 +35,14 @@ pub fn parse_u32(s: &str) -> Result<u32, ParseIntError> {
     }
 }
 
+pub fn parse_u64(s: &str) -> Result<u64, ParseIntError> {
+    if let Some(s) = s.strip_prefix("0x").or_else(|| s.strip_prefix("0X")) {
+        u64::from_str_radix(s, 16)
+    } else {
+        s.parse::<u64>()
+    }
+}
+
 pub fn parse_i32(s: &str) -> Result<i32, ParseIntError> {
     if let Some(s) = s.strip_prefix("-0x").or_else(|| s.strip_prefix("-0X")) {
         i32::from_str_radix(s, 16).map(|v| -v)
