@@ -74,9 +74,9 @@ ignore = [
     #{ id = "RUSTSEC-0000-0000", reason = "you can specify a reason the advisory is ignored" },
     #"a-crate-that-is-yanked@0.1.1", # you can also ignore yanked crate versions if you wish
     #{ crate = "a-crate-that-is-yanked@0.1.1", reason = "you can specify why you are ignoring the yanked crate" },
-    { id = "RUSTSEC-2024-0384", reason = "unmaintained transient dependency, will be updated in next nod version" },
     { id = "RUSTSEC-2025-0056", reason = "adler crate used via nodtool has no maintained alternative yet" },
     { id = "RUSTSEC-2025-0048", reason = "tsify-next is unmaintained but required by objdiff-core" },
+    { id = "RUSTSEC-2025-0119", reason = "unmaintained transient dependency (number_prefix)" },
 ]
 # If this is true, then cargo deny will use the git executable to fetch advisory database.
 # If this is false, then it uses a built-in git library.
@@ -100,7 +100,7 @@ allow = [
     "ISC",
     "MIT",
     "MPL-2.0",
-    "Unicode-DFS-2016",
+    "Unicode-3.0",
     "Zlib",
 ]
 # The confidence threshold for detecting a license from license text.
