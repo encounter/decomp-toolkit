@@ -521,8 +521,7 @@ fn validate_splits(obj: &ObjInfo) -> Result<()> {
         if let Some((_, symbol)) = obj
             .symbols
             .for_section_range(section_index, ..addr)
-            .filter(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
-            .next_back()
+            .rfind(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
         {
             ensure!(
                 addr >= symbol.address as u32 + symbol.size as u32,
@@ -540,8 +539,7 @@ fn validate_splits(obj: &ObjInfo) -> Result<()> {
         if let Some((_, symbol)) = obj
             .symbols
             .for_section_range(section_index, ..split.end)
-            .filter(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
-            .next_back()
+            .rfind(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
         {
             ensure!(
                 split.end >= symbol.address as u32 + symbol.size as u32,
@@ -764,8 +762,7 @@ fn trim_split_alignment(obj: &mut ObjInfo) -> Result<()> {
         if let Some((_, symbol)) = obj
             .symbols
             .for_section_range(section_index, addr..split.end)
-            .filter(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
-            .next_back()
+            .rfind(|&(_, s)| s.size_known && s.size > 0 && !s.flags.is_stripped())
         {
             split_end = symbol.address as u32 + symbol.size as u32;
         }
@@ -1439,16 +1436,13 @@ pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<Sec
         section_end -= 4;
     }
     loop {
-        let last_symbol = obj
-            .symbols
-            .for_section_range(section_index, ..section_end)
-            .filter(|(_, s)| {
+        let last_symbol =
+            obj.symbols.for_section_range(section_index, ..section_end).rfind(|(_, s)| {
                 s.kind == ObjSymbolKind::Object
                     && s.size_known
                     && s.size > 0
                     && !s.flags.is_stripped()
-            })
-            .next_back();
+            });
         match last_symbol {
             Some((_, symbol)) if is_linker_generated_object(&symbol.name) => {
                 log::debug!(
