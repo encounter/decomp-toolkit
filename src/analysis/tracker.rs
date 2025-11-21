@@ -822,7 +822,7 @@ impl Tracker {
                 }
             }
         }
-        
+
         // Rename all discovered extab dtors from extab relocations
         if let Some((_, extab_section)) = obj.sections.by_name("extab")? {
             for (_, reloc) in extab_section.relocations.iter() {
