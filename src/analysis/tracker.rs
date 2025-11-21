@@ -827,9 +827,12 @@ impl Tracker {
         if let Some((_, extab_section)) = obj.sections.by_name("extab")? {
             for (_, reloc) in extab_section.relocations.iter() {
                 let symbol = &obj.symbols[reloc.target_symbol];
-                let mut new_symbol = symbol.clone();
-                new_symbol.name = new_symbol.name.replace("fn_", "dt_");
-                obj.symbols.replace(reloc.target_symbol, new_symbol)?;
+                // Only rename unnamed functions
+                if symbol.name.starts_with("fn_") {
+                    let mut new_symbol = symbol.clone();
+                    new_symbol.name = new_symbol.name.replace("fn_", "dt_");
+                    obj.symbols.replace(reloc.target_symbol, new_symbol)?;
+                }
             }
         }
 
