@@ -180,12 +180,7 @@ pub fn create_auto_symbol_name(prefix: &str, module_id: u32, address: u32) -> St
     let name = if module_id == 0 {
         format!("{}_{:08X}", prefix, address)
     } else {
-        format!(
-            "{}_{}_{:X}",
-            prefix,
-            module_id,
-            address
-        )
+        format!("{}_{}_{:X}", prefix, module_id, address)
     };
 
     name

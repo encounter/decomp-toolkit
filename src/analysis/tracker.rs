@@ -21,9 +21,7 @@ use crate::{
         ObjDataKind, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
         ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, SectionIndex, SymbolIndex,
     },
-    util::config::{
-        create_auto_symbol_name, is_auto_symbol
-    },
+    util::config::{create_auto_symbol_name, is_auto_symbol},
 };
 
 #[derive(Debug, Copy, Clone)]
@@ -833,7 +831,8 @@ impl Tracker {
                 // Only rename auto symbols
                 if is_auto_symbol(symbol) {
                     let mut new_symbol = symbol.clone();
-                    let name = create_auto_symbol_name("dtor", obj.module_id, symbol.address as u32);
+                    let name =
+                        create_auto_symbol_name("dtor", obj.module_id, symbol.address as u32);
 
                     new_symbol.name = name;
                     obj.symbols.replace(reloc.target_symbol, new_symbol)?;
