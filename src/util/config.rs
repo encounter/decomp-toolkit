@@ -176,6 +176,21 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
     }
 }
 
+pub fn create_auto_symbol_name(prefix: &str, module_id: u32, address: u32) -> String {
+    let name = if module_id == 0 {
+        format!("{}_{:08X}", prefix, address)
+    } else {
+        format!(
+            "{}_{}_{:X}",
+            prefix,
+            module_id,
+            address
+        )
+    };
+
+    name
+}
+
 pub fn is_skip_symbol(symbol: &ObjSymbol) -> bool {
     if symbol.flags.is_no_write() {
         return true;
@@ -194,6 +209,7 @@ pub fn is_auto_symbol(symbol: &ObjSymbol) -> bool {
         || symbol.name.starts_with("jumptable_")
         || symbol.name.starts_with("gap_")
         || symbol.name.starts_with("pad_")
+        || symbol.name.starts_with("dtor_")
 }
 
 pub fn is_auto_label(symbol: &ObjSymbol) -> bool { symbol.name.starts_with("lbl_") }
