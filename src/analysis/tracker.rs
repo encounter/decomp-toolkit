@@ -21,6 +21,7 @@ use crate::{
         ObjDataKind, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
         ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, SectionIndex, SymbolIndex,
     },
+    util::config::{create_auto_symbol_name, is_auto_symbol},
 };
 
 #[derive(Debug, Copy, Clone)]
@@ -822,6 +823,23 @@ impl Tracker {
                 }
             }
         }
+
+        // Rename all discovered extab dtors from extab relocations
+        if let Some((_, extab_section)) = obj.sections.by_name("extab")? {
+            for (_, reloc) in extab_section.relocations.iter() {
+                let symbol = &obj.symbols[reloc.target_symbol];
+                // Only rename auto symbols
+                if is_auto_symbol(symbol) {
+                    let mut new_symbol = symbol.clone();
+                    let name =
+                        create_auto_symbol_name("dtor", obj.module_id, symbol.address as u32);
+
+                    new_symbol.name = name;
+                    obj.symbols.replace(reloc.target_symbol, new_symbol)?;
+                }
+            }
+        }
+
         Ok(())
     }
 }

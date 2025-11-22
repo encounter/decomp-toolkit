@@ -20,6 +20,7 @@ use crate::{
         ObjInfo, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
         SectionIndex,
     },
+    util::config::create_auto_symbol_name,
 };
 
 #[derive(Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
@@ -143,11 +144,7 @@ impl AnalyzerState {
                 section.address,
                 section.address + section.size
             );
-            let name = if obj.module_id == 0 {
-                format!("fn_{:08X}", start.address)
-            } else {
-                format!("fn_{}_{:X}", obj.module_id, start.address)
-            };
+            let name = create_auto_symbol_name("fn", obj.module_id, start.address);
             obj.add_symbol(
                 ObjSymbol {
                     name,
