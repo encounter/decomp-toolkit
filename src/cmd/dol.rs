@@ -629,17 +629,17 @@ fn update_symbols(
         .filter(|(_, r)| r.module_id == obj.module_id)
     {
         if source_module_id == obj.module_id {
-            // Skip if already resolved
-            let (_, source_section) =
-                obj.sections.get_elf_index(rel_reloc.section as SectionIndex).ok_or_else(|| {
-                    anyhow!(
-                        "Failed to locate REL section {} in module ID {}: source module {}, {:?}",
-                        rel_reloc.section,
-                        obj.module_id,
-                        source_module_id,
-                        rel_reloc
-                    )
-                })?;
+            let Some((_, source_section)) =
+                obj.sections.get_elf_index(rel_reloc.section as SectionIndex)
+            else {
+                log::warn!(
+                    "Missing relocation module {}, section {}; skipping",
+                    obj.module_id,
+                    rel_reloc.section
+                );
+                continue;
+            };
+
             if source_section.relocations.contains(rel_reloc.address) {
                 continue;
             }
@@ -710,15 +710,16 @@ fn create_relocations(
     // Resolve all relocations in this module
     for rel_reloc in take(&mut obj.unresolved_relocations) {
         // Skip if already resolved
-        let (_, source_section) =
-            obj.sections.get_elf_index(rel_reloc.section as SectionIndex).ok_or_else(|| {
-                anyhow!(
-                    "Failed to locate REL section {} in module ID {}: {:?}",
-                    rel_reloc.section,
-                    obj.module_id,
-                    rel_reloc
-                )
-            })?;
+        let Some((_, source_section)) =
+            obj.sections.get_elf_index(rel_reloc.section as SectionIndex)
+        else {
+            log::warn!(
+                "Missing relocation module {}, section {}; skipping",
+                obj.module_id,
+                rel_reloc.section
+            );
+            continue;
+        };
         if source_section.relocations.contains(rel_reloc.address) {
             continue;
         }
@@ -775,8 +776,16 @@ fn create_relocations(
                 Some(rel_reloc.module_id)
             },
         };
-        let (_, source_section) =
-            obj.sections.get_elf_index_mut(rel_reloc.section as SectionIndex).unwrap();
+        let Some((_, source_section)) =
+            obj.sections.get_elf_index_mut(rel_reloc.section as SectionIndex)
+        else {
+            log::warn!(
+                "Missing relocation module {}, section {}; skipping",
+                obj.module_id,
+                rel_reloc.section
+            );
+            continue;
+        };
         source_section.relocations.insert(rel_reloc.address, reloc)?;
     }
 
