@@ -1476,8 +1476,8 @@ fn auto_unit_name(
         length_limit: 20,
         ..Default::default()
     })
-    // Also replace $ to avoid issues with build.ninja
-    .replace('$', "_");
+    // Also replace characters that break downstream tooling (build.ninja, linker, etc)
+    .replace(['$', ','], "_");
     let mut unit_name = format!("auto_{}_{}", name, section_name.trim_start_matches('.'));
     // Ensure the name is unique
     if unit_exists(&unit_name, obj, new_splits) {
