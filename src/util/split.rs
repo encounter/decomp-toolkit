@@ -10,11 +10,11 @@ use sanitise_file_name::sanitize_with_options;
 use tracing_attributes::instrument;
 
 use crate::{
-    analysis::{cfa::SectionAddress, read_address, read_u32},
+    analysis::{cfa::SectionAddress, read_address, read_u32, relocation_target_for},
     obj::{
-        ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocations, ObjSection, ObjSectionKind,
-        ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
-        ObjUnit, SectionIndex, SymbolIndex,
+        ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjRelocations, ObjSection,
+        ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
+        ObjSymbolScope, ObjUnit, SectionIndex, SymbolIndex,
     },
     util::{align_up, comment::MWComment, toposort::toposort},
 };
@@ -33,7 +33,9 @@ fn split_ctors_dtors(obj: &mut ObjInfo, start: SectionAddress, end: SectionAddre
 
     while current_address < end {
         // ProDG hack when the end address is not known
-        if matches!(read_u32(ctors_section, current_address.address), Some(0)) {
+        if matches!(read_u32(ctors_section, current_address.address), Some(0))
+            && relocation_target_for(obj, current_address, Some(ObjRelocKind::Absolute))?.is_none()
+        {
             while current_address < end {
                 ensure!(
                     matches!(read_u32(ctors_section, current_address.address), Some(0)),
