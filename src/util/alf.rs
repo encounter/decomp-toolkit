@@ -230,6 +230,7 @@ impl AlfSymbol {
             name,
             demangled_name,
             address: self.address as u64,
+            virtual_address: None,
             section: Some(self.section as SectionIndex - 1),
             size: self.size as u64,
             size_known: true,
