@@ -342,7 +342,7 @@ dependencies = [
 
 [[package]]
 name = "decomp-toolkit"
-version = "1.7.5"
+version = "1.7.6"
 dependencies = [
  "aes",
  "anyhow",
