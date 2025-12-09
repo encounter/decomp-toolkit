@@ -89,7 +89,9 @@ impl Read for WindowedFile {
             return Ok(0);
         }
         let len = buf.len().min(remaining as usize);
-        self.base.read(&mut buf[..len])
+        let n = self.base.read(&mut buf[..len])?;
+        self.pos += n as u64;
+        Ok(n)
     }
 }
 
