@@ -1659,9 +1659,13 @@ pub fn struct_def_string(
     typedefs: &TypedefMap,
     t: &StructureType,
 ) -> Result<String> {
-    let mut out = match t.kind {
-        StructureKind::Struct => "struct".to_string(),
-        StructureKind::Class => "class".to_string(),
+    let mut out = String::new();
+    if let Some(byte_size) = t.byte_size {
+        writeln!(out, "// total size: {byte_size:#X}")?;
+    }
+    match t.kind {
+        StructureKind::Struct => out.push_str("struct"),
+        StructureKind::Class => out.push_str("class"),
     };
     if let Some(name) = t.name.as_ref() {
         if name.starts_with('@') {
@@ -1694,9 +1698,6 @@ pub fn struct_def_string(
         }
     }
     out.push_str(" {\n");
-    if let Some(byte_size) = t.byte_size {
-        writeln!(out, "    // total size: {byte_size:#X}")?;
-    }
     for inner_type in &t.inner_types {
         // GCC emits template base classes as a nested struct, which is redundant so we skip them
         if let UserDefinedType::Structure(structure) = inner_type {
