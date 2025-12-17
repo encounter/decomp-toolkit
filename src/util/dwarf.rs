@@ -741,6 +741,8 @@ pub struct StructureType {
     pub members: Vec<StructureMember>,
     pub bases: Vec<StructureBase>,
     pub inner_types: Vec<UserDefinedType>,
+    pub member_functions: Vec<SubroutineType>, // TODO change to reference/id
+    pub typedefs: Vec<TypedefTag>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -827,8 +829,11 @@ pub struct SubroutineType {
     pub labels: Vec<SubroutineLabel>,
     pub blocks: Vec<SubroutineBlock>,
     pub inlines: Vec<SubroutineType>,
+    pub inner_types: Vec<UserDefinedType>,
     pub start_address: Option<u32>,
     pub end_address: Option<u32>,
+    pub member: bool,
+    pub is_const: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -998,14 +1003,7 @@ impl Type {
         }
         match self.kind {
             TypeKind::Fundamental(ft) => ft.size(),
-            TypeKind::UserDefined(key) => {
-                let tag = info
-                    .tags
-                    .get(&key)
-                    .ok_or_else(|| anyhow!("Failed to locate user defined type {}", key))?;
-                let ud_type = ud_type(info, tag)?;
-                ud_type.size(info)
-            }
+            TypeKind::UserDefined(key) => get_udt_by_key(info, key)?.size(info),
         }
     }
 }
@@ -1096,11 +1094,13 @@ pub fn type_string(
                     .ok_or_else(|| anyhow!("typedef without name"))?;
                 TypeString { prefix: td_name.clone(), ..Default::default() }
             } else {
-                let tag = info
-                    .tags
-                    .get(&key)
-                    .ok_or_else(|| anyhow!("Failed to locate user defined type {}", key))?;
-                ud_type_string(info, typedefs, &ud_type(info, tag)?, true, include_anonymous_def)?
+                ud_type_string(
+                    info,
+                    typedefs,
+                    &get_udt_by_key(info, key)?,
+                    true,
+                    include_anonymous_def,
+                )?
             }
         }
     };
@@ -1119,12 +1119,9 @@ fn type_name(info: &DwarfInfo, typedefs: &TypedefMap, t: &Type) -> Result<String
                     .ok_or_else(|| anyhow!("typedef without name"))?
                     .clone()
             } else {
-                let tag = info
-                    .tags
-                    .get(&key)
-                    .ok_or_else(|| anyhow!("Failed to locate user defined type {}", key))?;
-                let udt = ud_type(info, tag)?;
-                udt.name().ok_or_else(|| anyhow!("User defined type without name"))?
+                get_udt_by_key(info, key)?
+                    .name()
+                    .ok_or_else(|| anyhow!("User defined type without name"))?
             }
         }
     })
@@ -1426,7 +1423,19 @@ pub fn subroutine_def_string(
             write!(parameters, ", ...")?;
         }
     }
-    write!(out, "({}){} {{", parameters, rt.suffix)?;
+    write!(out, "({}){} ", parameters, rt.suffix)?;
+    if t.is_const {
+        write!(out, "const ")?;
+    }
+    write!(out, "{{")?;
+
+    if !t.inner_types.is_empty() {
+        writeln!(out, "\n    // Inner declarations")?;
+
+        for inner_type in &t.inner_types {
+            writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+        }
+    }
 
     if !t.variables.is_empty() {
         writeln!(out, "\n    // Local variables")?;
@@ -1690,6 +1699,21 @@ pub fn struct_def_string(
     }
     for inner_type in &t.inner_types {
         writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+    }
+    if !t.inner_types.is_empty() {
+        out.push_str("\n");
+    }
+
+    for member_function in &t.member_functions {
+        // TODO
+        // writeln!(out, "{};", &indent_all_by(4, &subroutine_type_string(info, typedefs, member_function)?))?;
+    }
+
+    for typedef in &t.typedefs {
+        writeln!(out, "{}", &indent_all_by(4, &typedef_string(info, typedefs, typedef)?))?;
+    }
+    if !t.typedefs.is_empty() {
+        out.push_str("\n");
     }
     let mut vis = match t.kind {
         StructureKind::Struct => Visibility::Public,
@@ -2004,14 +2028,12 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
     let mut members = Vec::new();
     let mut bases = Vec::new();
     let mut inner_types = Vec::new();
+    let mut typedefs = Vec::new();
     for child in tag.children(&info.tags) {
         match child.kind {
             TagKind::Inheritance => bases.push(process_inheritance_tag(info, child)?),
             TagKind::Member => members.push(process_structure_member_tag(info, child)?),
-            TagKind::Typedef => {
-                // TODO?
-                // info!("Structure {:?} Typedef: {:?}", name, child);
-            }
+            TagKind::Typedef => typedefs.push(process_typedef_tag(info, child)?),
             TagKind::Subroutine | TagKind::GlobalSubroutine => {
                 // TODO
             }
@@ -2044,6 +2066,8 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
         members,
         bases,
         inner_types,
+        member_functions: Vec::new(),
+        typedefs,
     })
 }
 
@@ -2246,6 +2270,8 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut start_address = None;
     let mut end_address = None;
     let mut virtual_ = false;
+    let mut parent_structure = None;
+    let mut is_const = false;
     for attr in &tag.attributes {
         match (attr.kind, &attr.value) {
             (AttributeKind::Sibling, _) => {}
@@ -2340,10 +2366,25 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut labels = Vec::new();
     let mut blocks = Vec::new();
     let mut inlines = Vec::new();
+    let mut inner_types = Vec::new();
     for child in tag.children(&info.tags) {
         match child.kind {
             TagKind::FormalParameter => {
-                parameters.push(process_subroutine_parameter_tag(info, child)?)
+                let param = process_subroutine_parameter_tag(info, child)?;
+                if member_of.is_some() && parent_structure.is_none() && param.name.as_deref() == Some("this") {
+                    let modifiers = &param.kind.modifiers;
+                    // TODO is this a proper check?
+                    if modifiers.len() >= 3 && modifiers[0] == Modifier::Const && modifiers[2] == Modifier::Const {
+                        is_const = true;
+                    }
+                    // This is needed because parent_structure differs from member_of in virtual function overrides
+                    if let TypeKind::UserDefined(key) = param.kind.kind {
+                        if let UserDefinedType::Structure(structure) = get_udt_by_key(info, key)? {
+                            parent_structure = Some(structure);
+                        }
+                    }
+                }
+                parameters.push(param);
             }
             TagKind::UnspecifiedParameters => var_args = true,
             TagKind::LocalVariable => variables.push(process_local_variable_tag(info, child)?),
@@ -2357,11 +2398,15 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                 }
             }
             TagKind::InlinedSubroutine => inlines.push(process_subroutine_tag(info, child)?),
-            TagKind::StructureType
-            | TagKind::ArrayType
-            | TagKind::EnumerationType
-            | TagKind::UnionType
-            | TagKind::ClassType
+            TagKind::StructureType | TagKind::ClassType => {
+                inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?))
+            }
+            TagKind::EnumerationType => inner_types
+                .push(UserDefinedType::Enumeration(process_enumeration_tag(info, child)?)),
+            TagKind::UnionType => {
+                inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?))
+            }
+            TagKind::ArrayType
             | TagKind::SubroutineType
             | TagKind::PtrToMemberType
             | TagKind::Typedef => {
@@ -2374,7 +2419,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let return_type = return_type
         .unwrap_or_else(|| Type { kind: TypeKind::Fundamental(FundType::Void), modifiers: vec![] });
     let local = tag.kind == TagKind::Subroutine;
-    Ok(SubroutineType {
+    let subroutine = SubroutineType {
         name,
         mangled_name,
         return_type,
@@ -2390,9 +2435,14 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         labels,
         blocks,
         inlines,
+        inner_types,
         start_address,
         end_address,
-    })
+        member: parent_structure.is_some(),
+        is_const,
+    };
+    // TODO add a reference to this to parent_structure
+    Ok(subroutine)
 }
 
 fn process_subroutine_label_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineLabel> {
@@ -2605,6 +2655,15 @@ fn process_ptr_to_member_tag(info: &DwarfInfo, tag: &Tag) -> Result<PtrToMemberT
     let containing_type = containing_type
         .ok_or_else(|| anyhow!("PtrToMemberType without containing type: {:?}", tag))?;
     Ok(PtrToMemberType { kind, containing_type })
+}
+
+pub fn get_udt_by_key(info: &DwarfInfo, key: u32) -> Result<UserDefinedType> {
+    let tag = match info.tags.get(&key) {
+        Some(t) => t,
+        None => return Err(anyhow!("Failed to locate user defined type {}", key)),
+    };
+
+    ud_type(info, tag)
 }
 
 pub fn ud_type(info: &DwarfInfo, tag: &Tag) -> Result<UserDefinedType> {
@@ -2837,6 +2896,9 @@ fn process_typedef_tag(info: &DwarfInfo, tag: &Tag) -> Result<TypedefTag> {
                 | AttributeKind::ModUDType,
                 _,
             ) => kind = Some(process_type(attr, info.e)?),
+            (AttributeKind::Member, _) => {
+                // can be ignored for now  
+            },
             _ => {
                 bail!("Unhandled Typedef attribute {:?}", attr);
             }
