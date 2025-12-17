@@ -1698,6 +1698,21 @@ pub fn struct_def_string(
         writeln!(out, "    // total size: {byte_size:#X}")?;
     }
     for inner_type in &t.inner_types {
+        // GCC emits template base classes as a nested struct, which is redundant so we skip them
+        if let UserDefinedType::Structure(structure) = inner_type {
+            if let Some(struct_name) = structure.name.as_ref() {
+                if struct_name.contains("<") && t.bases.iter().any(|base| {
+                    let resolved_name_opt: Option<String> = match &base.name {
+                        Some(name) => Some(name.clone()),
+                        None => type_name(info, typedefs, &base.base_type).ok(),
+                    };
+
+                    structure.name == resolved_name_opt
+                }) {
+                    continue;
+                }
+            }
+        }
         writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
     }
     if !t.inner_types.is_empty() {
@@ -2033,7 +2048,17 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
         match child.kind {
             TagKind::Inheritance => bases.push(process_inheritance_tag(info, child)?),
             TagKind::Member => members.push(process_structure_member_tag(info, child)?),
-            TagKind::Typedef => typedefs.push(process_typedef_tag(info, child)?),
+            TagKind::Typedef => {
+                let td = process_typedef_tag(info, child)?;
+                // GCC generates a typedef in templated structs with the name of the template
+                // Let's filter it out to not confuse the user
+                let is_template = name
+                    .as_deref()
+                    .is_some_and(|n| n.starts_with(&format!("{}<", td.name)));
+                if !is_template {
+                    typedefs.push(td);
+                }
+            },
             TagKind::Subroutine | TagKind::GlobalSubroutine => {
                 // TODO
             }
