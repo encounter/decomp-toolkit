@@ -1389,7 +1389,6 @@ pub fn subroutine_def_string(
         }
     }
 
-    let rt = type_string(info, typedefs, &t.return_type, true)?;
     if t.local || t.static_member {
         out.push_str("static ");
     }
@@ -1399,10 +1398,11 @@ pub fn subroutine_def_string(
     if t.virtual_ && !t.override_ {
         out.push_str("virtual ");
     }
-    out.push_str(&rt.prefix);
-    out.push(' ');
 
     let mut name_written = false;
+    
+    let mut omit_return_type = false;
+    let mut full_written_name = String::new();
 
     if t.override_ {
         // GCC behavior
@@ -1415,27 +1415,47 @@ pub fn subroutine_def_string(
                 .string_attribute(AttributeKind::Name)
                 .ok_or_else(|| anyhow!("direct_member_of tag {} has no name attribute", direct_member_of))?;
             
-            write!(out, "{direct_base_name}::")?;
+            write!(full_written_name, "{direct_base_name}::")?;
+
+            if let Some(name) = t.name.as_ref() {
+                // in GCC the ctor and dtor are called the same, so we need to check the return value
+                if name == direct_base_name {
+                    if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
+                        write!(full_written_name, "~{direct_base_name}")?;
+                        name_written = true;
+                    }
+                    omit_return_type = true;
+                }
+            }
         }
     } else if let Some(base_name) = base_name_opt {
-        write!(out, "{base_name}::")?;
+        write!(full_written_name, "{base_name}::")?;
 
         // Handle MWCC constructors and destructors
         if let Some(name) = t.name.as_ref() {
             if name == "__dt" {
-                write!(out, "~{base_name}")?;
+                write!(full_written_name, "~{base_name}")?;
                 name_written = true;
             } else if name == "__ct" {
-                write!(out, "{base_name}")?;
+                write!(full_written_name, "{base_name}")?;
                 name_written = true;
             }
+            omit_return_type = true;
         }
     }
     if !name_written {
         if let Some(name) = t.name.as_ref() {
-            out.push_str(name);
+            full_written_name.push_str(name);
         }
     }
+    let rt = type_string(info, typedefs, &t.return_type, true)?;
+    if !omit_return_type {
+        out.push_str(&rt.prefix);
+        out.push(' ');
+    }
+
+    out.push_str(&full_written_name);
+
     let mut parameters = String::new();
     if t.parameters.is_empty() {
         if t.var_args {
