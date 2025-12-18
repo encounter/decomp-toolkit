@@ -1374,13 +1374,13 @@ pub fn subroutine_def_string(
         let base_name = tag
             .string_attribute(AttributeKind::Name)
             .ok_or_else(|| anyhow!("member_of tag {} has no name attribute", member_of))?;
-        
+
         if t.override_ {
             writeln!(out, "// Overrides: {}", base_name)?;
         }
-        base_name_opt = Some(base_name);    
+        base_name_opt = Some(base_name);
     }
-    
+
     let is_non_static_member = t.direct_member_of.is_some() && !t.static_member;
     if is_non_static_member {
         if let Some(param) = t.parameters.first() {
@@ -1401,21 +1401,20 @@ pub fn subroutine_def_string(
     }
 
     let mut name_written = false;
-    
+
     let mut omit_return_type = false;
     let mut full_written_name = String::new();
 
     if t.override_ {
         // GCC behavior
         if let Some(direct_member_of) = t.direct_member_of {
-            let tag = info
-                .tags
-                .get(&direct_member_of)
-                .ok_or_else(|| anyhow!("Failed to locate direct_member_of tag {}", direct_member_of))?;
-            let direct_base_name = tag
-                .string_attribute(AttributeKind::Name)
-                .ok_or_else(|| anyhow!("direct_member_of tag {} has no name attribute", direct_member_of))?;
-            
+            let tag = info.tags.get(&direct_member_of).ok_or_else(|| {
+                anyhow!("Failed to locate direct_member_of tag {}", direct_member_of)
+            })?;
+            let direct_base_name = tag.string_attribute(AttributeKind::Name).ok_or_else(|| {
+                anyhow!("direct_member_of tag {} has no name attribute", direct_member_of)
+            })?;
+
             write!(full_written_name, "{direct_base_name}::")?;
 
             if let Some(name) = t.name.as_ref() {
@@ -1507,7 +1506,11 @@ pub fn subroutine_def_string(
         writeln!(out, "\n    // Inner declarations")?;
 
         for inner_type in &t.inner_types {
-            writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+            writeln!(
+                out,
+                "{};",
+                &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?)
+            )?;
         }
     }
 
@@ -1617,7 +1620,11 @@ fn subroutine_block_string(
         writeln!(out, "\n    // Inner declarations")?;
 
         for inner_type in &block.inner_types {
-            writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+            writeln!(
+                out,
+                "{};",
+                &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?)
+            )?;
         }
     }
 
@@ -1798,7 +1805,11 @@ pub fn structure_def_string(
     if !t.inner_types.is_empty() {
         writeln!(out, "\n    // Inner declarations")?;
         for inner_type in &t.inner_types {
-            writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+            writeln!(
+                out,
+                "{};",
+                &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?)
+            )?;
         }
     }
 
@@ -1812,10 +1823,7 @@ pub fn structure_def_string(
     if !t.static_members.is_empty() {
         writeln!(out, "\n    // Static members")?;
         for static_member in &t.static_members {
-            let line = format!(
-                "static {}",
-                variable_string(info, typedefs, static_member, true)?
-            );
+            let line = format!("static {}", variable_string(info, typedefs, static_member, true)?);
             writeln!(out, "{}", indent_all_by(4, &line))?;
         }
     }
@@ -2146,13 +2154,12 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
                 let td = process_typedef_tag(info, child)?;
                 // GCC generates a typedef in templated structs with the name of the template
                 // Let's filter it out to not confuse the user
-                let is_template = name
-                    .as_deref()
-                    .is_some_and(|n| n.starts_with(&format!("{}<", td.name)));
+                let is_template =
+                    name.as_deref().is_some_and(|n| n.starts_with(&format!("{}<", td.name)));
                 if !is_template {
                     typedefs.push(td);
                 }
-            },
+            }
             TagKind::Subroutine | TagKind::GlobalSubroutine => {
                 // TODO
             }
@@ -2494,10 +2501,16 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         match child.kind {
             TagKind::FormalParameter => {
                 let param = process_subroutine_parameter_tag(info, child)?;
-                if member_of.is_some() && direct_base.is_none() && param.name.as_deref() == Some("this") {
+                if member_of.is_some()
+                    && direct_base.is_none()
+                    && param.name.as_deref() == Some("this")
+                {
                     let modifiers = &param.kind.modifiers;
                     // TODO is this a proper check?
-                    if modifiers.len() >= 3 && modifiers[0] == Modifier::Const && modifiers[2] == Modifier::Const {
+                    if modifiers.len() >= 3
+                        && modifiers[0] == Modifier::Const
+                        && modifiers[2] == Modifier::Const
+                    {
                         const_ = true;
                     }
                     if modifiers.contains(&Modifier::Volatile) {
@@ -2537,9 +2550,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                 inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?))
             }
             TagKind::Typedef => typedefs.push(process_typedef_tag(info, child)?),
-            TagKind::ArrayType
-            | TagKind::SubroutineType
-            | TagKind::PtrToMemberType => {
+            TagKind::ArrayType | TagKind::SubroutineType | TagKind::PtrToMemberType => {
                 // Variable type, ignore
             }
             kind => bail!("Unhandled SubroutineType child {:?}", kind),
@@ -2576,7 +2587,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         const_,
         static_member,
         override_,
-        volatile_
+        volatile_,
     };
     // TODO save this to a key => SubroutineType map and add a reference to the key in parent_structure
     Ok(subroutine)
@@ -2644,7 +2655,8 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
                 inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?))
             }
             TagKind::EnumerationType => {
-                inner_types.push(UserDefinedType::Enumeration(process_enumeration_tag(info, child)?));
+                inner_types
+                    .push(UserDefinedType::Enumeration(process_enumeration_tag(info, child)?));
             }
             TagKind::UnionType => {
                 inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?))
@@ -2652,16 +2664,23 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
             TagKind::Typedef => {
                 typedefs.push(process_typedef_tag(info, child)?);
             }
-            | TagKind::ArrayType
-            | TagKind::SubroutineType
-            | TagKind::PtrToMemberType => {
+            TagKind::ArrayType | TagKind::SubroutineType | TagKind::PtrToMemberType => {
                 // Variable type, ignore
             }
             kind => bail!("Unhandled LexicalBlock child {:?}", kind),
         }
     }
 
-    Ok(Some(SubroutineBlock { name, start_address, end_address, variables, blocks, inlines, inner_types, typedefs }))
+    Ok(Some(SubroutineBlock {
+        name,
+        start_address,
+        end_address,
+        variables,
+        blocks,
+        inlines,
+        inner_types,
+        typedefs,
+    }))
 }
 
 fn process_subroutine_parameter_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineParameter> {
@@ -3044,8 +3063,8 @@ fn process_typedef_tag(info: &DwarfInfo, tag: &Tag) -> Result<TypedefTag> {
                 _,
             ) => kind = Some(process_type(attr, info.e)?),
             (AttributeKind::Member, _) => {
-                // can be ignored for now  
-            },
+                // can be ignored for now
+            }
             (AttributeKind::Specification, &AttributeValue::Reference(key)) => {
                 let spec_tag = info
                     .tags
