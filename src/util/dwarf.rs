@@ -3037,8 +3037,15 @@ fn process_typedef_tag(info: &DwarfInfo, tag: &Tag) -> Result<TypedefTag> {
             (AttributeKind::Member, _) => {
                 // can be ignored for now  
             },
-            (AttributeKind::Specification, _) => {
-                // TODO
+            (AttributeKind::Specification, &AttributeValue::Reference(key)) => {
+                let spec_tag = info
+                    .tags
+                    .get(&key)
+                    .ok_or_else(|| anyhow!("Failed to locate specification tag {}", key))?;
+                // Merge attributes from specification tag
+                let spec = process_typedef_tag(info, spec_tag)?;
+                name = name.or(Some(spec.name));
+                kind = kind.or(Some(spec.kind));
             }
             _ => {
                 bail!("Unhandled Typedef attribute {:?}", attr);
