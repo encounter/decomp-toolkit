@@ -19,8 +19,8 @@ use typed_path::Utf8NativePathBuf;
 use crate::{
     util::{
         dwarf::{
-            process_compile_unit, process_cu_tag, process_overlay_branch, read_debug_section,
-            should_skip_tag, tag_type_string, AttributeKind, TagKind,
+            parse_producer, process_compile_unit, process_cu_tag, process_overlay_branch,
+            read_debug_section, should_skip_tag, tag_type_string, AttributeKind, TagKind,
         },
         file::buf_writer,
         path::native_path,
@@ -166,7 +166,8 @@ where
     }
 
     let mut reader = Cursor::new(&*data);
-    let info = read_debug_section(&mut reader, obj_file.endianness().into(), args.include_erased)?;
+    let mut info =
+        read_debug_section(&mut reader, obj_file.endianness().into(), args.include_erased)?;
 
     for (&addr, tag) in &info.tags {
         log::debug!("{}: {:?}", addr, tag);
@@ -210,6 +211,7 @@ where
                     writeln!(w, "\n/*\n    Compile unit: {}", unit.name)?;
                     if let Some(producer) = unit.producer {
                         writeln!(w, "    Producer: {producer}")?;
+                        info.producer = parse_producer(&producer);
                     }
                     if let Some(comp_dir) = unit.comp_dir {
                         writeln!(w, "    Compile directory: {comp_dir}")?;

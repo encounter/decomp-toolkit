@@ -369,6 +369,14 @@ pub type TypedefMap = BTreeMap<u32, Vec<u32>>;
 pub struct DwarfInfo {
     pub e: Endian,
     pub tags: TagMap,
+    pub producer: Producer,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Producer {
+    MWCC,
+    GCC,
+    OTHER,
 }
 
 impl Tag {
@@ -488,7 +496,7 @@ where R: BufRead + Seek + ?Sized {
         len
     };
 
-    let mut info = DwarfInfo { e, tags: BTreeMap::new() };
+    let mut info = DwarfInfo { e, tags: BTreeMap::new(), producer: Producer::OTHER };
     loop {
         let position = reader.stream_position()?;
         if position >= len {
@@ -500,6 +508,14 @@ where R: BufRead + Seek + ?Sized {
         }
     }
     Ok(info)
+}
+
+pub fn parse_producer(producer: &str) -> Producer {
+    match producer {
+        p if p.starts_with("MW") => Producer::MWCC,
+        p if p.starts_with("GNU C") => Producer::GCC,
+        _ => Producer::OTHER,
+    }
 }
 
 #[allow(unused)]
@@ -1405,26 +1421,28 @@ pub fn subroutine_def_string(
     let mut omit_return_type = false;
     let mut full_written_name = String::new();
 
-    if t.override_ {
-        // GCC behavior
-        if let Some(direct_member_of) = t.direct_member_of {
-            let tag = info.tags.get(&direct_member_of).ok_or_else(|| {
-                anyhow!("Failed to locate direct_member_of tag {}", direct_member_of)
-            })?;
-            let direct_base_name = tag.string_attribute(AttributeKind::Name).ok_or_else(|| {
-                anyhow!("direct_member_of tag {} has no name attribute", direct_member_of)
-            })?;
+    if let Producer::GCC = info.producer {
+        if t.override_ {
+            if let Some(direct_member_of) = t.direct_member_of {
+                let tag = info.tags.get(&direct_member_of).ok_or_else(|| {
+                    anyhow!("Failed to locate direct_member_of tag {}", direct_member_of)
+                })?;
+                let direct_base_name =
+                    tag.string_attribute(AttributeKind::Name).ok_or_else(|| {
+                        anyhow!("direct_member_of tag {} has no name attribute", direct_member_of)
+                    })?;
 
-            write!(full_written_name, "{direct_base_name}::")?;
+                write!(full_written_name, "{direct_base_name}::")?;
 
-            if let Some(name) = t.name.as_ref() {
-                // in GCC the ctor and dtor are called the same, so we need to check the return value
-                if name == direct_base_name {
-                    if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
-                        write!(full_written_name, "~{direct_base_name}")?;
-                        name_written = true;
+                if let Some(name) = t.name.as_ref() {
+                    // in GCC the ctor and dtor are called the same, so we need to check the return value
+                    if name == direct_base_name {
+                        if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
+                            write!(full_written_name, "~{direct_base_name}")?;
+                            name_written = true;
+                        }
+                        omit_return_type = true;
                     }
-                    omit_return_type = true;
                 }
             }
         }
@@ -2151,13 +2169,26 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
             TagKind::Inheritance => bases.push(process_inheritance_tag(info, child)?),
             TagKind::Member => members.push(process_structure_member_tag(info, child)?),
             TagKind::Typedef => {
-                let td = process_typedef_tag(info, child)?;
-                // GCC generates a typedef in templated structs with the name of the template
-                // Let's filter it out to not confuse the user
-                let is_template =
-                    name.as_deref().is_some_and(|n| n.starts_with(&format!("{}<", td.name)));
-                if !is_template {
-                    typedefs.push(td);
+                match info.producer {
+                    Producer::MWCC => {
+                        // TODO handle visibility
+                        // MWCC handles static members as typedefs for whatever reason
+                        static_members.push(process_variable_tag(info, child)?)
+                    }
+                    Producer::GCC => {
+                        // GCC generates a typedef in templated structs with the name of the template
+                        // Let's filter it out to not confuse the user
+                        let td = process_typedef_tag(info, child)?;
+                        let is_template = name
+                            .as_deref()
+                            .is_some_and(|n| n.starts_with(&format!("{}<", td.name)));
+                        if !is_template {
+                            typedefs.push(td);
+                        }
+                    }
+                    _ => {
+                        typedefs.push(process_typedef_tag(info, child)?);
+                    }
                 }
             }
             TagKind::Subroutine | TagKind::GlobalSubroutine => {
@@ -3091,11 +3122,13 @@ fn process_typedef_tag(info: &DwarfInfo, tag: &Tag) -> Result<TypedefTag> {
 }
 
 fn process_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<VariableTag> {
-    ensure!(
-        matches!(tag.kind, TagKind::GlobalVariable | TagKind::LocalVariable),
-        "{:?} is not a variable tag",
-        tag.kind
-    );
+    let is_variable = match tag.kind {
+        TagKind::GlobalVariable | TagKind::LocalVariable => true,
+        TagKind::Typedef if info.producer == Producer::MWCC => true,
+        _ => false,
+    };
+
+    ensure!(is_variable, "{:?} is not a variable tag", tag.kind);
 
     let mut name = None;
     let mut mangled_name = None;
