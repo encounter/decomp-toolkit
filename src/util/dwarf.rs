@@ -739,6 +739,7 @@ pub struct StructureType {
     pub name: Option<String>,
     pub byte_size: Option<u32>,
     pub members: Vec<StructureMember>,
+    pub static_members: Vec<VariableTag>,
     pub bases: Vec<StructureBase>,
     pub inner_types: Vec<UserDefinedType>,
     pub typedefs: Vec<TypedefTag>,
@@ -1165,7 +1166,7 @@ fn structure_type_string(
 ) -> Result<TypeString> {
     let prefix = if let Some(name) = t.name.as_ref() {
         if name.starts_with('@') {
-            struct_def_string(info, typedefs, t)?
+            structure_def_string(info, typedefs, t)?
         } else if include_keyword {
             match t.kind {
                 StructureKind::Struct => format!("struct {name}"),
@@ -1175,7 +1176,7 @@ fn structure_type_string(
             name.clone()
         }
     } else if include_anonymous_def {
-        struct_def_string(info, typedefs, t)?
+        structure_def_string(info, typedefs, t)?
     } else if include_keyword {
         match t.kind {
             StructureKind::Struct => "struct [anonymous]".to_string(),
@@ -1294,7 +1295,7 @@ pub fn ud_type_def(
             Ok(format!("// Array: {}{}", ts.prefix, ts.suffix))
         }
         UserDefinedType::Subroutine(t) => Ok(subroutine_def_string(info, typedefs, t, is_erased)?),
-        UserDefinedType::Structure(t) => Ok(struct_def_string(info, typedefs, t)?),
+        UserDefinedType::Structure(t) => Ok(structure_def_string(info, typedefs, t)?),
         UserDefinedType::Enumeration(t) => Ok(enum_def_string(t)?),
         UserDefinedType::Union(t) => Ok(union_def_string(info, typedefs, t)?),
         UserDefinedType::PtrToMember(t) => {
@@ -1744,7 +1745,7 @@ fn get_anon_union_groups(members: &[StructureMember], unions: &[AnonUnion]) -> V
     groups
 }
 
-pub fn struct_def_string(
+pub fn structure_def_string(
     info: &DwarfInfo,
     typedefs: &TypedefMap,
     t: &StructureType,
@@ -1788,19 +1789,31 @@ pub fn struct_def_string(
         }
     }
     out.push_str(" {\n");
-    for inner_type in &t.inner_types {
-        writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
-    }
     if !t.inner_types.is_empty() {
+        for inner_type in &t.inner_types {
+            writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+        }
         out.push_str("\n");
     }
 
-    for typedef in &t.typedefs {
-        writeln!(out, "{}", &indent_all_by(4, &typedef_string(info, typedefs, typedef)?))?;
-    }
     if !t.typedefs.is_empty() {
+        for typedef in &t.typedefs {
+            writeln!(out, "{}", &indent_all_by(4, &typedef_string(info, typedefs, typedef)?))?;
+        }
         out.push_str("\n");
     }
+
+    if !t.static_members.is_empty() {
+        for static_member in &t.static_members {
+            let line = format!(
+                "static {}",
+                variable_string(info, typedefs, static_member, true)?
+            );
+            writeln!(out, "{}", indent_all_by(4, &line))?;
+        }
+        out.push_str("\n");
+    }
+
     let mut vis = match t.kind {
         StructureKind::Struct => Visibility::Public,
         StructureKind::Class => Visibility::Private,
@@ -2112,6 +2125,7 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
     }
 
     let mut members = Vec::new();
+    let mut static_members = Vec::new();
     let mut bases = Vec::new();
     let mut inner_types = Vec::new();
     let mut typedefs = Vec::new();
@@ -2134,7 +2148,8 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
                 // TODO
             }
             TagKind::GlobalVariable => {
-                // TODO
+                // TODO handle visibility
+                static_members.push(process_variable_tag(info, child)?)
             }
             TagKind::StructureType | TagKind::ClassType => {
                 inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?))
@@ -2160,6 +2175,7 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
         name,
         byte_size,
         members,
+        static_members,
         bases,
         inner_types,
         typedefs,
