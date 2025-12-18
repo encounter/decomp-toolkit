@@ -2592,7 +2592,12 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         .unwrap_or_else(|| Type { kind: TypeKind::Fundamental(FundType::Void), modifiers: vec![] });
     let direct_member_of = direct_base_key;
     let local = tag.kind == TagKind::Subroutine;
-    let static_member = member_of.is_some() && direct_base.is_none();
+
+    let mut static_member = false;
+    if let Producer::GCC = info.producer {
+        // GCC doesn't retain namespaces, so this is a nice way to determine staticness
+        static_member = member_of.is_some() && direct_base.is_none();
+    }
     let override_ = virtual_ && member_of != direct_base_key;
     let subroutine = SubroutineType {
         name,
