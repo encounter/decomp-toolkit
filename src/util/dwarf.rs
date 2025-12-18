@@ -1436,11 +1436,12 @@ pub fn subroutine_def_string(
             if name == "__dt" {
                 write!(full_written_name, "~{base_name}")?;
                 name_written = true;
+                omit_return_type = true;
             } else if name == "__ct" {
                 write!(full_written_name, "{base_name}")?;
                 name_written = true;
+                omit_return_type = true;
             }
-            omit_return_type = true;
         }
     }
     if !name_written {
