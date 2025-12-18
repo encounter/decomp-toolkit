@@ -1432,7 +1432,7 @@ pub fn subroutine_def_string(
     } else if let Some(base_name) = base_name_opt {
         write!(full_written_name, "{base_name}::")?;
 
-        // Handle MWCC constructors and destructors
+        // Handle constructors and destructors
         if let Some(name) = t.name.as_ref() {
             if name == "__dt" {
                 write!(full_written_name, "~{base_name}")?;
@@ -1441,6 +1441,12 @@ pub fn subroutine_def_string(
             } else if name == "__ct" {
                 write!(full_written_name, "{base_name}")?;
                 name_written = true;
+                omit_return_type = true;
+            } else if name == base_name {
+                if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
+                    write!(full_written_name, "~{base_name}")?;
+                    name_written = true;
+                }
                 omit_return_type = true;
             }
         }
