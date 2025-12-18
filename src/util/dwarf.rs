@@ -2505,7 +2505,10 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                         }
                     }
                 }
-                parameters.push(param);
+                // Avoid applying ones that were already in the specification
+                if !parameters.iter().any(|p| p.name == param.name) {
+                    parameters.push(param);
+                }
             }
             TagKind::UnspecifiedParameters => var_args = true,
             TagKind::LocalVariable => variables.push(process_local_variable_tag(info, child)?),
