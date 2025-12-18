@@ -1787,27 +1787,10 @@ pub fn struct_def_string(
         }
     }
     out.push_str(" {\n");
-    let mut emitted_inner_types = false;
     for inner_type in &t.inner_types {
-        // GCC emits template base classes as a nested struct, which is redundant so we skip them
-        if let UserDefinedType::Structure(structure) = inner_type {
-            if let Some(struct_name) = structure.name.as_ref() {
-                if struct_name.contains("<") && t.bases.iter().any(|base| {
-                    let resolved_name_opt: Option<String> = match &base.name {
-                        Some(name) => Some(name.clone()),
-                        None => type_name(info, typedefs, &base.base_type).ok(),
-                    };
-
-                    structure.name == resolved_name_opt
-                }) {
-                    continue;
-                }
-            }
-        }
-        emitted_inner_types = true;
         writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
     }
-    if emitted_inner_types {
+    if !t.inner_types.is_empty() {
         out.push_str("\n");
     }
 
