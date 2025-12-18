@@ -741,7 +741,6 @@ pub struct StructureType {
     pub members: Vec<StructureMember>,
     pub bases: Vec<StructureBase>,
     pub inner_types: Vec<UserDefinedType>,
-    pub member_functions: Vec<SubroutineType>, // TODO change to reference/id
     pub typedefs: Vec<TypedefTag>,
 }
 
@@ -810,6 +809,8 @@ pub struct SubroutineBlock {
     pub variables: Vec<SubroutineVariable>,
     pub blocks: Vec<SubroutineBlock>,
     pub inlines: Vec<SubroutineType>,
+    pub inner_types: Vec<UserDefinedType>,
+    pub typedefs: Vec<TypedefTag>,
 }
 
 #[derive(Debug, Clone)]
@@ -832,8 +833,9 @@ pub struct SubroutineType {
     pub inner_types: Vec<UserDefinedType>,
     pub start_address: Option<u32>,
     pub end_address: Option<u32>,
-    pub member: bool,
+    pub is_direct_member: bool,
     pub is_const: bool,
+    pub typedefs: Vec<TypedefTag>,
 }
 
 #[derive(Debug, Clone)]
@@ -1437,6 +1439,13 @@ pub fn subroutine_def_string(
         }
     }
 
+    if !t.typedefs.is_empty() {
+        writeln!(out, "\n    // Typedefs")?;
+        for typedef in &t.typedefs {
+            writeln!(out, "{}", &indent_all_by(4, &typedef_string(info, typedefs, typedef)?))?;
+        }
+    }
+
     if !t.variables.is_empty() {
         writeln!(out, "\n    // Local variables")?;
         let mut var_out = String::new();
@@ -1531,6 +1540,22 @@ fn subroutine_block_string(
         writeln!(var_out)?;
     }
     write!(out, "{}", indent_all_by(4, var_out))?;
+
+    if !block.inner_types.is_empty() {
+        writeln!(out, "\n    // Inner declarations")?;
+
+        for inner_type in &block.inner_types {
+            writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
+        }
+    }
+
+    if !block.typedefs.is_empty() {
+        writeln!(out, "\n    // Typedefs")?;
+        for typedef in &block.typedefs {
+            writeln!(out, "{}", &indent_all_by(4, &typedef_string(info, typedefs, typedef)?))?;
+        }
+    }
+
     if !block.inlines.is_empty() {
         writeln!(out, "\n    // Inlines")?;
         for inline in &block.inlines {
@@ -1718,11 +1743,6 @@ pub fn struct_def_string(
     }
     if !t.inner_types.is_empty() {
         out.push_str("\n");
-    }
-
-    for member_function in &t.member_functions {
-        // TODO
-        // writeln!(out, "{};", &indent_all_by(4, &subroutine_type_string(info, typedefs, member_function)?))?;
     }
 
     for typedef in &t.typedefs {
@@ -2092,7 +2112,6 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
         members,
         bases,
         inner_types,
-        member_functions: Vec::new(),
         typedefs,
     })
 }
@@ -2393,6 +2412,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut blocks = Vec::new();
     let mut inlines = Vec::new();
     let mut inner_types = Vec::new();
+    let mut typedefs = Vec::new();
     for child in tag.children(&info.tags) {
         match child.kind {
             TagKind::FormalParameter => {
@@ -2432,10 +2452,10 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
             TagKind::UnionType => {
                 inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?))
             }
+            TagKind::Typedef => typedefs.push(process_typedef_tag(info, child)?),
             TagKind::ArrayType
             | TagKind::SubroutineType
-            | TagKind::PtrToMemberType
-            | TagKind::Typedef => {
+            | TagKind::PtrToMemberType => {
                 // Variable type, ignore
             }
             kind => bail!("Unhandled SubroutineType child {:?}", kind),
@@ -2464,8 +2484,9 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         inner_types,
         start_address,
         end_address,
-        member: parent_structure.is_some(),
+        is_direct_member: parent_structure.is_some(),
         is_const,
+        typedefs
     };
     // TODO add a reference to this to parent_structure
     Ok(subroutine)
@@ -2513,6 +2534,8 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
     let mut variables = Vec::new();
     let mut blocks = Vec::new();
     let mut inlines = Vec::new();
+    let mut inner_types = Vec::new();
+    let mut typedefs = Vec::new();
     for child in tag.children(&info.tags) {
         match child.kind {
             TagKind::LocalVariable => variables.push(process_local_variable_tag(info, child)?),
@@ -2527,11 +2550,19 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
             TagKind::InlinedSubroutine => {
                 inlines.push(process_subroutine_tag(info, child)?);
             }
-            TagKind::StructureType
+            TagKind::StructureType | TagKind::ClassType => {
+                inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?))
+            }
+            TagKind::EnumerationType => {
+                inner_types.push(UserDefinedType::Enumeration(process_enumeration_tag(info, child)?));
+            }
+            TagKind::UnionType => {
+                inner_types.push(UserDefinedType::Union(process_union_tag(info, child)?))
+            }
+            TagKind::Typedef => {
+                typedefs.push(process_typedef_tag(info, child)?);
+            }
             | TagKind::ArrayType
-            | TagKind::EnumerationType
-            | TagKind::UnionType
-            | TagKind::ClassType
             | TagKind::SubroutineType
             | TagKind::PtrToMemberType => {
                 // Variable type, ignore
@@ -2540,7 +2571,7 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
         }
     }
 
-    Ok(Some(SubroutineBlock { name, start_address, end_address, variables, blocks, inlines }))
+    Ok(Some(SubroutineBlock { name, start_address, end_address, variables, blocks, inlines, inner_types, typedefs }))
 }
 
 fn process_subroutine_parameter_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineParameter> {
@@ -2925,6 +2956,9 @@ fn process_typedef_tag(info: &DwarfInfo, tag: &Tag) -> Result<TypedefTag> {
             (AttributeKind::Member, _) => {
                 // can be ignored for now  
             },
+            (AttributeKind::Specification, _) => {
+                // TODO
+            }
             _ => {
                 bail!("Unhandled Typedef attribute {:?}", attr);
             }
