@@ -1383,7 +1383,7 @@ pub fn subroutine_def_string(
     
     let is_non_static_member = t.direct_member_of.is_some() && !t.static_member;
     if is_non_static_member {
-        if let Some(param) = t.parameters.get(0) {
+        if let Some(param) = t.parameters.first() {
             if let Some(location) = &param.location {
                 writeln!(out, "// this: {}", location)?;
             }
