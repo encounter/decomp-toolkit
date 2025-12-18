@@ -1788,22 +1788,23 @@ pub fn structure_def_string(
             out.push_str(&type_name(info, typedefs, &base.base_type)?);
         }
     }
-    out.push_str(" {\n");
+    out.push_str(" {");
     if !t.inner_types.is_empty() {
+        writeln!(out, "\n    // Inner declarations")?;
         for inner_type in &t.inner_types {
             writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
         }
-        out.push_str("\n");
     }
 
     if !t.typedefs.is_empty() {
+        writeln!(out, "\n    // Typedefs")?;
         for typedef in &t.typedefs {
             writeln!(out, "{}", &indent_all_by(4, &typedef_string(info, typedefs, typedef)?))?;
         }
-        out.push_str("\n");
     }
 
     if !t.static_members.is_empty() {
+        writeln!(out, "\n    // Static members")?;
         for static_member in &t.static_members {
             let line = format!(
                 "static {}",
@@ -1811,7 +1812,6 @@ pub fn structure_def_string(
             );
             writeln!(out, "{}", indent_all_by(4, &line))?;
         }
-        out.push_str("\n");
     }
 
     let mut vis = match t.kind {
@@ -1823,6 +1823,9 @@ pub fn structure_def_string(
     let groups = get_anon_union_groups(&t.members, &unions);
     let mut in_union = 0;
     let mut in_group = 0;
+    if !t.members.is_empty() {
+        writeln!(out, "\n    // Members")?;
+    }
     for (i, member) in t.members.iter().enumerate() {
         if vis != member.visibility {
             vis = member.visibility;
