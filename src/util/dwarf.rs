@@ -877,7 +877,7 @@ pub struct TypedefTag {
 pub enum TagType {
     Variable(VariableTag),
     Typedef(TypedefTag),
-    UserDefined(UserDefinedType),
+    UserDefined(Box<UserDefinedType>),
 }
 
 #[derive(Debug, Eq, PartialEq, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
@@ -2983,7 +2983,7 @@ pub fn process_cu_tag(info: &DwarfInfo, tag: &Tag) -> Result<TagType> {
         | TagKind::SubroutineType
         | TagKind::GlobalSubroutine
         | TagKind::Subroutine
-        | TagKind::PtrToMemberType => Ok(TagType::UserDefined(ud_type(info, tag)?)),
+        | TagKind::PtrToMemberType => Ok(TagType::UserDefined(Box::new(ud_type(info, tag)?))),
         kind => Err(anyhow!("Unhandled root tag type {:?}", kind)),
     }
 }
@@ -3008,7 +3008,7 @@ pub fn tag_type_string(
         TagType::Variable(v) => variable_string(info, typedefs, v, true),
         TagType::UserDefined(ud) => {
             let ud_str = ud_type_def(info, typedefs, ud, is_erased)?;
-            match ud {
+            match **ud {
                 UserDefinedType::Structure(_)
                 | UserDefinedType::Enumeration(_)
                 | UserDefinedType::Union(_) => Ok(format!("{ud_str};")),
