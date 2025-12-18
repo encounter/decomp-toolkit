@@ -823,6 +823,7 @@ pub struct SubroutineType {
     pub prototyped: bool,
     pub references: Vec<u32>,
     pub member_of: Option<u32>,
+    pub direct_member_of: Option<u32>,
     pub variables: Vec<SubroutineVariable>,
     pub inline: bool,
     pub virtual_: bool,
@@ -831,11 +832,13 @@ pub struct SubroutineType {
     pub blocks: Vec<SubroutineBlock>,
     pub inlines: Vec<SubroutineType>,
     pub inner_types: Vec<UserDefinedType>,
+    pub typedefs: Vec<TypedefTag>,
     pub start_address: Option<u32>,
     pub end_address: Option<u32>,
-    pub is_direct_member: bool,
-    pub is_const: bool,
-    pub typedefs: Vec<TypedefTag>,
+    pub const_: bool,
+    pub static_member: bool,
+    pub override_: bool,
+    pub volatile_: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -1359,20 +1362,9 @@ pub fn subroutine_def_string(
     } else if let (Some(start), Some(end)) = (t.start_address, t.end_address) {
         writeln!(out, "// Range: {start:#X} -> {end:#X}")?;
     }
-    let rt = type_string(info, typedefs, &t.return_type, true)?;
-    if t.local {
-        out.push_str("static ");
-    }
-    if t.inline {
-        out.push_str("inline ");
-    }
-    if t.virtual_ {
-        out.push_str("virtual ");
-    }
-    out.push_str(&rt.prefix);
-    out.push(' ');
 
-    let mut name_written = false;
+    let mut base_name_opt = None;
+
     if let Some(member_of) = t.member_of {
         let tag = info
             .tags
@@ -1381,9 +1373,54 @@ pub fn subroutine_def_string(
         let base_name = tag
             .string_attribute(AttributeKind::Name)
             .ok_or_else(|| anyhow!("member_of tag {} has no name attribute", member_of))?;
+        
+        if t.override_ {
+            writeln!(out, "// Overrides: {}", base_name)?;
+        }
+        base_name_opt = Some(base_name);    
+    }
+    
+    let is_non_static_member = t.direct_member_of.is_some() && !t.static_member;
+    if is_non_static_member {
+        if let Some(param) = t.parameters.get(0) {
+            if let Some(location) = &param.location {
+                writeln!(out, "// this: {}", location)?;
+            }
+        }
+    }
+
+    let rt = type_string(info, typedefs, &t.return_type, true)?;
+    if t.local || t.static_member {
+        out.push_str("static ");
+    }
+    if t.inline {
+        out.push_str("inline ");
+    }
+    if t.virtual_ && !t.override_ {
+        out.push_str("virtual ");
+    }
+    out.push_str(&rt.prefix);
+    out.push(' ');
+
+    let mut name_written = false;
+
+    if t.override_ {
+        // GCC behavior
+        if let Some(direct_member_of) = t.direct_member_of {
+            let tag = info
+                .tags
+                .get(&direct_member_of)
+                .ok_or_else(|| anyhow!("Failed to locate direct_member_of tag {}", direct_member_of))?;
+            let direct_base_name = tag
+                .string_attribute(AttributeKind::Name)
+                .ok_or_else(|| anyhow!("direct_member_of tag {} has no name attribute", direct_member_of))?;
+            
+            write!(out, "{direct_base_name}::")?;
+        }
+    } else if let Some(base_name) = base_name_opt {
         write!(out, "{base_name}::")?;
 
-        // Handle constructors and destructors
+        // Handle MWCC constructors and destructors
         if let Some(name) = t.name.as_ref() {
             if name == "__dt" {
                 write!(out, "~{base_name}")?;
@@ -1407,8 +1444,9 @@ pub fn subroutine_def_string(
             parameters = "void".to_string();
         }
     } else {
-        for (idx, parameter) in t.parameters.iter().enumerate() {
-            if idx > 0 {
+        let start_index = if is_non_static_member { 1 } else { 0 };
+        for (idx, parameter) in t.parameters.iter().enumerate().skip(start_index) {
+            if idx > start_index {
                 write!(parameters, ", ")?;
             }
             let ts = type_string(info, typedefs, &parameter.kind, true)?;
@@ -1426,8 +1464,14 @@ pub fn subroutine_def_string(
         }
     }
     write!(out, "({}){} ", parameters, rt.suffix)?;
-    if t.is_const {
+    if t.const_ {
         write!(out, "const ")?;
+    }
+    if t.volatile_ {
+        write!(out, "volatile ")?;
+    }
+    if t.override_ {
+        write!(out, "override ")?;
     }
     write!(out, "{{")?;
 
@@ -1723,6 +1767,7 @@ pub fn struct_def_string(
         }
     }
     out.push_str(" {\n");
+    let mut emitted_inner_types = false;
     for inner_type in &t.inner_types {
         // GCC emits template base classes as a nested struct, which is redundant so we skip them
         if let UserDefinedType::Structure(structure) = inner_type {
@@ -1739,9 +1784,10 @@ pub fn struct_def_string(
                 }
             }
         }
+        emitted_inner_types = true;
         writeln!(out, "{};", &indent_all_by(4, &ud_type_def(info, typedefs, inner_type, false)?))?;
     }
-    if !t.inner_types.is_empty() {
+    if emitted_inner_types {
         out.push_str("\n");
     }
 
@@ -2315,8 +2361,10 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut start_address = None;
     let mut end_address = None;
     let mut virtual_ = false;
-    let mut parent_structure = None;
-    let mut is_const = false;
+    let mut direct_base = None; // as opposed to a higher base class whose function is beging overridden
+    let mut direct_base_key = None;
+    let mut const_ = false;
+    let mut volatile_ = false;
     for attr in &tag.attributes {
         match (attr.kind, &attr.value) {
             (AttributeKind::Sibling, _) => {}
@@ -2417,16 +2465,20 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         match child.kind {
             TagKind::FormalParameter => {
                 let param = process_subroutine_parameter_tag(info, child)?;
-                if member_of.is_some() && parent_structure.is_none() && param.name.as_deref() == Some("this") {
+                if member_of.is_some() && direct_base.is_none() && param.name.as_deref() == Some("this") {
                     let modifiers = &param.kind.modifiers;
                     // TODO is this a proper check?
                     if modifiers.len() >= 3 && modifiers[0] == Modifier::Const && modifiers[2] == Modifier::Const {
-                        is_const = true;
+                        const_ = true;
+                    }
+                    if modifiers.contains(&Modifier::Volatile) {
+                        volatile_ = true;
                     }
                     // This is needed because parent_structure differs from member_of in virtual function overrides
                     if let TypeKind::UserDefined(key) = param.kind.kind {
                         if let UserDefinedType::Structure(structure) = get_udt_by_key(info, key)? {
-                            parent_structure = Some(structure);
+                            direct_base = Some(structure);
+                            direct_base_key = Some(key);
                         }
                     }
                 }
@@ -2464,7 +2516,10 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
 
     let return_type = return_type
         .unwrap_or_else(|| Type { kind: TypeKind::Fundamental(FundType::Void), modifiers: vec![] });
+    let direct_member_of = direct_base_key;
     let local = tag.kind == TagKind::Subroutine;
+    let static_member = member_of.is_some() && direct_base.is_none();
+    let override_ = virtual_ && member_of != direct_base_key;
     let subroutine = SubroutineType {
         name,
         mangled_name,
@@ -2474,6 +2529,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         prototyped,
         references,
         member_of,
+        direct_member_of,
         variables,
         inline,
         virtual_,
@@ -2482,13 +2538,15 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         blocks,
         inlines,
         inner_types,
+        typedefs,
         start_address,
         end_address,
-        is_direct_member: parent_structure.is_some(),
-        is_const,
-        typedefs
+        const_,
+        static_member,
+        override_,
+        volatile_
     };
-    // TODO add a reference to this to parent_structure
+    // TODO save this to a key => SubroutineType map and add a reference to the key in parent_structure
     Ok(subroutine)
 }
 
