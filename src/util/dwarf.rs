@@ -2567,7 +2567,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                     if modifiers.contains(&Modifier::Volatile) {
                         volatile_ = true;
                     }
-                    // This is needed because parent_structure differs from member_of in virtual function overrides
+                    // This is needed because direct_base differs from member_of in virtual function overrides
                     if let TypeKind::UserDefined(key) = param.kind.kind {
                         if let UserDefinedType::Structure(structure) = get_udt_by_key(info, key)? {
                             direct_base = Some(structure);
@@ -2650,7 +2650,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         override_,
         volatile_,
     };
-    // TODO save this to a key => SubroutineType map and add a reference to the key in parent_structure
+    // TODO save this to a key => SubroutineType map and add a reference to the key in direct_base
     Ok(subroutine)
 }
 
