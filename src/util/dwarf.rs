@@ -826,10 +826,15 @@ pub struct SubroutineBlock {
     pub start_address: Option<u32>,
     pub end_address: Option<u32>,
     pub variables: Vec<SubroutineVariable>,
-    pub blocks: Vec<SubroutineBlock>,
-    pub inlines: Vec<SubroutineType>,
+    pub blocks_and_inlines: Vec<SubroutineNode>,
     pub inner_types: Vec<UserDefinedType>,
     pub typedefs: Vec<TypedefTag>,
+}
+
+#[derive(Debug, Clone)]
+pub enum SubroutineNode {
+    Block(SubroutineBlock),
+    Inline(SubroutineType),
 }
 
 #[derive(Debug, Clone)]
@@ -848,8 +853,7 @@ pub struct SubroutineType {
     pub virtual_: bool,
     pub local: bool,
     pub labels: Vec<SubroutineLabel>,
-    pub blocks: Vec<SubroutineBlock>,
-    pub inlines: Vec<SubroutineType>,
+    pub blocks_and_inlines: Vec<SubroutineNode>,
     pub inner_types: Vec<UserDefinedType>,
     pub typedefs: Vec<TypedefTag>,
     pub start_address: Option<u32>,
@@ -1604,19 +1608,16 @@ pub fn subroutine_def_string(
         }
     }
 
-    if !t.blocks.is_empty() {
-        writeln!(out, "\n    // Blocks")?;
-        for block in &t.blocks {
-            let block_str = subroutine_block_string(info, typedefs, block)?;
-            out.push_str(&indent_all_by(4, block_str));
-        }
-    }
-
-    if !t.inlines.is_empty() {
-        writeln!(out, "\n    // Inlines")?;
-        for inline in &t.inlines {
-            let inline_str = subroutine_def_string(info, typedefs, inline, is_erased)?;
-            out.push_str(&indent_all_by(4, inline_str));
+    if !t.blocks_and_inlines.is_empty() {
+        for node in &t.blocks_and_inlines {
+            let node_str = match node {
+                SubroutineNode::Block(block) => subroutine_block_string(info, typedefs, block)?,
+                SubroutineNode::Inline(inline) => {
+                    writeln!(out, "\n    // Inline")?;
+                    subroutine_def_string(info, typedefs, inline, is_erased)?
+                }
+            };
+            out.push_str(&indent_all_by(4, node_str));
         }
     }
 
@@ -1675,16 +1676,17 @@ fn subroutine_block_string(
         }
     }
 
-    if !block.inlines.is_empty() {
-        writeln!(out, "\n    // Inlines")?;
-        for inline in &block.inlines {
-            let inline_str = subroutine_def_string(info, typedefs, inline, false)?;
-            out.push_str(&indent_all_by(4, inline_str));
+    if !block.blocks_and_inlines.is_empty() {
+        for node in &block.blocks_and_inlines {
+            let node_str = match node {
+                SubroutineNode::Block(block) => subroutine_block_string(info, typedefs, block)?,
+                SubroutineNode::Inline(inline) => {
+                    writeln!(out, "\n    // Inline")?;
+                    subroutine_def_string(info, typedefs, inline, false)?
+                }
+            };
+            out.push_str(&indent_all_by(4, node_str));
         }
-    }
-    for block in &block.blocks {
-        let block_str = subroutine_block_string(info, typedefs, block)?;
-        out.push_str(&indent_all_by(4, block_str));
     }
     writeln!(out, "}}")?;
     Ok(out)
@@ -2546,8 +2548,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
 
     let mut variables = Vec::new();
     let mut labels = Vec::new();
-    let mut blocks = Vec::new();
-    let mut inlines = Vec::new();
+    let mut blocks_and_inlines = Vec::new();
     let mut inner_types = Vec::new();
     let mut typedefs = Vec::new();
     for child in tag.children(&info.tags) {
@@ -2592,10 +2593,11 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
             TagKind::Label => labels.push(process_subroutine_label_tag(info, child)?),
             TagKind::LexicalBlock => {
                 if let Some(block) = process_subroutine_block_tag(info, child)? {
-                    blocks.push(block);
+                    blocks_and_inlines.push(SubroutineNode::Block(block));
                 }
             }
-            TagKind::InlinedSubroutine => inlines.push(process_subroutine_tag(info, child)?),
+            TagKind::InlinedSubroutine => blocks_and_inlines
+                .push(SubroutineNode::Inline(process_subroutine_tag(info, child)?)),
             TagKind::StructureType | TagKind::ClassType => {
                 inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?))
             }
@@ -2638,8 +2640,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         virtual_,
         local,
         labels,
-        blocks,
-        inlines,
+        blocks_and_inlines,
         inner_types,
         typedefs,
         start_address,
@@ -2693,8 +2694,7 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
     }
 
     let mut variables = Vec::new();
-    let mut blocks = Vec::new();
-    let mut inlines = Vec::new();
+    let mut blocks_and_inlines = Vec::new();
     let mut inner_types = Vec::new();
     let mut typedefs = Vec::new();
     for child in tag.children(&info.tags) {
@@ -2705,11 +2705,12 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
             }
             TagKind::LexicalBlock => {
                 if let Some(block) = process_subroutine_block_tag(info, child)? {
-                    blocks.push(block);
+                    blocks_and_inlines.push(SubroutineNode::Block(block));
                 }
             }
             TagKind::InlinedSubroutine => {
-                inlines.push(process_subroutine_tag(info, child)?);
+                blocks_and_inlines
+                    .push(SubroutineNode::Inline(process_subroutine_tag(info, child)?));
             }
             TagKind::StructureType | TagKind::ClassType => {
                 inner_types.push(UserDefinedType::Structure(process_structure_tag(info, child)?))
@@ -2736,8 +2737,7 @@ fn process_subroutine_block_tag(info: &DwarfInfo, tag: &Tag) -> Result<Option<Su
         start_address,
         end_address,
         variables,
-        blocks,
-        inlines,
+        blocks_and_inlines,
         inner_types,
         typedefs,
     }))
