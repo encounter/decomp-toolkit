@@ -2556,7 +2556,12 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                     }
                 }
                 // Avoid applying ones that were already in the specification
-                if !parameters.iter().any(|p| p.name == param.name) {
+                if !parameters.iter().any(|p| {
+                    matches!(
+                        (p.name.as_ref(), param.name.as_ref()),
+                        (Some(a), Some(b)) if a == b
+                    )
+                }) {
                     parameters.push(param);
                 }
             }
