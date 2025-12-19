@@ -1381,6 +1381,7 @@ pub fn subroutine_def_string(
     }
 
     let mut base_name_opt = None;
+    let mut direct_base_name_opt = None;
 
     if let Some(member_of) = t.member_of {
         let tag = info
@@ -1395,6 +1396,22 @@ pub fn subroutine_def_string(
             writeln!(out, "// Overrides: {}", base_name)?;
         }
         base_name_opt = Some(base_name);
+    }
+
+    if let Some(direct_member_of) = t.direct_member_of {
+        let tag = info
+            .tags
+            .get(&direct_member_of)
+            .ok_or_else(|| anyhow!("Failed to locate direct_member_of tag {}", direct_member_of))?;
+        let direct_base_name = tag
+            .string_attribute(AttributeKind::Name)
+            .ok_or_else(|| anyhow!("direct_member_of tag {} has no name attribute", direct_member_of))?;
+
+        direct_base_name_opt = Some(direct_base_name);
+        if base_name_opt.is_none() {
+            // Fall back to the parsed out direct_base_name on PS2 MW because it doesn't emit a base class
+            base_name_opt = direct_base_name_opt;
+        }
     }
 
     let is_non_static_member = t.direct_member_of.is_some() && !t.static_member;
@@ -1424,16 +1441,8 @@ pub fn subroutine_def_string(
 
     if t.override_ {
         if let Producer::GCC = info.producer {
-            if let Some(direct_member_of) = t.direct_member_of {
-                let tag = info.tags.get(&direct_member_of).ok_or_else(|| {
-                    anyhow!("Failed to locate direct_member_of tag {}", direct_member_of)
-                })?;
-                let direct_base_name =
-                    tag.string_attribute(AttributeKind::Name).ok_or_else(|| {
-                        anyhow!("direct_member_of tag {} has no name attribute", direct_member_of)
-                    })?;
-
-                // we need to emit the real parent
+            if let Some(direct_base_name) = direct_base_name_opt {
+                // we need to emit the real parent on GCC
                 write!(full_written_name, "{direct_base_name}::")?;
 
                 if let Some(name) = t.name.as_ref() {
@@ -2543,8 +2552,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         match child.kind {
             TagKind::FormalParameter => {
                 let param = process_subroutine_parameter_tag(info, child)?;
-                if member_of.is_some()
-                    && direct_base.is_none()
+                if direct_base.is_none()
                     && param.name.as_deref() == Some("this")
                 {
                     let modifiers = &param.kind.modifiers;
