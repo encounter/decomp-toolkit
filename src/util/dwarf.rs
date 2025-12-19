@@ -1419,10 +1419,11 @@ pub fn subroutine_def_string(
     let mut name_written = false;
 
     let mut omit_return_type = false;
+    let mut is_gcc_destructor = false;
     let mut full_written_name = String::new();
 
-    if let Producer::GCC = info.producer {
-        if t.override_ {
+    if t.override_ {
+        if let Producer::GCC = info.producer {
             if let Some(direct_member_of) = t.direct_member_of {
                 let tag = info.tags.get(&direct_member_of).ok_or_else(|| {
                     anyhow!("Failed to locate direct_member_of tag {}", direct_member_of)
@@ -1432,13 +1433,16 @@ pub fn subroutine_def_string(
                         anyhow!("direct_member_of tag {} has no name attribute", direct_member_of)
                     })?;
 
+                // we need to emit the real parent
                 write!(full_written_name, "{direct_base_name}::")?;
 
                 if let Some(name) = t.name.as_ref() {
                     // in GCC the ctor and dtor are called the same, so we need to check the return value
+                    // this is only for the dtor, the ctor can be left as is
                     if name == direct_base_name {
                         if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
                             write!(full_written_name, "~{direct_base_name}")?;
+                            is_gcc_destructor = true;
                             name_written = true;
                         }
                         omit_return_type = true;
@@ -1462,6 +1466,9 @@ pub fn subroutine_def_string(
             } else if name == base_name {
                 if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
                     write!(full_written_name, "~{base_name}")?;
+                    if let Producer::GCC = info.producer {
+                        is_gcc_destructor = true;
+                    }
                     name_written = true;
                 }
                 omit_return_type = true;
@@ -1489,7 +1496,11 @@ pub fn subroutine_def_string(
             parameters = "void".to_string();
         }
     } else {
-        let start_index = if is_non_static_member { 1 } else { 0 };
+        let mut start_index = if is_non_static_member { 1 } else { 0 };
+        // omit __in_chrg parameter
+        if is_gcc_destructor {
+            start_index += 1;
+        }
         for (idx, parameter) in t.parameters.iter().enumerate().skip(start_index) {
             if idx > start_index {
                 write!(parameters, ", ")?;
