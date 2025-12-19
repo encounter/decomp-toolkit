@@ -7,6 +7,8 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Context, Result};
+use cwdemangle::demangle as cw_demangle;
+use gnuv2_demangle::{demangle as gnu_demangle, DemangleConfig};
 use indent::indent_all_by;
 use num_enum::{IntoPrimitive, TryFromPrimitive, TryFromPrimitiveError};
 
@@ -1403,9 +1405,9 @@ pub fn subroutine_def_string(
             .tags
             .get(&direct_member_of)
             .ok_or_else(|| anyhow!("Failed to locate direct_member_of tag {}", direct_member_of))?;
-        let direct_base_name = tag
-            .string_attribute(AttributeKind::Name)
-            .ok_or_else(|| anyhow!("direct_member_of tag {} has no name attribute", direct_member_of))?;
+        let direct_base_name = tag.string_attribute(AttributeKind::Name).ok_or_else(|| {
+            anyhow!("direct_member_of tag {} has no name attribute", direct_member_of)
+        })?;
 
         direct_base_name_opt = Some(direct_base_name);
         if base_name_opt.is_none() {
@@ -1486,7 +1488,7 @@ pub fn subroutine_def_string(
     }
     if !name_written {
         if let Some(name) = t.name.as_ref() {
-            full_written_name.push_str(name);
+            full_written_name.push_str(&maybe_demangle_name(info, name));
         }
     }
     let rt = type_string(info, typedefs, &t.return_type, true)?;
@@ -2552,9 +2554,7 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         match child.kind {
             TagKind::FormalParameter => {
                 let param = process_subroutine_parameter_tag(info, child)?;
-                if direct_base.is_none()
-                    && param.name.as_deref() == Some("this")
-                {
+                if direct_base.is_none() && param.name.as_deref() == Some("this") {
                     let modifiers = &param.kind.modifiers;
                     // TODO is this a proper check?
                     if modifiers.len() >= 3
@@ -3194,4 +3194,24 @@ fn process_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<VariableTag> {
     let kind = kind.ok_or_else(|| anyhow!("Variable without Type: {:?}", tag))?;
     let local = tag.kind == TagKind::LocalVariable;
     Ok(VariableTag { name, mangled_name, kind, address, local })
+}
+
+// TODO expand for more compilers?
+fn maybe_demangle_name(info: &DwarfInfo, name: &str) -> String {
+    let fake_name = format!("{}__0", name);
+    let name_opt = match info.producer {
+        // for __pl this looks like operator+
+        Producer::MWCC => cw_demangle(&fake_name, &Default::default()),
+        // for __pl this looks like ::operator+(void)
+        Producer::GCC => {
+            gnu_demangle(&fake_name, &DemangleConfig::new()).ok().and_then(|demangled| {
+                demangled
+                    .split_once("::")
+                    .and_then(|(_, rest)| rest.split_once("(void)"))
+                    .map(|(op, _)| op.to_string())
+            })
+        }
+        Producer::OTHER => None,
+    };
+    name_opt.unwrap_or_else(|| name.to_string())
 }
