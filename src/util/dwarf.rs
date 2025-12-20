@@ -1,6 +1,7 @@
 use std::{
+    cell::RefCell,
     cmp::max,
-    collections::BTreeMap,
+    collections::{btree_map, BTreeMap, BTreeSet},
     fmt::{Display, Formatter, Write},
     io::{BufRead, Cursor, Seek, SeekFrom},
     num::NonZeroU32,
@@ -366,12 +367,14 @@ pub struct Tag {
 
 pub type TagMap = BTreeMap<u32, Tag>;
 pub type TypedefMap = BTreeMap<u32, Vec<u32>>;
+pub type MemberFunctionMap = BTreeMap<u32, BTreeSet<u32>>;
 
 #[derive(Debug, Clone)]
 pub struct DwarfInfo {
     pub e: Endian,
     pub tags: TagMap,
     pub producer: Producer,
+    pub member_functions: RefCell<MemberFunctionMap>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -498,7 +501,12 @@ where R: BufRead + Seek + ?Sized {
         len
     };
 
-    let mut info = DwarfInfo { e, tags: BTreeMap::new(), producer: Producer::OTHER };
+    let mut info = DwarfInfo {
+        e,
+        tags: BTreeMap::new(),
+        producer: Producer::OTHER,
+        member_functions: RefCell::new(MemberFunctionMap::new()),
+    };
     loop {
         let position = reader.stream_position()?;
         if position >= len {
@@ -756,6 +764,7 @@ pub struct StructureType {
     pub kind: StructureKind,
     pub name: Option<String>,
     pub byte_size: Option<u32>,
+    pub member_functions: Vec<MemberSubroutineDefType>,
     pub members: Vec<StructureMember>,
     pub static_members: Vec<VariableTag>,
     pub bases: Vec<StructureBase>,
@@ -835,6 +844,27 @@ pub struct SubroutineBlock {
 pub enum SubroutineNode {
     Block(SubroutineBlock),
     Inline(SubroutineType),
+}
+
+#[derive(Debug, Clone)]
+pub struct MemberSubroutineDefType {
+    pub name: Option<String>,
+    pub mangled_name: Option<String>,
+    pub return_type: Type,
+    pub parameters: Vec<SubroutineParameter>,
+    pub var_args: bool,
+    pub prototyped: bool,
+    pub member_of: Option<u32>,
+    pub direct_member_of: Option<u32>,
+    pub inline: bool,
+    pub virtual_: bool,
+    pub local: bool,
+    pub start_address: Option<u32>,
+    pub end_address: Option<u32>,
+    pub const_: bool,
+    pub static_member: bool,
+    pub override_: bool,
+    pub volatile_: bool,
 }
 
 #[derive(Debug, Clone)]
@@ -1373,6 +1403,166 @@ pub fn subroutine_type_string(
     Ok(out)
 }
 
+fn member_subroutine_def_string(
+    info: &DwarfInfo,
+    typedefs: &TypedefMap,
+    t: &MemberSubroutineDefType,
+) -> Result<String> {
+    let mut out = String::new();
+
+    let mut base_name_opt = None;
+    let mut direct_base_name_opt = None;
+
+    if let Some(member_of) = t.member_of {
+        let tag = info
+            .tags
+            .get(&member_of)
+            .ok_or_else(|| anyhow!("Failed to locate member_of tag {}", member_of))?;
+        let base_name = tag
+            .string_attribute(AttributeKind::Name)
+            .ok_or_else(|| anyhow!("member_of tag {} has no name attribute", member_of))?;
+
+        if t.override_ {
+            writeln!(out, "// Overrides: {}", base_name)?;
+        }
+        base_name_opt = Some(base_name);
+    }
+
+    if let Some(direct_member_of) = t.direct_member_of {
+        let tag = info
+            .tags
+            .get(&direct_member_of)
+            .ok_or_else(|| anyhow!("Failed to locate direct_member_of tag {}", direct_member_of))?;
+        let direct_base_name = tag.string_attribute(AttributeKind::Name).ok_or_else(|| {
+            anyhow!("direct_member_of tag {} has no name attribute", direct_member_of)
+        })?;
+
+        direct_base_name_opt = Some(direct_base_name);
+        if base_name_opt.is_none() {
+            // Fall back to the parsed out direct_base_name on PS2 MW because it doesn't emit a base class
+            base_name_opt = direct_base_name_opt;
+        }
+    }
+
+    let is_non_static_member = t.direct_member_of.is_some() && !t.static_member;
+
+    if t.local || t.static_member {
+        out.push_str("static ");
+    }
+    if t.inline {
+        out.push_str("inline ");
+    }
+    if t.virtual_ && !t.override_ {
+        out.push_str("virtual ");
+    }
+
+    let mut name_written = false;
+
+    let mut omit_return_type = false;
+    let mut is_gcc_destructor = false;
+    let mut full_written_name = String::new();
+
+    if t.override_ {
+        if let Producer::GCC = info.producer {
+            if let Some(direct_base_name) = direct_base_name_opt {
+                if let Some(name) = t.name.as_ref() {
+                    // in GCC the ctor and dtor are called the same, so we need to check the return value
+                    // this is only for the dtor, the ctor can be left as is
+                    if name == direct_base_name {
+                        if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
+                            write!(full_written_name, "~{direct_base_name}")?;
+                            is_gcc_destructor = true;
+                            name_written = true;
+                        }
+                        omit_return_type = true;
+                    }
+                }
+            }
+        }
+    } else if let Some(base_name) = base_name_opt {
+        // Handle constructors and destructors
+        if let Some(name) = t.name.as_ref() {
+            if name == "__dt" {
+                write!(full_written_name, "~{base_name}")?;
+                name_written = true;
+                omit_return_type = true;
+            } else if name == "__ct" {
+                write!(full_written_name, "{base_name}")?;
+                name_written = true;
+                omit_return_type = true;
+            } else if name == base_name {
+                if let TypeKind::Fundamental(FundType::Void) = t.return_type.kind {
+                    write!(full_written_name, "~{base_name}")?;
+                    if let Producer::GCC = info.producer {
+                        is_gcc_destructor = true;
+                    }
+                    name_written = true;
+                }
+                omit_return_type = true;
+            }
+        }
+    }
+    if !name_written {
+        if let Some(name) = t.name.as_ref() {
+            full_written_name.push_str(&maybe_demangle_name(info, name));
+        }
+    }
+    let rt = type_string(info, typedefs, &t.return_type, true)?;
+    if !omit_return_type {
+        out.push_str(&rt.prefix);
+        out.push(' ');
+    }
+
+    out.push_str(&full_written_name);
+
+    let mut parameters = String::new();
+    if t.parameters.is_empty() {
+        if t.var_args {
+            parameters = "...".to_string();
+        } else if t.prototyped {
+            parameters = "void".to_string();
+        }
+    } else {
+        let mut start_index = if is_non_static_member { 1 } else { 0 };
+        // omit __in_chrg parameter
+        if is_gcc_destructor {
+            start_index += 1;
+        }
+        for (idx, parameter) in t.parameters.iter().enumerate().skip(start_index) {
+            if idx > start_index {
+                write!(parameters, ", ")?;
+            }
+            let ts = type_string(info, typedefs, &parameter.kind, true)?;
+            if let Some(name) = &parameter.name {
+                write!(parameters, "{} {}{}", ts.prefix, name, ts.suffix)?;
+            } else {
+                write!(parameters, "{}{}", ts.prefix, ts.suffix)?;
+            }
+        }
+        if t.var_args {
+            write!(parameters, ", ...")?;
+        }
+    }
+    write!(out, "({}){}", parameters, rt.suffix)?;
+    if t.const_ {
+        write!(out, " const")?;
+    }
+    if t.volatile_ {
+        write!(out, " volatile")?;
+    }
+    if t.override_ {
+        write!(out, " override")?;
+    }
+
+    if t.inline {
+        write!(out, " {{}}")?;
+    } else {
+        write!(out, ";")?;
+    }
+
+    Ok(out)
+}
+
 pub fn subroutine_def_string(
     info: &DwarfInfo,
     typedefs: &TypedefMap,
@@ -1862,6 +2052,23 @@ pub fn structure_def_string(
         }
     }
 
+    if !t.member_functions.is_empty() {
+        writeln!(out, "\n    // Functions")?;
+
+        let len = t.member_functions.len();
+        for (i, member_function) in t.member_functions.iter().enumerate() {
+            writeln!(
+                out,
+                "{}",
+                indent_all_by(4, member_subroutine_def_string(info, typedefs, member_function)?)
+            )?;
+
+            if i + 1 < len {
+                writeln!(out)?;
+            }
+        }
+    }
+
     if !t.static_members.is_empty() {
         writeln!(out, "\n    // Static members")?;
         for static_member in &t.static_members {
@@ -2183,6 +2390,17 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
         }
     }
 
+    let mut member_functions = Vec::new();
+    if let Some(member_function_set) = info.member_functions.borrow().get(&tag.key) {
+        for function in member_function_set {
+            let function_tag = match info.tags.get(function) {
+                Some(t) => t,
+                None => return Err(anyhow!("Failed to locate function tag {}", function)),
+            };
+            member_functions.push(process_member_subroutine_def_tag(info, function_tag)?);
+        }
+    }
+
     let mut members = Vec::new();
     let mut static_members = Vec::new();
     let mut bases = Vec::new();
@@ -2245,6 +2463,7 @@ fn process_structure_tag(info: &DwarfInfo, tag: &Tag) -> Result<StructureType> {
         },
         name,
         byte_size,
+        member_functions,
         members,
         static_members,
         bases,
@@ -2427,6 +2646,244 @@ fn process_union_tag(info: &DwarfInfo, tag: &Tag) -> Result<UnionType> {
     Ok(UnionType { name, byte_size, members })
 }
 
+// for member functions
+fn preprocess_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<()> {
+    ensure!(
+        matches!(
+            tag.kind,
+            TagKind::SubroutineType
+                | TagKind::GlobalSubroutine
+                | TagKind::Subroutine
+                | TagKind::InlinedSubroutine
+        ),
+        "{:?} is not a Subroutine tag",
+        tag.kind
+    );
+
+    let mut direct_base = None;
+    for child in tag.children(&info.tags) {
+        if matches!(child.kind, TagKind::FormalParameter) {
+            let param = process_subroutine_parameter_tag(info, child)?;
+            if direct_base.is_none() && param.name.as_deref() == Some("this") {
+                // This is needed because direct_base differs from member_of in virtual function overrides
+                if let TypeKind::UserDefined(key) = param.kind.kind {
+                    if let UserDefinedType::Structure(structure) = get_udt_by_key(info, key)? {
+                        direct_base = Some(structure);
+                        match info.member_functions.borrow_mut().entry(key) {
+                            btree_map::Entry::Vacant(e) => {
+                                let mut set = BTreeSet::new();
+                                set.insert(tag.key);
+                                e.insert(set);
+                            }
+                            btree_map::Entry::Occupied(e) => {
+                                e.into_mut().insert(tag.key);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+fn process_member_subroutine_def_tag(
+    info: &DwarfInfo,
+    tag: &Tag,
+) -> Result<MemberSubroutineDefType> {
+    ensure!(
+        matches!(
+            tag.kind,
+            TagKind::SubroutineType
+                | TagKind::GlobalSubroutine
+                | TagKind::Subroutine
+                | TagKind::InlinedSubroutine
+        ),
+        "{:?} is not a Subroutine tag",
+        tag.kind
+    );
+
+    let mut name = None;
+    let mut mangled_name = None;
+    let mut return_type = None;
+    let mut prototyped = false;
+    let mut parameters = Vec::new();
+    let mut var_args = false;
+    let mut member_of = None;
+    let mut inline = false;
+    let mut start_address = None;
+    let mut end_address = None;
+    let mut virtual_ = false;
+    // as opposed to a higher base class whose function is beging overridden
+    let mut this_pointer_found = false;
+    let mut direct_base_key = None;
+    let mut const_ = false;
+    let mut volatile_ = false;
+    for attr in &tag.attributes {
+        match (attr.kind, &attr.value) {
+            (AttributeKind::Sibling, _) => {}
+            (AttributeKind::Name, AttributeValue::String(s)) => name = Some(s.clone()),
+            (AttributeKind::MwMangled, AttributeValue::String(s)) => mangled_name = Some(s.clone()),
+            (
+                AttributeKind::FundType
+                | AttributeKind::ModFundType
+                | AttributeKind::UserDefType
+                | AttributeKind::ModUDType,
+                _,
+            ) => return_type = Some(process_type(attr, info.e)?),
+            (AttributeKind::Prototyped, _) => prototyped = true,
+            (AttributeKind::LowPc, &AttributeValue::Address(addr)) => {
+                start_address = Some(addr);
+            }
+            (AttributeKind::HighPc, &AttributeValue::Address(addr)) => {
+                end_address = Some(addr);
+            }
+            (AttributeKind::MwGlobalRef, &AttributeValue::Reference(_)) => {}
+            (AttributeKind::MwGlobalRefsBlock, AttributeValue::Block(_)) => {
+                // Global references block
+            }
+            (AttributeKind::ReturnAddr, AttributeValue::Block(_block)) => {}
+            (AttributeKind::Member, &AttributeValue::Reference(key)) => {
+                member_of = Some(key);
+            }
+            (AttributeKind::MwPrologueEnd, &AttributeValue::Address(_addr)) => {
+                // Prologue end
+            }
+            (AttributeKind::MwEpilogueStart, &AttributeValue::Address(_addr)) => {
+                // Epilogue start
+            }
+            (
+                AttributeKind::MwRestoreSp
+                | AttributeKind::MwRestoreS0
+                | AttributeKind::MwRestoreS1
+                | AttributeKind::MwRestoreS2
+                | AttributeKind::MwRestoreS3
+                | AttributeKind::MwRestoreS4
+                | AttributeKind::MwRestoreS5
+                | AttributeKind::MwRestoreS6
+                | AttributeKind::MwRestoreS7
+                | AttributeKind::MwRestoreS8
+                | AttributeKind::MwRestoreF20
+                | AttributeKind::MwRestoreF21
+                | AttributeKind::MwRestoreF22
+                | AttributeKind::MwRestoreF23
+                | AttributeKind::MwRestoreF24
+                | AttributeKind::MwRestoreF25
+                | AttributeKind::MwRestoreF26
+                | AttributeKind::MwRestoreF27
+                | AttributeKind::MwRestoreF28
+                | AttributeKind::MwRestoreF29
+                | AttributeKind::MwRestoreF30,
+                AttributeValue::Block(_),
+            ) => {
+                // Restore register
+            }
+            (AttributeKind::Inline, _) => inline = true,
+            (AttributeKind::Virtual, _) => virtual_ = true,
+            (AttributeKind::Specification, &AttributeValue::Reference(key)) => {
+                let spec_tag = info
+                    .tags
+                    .get(&key)
+                    .ok_or_else(|| anyhow!("Failed to locate specification tag {}", key))?;
+                // Merge attributes from specification tag
+                let spec = process_subroutine_tag(info, spec_tag)?;
+                name = name.or(spec.name);
+                mangled_name = mangled_name.or(spec.mangled_name);
+                return_type = return_type.or(Some(spec.return_type));
+                prototyped = prototyped || spec.prototyped;
+                parameters.extend(spec.parameters);
+                var_args = var_args || spec.var_args;
+                member_of = member_of.or(spec.member_of);
+                inline = inline || spec.inline;
+                virtual_ = virtual_ || spec.virtual_;
+            }
+            _ => {
+                bail!("Unhandled SubroutineType attribute {:?}", attr);
+            }
+        }
+    }
+
+    for child in tag.children(&info.tags) {
+        match child.kind {
+            TagKind::FormalParameter => {
+                let param = process_subroutine_parameter_tag(info, child)?;
+                if !this_pointer_found && param.name.as_deref() == Some("this") {
+                    let modifiers = &param.kind.modifiers;
+                    if modifiers.len() >= 3
+                        && modifiers[0] == Modifier::Const
+                        && modifiers[2] == Modifier::Const
+                    {
+                        const_ = true;
+                    }
+                    if modifiers.contains(&Modifier::Volatile) {
+                        volatile_ = true;
+                    }
+                    // This is needed because direct_base differs from member_of in virtual function overrides
+                    if let TypeKind::UserDefined(key) = param.kind.kind {
+                        direct_base_key = Some(key);
+                    }
+                    this_pointer_found = true;
+                }
+                // Avoid applying ones that were already in the specification
+                if !parameters.iter().any(|p| {
+                    matches!(
+                        (p.name.as_ref(), param.name.as_ref()),
+                        (Some(a), Some(b)) if a == b
+                    )
+                }) {
+                    parameters.push(param);
+                }
+            }
+            TagKind::UnspecifiedParameters
+            | TagKind::LocalVariable
+            | TagKind::GlobalVariable
+            | TagKind::Label
+            | TagKind::LexicalBlock
+            | TagKind::InlinedSubroutine
+            | TagKind::StructureType
+            | TagKind::EnumerationType
+            | TagKind::UnionType
+            | TagKind::Typedef
+            | TagKind::ArrayType
+            | TagKind::SubroutineType
+            | TagKind::PtrToMemberType => {}
+            kind => bail!("Unhandled SubroutineType child {:?}", kind),
+        }
+    }
+
+    let return_type = return_type
+        .unwrap_or_else(|| Type { kind: TypeKind::Fundamental(FundType::Void), modifiers: vec![] });
+    let direct_member_of = direct_base_key;
+    let local = tag.kind == TagKind::Subroutine;
+
+    let mut static_member = false;
+    if let Producer::GCC = info.producer {
+        // GCC doesn't retain namespaces, so this is a nice way to determine staticness
+        static_member = member_of.is_some() && !this_pointer_found;
+    }
+    let override_ = virtual_ && member_of != direct_member_of;
+    let subroutine = MemberSubroutineDefType {
+        name,
+        mangled_name,
+        return_type,
+        parameters,
+        var_args,
+        prototyped,
+        member_of,
+        direct_member_of,
+        inline,
+        virtual_,
+        local,
+        start_address,
+        end_address,
+        const_,
+        static_member,
+        override_,
+        volatile_,
+    };
+    Ok(subroutine)
+}
+
 fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType> {
     ensure!(
         matches!(
@@ -2452,7 +2909,8 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut start_address = None;
     let mut end_address = None;
     let mut virtual_ = false;
-    let mut direct_base = None; // as opposed to a higher base class whose function is beging overridden
+    // as opposed to a higher base class whose function is beging overridden
+    let mut this_pointer_found = false;
     let mut direct_base_key = None;
     let mut const_ = false;
     let mut volatile_ = false;
@@ -2555,9 +3013,8 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         match child.kind {
             TagKind::FormalParameter => {
                 let param = process_subroutine_parameter_tag(info, child)?;
-                if direct_base.is_none() && param.name.as_deref() == Some("this") {
+                if !this_pointer_found && param.name.as_deref() == Some("this") {
                     let modifiers = &param.kind.modifiers;
-                    // TODO is this a proper check?
                     if modifiers.len() >= 3
                         && modifiers[0] == Modifier::Const
                         && modifiers[2] == Modifier::Const
@@ -2569,11 +3026,9 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
                     }
                     // This is needed because direct_base differs from member_of in virtual function overrides
                     if let TypeKind::UserDefined(key) = param.kind.kind {
-                        if let UserDefinedType::Structure(structure) = get_udt_by_key(info, key)? {
-                            direct_base = Some(structure);
-                            direct_base_key = Some(key);
-                        }
+                        direct_base_key = Some(key);
                     }
+                    this_pointer_found = true;
                 }
                 // Avoid applying ones that were already in the specification
                 if !parameters.iter().any(|p| {
@@ -2622,9 +3077,9 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
     let mut static_member = false;
     if let Producer::GCC = info.producer {
         // GCC doesn't retain namespaces, so this is a nice way to determine staticness
-        static_member = member_of.is_some() && direct_base.is_none();
+        static_member = member_of.is_some() && !this_pointer_found;
     }
-    let override_ = virtual_ && member_of != direct_base_key;
+    let override_ = virtual_ && member_of != direct_member_of;
     let subroutine = SubroutineType {
         name,
         mangled_name,
@@ -2650,7 +3105,6 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         override_,
         volatile_,
     };
-    // TODO save this to a key => SubroutineType map and add a reference to the key in direct_base
     Ok(subroutine)
 }
 
@@ -3027,6 +3481,15 @@ pub fn process_overlay_branch(tag: &Tag) -> Result<OverlayBranch> {
     let end_address =
         end_address.ok_or_else(|| anyhow!("OverlayBranch without HighPc: {:?}", tag))?;
     Ok(OverlayBranch { name, id, start_address, end_address, compile_unit })
+}
+
+pub fn preprocess_cu_tag(info: &DwarfInfo, tag: &Tag) {
+    match tag.kind {
+        TagKind::SubroutineType | TagKind::GlobalSubroutine | TagKind::Subroutine => {
+            let _ = preprocess_subroutine_tag(info, tag);
+        }
+        _ => {}
+    }
 }
 
 pub fn process_cu_tag(info: &DwarfInfo, tag: &Tag) -> Result<TagType> {
