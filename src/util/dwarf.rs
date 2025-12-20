@@ -2660,30 +2660,43 @@ fn preprocess_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<()> {
         tag.kind
     );
 
-    let mut direct_base = None;
+    let mut append_to = None;
     for child in tag.children(&info.tags) {
-        if matches!(child.kind, TagKind::FormalParameter) {
+        if child.kind == TagKind::FormalParameter {
             let param = process_subroutine_parameter_tag(info, child)?;
-            if direct_base.is_none() && param.name.as_deref() == Some("this") {
-                // This is needed because direct_base differs from member_of in virtual function overrides
+            if param.name.as_deref() == Some("this") {
                 if let TypeKind::UserDefined(key) = param.kind.kind {
-                    if let UserDefinedType::Structure(structure) = get_udt_by_key(info, key)? {
-                        direct_base = Some(structure);
-                        match info.member_functions.borrow_mut().entry(key) {
-                            btree_map::Entry::Vacant(e) => {
-                                let mut set = BTreeSet::new();
-                                set.insert(tag.key);
-                                e.insert(set);
-                            }
-                            btree_map::Entry::Occupied(e) => {
-                                e.into_mut().insert(tag.key);
-                            }
-                        }
-                    }
+                    append_to = Some(key);
+                    break;
                 }
             }
         }
     }
+    // On GCC we can detect static methods because there namespaces aren't retained
+    if info.producer == Producer::GCC && append_to.is_none() {
+        for attr in &tag.attributes {
+            if let (AttributeKind::Member, &AttributeValue::Reference(key)) =
+                (attr.kind, &attr.value)
+            {
+                append_to = Some(key);
+                break;
+            }
+        }
+    }
+
+    if let Some(key) = append_to {
+        match info.member_functions.borrow_mut().entry(key) {
+            btree_map::Entry::Vacant(e) => {
+                let mut set = BTreeSet::new();
+                set.insert(tag.key);
+                e.insert(set);
+            }
+            btree_map::Entry::Occupied(e) => {
+                e.into_mut().insert(tag.key);
+            }
+        }
+    }
+
     Ok(())
 }
 
