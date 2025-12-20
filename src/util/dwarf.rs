@@ -1801,14 +1801,12 @@ pub fn subroutine_def_string(
     if !t.blocks_and_inlines.is_empty() {
         for node in &t.blocks_and_inlines {
             let node_str = match node {
-                SubroutineNode::Block(block) => {
-                    subroutine_block_string(info, typedefs, block)?
-                }
+                SubroutineNode::Block(block) => subroutine_block_string(info, typedefs, block)?,
                 SubroutineNode::Inline(inline) => {
                     subroutine_def_string(info, typedefs, inline, is_erased)?
                 }
             };
-            writeln!(out, "")?;
+            writeln!(out)?;
             out.push_str(&indent_all_by(4, node_str));
         }
     }
@@ -1873,7 +1871,7 @@ fn subroutine_block_string(
             let node_str = match node {
                 SubroutineNode::Block(block) => subroutine_block_string(info, typedefs, block)?,
                 SubroutineNode::Inline(inline) => {
-                    writeln!(out, "")?;
+                    writeln!(out)?;
                     subroutine_def_string(info, typedefs, inline, false)?
                 }
             };
