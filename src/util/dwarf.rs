@@ -2602,6 +2602,12 @@ fn process_enumeration_tag(info: &DwarfInfo, tag: &Tag) -> Result<EnumerationTyp
 
     let byte_size =
         byte_size.ok_or_else(|| anyhow!("EnumerationType without ByteSize: {:?}", tag))?;
+
+    if info.producer == Producer::GCC {
+        // for some reason enum members are reversed in GCC
+        members.reverse();
+    }
+
     Ok(EnumerationType { name, byte_size, members })
 }
 
