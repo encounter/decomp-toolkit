@@ -44,6 +44,7 @@ filetime = "0.2"
 fixedbitset = "0.5"
 flagset = { version = "0.4", features = ["serde"] }
 glob = "0.3"
+gnuv2_demangle = "0.4"
 hex = "0.4"
 indent = "0.1"
 indexmap = "2.6"

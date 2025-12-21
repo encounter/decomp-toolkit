@@ -362,6 +362,7 @@ dependencies = [
  "fixedbitset",
  "flagset",
  "glob",
+ "gnuv2_demangle",
  "hex",
  "indent",
  "indexmap",
@@ -585,6 +586,12 @@ name = "glob"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0cc23270f6e1808e30a928bdc84dea0b9b4136a8bc82338574f23baf47bbd280"
+
+[[package]]
+name = "gnuv2_demangle"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3f4eda49d36ceaaaf3af38940a636b0514472cdba8b2158b20b58e91e50df4c7"
 
 [[package]]
 name = "hashbrown"

@@ -1,5 +1,6 @@
 use std::{
-    collections::{btree_map, BTreeMap},
+    cell::RefCell,
+    collections::btree_map,
     io::{stdout, Cursor, Read, Write},
     ops::Bound::{Excluded, Unbounded},
     str::from_utf8,
@@ -19,8 +20,9 @@ use typed_path::Utf8NativePathBuf;
 use crate::{
     util::{
         dwarf::{
-            process_compile_unit, process_cu_tag, process_overlay_branch, read_debug_section,
-            should_skip_tag, tag_type_string, AttributeKind, TagKind,
+            parse_producer, preprocess_cu_tag, process_compile_unit, process_cu_tag,
+            process_overlay_branch, read_debug_section, should_skip_tag, tag_type_string,
+            AttributeKind, MemberFunctionMap, TagKind, TypedefMap,
         },
         file::buf_writer,
         path::native_path,
@@ -166,7 +168,8 @@ where
     }
 
     let mut reader = Cursor::new(&*data);
-    let info = read_debug_section(&mut reader, obj_file.endianness().into(), args.include_erased)?;
+    let mut info =
+        read_debug_section(&mut reader, obj_file.endianness().into(), args.include_erased)?;
 
     for (&addr, tag) in &info.tags {
         log::debug!("{}: {:?}", addr, tag);
@@ -210,6 +213,7 @@ where
                     writeln!(w, "\n/*\n    Compile unit: {}", unit.name)?;
                     if let Some(producer) = unit.producer {
                         writeln!(w, "    Producer: {producer}")?;
+                        info.producer = parse_producer(&producer);
                     }
                     if let Some(comp_dir) = unit.comp_dir {
                         writeln!(w, "    Compile directory: {comp_dir}")?;
@@ -245,8 +249,29 @@ where
                     }
                     children.sort_by_key(|x| x.key);
 
-                    let mut typedefs = BTreeMap::<u32, Vec<u32>>::new();
-                    for child in children {
+                    let mut typedefs = TypedefMap::new();
+                    info.member_functions = RefCell::new(MemberFunctionMap::new());
+                    // pre-parse step
+                    for &child in &children {
+                        preprocess_cu_tag(&info, child);
+
+                        if let TagKind::Typedef = child.kind {
+                            // TODO fundamental typedefs?
+                            if let Some(ud_type_ref) =
+                                child.reference_attribute(AttributeKind::UserDefType)
+                            {
+                                match typedefs.entry(ud_type_ref) {
+                                    btree_map::Entry::Vacant(e) => {
+                                        e.insert(vec![child.key]);
+                                    }
+                                    btree_map::Entry::Occupied(e) => {
+                                        e.into_mut().push(child.key);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    for &child in &children {
                         let tag_type = match process_cu_tag(&info, child) {
                             Ok(tag_type) => tag_type,
                             Err(e) => {
@@ -282,22 +307,6 @@ where
                                     child.key, child.kind
                                 )?;
                                 continue;
-                            }
-                        }
-
-                        if let TagKind::Typedef = child.kind {
-                            // TODO fundamental typedefs?
-                            if let Some(ud_type_ref) =
-                                child.reference_attribute(AttributeKind::UserDefType)
-                            {
-                                match typedefs.entry(ud_type_ref) {
-                                    btree_map::Entry::Vacant(e) => {
-                                        e.insert(vec![child.key]);
-                                    }
-                                    btree_map::Entry::Occupied(e) => {
-                                        e.into_mut().push(child.key);
-                                    }
-                                }
                             }
                         }
                     }
