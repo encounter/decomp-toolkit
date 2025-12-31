@@ -301,6 +301,8 @@ pub struct ModuleConfig {
     /// Process exception tables and zero out uninitialized data.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub clean_extab: Option<bool>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub skip_cfa_ranges: Vec<SkipCfaRangeConfig>,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
@@ -367,6 +369,16 @@ pub struct AddRelocationConfig {
     pub addend: i64,
 }
 
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq)]
+pub struct SkipCfaRangeConfig {
+    /// The start address of the range to skip.
+    /// Format: `section:address`, e.g. `.text:0x80001234`.
+    pub start: SectionAddressRef,
+    /// The end address of the range to skip.
+    /// Format: `section:address`, e.g. `.text:0x80001234`.
+    pub end: SectionAddressRef,
+}
+
 impl ModuleConfig {
     pub fn file_name(&self) -> &str { self.object.file_name().unwrap_or(self.object.as_str()) }
 
@@ -376,6 +388,19 @@ impl ModuleConfig {
     }
 
     pub fn name(&self) -> &str { self.name.as_deref().unwrap_or_else(|| self.file_prefix()) }
+
+    pub fn skip_cfa_ranges(
+        &self,
+        obj: &ObjInfo,
+    ) -> Result<BTreeMap<SectionAddress, SectionAddress>> {
+        let mut skip_cfa_ranges = BTreeMap::new();
+        for range in &self.skip_cfa_ranges {
+            let start = range.start.resolve(obj)?;
+            let end = range.end.resolve(obj)?;
+            skip_cfa_ranges.insert(start, end);
+        }
+        Ok(skip_cfa_ranges)
+    }
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone)]
@@ -916,7 +941,9 @@ fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<
         apply_signatures(&mut obj)?;
 
         if !config.quick_analysis {
-            let mut state = AnalyzerState::default();
+            let skip_ranges =
+                config.base.skip_cfa_ranges(&obj).context("Resolving skip CFA ranges")?;
+            let mut state = AnalyzerState::new(skip_ranges);
             debug!("Detecting function boundaries");
             FindSaveRestSleds::execute(&mut state, &obj)?;
             state.detect_functions(&obj)?;
@@ -1216,7 +1243,9 @@ fn load_analyze_rel(
     if !config.symbols_known {
         debug!("Analyzing module {}", module_obj.module_id);
         if !config.quick_analysis {
-            let mut state = AnalyzerState::default();
+            let skip_ranges =
+                module_config.skip_cfa_ranges(&module_obj).context("Resolving skip CFA ranges")?;
+            let mut state = AnalyzerState::new(skip_ranges);
             FindSaveRestSleds::execute(&mut state, &module_obj)?;
             state.detect_functions(&module_obj)?;
             FindRelCtorsDtors::execute(&mut state, &module_obj)?;

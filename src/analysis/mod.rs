@@ -249,25 +249,3 @@ pub fn uniq_jump_table_entries(
         )?;
     Ok((BTreeSet::from_iter(entries.iter().cloned()), size))
 }
-
-pub fn skip_alignment(
-    section: &ObjSection,
-    mut addr: SectionAddress,
-    end: SectionAddress,
-) -> Option<SectionAddress> {
-    let mut data = match section.data_range(addr.address, end.address) {
-        Ok(data) => data,
-        Err(_) => return None,
-    };
-    loop {
-        if data.is_empty() {
-            break None;
-        }
-        if data[0..4] == [0u8; 4] {
-            addr += 4;
-            data = &data[4..];
-        } else {
-            break Some(addr);
-        }
-    }
-}
