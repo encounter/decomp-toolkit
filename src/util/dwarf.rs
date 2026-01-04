@@ -3681,8 +3681,8 @@ fn process_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<VariableTag> {
 // TODO expand for more compilers?
 fn maybe_demangle_name(info: &DwarfInfo, name: &str) -> String {
     let name_opt = match info.producer {
-        Producer::MWCC => cw_demangle(&name, &Default::default()),
-        Producer::GCC => gnu_demangle(&name, &DemangleConfig::new()).ok(),
+        Producer::MWCC => cw_demangle(name, &Default::default()),
+        Producer::GCC => gnu_demangle(name, &DemangleConfig::new()).ok(),
         Producer::OTHER => None,
     };
     name_opt.unwrap_or_else(|| name.to_string())
