@@ -1504,7 +1504,7 @@ fn member_subroutine_def_string(
     }
     if !name_written {
         if let Some(name) = t.name.as_ref() {
-            full_written_name.push_str(&maybe_demangle_name(info, name));
+            full_written_name.push_str(&maybe_demangle_function_name(info, name));
         }
     }
     let rt = type_string(info, typedefs, &t.return_type, true)?;
@@ -1682,7 +1682,7 @@ pub fn subroutine_def_string(
     }
     if !name_written {
         if let Some(name) = t.name.as_ref() {
-            full_written_name.push_str(&maybe_demangle_name(info, name));
+            full_written_name.push_str(&maybe_demangle_function_name(info, name));
         }
     }
     let rt = type_string(info, typedefs, &t.return_type, true)?;
@@ -3575,7 +3575,7 @@ fn variable_string(
     let mut out = if variable.local { "static ".to_string() } else { String::new() };
     out.push_str(&ts.prefix);
     out.push(' ');
-    out.push_str(variable.name.as_deref().unwrap_or("[unknown]"));
+    out.push_str(&maybe_demangle_name(info, variable.name.as_deref().unwrap_or("[unknown]")));
     out.push_str(&ts.suffix);
     out.push(';');
     if include_extra {
@@ -3680,6 +3680,15 @@ fn process_variable_tag(info: &DwarfInfo, tag: &Tag) -> Result<VariableTag> {
 
 // TODO expand for more compilers?
 fn maybe_demangle_name(info: &DwarfInfo, name: &str) -> String {
+    let name_opt = match info.producer {
+        Producer::MWCC => cw_demangle(name, &Default::default()),
+        Producer::GCC => gnu_demangle(name, &DemangleConfig::new()).ok(),
+        Producer::OTHER => None,
+    };
+    name_opt.unwrap_or_else(|| name.to_string())
+}
+
+fn maybe_demangle_function_name(info: &DwarfInfo, name: &str) -> String {
     let fake_name = format!("{}__0", name);
     let name_opt = match info.producer {
         // for __pl this looks like operator+
