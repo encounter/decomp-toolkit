@@ -293,7 +293,7 @@ where
                                 continue;
                             }
                         }
-                        
+
                         if let TagKind::Typedef = child.kind {
                             // TODO fundamental typedefs?
                             if let Some(ud_type_ref) =
