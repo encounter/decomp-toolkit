@@ -254,22 +254,6 @@ where
                     // pre-parse step
                     for &child in &children {
                         preprocess_cu_tag(&info, child);
-
-                        if let TagKind::Typedef = child.kind {
-                            // TODO fundamental typedefs?
-                            if let Some(ud_type_ref) =
-                                child.reference_attribute(AttributeKind::UserDefType)
-                            {
-                                match typedefs.entry(ud_type_ref) {
-                                    btree_map::Entry::Vacant(e) => {
-                                        e.insert(vec![child.key]);
-                                    }
-                                    btree_map::Entry::Occupied(e) => {
-                                        e.into_mut().push(child.key);
-                                    }
-                                }
-                            }
-                        }
                     }
                     for &child in &children {
                         let tag_type = match process_cu_tag(&info, child) {
@@ -307,6 +291,22 @@ where
                                     child.key, child.kind
                                 )?;
                                 continue;
+                            }
+                        }
+
+                        if let TagKind::Typedef = child.kind {
+                            // TODO fundamental typedefs?
+                            if let Some(ud_type_ref) =
+                                child.reference_attribute(AttributeKind::UserDefType)
+                            {
+                                match typedefs.entry(ud_type_ref) {
+                                    btree_map::Entry::Vacant(e) => {
+                                        e.insert(vec![child.key]);
+                                    }
+                                    btree_map::Entry::Occupied(e) => {
+                                        e.into_mut().push(child.key);
+                                    }
+                                }
                             }
                         }
                     }
