@@ -70,7 +70,7 @@ pub fn apply_symbols_file(
 pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymbol>> {
     static SYMBOL_LINE: Lazy<Regex> = Lazy::new(|| {
         Regex::new(
-            "^\\s*(?P<name>[^\\s=]+)\\s*=\\s*(?:(?P<section>[A-Za-z0-9.]+):)?(?P<addr>[0-9A-Fa-fXx]+);(?:\\s*//\\s*(?P<attrs>.*))?$",
+            "^\\s*(?P<name>.+?)\\s*=\\s*(?:(?P<section>[A-Za-z0-9.]+):)?(?P<addr>[0-9A-Fa-fXx]+);(?:\\s*//\\s*(?P<attrs>.*))?$",
         )
         .unwrap()
     });
