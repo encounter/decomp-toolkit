@@ -475,7 +475,14 @@ impl Tracker {
                             if branch.link || !is_fn_addr {
                                 self.relocations.insert(ins_addr, match ins.op {
                                     Opcode::B => Relocation::Rel24(target),
-                                    Opcode::Bc => Relocation::Rel14(target),
+                                    Opcode::Bc => {
+                                        if addr == function_start {
+                                            // MSVC's linker doesn't accept REL14 in tail calls 
+                                            Relocation::Rel24(target)
+                                        } else {
+                                            Relocation::Rel14(target)
+                                        }
+                                    }
                                     _ => continue,
                                 });
                             } else if is_fn_addr {

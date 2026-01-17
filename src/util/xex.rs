@@ -1070,6 +1070,21 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
                 addend: 0,
                 flags: RelocationFlags::Coff { typ: reloc.to_coff() }
             })?;
+            // MSVC requires an extra relocation to pair up high and low ones
+            match reloc.kind {
+                ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo => {
+                    cur_coff.add_relocation(
+                        sect_map.get(&sect_idx).unwrap().clone(),
+                        object::write::Relocation {
+                            offset: addr as u64,
+                            symbol: sym_id.clone(),
+                            addend: 0,
+                            flags: RelocationFlags::Coff { typ: object::pe::IMAGE_REL_PPC_PAIR },
+                        },
+                    )?;
+                }
+                _ => {}
+            }
         }
     }
 
