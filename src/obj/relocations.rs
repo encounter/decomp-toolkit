@@ -158,7 +158,9 @@ impl ObjRelocations {
     pub fn new(relocations: Vec<(u32, ObjReloc)>) -> Result<Self, ExistingRelocationError> {
         let mut map = BTreeMap::new();
         for (address, reloc) in relocations {
-            let address = address & !3;
+            // Note: Do NOT align the address here. Data sections can have relocations
+            // at unaligned offsets when splits start at non-4-byte-aligned addresses.
+            // The to_elf() method already handles alignment appropriately per relocation type.
             match map.entry(address) {
                 btree_map::Entry::Vacant(e) => e.insert(reloc),
                 btree_map::Entry::Occupied(e) => {
@@ -172,7 +174,7 @@ impl ObjRelocations {
     pub fn len(&self) -> usize { self.relocations.len() }
 
     pub fn insert(&mut self, address: u32, reloc: ObjReloc) -> Result<(), ExistingRelocationError> {
-        let address = address & !3;
+        // Note: Do NOT align the address here. See comment in new().
         match self.relocations.entry(address) {
             btree_map::Entry::Vacant(e) => e.insert(reloc),
             btree_map::Entry::Occupied(e) => {
@@ -210,4 +212,130 @@ impl ObjRelocations {
     }
 
     pub fn contains(&self, address: u32) -> bool { self.relocations.contains_key(&address) }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_test_reloc(target_symbol: SymbolIndex) -> ObjReloc {
+        ObjReloc {
+            kind: ObjRelocKind::Absolute,
+            target_symbol,
+            addend: 0,
+            module: None,
+        }
+    }
+
+    /// Test that relocations at unaligned addresses are preserved correctly.
+    ///
+    /// This reproduces a bug found in XEX splitting where data sections can start
+    /// at non-4-byte-aligned addresses. When a split starts at e.g. 0x82F0ABD3,
+    /// a relocation at 0x82F0ABD4 becomes relative offset 1. The bug was that
+    /// `ObjRelocations::new()` forced 4-byte alignment via `address & !3`,
+    /// corrupting offset 1 to offset 0.
+    ///
+    /// Real-world example from DC3 decomp:
+    /// - CharClip.cpp .data split starts at VA 0x82F0ABD3 (unaligned)
+    /// - Symbol `smGenerateTransitionGraphOnSave` at offset 0, size 1 byte
+    /// - RTTI TypeDescriptor `??_R0PAV?$Key@M@@` at offset 1, needs vtable relocation
+    /// - Relocation for vtable pointer should be at offset 1, not 0
+    #[test]
+    fn test_unaligned_relocation_addresses_preserved() {
+        // Simulate relocations at unaligned offsets (as would occur when a split
+        // starts at a non-4-byte-aligned address)
+        let relocations = vec![
+            (1u32, make_test_reloc(100)),  // Offset 1 - like RTTI after 1-byte bool
+            (5u32, make_test_reloc(101)),  // Offset 5
+            (9u32, make_test_reloc(102)),  // Offset 9
+        ];
+
+        let obj_relocs = ObjRelocations::new(relocations).expect("should not fail");
+
+        // Verify relocations are at their original addresses
+        assert!(
+            obj_relocs.at(1).is_some(),
+            "Relocation at offset 1 should exist (BUG: was moved to offset 0 by `& !3`)"
+        );
+        assert!(
+            obj_relocs.at(5).is_some(),
+            "Relocation at offset 5 should exist (BUG: was moved to offset 4 by `& !3`)"
+        );
+        assert!(
+            obj_relocs.at(9).is_some(),
+            "Relocation at offset 9 should exist (BUG: was moved to offset 8 by `& !3`)"
+        );
+
+        // Verify relocations are NOT at aligned addresses (the bug behavior)
+        assert!(
+            obj_relocs.at(0).is_none(),
+            "Relocation should NOT be at offset 0 (this indicates the alignment bug)"
+        );
+        assert!(
+            obj_relocs.at(4).is_none(),
+            "Relocation should NOT be at offset 4 (this indicates the alignment bug)"
+        );
+        assert!(
+            obj_relocs.at(8).is_none(),
+            "Relocation should NOT be at offset 8 (this indicates the alignment bug)"
+        );
+    }
+
+    /// Test that insert() also preserves unaligned addresses.
+    #[test]
+    fn test_insert_unaligned_addresses_preserved() {
+        let mut obj_relocs = ObjRelocations::default();
+
+        obj_relocs.insert(1, make_test_reloc(100)).expect("insert should succeed");
+        obj_relocs.insert(5, make_test_reloc(101)).expect("insert should succeed");
+
+        assert!(
+            obj_relocs.at(1).is_some(),
+            "Inserted relocation at offset 1 should be retrievable at offset 1"
+        );
+        assert!(
+            obj_relocs.at(5).is_some(),
+            "Inserted relocation at offset 5 should be retrievable at offset 5"
+        );
+    }
+
+    /// Test that aligned relocations still work correctly.
+    #[test]
+    fn test_aligned_relocations_work() {
+        let relocations = vec![
+            (0u32, make_test_reloc(100)),
+            (4u32, make_test_reloc(101)),
+            (8u32, make_test_reloc(102)),
+        ];
+
+        let obj_relocs = ObjRelocations::new(relocations).expect("should not fail");
+
+        assert!(obj_relocs.at(0).is_some());
+        assert!(obj_relocs.at(4).is_some());
+        assert!(obj_relocs.at(8).is_some());
+    }
+
+    /// Test that to_elf() correctly uses R_PPC_UADDR32 for unaligned Absolute relocations.
+    #[test]
+    fn test_to_elf_unaligned_absolute_uses_uaddr32() {
+        let reloc = make_test_reloc(100);
+
+        // Aligned address should use R_PPC_ADDR32
+        let (offset, r_type) = reloc.to_elf(0);
+        assert_eq!(offset, 0);
+        assert_eq!(r_type, object::elf::R_PPC_ADDR32);
+
+        let (offset, r_type) = reloc.to_elf(4);
+        assert_eq!(offset, 4);
+        assert_eq!(r_type, object::elf::R_PPC_ADDR32);
+
+        // Unaligned address should use R_PPC_UADDR32
+        let (offset, r_type) = reloc.to_elf(1);
+        assert_eq!(offset, 1);
+        assert_eq!(r_type, object::elf::R_PPC_UADDR32);
+
+        let (offset, r_type) = reloc.to_elf(5);
+        assert_eq!(offset, 5);
+        assert_eq!(r_type, object::elf::R_PPC_UADDR32);
+    }
 }
