@@ -1,48 +1,65 @@
-use std::{fs, time::UNIX_EPOCH};
-use std::cmp::min;
-use std::collections::BTreeMap;
-use std::fs::{DirBuilder, File};
-use std::io::{BufWriter, Write};
-use std::time::Instant;
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use std::{
+    cmp::min,
+    collections::BTreeMap,
+    fs,
+    fs::{DirBuilder, File},
+    io::{BufWriter, Write},
+    time::{Instant, UNIX_EPOCH},
+};
+
+use anyhow::{anyhow, bail, ensure, Context, Ok, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
 use itertools::Itertools;
-use object::read::coff::{CoffFile, CoffHeader, ImageSymbol};
-use object::{pe, Architecture, BinaryFormat, Endianness, RelocationFlags, SectionKind, SymbolFlags, SymbolKind, SymbolScope};
-use object::pe::{ImageFileHeader};
-use object::endian::LittleEndian;
-use object::read::pe::PeFile32;
-use object::write::{Relocation, SectionId, Symbol, SymbolId, SymbolSection};
-use object::write::Object;
+use object::{
+    endian::LittleEndian,
+    pe,
+    pe::ImageFileHeader,
+    read::{
+        coff::{CoffFile, CoffHeader, ImageSymbol},
+        pe::PeFile32,
+    },
+    write::{Object, Relocation, SectionId, Symbol, SymbolId, SymbolSection},
+    Architecture, BinaryFormat, Endianness, RelocationFlags, SectionKind, SymbolFlags, SymbolKind,
+    SymbolScope,
+};
 use rayon::iter::IntoParallelRefIterator;
 use tracing::{debug, info, info_span};
 use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 use xxhash_rust::xxh3::xxh3_64;
+
 use crate::{
-    analysis::{cfa::{AnalyzerState}, pass::{AnalysisPass, FindSaveRestSledsXbox}}, 
+    analysis::{
+        cfa::AnalyzerState,
+        objects::{detect_objects, detect_strings},
+        pass::{AnalysisPass, FindSaveRestSleds, FindSaveRestSledsXbox},
+        signatures::{apply_signatures, apply_signatures_post, update_ctors_dtors},
+        tracker::Tracker,
+    },
+    cmd::dol::{
+        apply_add_relocations, apply_block_relocations, ModuleConfig, OutputConfig, OutputModule,
+        OutputUnit, ProjectConfig,
+    },
+    obj::{
+        best_match_for_reloc, ObjDataKind, ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind,
+        ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex,
+    },
     util::{
+        asm::write_asm,
+        config::{apply_splits_file, apply_symbols_file, write_splits_file, write_symbols_file},
+        dep::DepFile,
+        file::{buf_writer, touch, verify_hash, FileReadInfo},
+        map_exe::{apply_map_file_exe, process_map_exe},
         path::native_path,
-        xex::{extract_exe, process_xex, XexCompression, XexEncryption, XexInfo}
-    }
+        split::{split_obj, update_splits},
+        xex::{
+            coff_path_for_unit, extract_exe, list_exe_sections, process_xex, write_coff,
+            XexCompression, XexEncryption, XexInfo,
+        },
+        xpdb::try_parse_pdb,
+    },
+    vfs::open_file,
 };
-use crate::analysis::objects::{detect_objects, detect_strings};
-use crate::analysis::pass::{FindSaveRestSleds, FindTRKInterruptVectorTable};
-use crate::analysis::signatures::{apply_signatures, apply_signatures_post, update_ctors_dtors};
-use crate::analysis::tracker::Tracker;
-use crate::cmd::dol::{apply_add_relocations, apply_block_relocations, ModuleConfig, OutputConfig, OutputModule, OutputUnit, ProjectConfig};
-use crate::obj::{best_match_for_reloc, ObjDataKind, ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex};
-use crate::util::asm::write_asm;
-use crate::util::config::{apply_splits_file, apply_symbols_file, write_splits_file, write_symbols_file};
-use crate::util::dep::DepFile;
-use crate::util::elf::write_elf;
-use crate::util::file::{buf_writer, touch, verify_hash, FileReadInfo};
-use crate::util::lcf::obj_path_for_unit;
-use crate::util::map::apply_map_file;
-use crate::util::map_exe::{apply_map_file_exe, process_map_exe};
-use crate::util::split::{split_obj, update_splits};
-use crate::util::xex::{coff_path_for_unit, list_exe_sections, write_coff};
-use crate::vfs::open_file;
 
 #[derive(FromArgs, PartialEq, Debug)]
 /// Commands for processing Xex files.
@@ -59,6 +76,7 @@ enum SubCommand {
     Extract(ExtractArgs),
     Info(InfoArgs),
     Map(MapArgs),
+    Pdb(PdbArgs),
     Split(SplitArgs),
 }
 
@@ -102,6 +120,15 @@ pub struct MapArgs {
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Prints information about a Xenon PDB.
+#[argp(subcommand, name = "pdb")]
+pub struct PdbArgs {
+    #[argp(positional, from_str_fn(native_path))]
+    /// input file
+    input: Utf8NativePathBuf,
+}
+
+#[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Splits an xex into relocatable objects.
 #[argp(subcommand, name = "split")]
 pub struct SplitArgs {
@@ -110,7 +137,7 @@ pub struct SplitArgs {
     config: Utf8NativePathBuf,
     #[argp(positional, from_str_fn(native_path))]
     /// output directory
-    out_dir: Utf8NativePathBuf
+    out_dir: Utf8NativePathBuf,
 }
 
 pub fn run(args: Args) -> Result<()> {
@@ -119,6 +146,7 @@ pub fn run(args: Args) -> Result<()> {
         SubCommand::Extract(c_args) => extract(c_args),
         SubCommand::Info(c_args) => info(c_args),
         SubCommand::Map(c_args) => map(c_args),
+        SubCommand::Pdb(c_args) => pdb(c_args),
         SubCommand::Split(c_args) => split(c_args),
     }
 }
@@ -181,7 +209,8 @@ fn split(args: SplitArgs) -> Result<()> {
     // Create out dirs
     DirBuilder::new().recursive(true).create(&args.out_dir)?;
     // write the exe in the same dir the xex is
-    let exe_path: Utf8NativePathBuf = config.base.object.with_encoding().parent().unwrap().join(&exe_name);
+    let exe_path: Utf8NativePathBuf =
+        config.base.object.with_encoding().parent().unwrap().join(&exe_name);
     info!("Extracting exe to {exe_path}");
     std::fs::write(exe_path, exe_bytes)?;
 
@@ -248,12 +277,7 @@ fn split_write_obj_exe(
         write_symbols_file(&symbols_path.with_encoding(), &module.obj, module.symbols_cache)?;
     }
     if let Some(splits_path) = &module.config.splits {
-        write_splits_file(
-            &splits_path.with_encoding(),
-            &module.obj,
-            false,
-            module.splits_cache,
-        )?;
+        write_splits_file(&splits_path.with_encoding(), &module.obj, false, module.splits_cache)?;
     }
 
     debug!("Splitting {} objects", module.obj.link_order.len());
@@ -305,12 +329,12 @@ fn split_write_obj_exe(
     // for coff_obj in &split_objs {
     //     let root_name = coff_obj.name.split('.').next().unwrap();
     //     // println!("Writing {}.obj", root_name);
-    // 
+    //
     //     // for each obj:
     //     let mut cur_coff = Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
     //     let mut sect_map: BTreeMap<SectionIndex, SectionId> = Default::default();
     //     let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
-    // 
+    //
     //     // insert the sections
     //     for (idx, sect) in coff_obj.sections.iter() {
     //         // println!("Section: {}", sect.name);
@@ -325,7 +349,7 @@ fn split_write_obj_exe(
     //         }
     //         sect_map.insert(idx, sect_id);
     //     }
-    // 
+    //
     //     // insert the symbols
     //     for (idx, sym) in coff_obj.symbols.iter(){
     //         let sym_id = cur_coff.add_symbol(Symbol {
@@ -360,7 +384,7 @@ fn split_write_obj_exe(
     //         });
     //         sym_map.insert(idx, sym_id);
     //     }
-    // 
+    //
     //     // insert the relocs
     //     for (sect_idx, sect) in coff_obj.sections.iter() {
     //         for (addr, reloc) in sect.relocations.iter() {
@@ -376,10 +400,10 @@ fn split_write_obj_exe(
     //             })?;
     //         }
     //     }
-    // 
+    //
     //     // finally, write the COFF
     //     let coff_data = cur_coff.write()?;
-    // 
+    //
     //     // out_config.units.push(OutputUnit {
     //     //     object: out_path.with_unix_encoding(),
     //     //     name: unit.name.clone(),
@@ -390,14 +414,14 @@ fn split_write_obj_exe(
     //     // if let Some(parent) = out_path.parent() {
     //     //     DirBuilder::new().recursive(true).create(parent)?;
     //     // }
-    // 
+    //
     //     // create any necessary folders
     //     let mut full_path = obj_dir.clone();
     //     full_path.push(format!("{}.obj", root_name));
     //     if let Some(parent) = full_path.parent() {
     //         std::fs::create_dir_all(parent)?;
     //     }
-    // 
+    //
     //     // write the file
     //     let file = File::create(&full_path)?;
     //     let mut writer = BufWriter::new(file);
@@ -423,12 +447,11 @@ fn split_write_obj_exe(
             // write the file
             let file = File::create(&full_path)?;
             let mut writer = BufWriter::new(file);
-            match write_asm(&mut writer, &asm_obj).with_context(|| format!("Failed to write {full_path}")) {
-                Ok(_) => {},
-                Err(e) => {
-                    println!("Failed to write {full_path}!");
-                    // continue;
-                }
+            if !write_asm(&mut writer, &asm_obj)
+                .with_context(|| format!("Failed to write {full_path}"))
+                .is_ok()
+            {
+                println!("Failed to write {full_path}!");
             }
             // write_asm(&mut writer, &asm_obj).with_context(|| format!("Failed to write {full_path}"))?;
             writer.flush()?;
@@ -524,7 +547,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 
     // step 1. process xex, and return an ObjInfo
     let mut obj = process_xex(&args.xex_file)?;
-    
+
     let mut state = AnalyzerState::default();
 
     // step 2. find common functions (save/restore reg funcs, XAPI calls)
@@ -557,7 +580,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // let mut w = buf_writer(&args.out)?;
     // write_asm(&mut w, &obj)?;
     // w.flush()?;
-    
+
     // write_symbols_file(&args.out, &obj, None)?;
 
     // Gamepad Release
@@ -581,12 +604,13 @@ fn disasm(args: DisasmArgs) -> Result<()> {
         // insert the sections
         for (idx, sect) in coff_obj.sections.iter() {
             println!("Section: {}", sect.name);
-            let sect_id = cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
-                ObjSectionKind::Code => SectionKind::Text,
-                ObjSectionKind::Data => SectionKind::Data,
-                ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
-                ObjSectionKind::Bss => SectionKind::UninitializedData,
-            });
+            let sect_id =
+                cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
+                    ObjSectionKind::Code => SectionKind::Text,
+                    ObjSectionKind::Data => SectionKind::Data,
+                    ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
+                    ObjSectionKind::Bss => SectionKind::UninitializedData,
+                });
             cur_coff.append_section_data(sect_id, &sect.data, sect.align);
             sect_map.insert(idx, sect_id);
         }
@@ -598,8 +622,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
         // }
 
         // insert the symbols
-        for (idx, sym) in coff_obj.symbols.iter(){
-
+        for (idx, sym) in coff_obj.symbols.iter() {
             // if sym.kind == ObjSymbolKind::Unknown {
             //     let the_master_sym = obj.symbols.by_name(&sym.name)?;
             //     if the_master_sym.is_some(){
@@ -651,7 +674,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
                     offset: addr as u64,
                     symbol: sym_id.clone(),
                     addend: 0,
-                    flags: RelocationFlags::Coff { typ: reloc.to_coff() }
+                    flags: RelocationFlags::Coff { typ: reloc.to_coff() },
                 })?;
             }
         }
@@ -666,6 +689,12 @@ fn disasm(args: DisasmArgs) -> Result<()> {
 fn map(args: MapArgs) -> Result<()> {
     println!("map: {}", args.input);
     process_map_exe(&args.input)?;
+    Ok(())
+}
+
+fn pdb(args: PdbArgs) -> Result<()> {
+    println!("pdb: {}", args.input);
+    try_parse_pdb(args.input, &vec![0; 15])?;
     Ok(())
 }
 
@@ -933,10 +962,13 @@ fn info(args: InfoArgs) -> Result<()> {
     println!("shoutouts go to xorloser for the original XexTool!\n");
 
     println!("Xex Info:");
-    println!("  {}", if xex.is_dev_kit { "Devkit" } else { "Retail"} );
+    println!("  {}", if xex.is_dev_kit { "Devkit" } else { "Retail" });
     let bff = xex.opt_header_data.base_file_format.as_ref().unwrap();
-    println!("  {}", if bff.compression == XexCompression::Compressed { "Compressed" } else { "Uncompressed"} );
-    println!("  {}", if bff.encryption == XexEncryption::No { "Unencrypted" } else { "Encrypted"} );
+    println!(
+        "  {}",
+        if bff.compression == XexCompression::Compressed { "Compressed" } else { "Uncompressed" }
+    );
+    println!("  {}", if bff.encryption == XexEncryption::No { "Unencrypted" } else { "Encrypted" });
     println!("");
 
     println!("Basefile Info:");
@@ -944,12 +976,12 @@ fn info(args: InfoArgs) -> Result<()> {
     println!("  Load address: 0x{:08X}", xex.opt_header_data.image_base);
     println!("  Entry point: 0x{:08X}", xex.opt_header_data.entry_point);
     print!("  File time: 0x{:08X} - ", xex.opt_header_data.file_timestamp);
-    // formatting in EST because EST is the superior timezone and i will not hear otherwise
+    // west coast best coast
     let dur = std::time::Duration::from_secs(xex.opt_header_data.file_timestamp as u64);
     let datetime = chrono::DateTime::<chrono::Utc>::from(UNIX_EPOCH + dur);
-    let est = FixedOffset::west_opt(5 * 3600).unwrap();
-    let dt_est = datetime.with_timezone(&est);
-    println!("{}", dt_est.format("%a %b %d %H:%M:%S %Y"));
+    let pst = FixedOffset::west_opt(8 * 3600).unwrap();
+    let dt_pst = datetime.with_timezone(&pst);
+    println!("{}", dt_pst.format("%a %b %d %H:%M:%S %Y"));
     println!("");
 
     println!("Static Libraries:");
