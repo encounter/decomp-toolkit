@@ -41,7 +41,7 @@ use crate::{
         config::{apply_splits_file, apply_symbols_file, write_splits_file, write_symbols_file},
         dep::DepFile,
         file::{buf_writer, FileReadInfo},
-        map_exe::{apply_map_file_exe, process_map_exe},
+        map_exe::{apply_map_file_exe, is_reg_intrinsic, process_map_exe},
         path::native_path,
         split::{split_obj, update_splits},
         xex::{
@@ -482,47 +482,53 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
         let pdb_path: Utf8NativePathBuf = pdb_path.with_encoding();
         let pdb_syms = try_parse_pdb(&pdb_path, &obj.sections)?;
         for sym in pdb_syms {
-            match obj.sections.at_address(sym.address as u32).ok() {
-                Some((sec_idx, sec)) => {
-                    let sym_to_add: ObjSymbol;
-                    // if func came from pdata, DO NOT override the size
-                    let the_sec_addr = SectionAddress::new(sec_idx, sym.address as u32);
-                    if obj.pdata_funcs.contains(&the_sec_addr) {
-                        sym_to_add = ObjSymbol {
-                            name: sym.name,
-                            address: sym.address,
-                            section: Some(sec_idx),
-                            size: obj.known_functions.get(&the_sec_addr).unwrap().unwrap() as u64,
-                            size_known: true,
-                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                            kind: if sec.kind == ObjSectionKind::Code {
-                                ObjSymbolKind::Function
-                            } else {
-                                ObjSymbolKind::Object
-                            },
-                            ..Default::default()
-                        };
-                    } else {
-                        sym_to_add = ObjSymbol {
-                            name: sym.name,
-                            address: sym.address,
-                            section: Some(sec_idx),
-                            size: 0,
-                            size_known: false, // shoutout to MSVC maps for not providing sizes
-                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                            kind: if sec.kind == ObjSectionKind::Code {
-                                ObjSymbolKind::Function
-                            } else {
-                                ObjSymbolKind::Object
-                            },
-                            ..Default::default()
-                        };
+            if !sym.name.contains("__imp_")
+                && !is_reg_intrinsic(&sym.name)
+                && sym.name != "__NLG_Return"
+            {
+                match obj.sections.at_address(sym.address as u32).ok() {
+                    Some((sec_idx, sec)) => {
+                        let sym_to_add: ObjSymbol;
+                        // if func came from pdata, DO NOT override the size
+                        let the_sec_addr = SectionAddress::new(sec_idx, sym.address as u32);
+                        if obj.pdata_funcs.contains(&the_sec_addr) {
+                            sym_to_add = ObjSymbol {
+                                name: sym.name,
+                                address: sym.address,
+                                section: Some(sec_idx),
+                                size: obj.known_functions.get(&the_sec_addr).unwrap().unwrap()
+                                    as u64,
+                                size_known: true,
+                                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                                kind: if sec.kind == ObjSectionKind::Code {
+                                    ObjSymbolKind::Function
+                                } else {
+                                    ObjSymbolKind::Object
+                                },
+                                ..Default::default()
+                            };
+                        } else {
+                            sym_to_add = ObjSymbol {
+                                name: sym.name,
+                                address: sym.address,
+                                section: Some(sec_idx),
+                                size: sym.size,
+                                size_known: sym.size_known,
+                                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                                kind: if sec.kind == ObjSectionKind::Code {
+                                    ObjSymbolKind::Function
+                                } else {
+                                    ObjSymbolKind::Object
+                                },
+                                ..Default::default()
+                            };
+                        }
+                        obj.add_symbol(sym_to_add, true)?;
                     }
-                    obj.add_symbol(sym_to_add, true)?;
-                }
-                // if we couldn't find the section (like maybe it was stripped), just continue on
-                _ => continue,
-            };
+                    // if we couldn't find the section (like maybe it was stripped), just continue on
+                    _ => continue,
+                };
+            }
         }
         dep.push(pdb_path);
     }

@@ -1,22 +1,30 @@
-use std::collections::{btree_map, BTreeMap, BTreeSet, HashMap};
-use typed_path::{Utf8NativePath, Utf8NativePathBuf};
-use std::fs::read_to_string;
-use std::str::SplitWhitespace;
-use anyhow::bail;
-use itertools::Itertools;
-use crate::analysis::cfa::SectionAddress;
-use anyhow::Result;
+use std::{
+    collections::{btree_map, BTreeMap, BTreeSet, HashMap},
+    fs::read_to_string,
+    str::SplitWhitespace,
+};
+
+use anyhow::{bail, Result};
 use indexmap::IndexMap;
+use itertools::Itertools;
 use multimap::MultiMap;
-use crate::obj::{ObjInfo, ObjReloc, ObjSection, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit};
-use crate::util::map::{MapInfo, SectionInfo, SymbolEntry, SymbolRef};
+use typed_path::{Utf8NativePath, Utf8NativePathBuf};
+
+use crate::{
+    analysis::cfa::SectionAddress,
+    obj::{
+        ObjInfo, ObjReloc, ObjSection, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet,
+        ObjSymbolFlags, ObjSymbolKind, ObjUnit,
+    },
+    util::map::{MapInfo, SectionInfo, SymbolEntry, SymbolRef},
+};
 
 // SymbolRef: the symbol name, and the obj it came from
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum ExeSectionType {
     Code,
-    Data
+    Data,
 }
 
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord)]
@@ -46,7 +54,6 @@ pub struct ExeMapInfo {
     pub section_symbols: Vec<Vec<ExeSymbolEntry>>,
     // the addresses in the map that have more than one symbol for them
     pub merged_addrs: Vec<u32>,
-
     // pub entry_point: String,
     // pub unit_entries: MultiMap<String, SymbolRef>,
     // pub entry_references: MultiMap<SymbolRef, SymbolRef>,
@@ -60,10 +67,17 @@ pub struct ExeMapInfo {
 
 impl ExeMapInfo {
     pub fn new() -> Self {
-        ExeMapInfo { preferred_load_addr: 0, sections: Vec::new(), section_symbols: Vec::new(), merged_addrs: Vec::new() }
+        ExeMapInfo {
+            preferred_load_addr: 0,
+            sections: Vec::new(),
+            section_symbols: Vec::new(),
+            merged_addrs: Vec::new(),
+        }
     }
 
-    fn set_preferred_load_addr(&mut self, entry_point: u32) { self.preferred_load_addr = entry_point; }
+    fn set_preferred_load_addr(&mut self, entry_point: u32) {
+        self.preferred_load_addr = entry_point;
+    }
 
     fn add_section(&mut self, section: ExeSectionInfo) {
         self.sections.push(section);
@@ -75,8 +89,7 @@ impl ExeMapInfo {
             if sec.index == idx {
                 if offset >= sec.offset && offset < (sec.offset + sec.size) {
                     return Ok(sec_idx);
-                }
-                else if offset >= sec.offset && sec.size == 0 && sec.name == ".xedata" {
+                } else if offset >= sec.offset && sec.size == 0 && sec.name == ".xedata" {
                     return Ok(sec_idx);
                 }
             }
@@ -110,15 +123,14 @@ impl ExeMapInfo {
                 let mut thunk = None;
 
                 for dupe in entries {
-                    if dupe.symbol.starts_with("__imp_"){
+                    if dupe.symbol.starts_with("__imp_") {
                         imp = Some(dupe.symbol.trim_start_matches("__imp_"));
-                    }
-                    else {
+                    } else {
                         thunk = Some(dupe.symbol.as_str());
                     }
                 }
 
-                if let(Some(imp), Some(thunk)) = (imp, thunk) {
+                if let (Some(imp), Some(thunk)) = (imp, thunk) {
                     if imp == thunk {
                         // println!("Unnecessary thunk {} found!", thunk);
                         return Some(thunk.to_string());
@@ -154,8 +166,7 @@ impl ExeMapInfo {
                 // resolve imp_Blahs and Blahs that are at the same address
                 if let Some(thunk_sym) = check_for_imp_case(group) {
                     symbols_to_remove.push(thunk_sym.to_string());
-                }
-                else {
+                } else {
                     // add this addr to a list of merged addrs
                     self.merged_addrs.push(*addr);
                 }
@@ -168,33 +179,29 @@ impl ExeMapInfo {
         // then wipe out any code merged entry that doesn't belong to those aforementioned units
         Ok(())
     }
-
 }
 
 pub const PREFERRED_LOAD_ADDR_STR: &str = " Preferred load address is ";
 pub const SECTION_STR: &str = " Start         Length     Name                   Class";
-pub const ADDR_STR: &str = "  Address         Publics by Value              Rva+Base       Lib:Object";
+pub const ADDR_STR: &str =
+    "  Address         Publics by Value              Rva+Base       Lib:Object";
 pub const STATIC_SYM_STR: &str = " Static symbols";
 
 pub enum ExeMapState {
     None,
     ReadingSections,
     ReadingSymbols,
-    ReadingStaticSymbols
+    ReadingStaticSymbols,
 }
 
-pub fn apply_map_file_exe(
-    path: &Utf8NativePathBuf,
-    obj: &mut ObjInfo,
-) -> Result<()> {
+pub fn apply_map_file_exe(path: &Utf8NativePathBuf, obj: &mut ObjInfo) -> Result<()> {
     let map_info = process_map_exe(path)?;
     apply_map_exe(map_info, obj)
 }
 
-fn is_reg_intrinsic(name: &String) -> bool {
+pub fn is_reg_intrinsic(name: &String) -> bool {
     (name.contains("__save") || name.contains("__rest"))
-    &&
-    (name.contains("gpr") || name.contains("fpr") || name.contains("vmx"))
+        && (name.contains("gpr") || name.contains("fpr") || name.contains("vmx"))
 }
 
 pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
@@ -202,11 +209,18 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
     for (idx, entries) in result.section_symbols.iter().enumerate() {
         for sym in entries {
             // we want to skip imps and save/restore reg intrinsics, since we'll find those ourselves later
-            if !sym.symbol.contains("__imp_") && !is_reg_intrinsic(&sym.symbol) && sym.symbol != "__NLG_Return" {
+            if !sym.symbol.contains("__imp_")
+                && !is_reg_intrinsic(&sym.symbol)
+                && sym.symbol != "__NLG_Return"
+            {
                 match obj.sections.at_address(sym.addr) {
                     Ok((sec_idx, sec)) => {
                         let mut sym_to_add: ObjSymbol = ObjSymbol::default();
-                        let sym_name = if result.merged_addrs.contains(&sym.addr) { format!("merged_{:08X}", sym.addr) } else { sym.symbol.clone() };
+                        let sym_name = if result.merged_addrs.contains(&sym.addr) {
+                            format!("merged_{:08X}", sym.addr)
+                        } else {
+                            sym.symbol.clone()
+                        };
                         // if func came from pdata, DO NOT override the size
                         let the_sec_addr = SectionAddress::new(sec_idx, sym.addr);
                         if obj.pdata_funcs.contains(&the_sec_addr) {
@@ -214,29 +228,43 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                                 name: sym_name,
                                 address: sym.addr as u64,
                                 section: Some(sec_idx),
-                                size: obj.known_functions.get(&the_sec_addr).unwrap().unwrap() as u64,
+                                size: obj.known_functions.get(&the_sec_addr).unwrap().unwrap()
+                                    as u64,
                                 size_known: true,
                                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                                kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" && sym.symbol != "__NLG_Return" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
+                                kind: if sec.kind == ObjSectionKind::Code
+                                    && sym.symbol != "__NLG_Dispatch"
+                                    && sym.symbol != "__NLG_Return"
+                                {
+                                    ObjSymbolKind::Function
+                                } else {
+                                    ObjSymbolKind::Object
+                                },
                                 ..Default::default()
                             };
-                        }
-                        else {
+                        } else {
                             sym_to_add = ObjSymbol {
                                 name: sym_name,
                                 address: sym.addr as u64,
                                 section: Some(sec_idx),
-                                size: 0, size_known: false, // shoutout to MSVC maps for not providing sizes
+                                size: 0,
+                                size_known: false, // shoutout to MSVC maps for not providing sizes
                                 flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                                kind: if sec.kind == ObjSectionKind::Code && sym.symbol != "__NLG_Dispatch" && sym.symbol != "__NLG_Return" { ObjSymbolKind::Function } else { ObjSymbolKind::Object },
+                                kind: if sec.kind == ObjSectionKind::Code
+                                    && sym.symbol != "__NLG_Dispatch"
+                                    && sym.symbol != "__NLG_Return"
+                                {
+                                    ObjSymbolKind::Function
+                                } else {
+                                    ObjSymbolKind::Object
+                                },
                                 ..Default::default()
                             };
                         }
                         obj.add_symbol(sym_to_add, true)?;
-
                     }
                     // if we couldn't find the section (like maybe it was stripped), just continue on
-                    Err(e) => continue
+                    Err(e) => continue,
                 };
             }
         }
@@ -244,7 +272,7 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
 
     fn fix_split_name(orig_name: String) -> String {
         let mut ret = orig_name.replace(":", "/");
-        if orig_name.contains(".obj"){
+        if orig_name.contains(".obj") {
             ret.replace(".obj", ".cpp")
         }
         // probably an import library
@@ -257,11 +285,13 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
 
     // identify split bounds and apply them to ObjInfo
     for (idx, entries) in result.section_symbols.iter().enumerate() {
-        if entries.is_empty(){ continue; }
+        if entries.is_empty() {
+            continue;
+        }
 
         let section_name = result.sections[idx].name.clone();
         let (target_sec_idx, target_sec) = match obj.sections.at_address_mut(entries[0].addr) {
-            Ok((target_sec_idx, target_sec)) => {(target_sec_idx, target_sec)},
+            Ok((target_sec_idx, target_sec)) => (target_sec_idx, target_sec),
             Err(e) => continue,
         };
         let section_start = target_sec.address as u32 + result.sections[idx].offset;
@@ -319,7 +349,11 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                                 autogenerated: false,
                                 skip: false,
                                 // if section_name != the ObjSection's name, we have a subsection somewhere that we wanna note
-                                rename: if section_name != target_sec.name { Some(section_name.clone()) } else { None },
+                                rename: if section_name != target_sec.name {
+                                    Some(section_name.clone())
+                                } else {
+                                    None
+                                },
                             });
                             // target_sec.splits.push(*obj_start, ObjSplit {
                             //     unit: tu_name.clone(),
@@ -355,7 +389,11 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                                 autogenerated: false,
                                 skip: false,
                                 // if section_name != the ObjSection's name, we have a subsection somewhere that we wanna note
-                                rename: if section_name != target_sec.name { Some(section_name.clone()) } else { None },
+                                rename: if section_name != target_sec.name {
+                                    Some(section_name.clone())
+                                } else {
+                                    None
+                                },
                             });
                             // target_sec.splits.push(*obj_start, ObjSplit {
                             //     unit: tu_name.clone(),
@@ -378,8 +416,7 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                                 // then we can infer a known start of a new obj
                                 cur_start = Some(addr);
                                 cur_obj = Some(objs[0].clone());
-                            }
-                            else {
+                            } else {
                                 // println!("  Warning! We can't deduce an obj bound for addr 0x{:08X}!", addr);
                                 cur_start = None;
                                 cur_obj = None;
@@ -387,15 +424,20 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                         }
                     }
                     // every address we've noted down should have at least 1 obj
-                    else { unreachable!() }
+                    else {
+                        unreachable!()
+                    }
                 }
-                _ => unreachable!()
+                _ => unreachable!(),
             }
             // if we've reached the last addr in our collection
-            if let (Some(obj_name), Some(obj_start)) = (&cur_obj, &cur_start){
+            if let (Some(obj_name), Some(obj_start)) = (&cur_obj, &cur_start) {
                 if addr == entries.last().unwrap().addr {
                     // then we need to set the end bound to the section's end
-                    println!("\tneed to add last obj: {} (0x{:08X}-0x{:08X})", obj_name, obj_start, section_end);
+                    println!(
+                        "\tneed to add last obj: {} (0x{:08X}-0x{:08X})",
+                        obj_name, obj_start, section_end
+                    );
                     // let tu_name: String = fix_split_name(obj_name.clone());
                     // target_sec.splits.push(*obj_start, ObjSplit {
                     //     unit: tu_name.clone(),
@@ -421,14 +463,17 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
         for (start_addr, split) in new_splits {
             let tu_name = split.unit.clone();
             println!("adding split for {} at {:#X}-{:#X}", tu_name, start_addr, split.end);
-            if !target_sec.splits.has_split_at(start_addr){
+            if !target_sec.splits.has_split_at(start_addr) {
                 target_sec.splits.push(start_addr, split);
             }
             // obj.add_split(target_sec_idx, start_addr, split)?;
             // if this TU isn't in the link order, add it
             if obj.link_order.iter().find(|&x| x.name == tu_name).is_none() {
                 obj.link_order.push(ObjUnit {
-                    name: tu_name.clone(), autogenerated: false, comment_version: None, order: None
+                    name: tu_name.clone(),
+                    autogenerated: false,
+                    comment_version: None,
+                    order: None,
                 });
             }
         }
@@ -448,16 +493,13 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
             let entry_str = line.split(PREFERRED_LOAD_ADDR_STR).collect::<Vec<&str>>();
             assert_eq!(entry_str.len(), 2);
             exe_map_info.set_preferred_load_addr(u32::from_str_radix(&entry_str[1], 16)?);
-        }
-        else if line == SECTION_STR {
+        } else if line == SECTION_STR {
             state = ExeMapState::ReadingSections;
             continue;
-        }
-        else if line == ADDR_STR {
+        } else if line == ADDR_STR {
             state = ExeMapState::ReadingSymbols;
             continue;
-        }
-        else if line == STATIC_SYM_STR {
+        } else if line == STATIC_SYM_STR {
             state = ExeMapState::ReadingStaticSymbols;
             must_read_syms = true;
             continue;
@@ -466,8 +508,9 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
         match state {
             ExeMapState::None => continue,
             ExeMapState::ReadingSections => {
-                if line == "" { state = ExeMapState::None; }
-                else {
+                if line == "" {
+                    state = ExeMapState::None;
+                } else {
                     let sec_parts = line.split_whitespace().collect::<Vec<&str>>();
                     // [0]: idx:offset, [1]: {size}H, [2]: name, [3]: type (we can ignore this)
                     assert_eq!(sec_parts.len(), 4);
@@ -481,24 +524,25 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
                         section_type: match sec_parts[3] {
                             "CODE" => ExeSectionType::Code,
                             "DATA" => ExeSectionType::Data,
-                            _ => unreachable!()
-                        }
+                            _ => unreachable!(),
+                        },
                     });
                 }
-            },
+            }
             ExeMapState::ReadingSymbols => {
                 if line == "" {
                     if must_read_syms {
                         must_read_syms = false;
                         continue;
-                    }
-                    else {
+                    } else {
                         state = ExeMapState::None;
                         continue;
                     }
                 }
                 let symbol_parts = line.split_whitespace().collect::<Vec<&str>>();
-                if symbol_parts[0].starts_with("0000:") { continue; }
+                if symbol_parts[0].starts_with("0000:") {
+                    continue;
+                }
                 exe_map_info.add_symbol(symbol_parts, false)?;
             }
             ExeMapState::ReadingStaticSymbols => {
@@ -506,8 +550,7 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
                     if must_read_syms {
                         must_read_syms = false;
                         continue;
-                    }
-                    else {
+                    } else {
                         state = ExeMapState::None;
                         continue;
                     }

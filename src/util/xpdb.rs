@@ -1,7 +1,8 @@
 use std::{fs::File, vec::Vec};
 
 use anyhow::{ensure, Result};
-use pdb::{self, FallibleIterator, SectionOffset, SymbolIndex};
+use itertools::Itertools;
+use pdb::{self, FallibleIterator, SectionOffset};
 use typed_path::Utf8NativePathBuf;
 
 use crate::obj::{
@@ -64,7 +65,11 @@ pub fn try_parse_pdb(
                     size: 0,
                     size_known: false,
                     flags: ObjSymbolFlagSet::default(),
-                    kind: ObjSymbolKind::Object,
+                    kind: if data.function {
+                        ObjSymbolKind::Function
+                    } else {
+                        ObjSymbolKind::Object
+                    },
                     align: None,
                     data_kind: ObjDataKind::Unknown,
                     name_hash: None,
@@ -97,6 +102,8 @@ pub fn try_parse_pdb(
                         } else {
                             ObjSymbolScope::Local
                         });
+                        func.size = data.len as u64;
+                        func.size_known = true;
                     }
                     _ => {}
                 }
@@ -114,13 +121,35 @@ pub fn try_parse_pdb(
         }
     });
 
+    {
+        // weed out xidata symbols (jeff finds them later)
+        let xidata_symbols: Vec<ObjSymbol> = addr_vec
+            .iter()
+            .enumerate()
+            .filter_map(|(_, x)| if x.name.contains("__imp_") { Some(x.clone()) } else { None })
+            .collect_vec();
+        let mut vec_it = xidata_symbols.iter().rev();
+        while let Some(sym) = vec_it.next() {
+            match addr_vec.iter().enumerate().find_map(|x| {
+                if x.1.name.contains(sym.name.as_str()) {
+                    Some(x.0)
+                } else {
+                    None
+                }
+            }) {
+                Some(idx) => _ = addr_vec.remove(idx),
+                _ => {}
+            };
+        }
+    }
+
     // fixup last symbols per section
     let mut vec_it = addr_vec.iter_mut().peekable();
     while let Some(sym) = vec_it.next() {
         match vec_it.peek() {
             Some(next_sym) => {
                 if sym.section != next_sym.section {
-                    sym.size = 1;
+                    sym.size = 4;
                     sym.size_known = true;
                 }
             }
