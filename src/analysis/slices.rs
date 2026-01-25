@@ -112,9 +112,7 @@ fn check_prologue_sequence(
         ins.op == Opcode::Stw && ins.field_rs() == 0 && ins.field_ra() == 1
     }
     #[inline(always)]
-    fn is_bl(ins: Ins) -> bool {
-        ins.op == Opcode::B && ins.field_lk()
-    }
+    fn is_bl(ins: Ins) -> bool { ins.op == Opcode::B && ins.field_lk() }
     #[inline(always)]
     fn is_subi(ins: Ins) -> bool {
         ins.op == Opcode::Addi && ins.field_simm() < 0 && ins.field_simm() != -0x8000
@@ -264,7 +262,7 @@ impl FunctionSlices {
         known_functions: &BTreeMap<SectionAddress, FunctionInfo>,
     ) -> Result<ExecCbResult<bool>> {
         let ExecCbData { executor, vm, result, ins_addr, section, ins, block_start } = data;
-        
+
         // no need to check for prologues/epilogues in MSVC
         // if a func came from pdata, it not only has a prologue/epilogue, but a known confirmed ending
 
@@ -292,7 +290,7 @@ impl FunctionSlices {
                     Some(end) => {
                         self.blocks.insert(block_start, function_end);
                         Ok(ExecCbResult::EndBlock)
-                    },
+                    }
                     None => Ok(ExecCbResult::End(false)),
                 };
             }
@@ -308,7 +306,7 @@ impl FunctionSlices {
                     self.blocks.insert(block_start, Some(next_address));
                     self.branches.insert(ins_addr, vec![next_address]);
                     Ok(ExecCbResult::EndBlock)
-                } else if function_end.is_some_and(|end| next_address >= end){
+                } else if function_end.is_some_and(|end| next_address >= end) {
                     self.blocks.insert(block_start, Some(next_address));
                     Ok(ExecCbResult::EndBlock)
                 } else {
@@ -327,7 +325,9 @@ impl FunctionSlices {
             StepResult::Jump(target) => match target {
                 BranchTarget::Unknown
                 | BranchTarget::Address(RelocationTarget::External)
-                | BranchTarget::JumpTable { jump_table_address: RelocationTarget::External, .. } => {
+                | BranchTarget::JumpTable {
+                    jump_table_address: RelocationTarget::External, ..
+                } => {
                     // Likely end of function
                     let next_addr = ins_addr + 4;
                     self.blocks.insert(block_start, Some(next_addr));
@@ -365,24 +365,29 @@ impl FunctionSlices {
                     }
                     Ok(ExecCbResult::EndBlock)
                 }
-                BranchTarget::JumpTable { jump_table_type: jt, jump_table_address: RelocationTarget::Address(address), size } => {
+                BranchTarget::JumpTable {
+                    jump_table_type: jt,
+                    jump_table_address: RelocationTarget::Address(address),
+                    size,
+                } => {
                     let next_addr_size = match jt {
-                        JumpTableType::Absolute => {
-                            match size {
-                                Some(num) => num.get(),
-                                None => 0,
-                            }
+                        JumpTableType::Absolute => match size {
+                            Some(num) => num.get(),
+                            None => 0,
                         },
-                        _ => { 0 },
+                        _ => 0,
                     };
 
                     // End of block
                     let next_address = ins_addr + 4 + next_addr_size;
                     self.blocks.insert(block_start, Some(next_address));
 
-                    log::debug!("Fetching {} jump table entries @ {} with size {:?}",
+                    log::debug!(
+                        "Fetching {} jump table entries @ {} with size {:?}",
                         if jt == JumpTableType::Absolute { "absolute" } else { "relative" },
-                        address, size);
+                        address,
+                        size
+                    );
                     let (entries, size) = uniq_jump_table_entries(
                         obj,
                         address,
@@ -396,7 +401,9 @@ impl FunctionSlices {
 
                     // if this function has a known end, check that every jump table entry is within function bounds
                     let within_func_bounds = match function_end {
-                        Some(end) => !entries.iter().any(|&addr| addr < function_start || addr >= end),
+                        Some(end) => {
+                            !entries.iter().any(|&addr| addr < function_start || addr >= end)
+                        }
                         None => false,
                     };
 
@@ -405,11 +412,13 @@ impl FunctionSlices {
                     // OR we're within known func bounds
                     // AND
                     // none of our jump table entries are known function starts
-                    if (entries.contains(&next_address) || self.blocks.contains_key(&next_address) || within_func_bounds)
+                    if (entries.contains(&next_address)
+                        || self.blocks.contains_key(&next_address)
+                        || within_func_bounds)
                         && !entries.iter().any(|&addr| {
-                        self.is_known_function(known_functions, addr)
-                            .is_some_and(|fn_addr| fn_addr != function_start)
-                    })
+                            self.is_known_function(known_functions, addr)
+                                .is_some_and(|fn_addr| fn_addr != function_start)
+                        })
                     {
                         self.jump_table_references.insert(address, size);
                         let mut branches = vec![];
@@ -476,7 +485,11 @@ impl FunctionSlices {
                                 }
                             }
                         }
-                        BranchTarget::JumpTable { jump_table_type: _, jump_table_address: address, size } => {
+                        BranchTarget::JumpTable {
+                            jump_table_type: _,
+                            jump_table_address: address,
+                            size,
+                        } => {
                             bail!(
                                 "Conditional jump table unsupported @ {:#010X} -> {:?} size {:#X?}",
                                 ins_addr,
@@ -522,16 +535,9 @@ impl FunctionSlices {
             let vm = self.possible_blocks.remove(&first.start);
             executor.push(first.end, vm.unwrap_or_else(|| VM::new_from_obj(obj)), true);
 
-
             match executor.run(obj, |data| {
-                self.instruction_callback(
-                    data,
-                    obj,
-                    function_start,
-                    function_end,
-                    known_functions,
-                )
-            })? { 
+                self.instruction_callback(data, obj, function_start, function_end, known_functions)
+            })? {
                 Some(true) => continue,
                 Some(false) => return Ok(false),
                 None => break,
@@ -576,7 +582,7 @@ impl FunctionSlices {
                         function_end,
                         known_functions,
                     )
-                })? { 
+                })? {
                     Some(true) => continue,
                     Some(false) => return Ok(false),
                     None => break 'outer,
@@ -601,7 +607,7 @@ impl FunctionSlices {
     ) -> Result<()> {
         ensure!(!self.finalized, "Already finalized");
         ensure!(self.can_finalize(), "Can't finalize");
-        
+
         match (self.prologue, self.epilogue, self.has_r1_load) {
             (Some(_), Some(_), _) | (None, None, _) => {}
             (Some(_), None, _) => {

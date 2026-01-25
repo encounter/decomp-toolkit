@@ -1,5 +1,4 @@
 use std::{
-    cmp::min,
     collections::BTreeMap,
     fs,
     fs::{DirBuilder, File},
@@ -7,33 +6,25 @@ use std::{
     time::{Instant, UNIX_EPOCH},
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Ok, Result};
+use anyhow::{bail, ensure, Context, Ok, Result};
 use argp::FromArgs;
 use chrono::FixedOffset;
 use itertools::Itertools;
 use object::{
-    endian::LittleEndian,
-    pe,
-    pe::ImageFileHeader,
-    read::{
-        coff::{CoffFile, CoffHeader, ImageSymbol},
-        pe::PeFile32,
-    },
+    read::pe::PeFile32,
     write::{Object, Relocation, SectionId, Symbol, SymbolId, SymbolSection},
     Architecture, BinaryFormat, Endianness, RelocationFlags, SectionKind, SymbolFlags, SymbolKind,
     SymbolScope,
 };
-use rayon::iter::IntoParallelRefIterator;
-use tracing::{debug, info, info_span};
+use tracing::{debug, info};
 use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
     analysis::{
-        cfa::AnalyzerState,
+        cfa::{AnalyzerState, SectionAddress},
         objects::{detect_objects, detect_strings},
-        pass::{AnalysisPass, FindSaveRestSleds, FindSaveRestSledsXbox},
-        signatures::{apply_signatures, apply_signatures_post, update_ctors_dtors},
+        pass::{AnalysisPass, FindSaveRestSledsXbox},
         tracker::Tracker,
     },
     cmd::dol::{
@@ -41,15 +32,15 @@ use crate::{
         OutputUnit, ProjectConfig,
     },
     obj::{
-        best_match_for_reloc, ObjDataKind, ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind,
-        ObjSections, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex,
+        best_match_for_reloc, ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind, ObjSections,
+        ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SectionIndex,
         SymbolIndex,
     },
     util::{
         asm::write_asm,
         config::{apply_splits_file, apply_symbols_file, write_splits_file, write_symbols_file},
         dep::DepFile,
-        file::{buf_writer, touch, verify_hash, FileReadInfo},
+        file::{buf_writer, FileReadInfo},
         map_exe::{apply_map_file_exe, process_map_exe},
         path::native_path,
         split::{split_obj, update_splits},
@@ -491,7 +482,47 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
         let pdb_path: Utf8NativePathBuf = pdb_path.with_encoding();
         let pdb_syms = try_parse_pdb(&pdb_path, &obj.sections)?;
         for sym in pdb_syms {
-            obj.add_symbol(sym, false)?;
+            match obj.sections.at_address(sym.address as u32).ok() {
+                Some((sec_idx, sec)) => {
+                    let sym_to_add: ObjSymbol;
+                    // if func came from pdata, DO NOT override the size
+                    let the_sec_addr = SectionAddress::new(sec_idx, sym.address as u32);
+                    if obj.pdata_funcs.contains(&the_sec_addr) {
+                        sym_to_add = ObjSymbol {
+                            name: sym.name,
+                            address: sym.address,
+                            section: Some(sec_idx),
+                            size: obj.known_functions.get(&the_sec_addr).unwrap().unwrap() as u64,
+                            size_known: true,
+                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                            kind: if sec.kind == ObjSectionKind::Code {
+                                ObjSymbolKind::Function
+                            } else {
+                                ObjSymbolKind::Object
+                            },
+                            ..Default::default()
+                        };
+                    } else {
+                        sym_to_add = ObjSymbol {
+                            name: sym.name,
+                            address: sym.address,
+                            section: Some(sec_idx),
+                            size: 0,
+                            size_known: false, // shoutout to MSVC maps for not providing sizes
+                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                            kind: if sec.kind == ObjSectionKind::Code {
+                                ObjSymbolKind::Function
+                            } else {
+                                ObjSymbolKind::Object
+                            },
+                            ..Default::default()
+                        };
+                    }
+                    obj.add_symbol(sym_to_add, true)?;
+                }
+                // if we couldn't find the section (like maybe it was stripped), just continue on
+                _ => continue,
+            };
         }
         dep.push(pdb_path);
     }

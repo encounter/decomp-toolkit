@@ -1,6 +1,6 @@
 use std::{fs::File, vec::Vec};
 
-use anyhow::Result;
+use anyhow::{ensure, Result};
 use pdb::{self, FallibleIterator, SectionOffset, SymbolIndex};
 use typed_path::Utf8NativePathBuf;
 
@@ -15,10 +15,36 @@ pub fn try_parse_pdb(
 ) -> Result<Vec<ObjSymbol>> {
     let mut addr_vec: Vec<ObjSymbol> = vec![];
     let mut dbfile = pdb::PDB::open(File::open(path)?)?;
+
     // setup configgery
+    let mut pdb2dtk_section_table: [u8; 32] =
+        std::array::from_fn::<u8, 32, _>(|x: usize| -> u8 { x as u8 });
     let symtable = dbfile.global_symbols()?;
     let pdbmap = dbfile.address_map()?;
     let mut iter = symtable.iter();
+
+    // build PDB -> DTK section lookup table
+    ensure!(section_addrs.len() <= 32, "Oh god, why does your XEX have more than 32 sections?");
+    {
+        let mut dtk_iter = section_addrs.iter();
+        let sec_headers = dbfile.sections()?.unwrap();
+        while let Some(dtk_section) = dtk_iter.next() {
+            sec_headers.iter().enumerate().for_each(|x| {
+                log::trace!("PDBPDBPDB || {:x}: {}", x.1.virtual_address, x.1.name());
+                if x.1.name() == dtk_section.1.name {
+                    pdb2dtk_section_table[x.0 + 1] = dtk_section.0 as u8;
+                    log::debug!(
+                        "Remapping PDB section {} (no. {}) to DTK section {} (no. {})",
+                        x.1.name(),
+                        x.0 + 1,
+                        dtk_section.1.name,
+                        dtk_section.0
+                    );
+                }
+            });
+        }
+    }
+
     // churn through actual symbols
     while let Some(symbol) = iter.next()? {
         match symbol.parse() {
@@ -31,7 +57,7 @@ pub fn try_parse_pdb(
                     demangled_name: None,
                     address: symoffset.offset as u64
                         + section_addrs
-                            .get((symoffset.section - 1) as u32)
+                            .get(pdb2dtk_section_table[symoffset.section as usize] as u32)
                             .unwrap_or(&ObjSection::default())
                             .address,
                     section: Some(symoffset.section as u32),
@@ -44,6 +70,36 @@ pub fn try_parse_pdb(
                     name_hash: None,
                     demangled_name_hash: None,
                 });
+            }
+            _ => {}
+        }
+    }
+
+    // churn through procedures and mark symbols as funcs
+    iter = symtable.iter();
+    while let Some(symbol) = iter.next()? {
+        match symbol.parse() {
+            Ok(pdb::SymbolData::Procedure(data)) => {
+                let symoffset: SectionOffset = data.offset.to_section_offset(&pdbmap).unwrap();
+                log::debug!("{:#?}", symoffset);
+                match addr_vec.iter_mut().find(|x| {
+                    x.address
+                        == symoffset.offset as u64
+                            + section_addrs
+                                .get(pdb2dtk_section_table[symoffset.section as usize] as u32)
+                                .unwrap_or(&ObjSection::default())
+                                .address
+                }) {
+                    Some(func) => {
+                        func.kind = ObjSymbolKind::Function;
+                        func.flags.set_scope(if data.global {
+                            ObjSymbolScope::Global
+                        } else {
+                            ObjSymbolScope::Local
+                        });
+                    }
+                    _ => {}
+                }
             }
             _ => {}
         }
