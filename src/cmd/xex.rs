@@ -3,7 +3,7 @@ use std::{
     fs,
     fs::{DirBuilder, File},
     io::{BufWriter, Write},
-    time::{Instant, UNIX_EPOCH},
+    time::UNIX_EPOCH,
 };
 
 use anyhow::{bail, ensure, Context, Ok, Result};
@@ -160,9 +160,8 @@ struct ExeModuleInfo<'a> {
 
 // look at dol split for this
 fn split(args: SplitArgs) -> Result<()> {
-    let command_start = Instant::now();
     info!("Loading {}", args.config);
-    let mut config: ProjectConfig = {
+    let config: ProjectConfig = {
         let mut config_file = open_file(&args.config, true)?;
         serde_yaml::from_reader(config_file.as_mut())?
     };
@@ -208,9 +207,9 @@ fn split(args: SplitArgs) -> Result<()> {
 
     info!("Rebuilding relocations and splitting");
     // dol split_write_obj
-    let output_module = split_write_obj_exe(&mut exe, &config, &args.out_dir, &args.out_dir)?;
+    let output_module = split_write_obj_exe(&mut exe, &config, &args.out_dir)?;
     // here, out_config = OutputConfig { the result of split_write_obj }
-    let mut out_config = OutputConfig {
+    let out_config = OutputConfig {
         version: env!("CARGO_PKG_VERSION").to_string(),
         base: output_module,
         modules: vec![],
@@ -240,7 +239,6 @@ fn split(args: SplitArgs) -> Result<()> {
 fn split_write_obj_exe(
     module: &mut ExeModuleInfo,
     config: &ProjectConfig,
-    base_dir: &Utf8NativePath,
     out_dir: &Utf8NativePath,
 ) -> Result<OutputModule> {
     debug!("Performing relocation analysis");
@@ -482,10 +480,7 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
         let pdb_path: Utf8NativePathBuf = pdb_path.with_encoding();
         let pdb_syms = try_parse_pdb(&pdb_path, &obj.sections)?;
         for sym in pdb_syms {
-            if !sym.name.contains("__imp_")
-                && !is_reg_intrinsic(&sym.name)
-                && sym.name != "__NLG_Return"
-            {
+            if !is_reg_intrinsic(&sym.name) && sym.name != "__NLG_Return" {
                 match obj.sections.at_address(sym.address as u32).ok() {
                     Some((sec_idx, sec)) => {
                         let sym_to_add: ObjSymbol;

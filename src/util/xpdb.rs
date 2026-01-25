@@ -125,8 +125,7 @@ pub fn try_parse_pdb(
         // weed out xidata symbols (jeff finds them later)
         let xidata_symbols: Vec<ObjSymbol> = addr_vec
             .iter()
-            .enumerate()
-            .filter_map(|(_, x)| if x.name.contains("__imp_") { Some(x.clone()) } else { None })
+            .filter_map(|x| if x.name.contains("__imp_") { Some(x.clone()) } else { None })
             .collect_vec();
         let mut vec_it = xidata_symbols.iter().rev();
         while let Some(sym) = vec_it.next() {
@@ -137,24 +136,27 @@ pub fn try_parse_pdb(
                     None
                 }
             }) {
-                Some(idx) => _ = addr_vec.remove(idx),
+                Some(idx) => {
+                    log::debug!("Dropping idx {}", idx);
+                    addr_vec.remove(idx);
+                }
                 _ => {}
             };
         }
     }
 
     // fixup last symbols per section
-    let mut vec_it = addr_vec.iter_mut().peekable();
-    while let Some(sym) = vec_it.next() {
-        match vec_it.peek() {
-            Some(next_sym) => {
-                if sym.section != next_sym.section {
-                    sym.size = 4;
-                    sym.size_known = true;
-                }
-            }
-            _ => {}
-        }
-    }
+    // let mut vec_it = addr_vec.iter_mut().peekable();
+    // while let Some(sym) = vec_it.next() {
+    //     match vec_it.peek() {
+    //         Some(next_sym) => {
+    //             if sym.section != next_sym.section {
+    //                 sym.size = 4;
+    //                 sym.size_known = true;
+    //             }
+    //         }
+    //         _ => {}
+    //     }
+    // }
     Ok(addr_vec)
 }

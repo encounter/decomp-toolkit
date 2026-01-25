@@ -461,13 +461,6 @@ impl AnalyzerState {
                 info.analyzed = true;
                 info.end = slices.end();
                 info.slices = Some(slices);
-                if let Some(end) = info.end {
-                    // if end.address == 0x82CE9BF4 {
-                    //     info.end = Some(SectionAddress { section: 3, address: 0x82CE9BF0 });
-                    // } else if end.address == 0x832001A0 {
-                    //     info.end = Some(SectionAddress { section: 3, address: 0x832001AC })
-                    // }
-                }
             } else {
                 let info = self.functions.entry(addr).or_default();
                 info.analyzed = true;
