@@ -42,7 +42,8 @@ use crate::{
     },
     obj::{
         best_match_for_reloc, ObjDataKind, ObjInfo, ObjKind, ObjRelocKind, ObjSectionKind,
-        ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex,
+        ObjSections, ObjSymbol, ObjSymbolFlagSet, ObjSymbolKind, ObjSymbolScope, SectionIndex,
+        SymbolIndex,
     },
     util::{
         asm::write_asm,
@@ -486,6 +487,15 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
         dep.push(map_path);
     }
 
+    if let Some(pdb_path) = &config.base.pdb {
+        let pdb_path: Utf8NativePathBuf = pdb_path.with_encoding();
+        let pdb_syms = try_parse_pdb(&pdb_path, &obj.sections)?;
+        for sym in pdb_syms {
+            obj.add_symbol(sym, false)?;
+        }
+        dep.push(pdb_path);
+    }
+
     let splits_cache = if let Some(splits_path) = &config.base.splits {
         let splits_path = splits_path.with_encoding();
         let cache = apply_splits_file(&splits_path, &mut obj)?;
@@ -694,7 +704,8 @@ fn map(args: MapArgs) -> Result<()> {
 
 fn pdb(args: PdbArgs) -> Result<()> {
     println!("pdb: {}", args.input);
-    try_parse_pdb(args.input, &vec![0; 15])?;
+    let data = try_parse_pdb(&args.input, &ObjSections::new(ObjKind::Executable, vec![]))?;
+    println!("{:#?}", data);
     Ok(())
 }
 

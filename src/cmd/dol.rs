@@ -280,6 +280,8 @@ pub struct ModuleConfig {
     pub symbols: Option<Utf8UnixPathBuf>,
     #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
     pub map: Option<Utf8UnixPathBuf>,
+    #[serde(with = "unix_path_serde_option", default, skip_serializing_if = "is_default")]
+    pub pdb: Option<Utf8UnixPathBuf>,
     /// Forces the given symbols to be active (exported) in the linker script.
     #[serde(default, skip_serializing_if = "is_default")]
     pub force_active: Vec<String>,
@@ -2121,7 +2123,10 @@ pub(crate) fn apply_block_relocations(
 }
 
 /// Applies the relocations from module config `add_relocations`.
-pub(crate) fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig]) -> Result<()> {
+pub(crate) fn apply_add_relocations(
+    obj: &mut ObjInfo,
+    relocations: &[AddRelocationConfig],
+) -> Result<()> {
     for reloc in relocations {
         let SectionAddress { section, address } = reloc.source.resolve(obj)?;
         let (target_symbol, _) = match obj.symbols.by_ref(&obj.sections, &reloc.target)? {

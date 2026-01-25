@@ -12,15 +12,16 @@ use crate::{
     obj::{ObjKind, ObjRelocations, ObjSplit, ObjSplits, ObjSymbol},
 };
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, Hash, Default)]
 pub enum ObjSectionKind {
+    #[default]
     Code,
     Data,
     ReadOnlyData,
     Bss,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ObjSection {
     pub name: String,
     pub kind: ObjSectionKind,
