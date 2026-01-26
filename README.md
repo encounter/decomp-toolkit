@@ -42,7 +42,7 @@ This can result in some jump tables being "guessed" or missed during function de
 - When parsing .map files, the last split of a section will not get added.
 This is because during development, I found that the last split would sometimes conflict with the inferred boundaries of nearby objects/symbols, which would cause errors.
 So, if you are using jeff and your game has a map, you will have to remember to manually add the last split of each of your exe's sections.
-- Parsing/applying .pdb files is not currently supported.
+- Parsing/applying .pdb files currently has limited support.
 - Trying to link the generated COFFs into a final exe and comparing sections of it against the original extracted exe (like what the GC/Wii toolkit does with elfs/dols)
 is currently unsupported, as it was out of the initial scope of the project.
 - Because this was forked from encounter's GC/Wii toolkit, there is naturally still a lot of loose GC/Wii tailored code in this codebase that needs removing/refactoring.
