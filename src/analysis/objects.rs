@@ -22,7 +22,13 @@ pub fn detect_objects(obj: &mut ObjInfo) -> Result<()> {
                 ObjDataKind::Byte2 | ObjDataKind::Short => 2,
                 ObjDataKind::Byte4 | ObjDataKind::Float | ObjDataKind::Int => 4,
                 ObjDataKind::Byte8 | ObjDataKind::Double => 8,
-                _ => { if symbol.name.contains("NULL_THUNK_DATA") { 4 } else { 0 } },
+                _ => {
+                    if symbol.name.contains("NULL_THUNK_DATA") {
+                        4
+                    } else {
+                        0
+                    }
+                }
             };
             if !symbol.size_known {
                 let next_addr = obj
@@ -46,7 +52,13 @@ pub fn detect_objects(obj: &mut ObjInfo) -> Result<()> {
                             new_size
                         }
                     }
-                    _ => { if symbol.name.contains("NULL_THUNK_DATA") { 4 } else { new_size } },
+                    _ => {
+                        if symbol.name.contains("NULL_THUNK_DATA") {
+                            4
+                        } else {
+                            new_size
+                        }
+                    }
                 } as u64;
                 symbol.size_known = true;
             }

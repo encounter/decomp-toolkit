@@ -264,7 +264,13 @@ impl AnalyzerState {
         // Also check the beginning of every code section
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
             let this_sec_start = SectionAddress::new(section_index, section.address as u32);
-            if obj.symbols.by_name(&format!("except_data_{:08X}", this_sec_start.address + 8))?.is_some(){ continue; }
+            if obj
+                .symbols
+                .by_name(&format!("except_data_{:08X}", this_sec_start.address + 8))?
+                .is_some()
+            {
+                continue;
+            }
             self.functions.entry(this_sec_start).or_default();
         }
 
@@ -284,8 +290,9 @@ impl AnalyzerState {
                                    "Function at {} has known end addr {}, but during processing, ending was found to be {}!",
                                    addr, known_end, func_end);
                     }
+                } else {
+                    unreachable!();
                 }
-                else { unreachable!(); }
             }
             // assert something with slices?
         }
@@ -486,7 +493,9 @@ impl AnalyzerState {
     fn detect_new_functions(&mut self, obj: &ObjInfo) -> Result<bool> {
         let mut new_functions = vec![];
         for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
-            if section.name == ".xidata" { continue; } // because we already did our xidata processing at this point
+            if section.name == ".xidata" {
+                continue;
+            } // because we already did our xidata processing at this point
             let section_start = SectionAddress::new(section_index, section.address as u32);
             let section_end = section_start + section.size as u32;
             let mut iter = self.functions.range(section_start..section_end).peekable();
@@ -503,7 +512,13 @@ impl AnalyzerState {
                         };
                         if second > addr {
                             // don't try to add a function where there's an exception symbol
-                            if obj.symbols.by_name(&format!("except_data_{:08X}", addr.address + 8))?.is_some(){ continue; }
+                            if obj
+                                .symbols
+                                .by_name(&format!("except_data_{:08X}", addr.address + 8))?
+                                .is_some()
+                            {
+                                continue;
+                            }
                             log::trace!(
                                 "Trying function @ {:#010X} (from {:#010X}-{:#010X} <-> {:#010X}-{:#010X?})",
                                 addr,

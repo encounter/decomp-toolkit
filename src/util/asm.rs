@@ -67,7 +67,9 @@ where W: Write + ?Sized {
 
         // Generate local jump labels
         if section.kind == ObjSectionKind::Code {
-            for (addr, ins) in InsIter::new(&section.data, section.address as u32, Extensions::xenon()) {
+            for (addr, ins) in
+                InsIter::new(&section.data, section.address as u32, Extensions::xenon())
+            {
                 if let Some(address) = ins.branch_dest(addr) {
                     if ins.field_aa() || !section.contains(address) {
                         continue;

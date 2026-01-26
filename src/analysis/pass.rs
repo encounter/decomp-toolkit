@@ -142,12 +142,12 @@ impl AnalysisPass for FindSaveRestSledsXbox {
                 // let mut sled_size = (reg_end - reg_start) * step_size + 4 /* blr */;
 
                 // save/restore gpr/fpr/vmx should've been found in pdata
-                if !func.contains("_upper"){
+                if !func.contains("_upper") {
                     assert!(obj.known_functions.contains_key(&start),
                         "Could not find reg intrinsic from pdata. Is that even possible for an xex?");
                 }
                 // add known symbols for them
-                if obj.known_functions.contains_key(&start){
+                if obj.known_functions.contains_key(&start) {
                     let known_func_size = obj.known_functions.get(&start).unwrap().unwrap();
                     state.known_symbols.entry(start).or_default().push(ObjSymbol {
                         name: func.to_string(),

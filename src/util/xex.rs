@@ -1,26 +1,35 @@
-use std::{ borrow::Cow, fs, num::NonZeroU64 };
-use std::cmp::min;
-use std::collections::btree_map::Entry;
-use std::collections::BTreeMap;
-use std::ffi::CString;
+use std::{
+    borrow::Cow,
+    cmp::min,
+    collections::{btree_map::Entry, BTreeMap},
+    ffi::CString,
+    fs,
+    num::NonZeroU64,
+};
+
 use anyhow::{anyhow, bail, ensure, Result};
 use memchr::memmem;
-use object::{endian, read::pe::PeFile32, Architecture, BinaryFormat, Endianness, File, Import, Object, ObjectComdat, ObjectKind, ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolFlags, SymbolKind, SymbolScope, SymbolSection};
+use num_enum::{IntoPrimitive, TryFromPrimitive};
+use object::{
+    endian,
+    read::pe::PeFile32,
+    write::{SectionId, SymbolId},
+    Architecture, BinaryFormat, Endianness, File, Import, Object, ObjectComdat, ObjectKind,
+    ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget,
+    SectionKind, Symbol, SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
+};
 use typed_path::{Utf8NativePathBuf, Utf8UnixPath};
 
 use crate::{
-    analysis::cfa::SectionAddress, obj::{
+    analysis::{cfa::SectionAddress, read_u32},
+    obj::{
         ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
-        ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjUnit,
-        SectionIndex as ObjSectionIndex, SymbolIndex as ObjSymbolIndex,
+        ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
+        ObjUnit, SectionIndex as ObjSectionIndex, SectionIndex, SymbolIndex as ObjSymbolIndex,
+        SymbolIndex,
     },
-    util::{ crypto::decrypt_aes128_cbc_no_padding, xex_imports::replace_ordinal }
+    util::{crypto::decrypt_aes128_cbc_no_padding, xex_imports::replace_ordinal},
 };
-
-use num_enum::{ TryFromPrimitive, IntoPrimitive };
-use object::write::{SectionId, SymbolId};
-use crate::analysis::read_u32;
-use crate::obj::{ObjSymbolScope, SectionIndex, SymbolIndex};
 
 // quick and ez ways to read data from a block of bytes
 pub fn read_halfword(data: &Vec<u8>, index: usize) -> u16 {
@@ -37,20 +46,20 @@ pub fn read_word(data: &Vec<u8>, index: usize) -> u32 {
 
 pub struct BasicCompression {
     pub data_size: u32,
-    pub zero_size: u32   
+    pub zero_size: u32,
 }
 
 pub struct NormalCompression {
     pub window_size: u32,
     pub block_size: u32,
-    pub block_hash: [u8; 20]
+    pub block_hash: [u8; 20],
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, TryFromPrimitive, IntoPrimitive)]
 #[repr(u16)]
 pub enum XexEncryption {
     No = 0,
-    Yes = 1
+    Yes = 1,
 }
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, TryFromPrimitive, IntoPrimitive)]
@@ -59,14 +68,14 @@ pub enum XexCompression {
     None = 0,
     Raw = 1,
     Compressed = 2,
-    DeltaCompressed = 3
+    DeltaCompressed = 3,
 }
 
 pub struct BaseFileFormat {
     pub encryption: XexEncryption,
     pub compression: XexCompression,
     pub basics: Vec<BasicCompression>,
-    pub normal: Option<NormalCompression>
+    pub normal: Option<NormalCompression>,
 }
 
 impl BaseFileFormat {
@@ -80,14 +89,21 @@ impl BaseFileFormat {
             XexCompression::Raw => {
                 let count = (data.len() - 4) / 8;
                 for i in 0..count {
-                    basics.push(BasicCompression { data_size: read_word(&data, 4 + i * 8), zero_size: read_word(&data, 8 + i * 8) });
+                    basics.push(BasicCompression {
+                        data_size: read_word(&data, 4 + i * 8),
+                        zero_size: read_word(&data, 8 + i * 8),
+                    });
                 }
             }
             XexCompression::Compressed | XexCompression::DeltaCompressed => {
-                normal = Some(NormalCompression { window_size: read_word(&data, 4), block_size: read_word(&data, 8), block_hash: data[12..32].try_into()? });
+                normal = Some(NormalCompression {
+                    window_size: read_word(&data, 4),
+                    block_size: read_word(&data, 8),
+                    block_hash: data[12..32].try_into()?,
+                });
             }
         }
-        return Ok(Self { encryption, compression, basics, normal } );
+        return Ok(Self { encryption, compression, basics, normal });
     }
 }
 
@@ -102,13 +118,13 @@ pub struct ImportLibraries {
 pub struct ImportFunction {
     pub address: u32,
     pub ordinal: u32,
-    pub thunk: u32
+    pub thunk: u32,
 }
 
 pub struct ImportLibrary {
     pub name: String,
     pub records: Vec<u32>,
-    pub functions: Vec<ImportFunction>
+    pub functions: Vec<ImportFunction>,
 }
 
 impl ImportLibraries {
@@ -124,8 +140,7 @@ impl ImportLibraries {
         while pos < cap {
             if data[pos] != 0 {
                 cur_str += &(data[pos] as char).to_string();
-            }
-            else {
+            } else {
                 // the values in between strings SHOULD be just zeros
                 // but some games have super small non-zero values (tomb raider legend)
                 while data[pos + 1] < 5 && pos < cap - 1 {
@@ -151,10 +166,13 @@ impl ImportLibraries {
                 records.push(read_word(data, pos + (i * 4)));
             }
             pos += count * 4;
-            libraries.push(ImportLibrary { name: lib_name.clone(), records: records, functions: Vec::new() });
+            libraries.push(ImportLibrary {
+                name: lib_name.clone(),
+                records,
+                functions: Vec::new(),
+            });
         }
-        return Ok(Self { libraries } );
-
+        return Ok(Self { libraries });
     }
 }
 
@@ -169,15 +187,18 @@ pub struct ResourceInfos {
 pub struct ResourceInfo {
     pub title_id: String,
     pub rsrc_start: u32,
-    pub rsrc_end: u32
+    pub rsrc_end: u32,
 }
 
 impl ResourceInfos {
     pub fn parse(data: &Vec<u8>) -> Result<Self> {
-        ensure!(data.len() % 16 == 0, "Resource info has unexpected length! (expected a multiple of 16)");
+        ensure!(
+            data.len() % 16 == 0,
+            "Resource info has unexpected length! (expected a multiple of 16)"
+        );
         let num_resources = data.len() / 16;
         let mut info: Vec<ResourceInfo> = vec![];
-        for (_, chunk) in data.chunks_exact(16).enumerate(){
+        for (_, chunk) in data.chunks_exact(16).enumerate() {
             let title_id = String::from_utf8(chunk[0..8].to_vec())?;
             let rsrc_start = u32::from_be_bytes(chunk[8..12].try_into()?);
             let rsrc_end = rsrc_start + u32::from_be_bytes(chunk[12..16].try_into()?);
@@ -197,7 +218,7 @@ pub struct XexHeader {
     pub module_flags: u32,
     pub pe_offset: u32,
     // reserved u32 here, but it goes unused so who cares
-    pub security_info_offset: u32
+    pub security_info_offset: u32,
 }
 
 impl XexHeader {
@@ -222,7 +243,7 @@ pub struct StaticLibrary {
     pub minor: u16,
     pub build: u16,
     pub qfe: u8,
-    pub approval_type: u8
+    pub approval_type: u8,
 }
 
 // ----------------------------------------------------------------------
@@ -288,7 +309,7 @@ impl XexOptionalHeaderData {
                 XexOptionalHeaderID::OriginalPEName => {
                     // trim off the 0's
                     let mut name = header.data.clone();
-                    if let Some(i) = name.iter().rposition(|&x| x != 0){
+                    if let Some(i) = name.iter().rposition(|&x| x != 0) {
                         let new_len = i + 1;
                         name.truncate(new_len);
                     }
@@ -309,7 +330,7 @@ impl XexOptionalHeaderData {
                             minor: read_halfword(&header.data, start + 10),
                             build: read_halfword(&header.data, start + 12),
                             qfe: header.data[start + 15],
-                            approval_type: header.data[start + 14]
+                            approval_type: header.data[start + 14],
                         });
                     }
                 }
@@ -320,7 +341,16 @@ impl XexOptionalHeaderData {
         }
         // at the very minimum, we should have a base file format, as that contains encryption/compression information
         ensure!(base_file_format.is_some(), "Base file format not found!");
-        return Ok(Self { original_name, entry_point, image_base, file_timestamp, resource_info, base_file_format, static_libs, import_libs });
+        return Ok(Self {
+            original_name,
+            entry_point,
+            image_base,
+            file_timestamp,
+            resource_info,
+            base_file_format,
+            static_libs,
+            import_libs,
+        });
     }
 }
 
@@ -358,18 +388,22 @@ pub enum XexOptionalHeaderID {
     MultidiscMediaIDs = 0x406FF,
     AlternateTitleIDs = 0x407FF,
     AdditionalTitleMemory = 0x40801,
-    ExportsByName = 0xE10402
+    ExportsByName = 0xE10402,
 }
 
 pub struct XexOptionalHeader {
     pub id: XexOptionalHeaderID,
     pub value: u32,
-    pub data: Vec<u8>
+    pub data: Vec<u8>,
 }
 
 impl XexOptionalHeader {
     pub fn new(data: &Vec<u8>, index: usize) -> Self {
-        let mut hdr = Self { id: XexOptionalHeaderID::try_from(read_word(data, index)).unwrap(), value: read_word(data, index + 4), data: Vec::new() };
+        let mut hdr = Self {
+            id: XexOptionalHeaderID::try_from(read_word(data, index)).unwrap(),
+            value: read_word(data, index + 4),
+            data: Vec::new(),
+        };
 
         let id_as_u32: u32 = hdr.id.into();
         let mask = id_as_u32 & 0xFF;
@@ -379,13 +413,11 @@ impl XexOptionalHeader {
             let start: usize = (hdr.value + 4) as usize;
             let end: usize = (hdr.value + len) as usize;
             hdr.data = data[start..end].to_vec();
-        }
-        else if mask < 2 {
+        } else if mask < 2 {
             // data = value as a Vec<u8>
             // println!("for ID 0x{:X}, value = 0x{:X}", id_as_u32, hdr.value);
             hdr.data = data[index + 4..index + 8].to_vec();
-        }
-        else {
+        } else {
             let len = mask * 4;
             let start: usize = (hdr.value + 4) as usize;
             let end: usize = (hdr.value + len) as usize;
@@ -446,9 +478,21 @@ impl XexLoaderInfo {
         let game_regions = read_word(&data, pos);
         let media_flags = read_word(&data, pos + 4);
         return Ok(Self {
-            header_size, image_size, rsa_signature, unknown, image_flags, load_address,
-            section_digest, import_table_count, import_table_digest, media_id,
-            file_key, export_table, header_digest, game_regions, media_flags
+            header_size,
+            image_size,
+            rsa_signature,
+            unknown,
+            image_flags,
+            load_address,
+            section_digest,
+            import_table_count,
+            import_table_digest,
+            media_id,
+            file_key,
+            export_table,
+            header_digest,
+            game_regions,
+            media_flags,
         });
     }
 }
@@ -456,8 +500,12 @@ impl XexLoaderInfo {
 // ----------------------------------------------------------------------
 // XEXSESSIONKEYS
 // ----------------------------------------------------------------------
-const RETAIL_KEY: [u8; 16] = [ 0x20, 0xB1, 0x85, 0xA5, 0x9D, 0x28, 0xFD, 0xC3, 0x40, 0x58, 0x3F, 0xBB, 0x08, 0x96, 0xBF, 0x91 ];
-const DEVKIT_KEY: [u8; 16] = [ 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ];
+const RETAIL_KEY: [u8; 16] = [
+    0x20, 0xB1, 0x85, 0xA5, 0x9D, 0x28, 0xFD, 0xC3, 0x40, 0x58, 0x3F, 0xBB, 0x08, 0x96, 0xBF, 0x91,
+];
+const DEVKIT_KEY: [u8; 16] = [
+    0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+];
 
 pub struct XexSessionKeys {
     pub session_key_retail: [u8; 16],
@@ -466,8 +514,10 @@ pub struct XexSessionKeys {
 
 impl XexSessionKeys {
     fn derive_keys(file_key: &[u8; 16]) -> Result<Self> {
-        let retail_derived_key: [u8; 16] = decrypt_aes128_cbc_no_padding(&RETAIL_KEY, file_key)?.try_into().unwrap();
-        let devkit_derived_key: [u8; 16] = decrypt_aes128_cbc_no_padding(&DEVKIT_KEY, file_key)?.try_into().unwrap();
+        let retail_derived_key: [u8; 16] =
+            decrypt_aes128_cbc_no_padding(&RETAIL_KEY, file_key)?.try_into().unwrap();
+        let devkit_derived_key: [u8; 16] =
+            decrypt_aes128_cbc_no_padding(&DEVKIT_KEY, file_key)?.try_into().unwrap();
         // print!("Retail session key: ");
         // for k in retail_derived_key {
         //     print!("{:02X} ", k);
@@ -478,7 +528,10 @@ impl XexSessionKeys {
         //     print!("{:02X} ", k);
         // }
         // print!("\n");
-        return Ok( Self { session_key_retail: retail_derived_key, session_key_devkit: devkit_derived_key });
+        return Ok(Self {
+            session_key_retail: retail_derived_key,
+            session_key_devkit: devkit_derived_key,
+        });
     }
 }
 
@@ -492,7 +545,7 @@ pub struct XexInfo {
     pub loader_info: XexLoaderInfo,
     pub session_key: [u8; 16],
     pub is_dev_kit: bool,
-    pub exe_bytes: Vec<u8>
+    pub exe_bytes: Vec<u8>,
 }
 
 impl XexInfo {
@@ -512,7 +565,12 @@ impl XexInfo {
 
         let pe_vec = &data[xex_header.pe_offset as usize..data.len()].to_vec();
         let bff = xex_optional_header_data.base_file_format.as_ref().unwrap();
-        match XexInfo::try_get_exe(pe_vec, &xex_session_keys.session_key_retail, bff, xex_loader_info.image_size) {
+        match XexInfo::try_get_exe(
+            pe_vec,
+            &xex_session_keys.session_key_retail,
+            bff,
+            xex_loader_info.image_size,
+        ) {
             Ok(exe) => {
                 // println!("This xex was built in retail mode!");
                 confirmed_session_key = xex_session_keys.session_key_retail;
@@ -520,7 +578,12 @@ impl XexInfo {
                 exe_bytes = exe;
             }
             Err(_) => {
-                match XexInfo::try_get_exe(pe_vec, &xex_session_keys.session_key_devkit, bff, xex_loader_info.image_size){
+                match XexInfo::try_get_exe(
+                    pe_vec,
+                    &xex_session_keys.session_key_devkit,
+                    bff,
+                    xex_loader_info.image_size,
+                ) {
                     Ok(exe) => {
                         // println!("This xex was built in devkit mode!");
                         confirmed_session_key = xex_session_keys.session_key_devkit;
@@ -537,19 +600,26 @@ impl XexInfo {
 
         return Ok(Self {
             header: xex_header,
-            opt_header_data:xex_optional_header_data,
+            opt_header_data: xex_optional_header_data,
             loader_info: xex_loader_info,
             session_key: confirmed_session_key,
-            is_dev_kit: is_dev_kit,
-            exe_bytes: exe_bytes
+            is_dev_kit,
+            exe_bytes,
         });
     }
 
-    pub fn try_get_exe(exe_data: &Vec<u8>, session_key: &[u8; 16], bff: &BaseFileFormat, img_size: u32) -> Result<Vec<u8>> {
+    pub fn try_get_exe(
+        exe_data: &Vec<u8>,
+        session_key: &[u8; 16],
+        bff: &BaseFileFormat,
+        img_size: u32,
+    ) -> Result<Vec<u8>> {
         let compressed: Cow<[u8]>;
 
         match bff.encryption {
-            XexEncryption::No => { compressed = Cow::Borrowed(&exe_data); }
+            XexEncryption::No => {
+                compressed = Cow::Borrowed(&exe_data);
+            }
             XexEncryption::Yes => {
                 compressed = Cow::Owned(decrypt_aes128_cbc_no_padding(&session_key, &exe_data)?);
             }
@@ -564,14 +634,18 @@ impl XexInfo {
             XexCompression::Raw => {
                 for bc in &bff.basics {
                     for i in 0..(bc.data_size as usize) {
-                        if pos_in + i as usize >= compressed.len() { break; }
+                        if pos_in + i as usize >= compressed.len() {
+                            break;
+                        }
                         pe_image[i + pos_out] = compressed[pos_in + i];
                     }
                     pos_out += (bc.data_size + bc.zero_size) as usize;
                     pos_in += bc.data_size as usize;
                 }
             }
-            XexCompression::None | XexCompression::DeltaCompressed => { pe_image = compressed.to_vec(); }
+            XexCompression::None | XexCompression::DeltaCompressed => {
+                pe_image = compressed.to_vec();
+            }
             XexCompression::Compressed => {
                 bail!("This xex is compressed using LZX, which is not currently supported.");
                 // this is actually pretty hard to implement, it involves use of the NormalCompression we retrieved earlier,
@@ -585,11 +659,12 @@ impl XexInfo {
         ensure!(pe_image[0] == 'M' as u8 && pe_image[1] == 'Z' as u8, "This is not a valid exe!");
 
         // adjust the byte offsets, because virtual addresses have been thrown off in the initial exe reconstruction process
-        let pe_file = PeFile32::parse(&*pe_image).expect("Failed to parse newly pulled out exe file");
+        let pe_file =
+            PeFile32::parse(&*pe_image).expect("Failed to parse newly pulled out exe file");
         let mut pe_file_adjusted: Vec<u8> = vec![];
         let mut first_flag = false;
 
-        for sec in pe_file.section_table().iter(){
+        for sec in pe_file.section_table().iter() {
             if !first_flag {
                 for i in 0..sec.pointer_to_raw_data.get(endian::LittleEndian) {
                     pe_file_adjusted.push(pe_image[i as usize]);
@@ -598,13 +673,16 @@ impl XexInfo {
             }
             // if this section is NOT bss (no uninitialized data)
             if (sec.characteristics.get(endian::LittleEndian) & 0x80) == 0 {
-                assert_eq!(pe_file_adjusted.len() as u32, sec.pointer_to_raw_data.get(endian::LittleEndian), "Unexpected PE size at this point!");
+                assert_eq!(
+                    pe_file_adjusted.len() as u32,
+                    sec.pointer_to_raw_data.get(endian::LittleEndian),
+                    "Unexpected PE size at this point!"
+                );
                 for j in 0..sec.size_of_raw_data.get(endian::LittleEndian) {
                     let offset = (j + sec.virtual_address.get(endian::LittleEndian)) as usize;
                     if offset >= pe_image.len() {
                         pe_file_adjusted.push(0);
-                    }
-                    else {
+                    } else {
                         pe_file_adjusted.push(pe_image[offset]);
                     }
                 }
@@ -697,7 +775,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 let itype = value >> 24;
                 match itype {
                     0 => {
-                        lib.functions.push(ImportFunction { address: *record, ordinal: ordinal, thunk: 0 });
+                        lib.functions.push(ImportFunction { address: *record, ordinal, thunk: 0 });
                     }
                     1 => {
                         if let Some(func) = lib.functions.last_mut() {
@@ -721,14 +799,26 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         // to unstrip an __imp_,
         // swap the endianness of the last two bytes (so 00 01 01 90 becomes 90 01 00 00, we only care about the last two bytes)
         // then slap an 80 at the end (90 01 00 80) - the 80 tells the system that we're importing by ordinal
-        fn unstrip_imp(imp: &mut [u8]){
-            imp[0] = imp[3]; imp[1] = imp[2]; imp[2] = 0; imp[3] = 0x80;
+        fn unstrip_imp(imp: &mut [u8]) {
+            imp[0] = imp[3];
+            imp[1] = imp[2];
+            imp[2] = 0;
+            imp[3] = 0x80;
         }
         fn add_imp(obj: &mut ObjInfo, name: String, addr: SectionAddress) -> Result<SymbolIndex> {
-            return obj.add_symbol(ObjSymbol {
-               name, address: addr.address as u64, section: Some(addr.section), size: 4, size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
-            }, false);
+            return obj.add_symbol(
+                ObjSymbol {
+                    name,
+                    address: addr.address as u64,
+                    section: Some(addr.section),
+                    size: 4,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    kind: ObjSymbolKind::Object,
+                    ..Default::default()
+                },
+                false,
+            );
         }
         // to unstrip a thunk,
         // you need the address of the __imp_ (i.e. __imp_XamInputGetCapabilities at 0x827103c4)
@@ -736,24 +826,35 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         // (example: XamInputGetCapabilities: 01 00 01 90 02 00 01 90 7D 69 03 A6 4E 80 04 20)
         // (change the first two words to lis/addi r11 to 0x827103c4: 3D 60 82 71 81 6B 03 C4)
         // (then it becomes: 3D 60 82 71 81 6B 03 C4 7D 69 03 A6 4E 80 04 20)
-        fn unstrip_thunk(thunk: &mut [u8], imp_addr: u32){
-            thunk[0] = 0x3D; thunk[1] = 0x60;
+        fn unstrip_thunk(thunk: &mut [u8], imp_addr: u32) {
+            thunk[0] = 0x3D;
+            thunk[1] = 0x60;
             thunk[2] = ((imp_addr & 0xFF000000) >> 24) as u8;
             thunk[3] = ((imp_addr & 0xFF0000) >> 16) as u8;
-            thunk[4] = 0x81; thunk[5] = 0x6B;
+            thunk[4] = 0x81;
+            thunk[5] = 0x6B;
             thunk[6] = ((imp_addr & 0xFF00) >> 8) as u8;
             thunk[7] = (imp_addr & 0xFF) as u8;
         }
         fn add_thunk(obj: &mut ObjInfo, name: String, addr: SectionAddress) -> Result<SymbolIndex> {
             obj.known_functions.insert(addr, Some(0x10));
-            obj.add_symbol(ObjSymbol {
-                name, address: addr.address as u64, section: Some(addr.section), size: 0x10, size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Function, ..Default::default()
-            }, false)
+            obj.add_symbol(
+                ObjSymbol {
+                    name,
+                    address: addr.address as u64,
+                    section: Some(addr.section),
+                    size: 0x10,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    kind: ObjSymbolKind::Function,
+                    ..Default::default()
+                },
+                false,
+            )
         }
 
         // now, process them (add funcs/symbols and unstrip)
-        for lib in imports.libraries.iter(){
+        for lib in imports.libraries.iter() {
             // println!("Imports for {}:", lib.name);
             for func in lib.functions.iter() {
                 // println!("  Func: addr 0x{:08X}, ordinal 0x{:04X}, thunk 0x{:08X}", func.address, func.ordinal, func.thunk);
@@ -771,7 +872,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 add_imp(&mut obj, sym_name, SectionAddress::new(sec_idx, func.address))?;
                 captured_imps.push(func.address);
                 num_imps += 1;
-                
+
                 if func.thunk != 0 {
                     min_api_addr = Some(min_api_addr.unwrap_or(func.thunk).min(func.thunk));
                     max_api_addr = Some(max_api_addr.unwrap_or(func.thunk).max(func.thunk));
@@ -779,7 +880,10 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     // create a symbol/func for the thunk - will always be size 0x10
                     let (thunk_idx, thunk_sec) = obj.sections.at_address_mut(func.thunk)?;
                     let offset_within_sec: usize = func.thunk as usize - thunk_sec.address as usize;
-                    unstrip_thunk(&mut thunk_sec.data[offset_within_sec..offset_within_sec + 8], func.address);
+                    unstrip_thunk(
+                        &mut thunk_sec.data[offset_within_sec..offset_within_sec + 8],
+                        func.address,
+                    );
                     // println!("  Adding symbol {} at 0x{:08X}", lookup_name, func.thunk);
                     add_thunk(&mut obj, lookup_name, SectionAddress::new(thunk_idx, func.thunk))?;
                     num_thunks += 1;
@@ -804,14 +908,23 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 let data_idx = offset_within_sec + (i - min_addr) as usize;
                 let cur_imp = {
                     let sec = &obj.sections[import_idx];
-                    if data_idx >= sec.data.len() { break; }
+                    if data_idx >= sec.data.len() {
+                        break;
+                    }
                     read_word(&sec.data, data_idx)
                 };
-                if i > max_addr && cur_imp == 0 { break; }
+                if i > max_addr && cur_imp == 0 {
+                    break;
+                }
 
-                if cur_imp != 0 && !captured_imps.contains(&i){
-                    let sym_name = format!("__imp_{}",
-                                           replace_ordinal(&imports.libraries[((cur_imp & 0x00FF0000) >> 16) as usize].name, (cur_imp & 0xFFFF) as usize));
+                if cur_imp != 0 && !captured_imps.contains(&i) {
+                    let sym_name = format!(
+                        "__imp_{}",
+                        replace_ordinal(
+                            &imports.libraries[((cur_imp & 0x00FF0000) >> 16) as usize].name,
+                            (cur_imp & 0xFFFF) as usize
+                        )
+                    );
                     // println!("Found missing imp {} at 0x{:08X}", sym_name, i);
                     {
                         // obj borrowing scope moment
@@ -840,24 +953,34 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 let data_idx = offset_within_sec + (i - min_addr) as usize;
                 let cur_thunk = {
                     let sec = &obj.sections[thunk_idx];
-                    if data_idx >= sec.data.len() { break; }
+                    if data_idx >= sec.data.len() {
+                        break;
+                    }
                     read_word(&sec.data, data_idx)
                 };
-                if i > max_addr && cur_thunk == 0 { break; }
-                else if i < max_addr && cur_thunk == 0 {
-                    i += 4; continue;
+                if i > max_addr && cur_thunk == 0 {
+                    break;
+                } else if i < max_addr && cur_thunk == 0 {
+                    i += 4;
+                    continue;
                 }
 
                 if cur_thunk != 0 {
                     let cur_addr = SectionAddress::new(thunk_idx, i);
-                    if !obj.known_functions.contains_key(&cur_addr){
-                        let sym_name = replace_ordinal(&imports.libraries[((cur_thunk & 0x00FF0000) >> 16) as usize].name, (cur_thunk & 0xFFFF) as usize);
+                    if !obj.known_functions.contains_key(&cur_addr) {
+                        let sym_name = replace_ordinal(
+                            &imports.libraries[((cur_thunk & 0x00FF0000) >> 16) as usize].name,
+                            (cur_thunk & 0xFFFF) as usize,
+                        );
                         // println!("Found missing thunk {} at 0x{:08X}", sym_name, i);
-                        let imp_name = format!("__imp_{}",sym_name);
+                        let imp_name = format!("__imp_{}", sym_name);
                         let maybe_imp_sym = obj.symbols.by_name(&imp_name)?;
-                        if maybe_imp_sym.is_some(){
+                        if maybe_imp_sym.is_some() {
                             // println!("found sym {}", maybe_imp_sym.unwrap().1.name);
-                            unstrip_thunk(&mut obj.sections[thunk_idx].data[data_idx..data_idx + 8], maybe_imp_sym.unwrap().1.address as u32);
+                            unstrip_thunk(
+                                &mut obj.sections[thunk_idx].data[data_idx..data_idx + 8],
+                                maybe_imp_sym.unwrap().1.address as u32,
+                            );
                         }
                         add_thunk(&mut obj, sym_name, cur_addr)?;
                         num_thunks += 1;
@@ -871,15 +994,19 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 
     // add known function boundaries from pdata
     let (pdata_addr, pdata_data) = match obj.sections.by_name(".pdata")? {
-        Some((idx, pdata_section)) => (SectionAddress::new(idx, pdata_section.address as u32), pdata_section.data.clone()),
-        None => { return Err(anyhow!(".pdata section not found. Is that even possible for an xex?")) }
+        Some((idx, pdata_section)) => {
+            (SectionAddress::new(idx, pdata_section.address as u32), pdata_section.data.clone())
+        }
+        None => return Err(anyhow!(".pdata section not found. Is that even possible for an xex?")),
     };
 
     let mut num = 0;
-    for (i, chunk) in pdata_data.chunks_exact(8).enumerate(){
+    for (i, chunk) in pdata_data.chunks_exact(8).enumerate() {
         let start_addr = u32::from_be_bytes(chunk[0..4].try_into()?);
         // if we encounter 0's, that's the end of usable pdata entries
-        if start_addr == 0 { break; }
+        if start_addr == 0 {
+            break;
+        }
 
         // some metadata for this function, including function size
         let word = u32::from_be_bytes(chunk[4..8].try_into()?);
@@ -888,11 +1015,19 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         let func_type = word >> 30; // The function type.
 
         let this_entry_addr = pdata_addr + (i * 8) as u32;
-        obj.add_symbol(ObjSymbol {
-            name: format!("pdata@{:08X}", this_entry_addr.address), address: this_entry_addr.address as u64, section: Some(pdata_addr.section),
-            size: 8, size_known: true,
-            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
-        }, false)?;
+        obj.add_symbol(
+            ObjSymbol {
+                name: format!("pdata@{:08X}", this_entry_addr.address),
+                address: this_entry_addr.address as u64,
+                section: Some(pdata_addr.section),
+                size: 8,
+                size_known: true,
+                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                kind: ObjSymbolKind::Object,
+                ..Default::default()
+            },
+            false,
+        )?;
         let section_addr = SectionAddress::new(obj.sections.at_address(start_addr)?.0, start_addr);
         obj.known_functions.insert(section_addr, Some(num_insts_in_func * 4));
         obj.pdata_funcs.push(section_addr);
@@ -901,34 +1036,60 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         // if func_type == 3, there's an 8 byte struct (with 2 words) just before the function start that contains exception data
         if func_type == 3 {
             // println!("Exception handler at {:08X}, record at {:08X}", start_addr - 8, start_addr - 4);
-            obj.add_symbol(ObjSymbol {
-                name: format!("except_data_{:08X}", start_addr), address: (start_addr - 8) as u64, section: Some(section_addr.section),
-                size: 8, size_known: true,
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
-            }, false)?;
+            obj.add_symbol(
+                ObjSymbol {
+                    name: format!("except_data_{:08X}", start_addr),
+                    address: (start_addr - 8) as u64,
+                    section: Some(section_addr.section),
+                    size: 8,
+                    size_known: true,
+                    flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                    kind: ObjSymbolKind::Object,
+                    ..Default::default()
+                },
+                false,
+            )?;
             // word 1: the address of the function's exception handler
-            if let Some(except_func) = read_u32(obj.sections.at_address(start_addr - 8)?.1, start_addr - 8) {
-                let except_func_section = SectionAddress::new(obj.sections.at_address(except_func)?.0, except_func);
+            if let Some(except_func) =
+                read_u32(obj.sections.at_address(start_addr - 8)?.1, start_addr - 8)
+            {
+                let except_func_section =
+                    SectionAddress::new(obj.sections.at_address(except_func)?.0, except_func);
                 // check to see if the addr is already part of a known function - if it's not, add it to known_functions
                 if let Entry::Vacant(e) = obj.known_functions.entry(except_func_section) {
                     e.insert(None);
                     num += 1;
                 }
+            } else {
+                bail!("Invalid exception handler address listed at {}!", start_addr - 8)
             }
-            else { bail!("Invalid exception handler address listed at {}!", start_addr - 8) }
             // word 2: the address of the function's exception handler data record
-            if let Some(except_record) = read_u32(obj.sections.at_address(start_addr - 4)?.1, start_addr - 4) {
+            if let Some(except_record) =
+                read_u32(obj.sections.at_address(start_addr - 4)?.1, start_addr - 4)
+            {
                 // exception handlers can have no record (a nullptr in the exception data)
                 if except_record != 0 {
-                    let except_record_section = SectionAddress::new(obj.sections.at_address(except_record)?.0, except_record);
-                    obj.add_symbol(ObjSymbol {
-                        name: format!("except_record_{:08X}", start_addr), address: except_record as u64, section: Some(except_record_section.section),
-                        size: 4, size_known: false, // we don't know exactly how big this particular exception record may be
-                        flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()), kind: ObjSymbolKind::Object, ..Default::default()
-                    }, false)?;
+                    let except_record_section = SectionAddress::new(
+                        obj.sections.at_address(except_record)?.0,
+                        except_record,
+                    );
+                    obj.add_symbol(
+                        ObjSymbol {
+                            name: format!("except_record_{:08X}", start_addr),
+                            address: except_record as u64,
+                            section: Some(except_record_section.section),
+                            size: 4,
+                            size_known: false, // we don't know exactly how big this particular exception record may be
+                            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+                            kind: ObjSymbolKind::Object,
+                            ..Default::default()
+                        },
+                        false,
+                    )?;
                 }
+            } else {
+                bail!("Invalid exception record address listed at {}!", start_addr - 4)
             }
-            else { bail!("Invalid exception record address listed at {}!", start_addr - 4) }
         }
     }
     log::info!("Found {} known funcs from pdata!", num);
@@ -936,17 +1097,33 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
     // if this xex has an .xidata section, mark down the funcs in there
     if let Some((xidata_idx, xidata_sec)) = obj.sections.by_name(".xidata")? {
         let mut num_xidatas = 0;
-        for (i, chunk) in xidata_sec.data.chunks_exact(16).enumerate(){
-            if i == 0 { continue; } // the first entry appears to be all 0's...but is every xidata like this?
+        for (i, chunk) in xidata_sec.data.chunks_exact(16).enumerate() {
+            if i == 0 {
+                continue;
+            } // the first entry appears to be all 0's...but is every xidata like this?
             let inst1 = u32::from_be_bytes(chunk[0..4].try_into()?);
             // if we've reached 0's, that's the end of usable xidata info
-            if inst1 == 0 { break; }
+            if inst1 == 0 {
+                break;
+            }
 
             assert_eq!(inst1 & 0xFFFF0000, 0x3D600000, "First instruction MUST be an lis to r11!");
             let inst2 = u32::from_be_bytes(chunk[4..8].try_into()?);
-            assert_eq!(inst2 & 0xFFFF0000, 0x396B0000, "Second instruction MUST be an addi to r11!");
-            assert_eq!(u32::from_be_bytes(chunk[8..12].try_into()?), 0x7d6903a6, "Third instruction MUST be mtspr CTR, r11!");
-            assert_eq!(u32::from_be_bytes(chunk[12..16].try_into()?), 0x4e800420, "Fourth and final instruction MUST be bctr!");
+            assert_eq!(
+                inst2 & 0xFFFF0000,
+                0x396B0000,
+                "Second instruction MUST be an addi to r11!"
+            );
+            assert_eq!(
+                u32::from_be_bytes(chunk[8..12].try_into()?),
+                0x7d6903a6,
+                "Third instruction MUST be mtspr CTR, r11!"
+            );
+            assert_eq!(
+                u32::from_be_bytes(chunk[12..16].try_into()?),
+                0x4e800420,
+                "Fourth and final instruction MUST be bctr!"
+            );
 
             let func_addr = (xidata_sec.address as usize + (i * 16)) as u32;
             // println!("This xidata func's address: 0x{:08X}", func_addr);
@@ -958,28 +1135,39 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 
     const RTL_CHECK_STACK: [u8; 40] = [
         // _RtlCheckStack
-        0x7d, 0x83, 0x00, 0xd0,
-        // _RtlCheckStack12
-        0x7d, 0x6c, 0x00, 0xd0, 0x38, 0x0b, 0x0f, 0xff, 0x7c, 0x00, 0x66, 0x71, 0x4c, 0x81, 0x00, 0x20,
-        0x7c, 0x2b, 0x0b, 0x78, 0x7c, 0x09, 0x03, 0xa6, 0x84, 0x0b, 0xf0, 0x00, 0x42, 0x00, 0xff, 0xfc,
-        0x4e, 0x80, 0x00, 0x20
+        0x7d, 0x83, 0x00, 0xd0, // _RtlCheckStack12
+        0x7d, 0x6c, 0x00, 0xd0, 0x38, 0x0b, 0x0f, 0xff, 0x7c, 0x00, 0x66, 0x71, 0x4c, 0x81, 0x00,
+        0x20, 0x7c, 0x2b, 0x0b, 0x78, 0x7c, 0x09, 0x03, 0xa6, 0x84, 0x0b, 0xf0, 0x00, 0x42, 0x00,
+        0xff, 0xfc, 0x4e, 0x80, 0x00, 0x20,
     ];
 
     let mut api_syms: Vec<ObjSymbol> = vec![];
-    for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code){
-        let Some(pos) = memmem::find(&section.data, &RTL_CHECK_STACK) else { continue; };
+    for (section_index, section) in obj.sections.by_kind(ObjSectionKind::Code) {
+        let Some(pos) = memmem::find(&section.data, &RTL_CHECK_STACK) else {
+            continue;
+        };
         let start = SectionAddress::new(section_index, section.address as u32 + pos as u32);
         obj.known_functions.insert(start, Some(4));
         obj.known_functions.insert(start + 4, Some(36));
         api_syms.push(ObjSymbol {
-            name: String::from("_RtlCheckStack"), address: start.address as u64, section: Some(start.section),
-            size: 4, size_known: true, flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            kind: ObjSymbolKind::Function, ..Default::default()
+            name: String::from("_RtlCheckStack"),
+            address: start.address as u64,
+            section: Some(start.section),
+            size: 4,
+            size_known: true,
+            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+            kind: ObjSymbolKind::Function,
+            ..Default::default()
         });
         api_syms.push(ObjSymbol {
-            name: String::from("_RtlCheckStack12"), address: (start.address + 4) as u64, section: Some(start.section),
-            size: 36, size_known: true, flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-            kind: ObjSymbolKind::Function, ..Default::default()
+            name: String::from("_RtlCheckStack12"),
+            address: (start.address + 4) as u64,
+            section: Some(start.section),
+            size: 36,
+            size_known: true,
+            flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
+            kind: ObjSymbolKind::Function,
+            ..Default::default()
         });
     }
     for sym in api_syms {
@@ -1000,19 +1188,21 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
     // println!("Writing {}.obj", root_name);
 
     // for each obj:
-    let mut cur_coff = object::write::Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
+    let mut cur_coff =
+        object::write::Object::new(BinaryFormat::Coff, Architecture::PowerPc, Endianness::Big);
     let mut sect_map: BTreeMap<SectionIndex, SectionId> = Default::default();
     let mut sym_map: BTreeMap<SymbolIndex, SymbolId> = Default::default();
 
     // insert the sections
     for (idx, sect) in obj.sections.iter() {
         // println!("Section: {}", sect.name);
-        let sect_id = cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
-            ObjSectionKind::Code => SectionKind::Text,
-            ObjSectionKind::Data => SectionKind::Data,
-            ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
-            ObjSectionKind::Bss => SectionKind::UninitializedData,
-        });
+        let sect_id =
+            cur_coff.add_section(Vec::new(), sect.name.clone().into_bytes(), match sect.kind {
+                ObjSectionKind::Code => SectionKind::Text,
+                ObjSectionKind::Data => SectionKind::Data,
+                ObjSectionKind::ReadOnlyData => SectionKind::ReadOnlyData,
+                ObjSectionKind::Bss => SectionKind::UninitializedData,
+            });
         if sect.kind != ObjSectionKind::Bss {
             cur_coff.append_section_data(sect_id, &sect.data, sect.align);
         }
@@ -1020,7 +1210,7 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
     }
 
     // insert the symbols
-    for (idx, sym) in obj.symbols.iter(){
+    for (idx, sym) in obj.symbols.iter() {
         let sym_id = cur_coff.add_symbol(object::write::Symbol {
             name: sym.name.clone().into_bytes(),
             value: match sym.section {
@@ -1049,7 +1239,9 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
             },
             weak: false, // sym.flags.scope() == ObjSymbolScope::Weak,
             section: match sym.section {
-                Some(idx) => object::write::SymbolSection::Section(sect_map.get(&idx).unwrap().clone()),
+                Some(idx) => {
+                    object::write::SymbolSection::Section(sect_map.get(&idx).unwrap().clone())
+                }
                 None => object::write::SymbolSection::Undefined,
             },
             flags: SymbolFlags::None,
@@ -1064,12 +1256,15 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
                 Some(id) => id,
                 None => bail!("Could not find symbol ID for index {}", reloc.target_symbol),
             };
-            cur_coff.add_relocation(sect_map.get(&sect_idx).unwrap().clone(), object::write::Relocation {
-                offset: addr as u64,
-                symbol: sym_id.clone(),
-                addend: 0,
-                flags: RelocationFlags::Coff { typ: reloc.to_coff() }
-            })?;
+            cur_coff.add_relocation(
+                sect_map.get(&sect_idx).unwrap().clone(),
+                object::write::Relocation {
+                    offset: addr as u64,
+                    symbol: sym_id.clone(),
+                    addend: 0,
+                    flags: RelocationFlags::Coff { typ: reloc.to_coff() },
+                },
+            )?;
             // MSVC requires an extra relocation to pair up high and low ones
             match reloc.kind {
                 ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo => {
@@ -1098,18 +1293,19 @@ pub fn coff_path_for_unit(unit: &str) -> Utf8NativePathBuf {
 }
 
 // debug only, lists section bounds
-pub fn list_exe_sections(exe: &PeFile32){
+pub fn list_exe_sections(exe: &PeFile32) {
     println!("Sections:");
-    for sec in exe.section_table().iter(){
-        let name = std::str::from_utf8(&sec.name)
-            .unwrap_or("")
-            .trim_end_matches('\0');
+    for sec in exe.section_table().iter() {
+        let name = std::str::from_utf8(&sec.name).unwrap_or("").trim_end_matches('\0');
         println!("Name: {}", name);
         println!("  VirtualSize: 0x{:08X}", sec.virtual_size.get(endian::LittleEndian));
         println!("  VirtualAddress: 0x{:08X}", sec.virtual_address.get(endian::LittleEndian));
         println!("  SizeOfRawData: 0x{:08X}", sec.size_of_raw_data.get(endian::LittleEndian));
         println!("  PointerToRawData: 0x{:08X}", sec.pointer_to_raw_data.get(endian::LittleEndian));
-        println!("  Has uninitialized data? {}", sec.characteristics.get(endian::LittleEndian) & 0x80 != 0);
+        println!(
+            "  Has uninitialized data? {}",
+            sec.characteristics.get(endian::LittleEndian) & 0x80 != 0
+        );
         println!("");
     }
 }
