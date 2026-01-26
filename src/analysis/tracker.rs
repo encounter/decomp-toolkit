@@ -212,11 +212,11 @@ impl Tracker {
             self.process_function_by_address(obj, entry_addr)?;
         }
         for (section_index, _) in obj.sections.by_kind(ObjSectionKind::Code) {
-            for (_, symbol) in obj
-                .symbols
-                .for_section(section_index)
-                .filter(|(_, symbol)| symbol.kind == ObjSymbolKind::Function && symbol.size_known && !symbol.name.contains("__imp"))
-            {
+            for (_, symbol) in obj.symbols.for_section(section_index).filter(|(_, symbol)| {
+                symbol.kind == ObjSymbolKind::Function
+                    && symbol.size_known
+                    && !symbol.name.contains("__imp")
+            }) {
                 let addr = SectionAddress::new(section_index, symbol.address as u32);
                 if !self.processed_functions.insert(addr) {
                     continue;
@@ -419,7 +419,9 @@ impl Tracker {
             StepResult::Jump(target) => match target {
                 BranchTarget::Return => Ok(ExecCbResult::EndBlock),
                 BranchTarget::Unknown
-                | BranchTarget::JumpTable { jump_table_address: RelocationTarget::External, .. } => {
+                | BranchTarget::JumpTable {
+                    jump_table_address: RelocationTarget::External, ..
+                } => {
                     let next_addr = ins_addr + 4;
                     if next_addr < function_end {
                         possible_missed_branches.insert(ins_addr + 4, vm.clone_all());
@@ -441,7 +443,11 @@ impl Tracker {
                     }
                     Ok(ExecCbResult::EndBlock)
                 }
-                BranchTarget::JumpTable { jump_table_type: jt, jump_table_address: RelocationTarget::Address(address), size } => {
+                BranchTarget::JumpTable {
+                    jump_table_type: jt,
+                    jump_table_address: RelocationTarget::Address(address),
+                    size,
+                } => {
                     let (entries, _) = uniq_jump_table_entries(
                         obj,
                         address,
@@ -464,7 +470,10 @@ impl Tracker {
                     match branch.target {
                         BranchTarget::Unknown
                         | BranchTarget::Return
-                        | BranchTarget::JumpTable { jump_table_address: RelocationTarget::External, .. } => {}
+                        | BranchTarget::JumpTable {
+                            jump_table_address: RelocationTarget::External,
+                            ..
+                        } => {}
                         BranchTarget::Address(target) => {
                             let (addr, is_fn_addr) = if let RelocationTarget::Address(addr) = target
                             {
@@ -477,7 +486,7 @@ impl Tracker {
                                     Opcode::B => Relocation::Rel24(target),
                                     Opcode::Bc => {
                                         if addr == function_start {
-                                            // MSVC's linker doesn't accept REL14 in tail calls 
+                                            // MSVC's linker doesn't accept REL14 in tail calls
                                             Relocation::Rel24(target)
                                         } else {
                                             Relocation::Rel14(target)
