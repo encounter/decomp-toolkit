@@ -20,8 +20,8 @@ use typed_path::Utf8NativePathBuf;
 use crate::{
     util::{
         dwarf::{
-            parse_producer, preprocess_cu_tag, process_compile_unit, process_cu_tag,
-            process_overlay_branch, read_debug_section, should_skip_tag, tag_type_string,
+            parse_producer, preprocess_cu_tag, print::tag_type_string, process_compile_unit,
+            process_cu_tag, process_overlay_branch, read_debug_section, should_skip_tag,
             AttributeKind, MemberFunctionMap, TagKind, TypedefMap,
         },
         file::buf_writer,
