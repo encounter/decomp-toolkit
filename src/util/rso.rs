@@ -455,6 +455,7 @@ where R: Read + Seek + ?Sized {
             elf_index: idx as SectionIndex,
             relocations: Default::default(),
             virtual_address: None, // TODO option to set?
+            virtual_address_passed_in: false,
             file_offset: offset as u64,
             section_known: false,
             splits: Default::default(),

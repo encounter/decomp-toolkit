@@ -917,6 +917,7 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
                 elf_index: 0,
                 relocations: Default::default(),
                 virtual_address: None,
+                virtual_address_passed_in: false,
                 file_offset,
                 section_known: true,
                 splits: Default::default(),
