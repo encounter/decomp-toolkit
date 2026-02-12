@@ -588,6 +588,26 @@ fn find_symbol_kind(
 ) -> Result<ObjSymbolKind> {
     let mut kind = current;
     let mut found = false;
+
+    // Process End entries FIRST to reset kind when symbols end.
+    // This fixes a bug where a jump table (Object) ends in a Code section,
+    // but subsequent code was incorrectly processed as data because the
+    // Object kind persisted. By resetting to Unknown, the section default
+    // (Function for Code sections) can take effect.
+    for entry in entries {
+        if entry.kind == SymbolEntryKind::End {
+            let ended_kind = symbols[entry.index as usize].kind;
+            // Only reset if the ending symbol's kind matches our current kind
+            // and it's not a "neutral" kind (Unknown/Section)
+            if kind == ended_kind
+                && !matches!(ended_kind, ObjSymbolKind::Unknown | ObjSymbolKind::Section)
+            {
+                kind = ObjSymbolKind::Unknown;
+            }
+        }
+    }
+
+    // Then process Start entries to set new kind
     for entry in entries {
         match entry.kind {
             SymbolEntryKind::Start => {
@@ -1037,4 +1057,178 @@ where W: Write + ?Sized {
 #[inline]
 fn is_illegal_instruction(code: u32) -> bool {
     matches!(code, 0x43000000 /* bc 24, lt, 0x0 */ | 0xB8030000 /* lmw r0, 0(r3) */)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn make_test_symbol(kind: ObjSymbolKind) -> ObjSymbol {
+        ObjSymbol {
+            name: "test".to_string(),
+            kind,
+            ..Default::default()
+        }
+    }
+
+    /// Test that find_symbol_kind returns the symbol's kind when a Start entry is present.
+    #[test]
+    fn test_find_symbol_kind_start_entry() {
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Object)];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::Start }];
+
+        let result = find_symbol_kind(ObjSymbolKind::Unknown, &symbols, &entries).unwrap();
+        assert_eq!(result, ObjSymbolKind::Object);
+    }
+
+    /// Test that find_symbol_kind preserves current kind when only Label entries are present.
+    #[test]
+    fn test_find_symbol_kind_label_entry() {
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Function)];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::Label }];
+
+        let result = find_symbol_kind(ObjSymbolKind::Object, &symbols, &entries).unwrap();
+        // Label entries should not change the kind
+        assert_eq!(result, ObjSymbolKind::Object);
+    }
+
+    /// Test that End entries reset the symbol kind to Unknown.
+    ///
+    /// This test verifies the fix for a bug where a jump table (Object) ends in a Code
+    /// section, but subsequent code was incorrectly processed as data because the Object
+    /// kind persisted after the End entry.
+    ///
+    /// Real-world example from DC3 decomp (nuiimagecameraproperties.s):
+    /// - Jump table `jumptable_829C6C88` at offset 0xB28, size 0x28 (kind=Object)
+    /// - Jump table ends at offset 0xB50
+    /// - Code continues at 0xB50+ and should be treated as Function (section default)
+    /// - Branch instruction at 0xB6C has PpcRel14 relocation
+    /// - Without fix: "Unsupported data relocation type PpcRel14" error
+    /// - With fix: Code is correctly processed as Function
+    #[test]
+    fn test_find_symbol_kind_end_entry_resets_kind() {
+        // Create a jump table symbol (Object kind)
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Object)];
+
+        // At the end of the jump table, we have an End entry
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::End }];
+
+        // FIXED behavior: End entry resets kind to Unknown
+        let result = find_symbol_kind(ObjSymbolKind::Object, &symbols, &entries).unwrap();
+
+        // Kind should reset to Unknown so write_data() can default to Function for Code sections
+        assert_eq!(
+            result,
+            ObjSymbolKind::Unknown,
+            "End entry should reset kind to Unknown to allow section default"
+        );
+    }
+
+    /// Test that Start entries override End entries at the same address.
+    ///
+    /// When Object A ends and Object B starts at the same address,
+    /// B's kind should take precedence.
+    #[test]
+    fn test_find_symbol_kind_end_then_start() {
+        let symbols = vec![
+            make_test_symbol(ObjSymbolKind::Object),   // Symbol A (ending)
+            make_test_symbol(ObjSymbolKind::Function), // Symbol B (starting)
+        ];
+
+        // End of A, Start of B at the same address
+        let entries = vec![
+            SymbolEntry { index: 0, kind: SymbolEntryKind::End },
+            SymbolEntry { index: 1, kind: SymbolEntryKind::Start },
+        ];
+
+        let result = find_symbol_kind(ObjSymbolKind::Object, &symbols, &entries).unwrap();
+        // B's Start entry should set the kind to Function
+        assert_eq!(result, ObjSymbolKind::Function);
+    }
+
+    /// Test that Unknown kind symbols don't change the current kind.
+    #[test]
+    fn test_find_symbol_kind_unknown_symbol() {
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Unknown)];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::Start }];
+
+        let result = find_symbol_kind(ObjSymbolKind::Function, &symbols, &entries).unwrap();
+        // Unknown symbols shouldn't change the kind
+        assert_eq!(result, ObjSymbolKind::Function);
+    }
+
+    /// Test that Section kind symbols don't change the current kind.
+    #[test]
+    fn test_find_symbol_kind_section_symbol() {
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Section)];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::Start }];
+
+        let result = find_symbol_kind(ObjSymbolKind::Function, &symbols, &entries).unwrap();
+        // Section symbols shouldn't change the kind
+        assert_eq!(result, ObjSymbolKind::Function);
+    }
+
+    /// Test error when conflicting symbol kinds are found at the same address.
+    #[test]
+    fn test_find_symbol_kind_conflicting_kinds_error() {
+        let symbols = vec![
+            make_test_symbol(ObjSymbolKind::Object),
+            make_test_symbol(ObjSymbolKind::Function),
+        ];
+
+        // Two Start entries with different kinds at the same address
+        let entries = vec![
+            SymbolEntry { index: 0, kind: SymbolEntryKind::Start },
+            SymbolEntry { index: 1, kind: SymbolEntryKind::Start },
+        ];
+
+        let result = find_symbol_kind(ObjSymbolKind::Unknown, &symbols, &entries);
+        assert!(result.is_err(), "Should error on conflicting kinds");
+    }
+
+    /// Test that Function End entries also reset kind (not just Object).
+    #[test]
+    fn test_find_symbol_kind_function_end_resets() {
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Function)];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::End }];
+
+        let result = find_symbol_kind(ObjSymbolKind::Function, &symbols, &entries).unwrap();
+        assert_eq!(result, ObjSymbolKind::Unknown);
+    }
+
+    /// Test that End entry only resets when kinds match.
+    /// If current kind differs from the ending symbol's kind, don't reset.
+    #[test]
+    fn test_find_symbol_kind_end_only_resets_matching() {
+        // Symbol is Object, but current kind is Function
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Object)];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::End }];
+
+        // Current kind is Function, ending Object shouldn't reset it
+        let result = find_symbol_kind(ObjSymbolKind::Function, &symbols, &entries).unwrap();
+        assert_eq!(result, ObjSymbolKind::Function);
+    }
+
+    /// Test the complete scenario: Object starts, Object ends, then no symbol.
+    /// Simulates jump table followed by code with no explicit symbol.
+    #[test]
+    fn test_find_symbol_kind_jump_table_then_code_scenario() {
+        let symbols = vec![make_test_symbol(ObjSymbolKind::Object)];
+
+        // Step 1: At jump table start
+        let start_entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::Start }];
+        let kind = find_symbol_kind(ObjSymbolKind::Unknown, &symbols, &start_entries).unwrap();
+        assert_eq!(kind, ObjSymbolKind::Object, "Jump table start should set Object");
+
+        // Step 2: At jump table end
+        let end_entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::End }];
+        let kind = find_symbol_kind(ObjSymbolKind::Object, &symbols, &end_entries).unwrap();
+        assert_eq!(kind, ObjSymbolKind::Unknown, "Jump table end should reset to Unknown");
+
+        // Step 3: After jump table (no entries)
+        let empty_entries: Vec<SymbolEntry> = vec![];
+        let kind = find_symbol_kind(ObjSymbolKind::Unknown, &symbols, &empty_entries).unwrap();
+        assert_eq!(kind, ObjSymbolKind::Unknown, "No entries should preserve Unknown");
+        // In write_data(), Unknown would then default to Function for Code sections
+    }
 }
