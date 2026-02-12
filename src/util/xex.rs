@@ -1,3 +1,4 @@
+use std::io::Cursor;
 use std::{
     borrow::Cow,
     cmp::min,
@@ -8,6 +9,8 @@ use std::{
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
+use byteorder::{BigEndian, ReadBytesExt};
+use lzxd::Lzxd;
 use memchr::memmem;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use object::{
@@ -647,7 +650,74 @@ impl XexInfo {
                 pe_image = compressed.to_vec();
             }
             XexCompression::Compressed => {
-                bail!("This xex is compressed using LZX, which is not currently supported.");
+                let comp = bff.normal.as_ref().unwrap();
+                let window_size = comp.window_size as usize;
+                //let lzx_window = match window_size {
+                //    32768   => lzxd::WindowSize::KB32,
+                //    65536   => lzxd::WindowSize::KB64,
+                //    131072  => lzxd::WindowSize::KB128,
+                //    262144  => lzxd::WindowSize::KB256,
+                //    524288  => lzxd::WindowSize::KB512,
+                //    1048576 => lzxd::WindowSize::MB1,
+                //    2097152 => lzxd::WindowSize::MB2,
+                //    _       => bail!("LZX: bad window size: {}", window_size),
+                //};
+                let lzx_window = lzxd::WindowSize::KB32;
+                let mut lzxd_state = Lzxd::new(lzx_window);
+                let mut current_block_size = comp.block_size as usize;
+
+                while current_block_size != 0 {
+                    if pos_in + current_block_size > compressed.len() {
+                        bail!("LZX: block needs {} bytes at 0x{:X} but only {} remain", current_block_size, pos_in, compressed.len() - pos_in);
+                    }
+                    let block = &compressed[pos_in..pos_in + current_block_size];
+                    pos_in += current_block_size;
+                    if block.len() < 24 {
+                        bail!("LZX: block too small for header: {} bytes", block.len());
+                    }
+                    let next_block_size = u32::from_be_bytes([
+                        block[0], block[1], block[2], block[3],
+                    ]) as usize;
+                    let mut off = 24usize;
+                    while off + 2 <= block.len() {
+                        let chunk_len = u16::from_be_bytes([
+                            block[off], block[off + 1],
+                        ]) as usize;
+                        off += 2;
+
+                        if chunk_len == 0 {
+                            break;
+                        }
+
+                        if off + chunk_len > block.len() {
+                            bail!("LZX: sub-chunk at offset {} wants {} bytes but only {} remain", off, chunk_len, block.len() - off);
+                        }
+                        let chunk_data = &block[off..off + chunk_len];
+                        off += chunk_len;
+                        let expected = std::cmp::min(window_size, pe_image.len().saturating_sub(pos_out), );
+                        if expected == 0 {
+                            break;
+                        }
+                        let decompressed = lzxd_state.decompress_next(chunk_data, expected).map_err(|e| anyhow::anyhow!(
+                            "LZX: decompress failed at pos_out=0x{:X} \
+                            (chunk_len={}, expected={}, block_off={}): {:?}",
+                            pos_out, chunk_len, expected, off - chunk_len, e))?;
+
+                        if decompressed.is_empty() {
+                            bail!("LZX: decompression returned zero bytes at pos_out=0x{:X}", pos_out);
+                        }
+
+                        let copy_len = std::cmp::min(decompressed.len(), pe_image.len() - pos_out);
+                        pe_image[pos_out..pos_out + copy_len]
+                            .copy_from_slice(&decompressed[..copy_len]);
+                        pos_out += copy_len;
+                    }
+                    current_block_size = next_block_size;
+                }
+                if pos_out == 0 {
+                    bail!("LZX: produced zero output bytes");
+                }
+                //bail!("This xex is compressed using LZX, which is not currently supported.");
                 // this is actually pretty hard to implement, it involves use of the NormalCompression we retrieved earlier,
                 // plus the use of microsoft's LZX decompression algorithms
                 // here are some references if you try to attempt this
