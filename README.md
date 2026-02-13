@@ -35,7 +35,7 @@ This is NOT meant to be run on its own, but rather part of a build system, such 
 
 ## Known Issues/Hacks
 - Xexes that were LZX compressed are not currently supported.
-- Jump table detection works a lot differently for an Xex than it does a GC/Wii DOL.
+- Jump table detection works a lot differently for an xex than it does a GC/Wii DOL.
 There are multiple different kinds of jump table versions that MSVC likes to use, and the code that detects them is rather hacky.
 The code checks for a specific sequence of known instructions and infers the jump table type from there.
 This can result in some jump tables being "guessed" or missed during function detection.
