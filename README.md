@@ -6,7 +6,7 @@
 https://youtu.be/0OzXZGA1k3s
 
 Forked from and inspired by [encounter's GC/Wii decomp toolkit](https://github.com/encounter/decomp-toolkit), jeff is 
-a decomp-toolkit meant for disassembling Xbox 360 executables (xexes). It aims to assist potential Xbox 360 decompilation projects with
+a decomp-toolkit meant for disassembling Xbox 360 executables (xex files). It aims to assist potential Xbox 360 decompilation projects with
 the same benefits that encounter's toolkit provides, including function boundary analysis, relocation restorations, splits, and integration
 with other decompilation tools like [objdiff](https://github.com/encounter/objdiff) and
 [decomp.me](https://decomp.me).
@@ -17,7 +17,7 @@ allowing developers to spend less time configuring a project and more time focus
 I had made jeff with the goal of starting up a [decomp for Dance Central 3](https://github.com/rjkiv/dc3-decomp),
 but realized the potential jeff has to work with several other Xbox 360 games, and thus, tried to add support for that to the best of my ability.
 
-**DISCLAIMER**: Although I genuinely tried my best to get jeff working with the pool of xexes I had to test with,
+**DISCLAIMER**: Although I genuinely tried my best to get jeff working with the pool of xex files I had to test with,
 **I make absolutely zero guarantees that this will work out of the box with every last Xbox 360 game! Expect bugs!**
 
 If you spot a bug or crash, please submit an issue, and I will try my best to help you through it.
