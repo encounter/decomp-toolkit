@@ -684,7 +684,7 @@ impl XexInfo {
                         }
                         let chunk_data = &block[off..off + chunk_len];
                         off += chunk_len;
-                        let expected = std::cmp::min(window_size, pe_image.len().saturating_sub(pos_out), );
+                        let expected = min(window_size, pe_image.len().saturating_sub(pos_out), );
                         if expected == 0 {
                             break;
                         }
@@ -697,7 +697,7 @@ impl XexInfo {
                             bail!("LZX: decompression returned zero bytes at pos_out=0x{:X}", pos_out);
                         }
 
-                        let copy_len = std::cmp::min(decompressed.len(), pe_image.len() - pos_out);
+                        let copy_len = min(decompressed.len(), pe_image.len() - pos_out);
                         pe_image[pos_out..pos_out + copy_len]
                             .copy_from_slice(&decompressed[..copy_len]);
                         pos_out += copy_len;
