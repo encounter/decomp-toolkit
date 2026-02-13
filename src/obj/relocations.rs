@@ -5,8 +5,8 @@ use std::{
     ops::RangeBounds,
 };
 
-use anyhow::{bail, Result};
-use object::{elf, pe, write::coff};
+use anyhow::Result;
+use object::{elf, pe};
 use serde::{Deserialize, Serialize};
 
 use crate::obj::SymbolIndex;
@@ -109,8 +109,7 @@ impl ObjReloc {
         match self.kind {
             ObjRelocKind::Absolute => pe::IMAGE_REL_PPC_ADDR32,
             ObjRelocKind::PpcAddr16Hi => {
-                unreachable!();
-                pe::IMAGE_REL_PPC_ABSOLUTE
+                unreachable!(); // pe::IMAGE_REL_PPC_ABSOLUTE
             }
             ObjRelocKind::PpcAddr16Ha => pe::IMAGE_REL_PPC_REFHI,
             ObjRelocKind::PpcAddr16Lo => pe::IMAGE_REL_PPC_REFLO,
@@ -207,12 +206,7 @@ mod tests {
     use super::*;
 
     fn make_test_reloc(target_symbol: SymbolIndex) -> ObjReloc {
-        ObjReloc {
-            kind: ObjRelocKind::Absolute,
-            target_symbol,
-            addend: 0,
-            module: None,
-        }
+        ObjReloc { kind: ObjRelocKind::Absolute, target_symbol, addend: 0, module: None }
     }
 
     /// Test that relocations at unaligned addresses are preserved correctly.
@@ -233,9 +227,9 @@ mod tests {
         // Simulate relocations at unaligned offsets (as would occur when a split
         // starts at a non-4-byte-aligned address)
         let relocations = vec![
-            (1u32, make_test_reloc(100)),  // Offset 1 - like RTTI after 1-byte bool
-            (5u32, make_test_reloc(101)),  // Offset 5
-            (9u32, make_test_reloc(102)),  // Offset 9
+            (1u32, make_test_reloc(100)), // Offset 1 - like RTTI after 1-byte bool
+            (5u32, make_test_reloc(101)), // Offset 5
+            (9u32, make_test_reloc(102)), // Offset 9
         ];
 
         let obj_relocs = ObjRelocations::new(relocations).expect("should not fail");

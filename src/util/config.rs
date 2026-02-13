@@ -641,10 +641,7 @@ pub fn apply_splits<R>(r: &mut R, obj: &mut ObjInfo) -> Result<()>
 where R: BufRead + ?Sized {
     let mut state = SplitState::None;
     for result in r.lines() {
-        let line = match result {
-            Ok(line) => line,
-            Err(e) => return Err(e.into()),
-        };
+        let line = result?;
         let split_line = parse_split_line(&line, &state)?;
         match (&mut state, split_line) {
             (
@@ -745,10 +742,7 @@ pub fn read_splits_sections(path: &Utf8NativePath) -> Result<Option<Vec<SectionD
     let mut sections = Vec::new();
     let mut state = SplitState::None;
     for result in file.lines() {
-        let line = match result {
-            Ok(line) => line,
-            Err(e) => return Err(e.into()),
-        };
+        let line = result?;
         let split_line = parse_split_line(&line, &state)?;
         match (&mut state, split_line) {
             (SplitState::None | SplitState::Unit(_), SplitLine::SectionsStart) => {

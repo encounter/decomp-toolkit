@@ -41,9 +41,9 @@ pub struct GprSource {
 }
 
 impl GprSource {
-    fn from_register(source: &Gpr, regnum: usize) -> Self {
-        Self { kind: GprSourceLocation::Register(regnum), version: source.version }
-    }
+    // fn from_register(source: &Gpr, regnum: usize) -> Self {
+    //     Self { kind: GprSourceLocation::Register(regnum), version: source.version }
+    // }
 
     // from stack
 
@@ -568,17 +568,14 @@ impl VM {
                     if self.gpr[ins.field_rs() as usize].value == GprValue::Unknown {
                         // try to find source reg
                         let src = self.gpr[ins.field_rs() as usize].source;
-                        match src.kind {
-                            GprSourceLocation::Register(r) => {
-                                // check the src reg and the current src.version
-                                // it MUST match src reg's current version in order to pull data from it
-                                if self.gpr[r].version == src.version {
-                                    if self.gpr[r].value != GprValue::Unknown {
-                                        self.gpr[ins.field_rs() as usize].value = self.gpr[r].value;
-                                    }
-                                }
+                        if let GprSourceLocation::Register(r) = src.kind {
+                            // check the src reg and the current src.version
+                            // it MUST match src reg's current version in order to pull data from it
+                            if self.gpr[r].version == src.version
+                                && self.gpr[r].value != GprValue::Unknown
+                            {
+                                self.gpr[ins.field_rs() as usize].value = self.gpr[r].value;
                             }
-                            _ => {}
                         }
                     }
 

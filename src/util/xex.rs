@@ -2,13 +2,11 @@ use std::{
     borrow::Cow,
     cmp::min,
     collections::{btree_map::Entry, BTreeMap},
-    ffi::CString,
     fs,
     num::NonZeroU64,
 };
 
 use anyhow::{anyhow, bail, ensure, Result};
-use byteorder::{BigEndian, ReadBytesExt};
 use lzxd::Lzxd;
 use memchr::memmem;
 use num_enum::{IntoPrimitive, TryFromPrimitive};
@@ -16,30 +14,28 @@ use object::{
     endian,
     read::pe::PeFile32,
     write::{SectionId, SymbolId},
-    Architecture, BinaryFormat, Endianness, File, Import, Object, ObjectComdat, ObjectKind,
-    ObjectSection, ObjectSegment, ObjectSymbol, Relocation, RelocationFlags, RelocationTarget,
-    SectionKind, Symbol, SymbolFlags, SymbolKind, SymbolScope, SymbolSection,
+    Architecture, BinaryFormat, Endianness, Object, ObjectSection, RelocationFlags, SectionKind,
+    SymbolFlags, SymbolKind, SymbolScope,
 };
 use typed_path::{Utf8NativePathBuf, Utf8UnixPath};
 
 use crate::{
     analysis::{cfa::SectionAddress, read_u32},
     obj::{
-        ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
-        ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
-        ObjUnit, SectionIndex as ObjSectionIndex, SectionIndex, SymbolIndex as ObjSymbolIndex,
-        SymbolIndex,
+        ObjArchitecture, ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
+        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
+        SectionIndex as ObjSectionIndex, SectionIndex, SymbolIndex,
     },
     util::{crypto::decrypt_aes128_cbc_no_padding, xex_imports::replace_ordinal},
 };
 
 // quick and ez ways to read data from a block of bytes
-pub fn read_halfword(data: &Vec<u8>, index: usize) -> u16 {
-    return u16::from_be_bytes([data[index], data[index + 1]]);
+pub fn read_halfword(data: &[u8], index: usize) -> u16 {
+    u16::from_be_bytes([data[index], data[index + 1]])
 }
 
-pub fn read_word(data: &Vec<u8>, index: usize) -> u32 {
-    return u32::from_be_bytes([data[index], data[index + 1], data[index + 2], data[index + 3]]);
+pub fn read_word(data: &[u8], index: usize) -> u32 {
+    u32::from_be_bytes([data[index], data[index + 1], data[index + 2], data[index + 3]])
 }
 
 // ----------------------------------------------------------------------
@@ -81,9 +77,9 @@ pub struct BaseFileFormat {
 }
 
 impl BaseFileFormat {
-    fn parse(data: &Vec<u8>) -> Result<Self> {
-        let encryption = XexEncryption::try_from(read_halfword(&data, 0))?;
-        let compression = XexCompression::try_from(read_halfword(&data, 2))?;
+    fn parse(data: &[u8]) -> Result<Self> {
+        let encryption = XexEncryption::try_from(read_halfword(data, 0))?;
+        let compression = XexCompression::try_from(read_halfword(data, 2))?;
         let mut basics: Vec<BasicCompression> = vec![];
         let mut normal = None;
         match compression {
@@ -92,20 +88,20 @@ impl BaseFileFormat {
                 let count = (data.len() - 4) / 8;
                 for i in 0..count {
                     basics.push(BasicCompression {
-                        data_size: read_word(&data, 4 + i * 8),
-                        zero_size: read_word(&data, 8 + i * 8),
+                        data_size: read_word(data, 4 + i * 8),
+                        zero_size: read_word(data, 8 + i * 8),
                     });
                 }
             }
             XexCompression::Compressed | XexCompression::DeltaCompressed => {
                 normal = Some(NormalCompression {
-                    window_size: read_word(&data, 4),
-                    block_size: read_word(&data, 8),
+                    window_size: read_word(data, 4),
+                    block_size: read_word(data, 8),
                     block_hash: data[12..32].try_into()?,
                 });
             }
         }
-        return Ok(Self { encryption, compression, basics, normal });
+        Ok(Self { encryption, compression, basics, normal })
     }
 }
 
@@ -130,9 +126,9 @@ pub struct ImportLibrary {
 }
 
 impl ImportLibraries {
-    fn parse(data: &Vec<u8>) -> Result<Self> {
-        let string_size = read_word(&data, 0);
-        let lib_count = read_word(&data, 4);
+    fn parse(data: &[u8]) -> Result<Self> {
+        let string_size = read_word(data, 0);
+        let lib_count = read_word(data, 4);
 
         // populate the string table
         let mut string_table: Vec<String> = vec![];
@@ -159,8 +155,8 @@ impl ImportLibraries {
         let mut libraries: Vec<ImportLibrary> = vec![];
         for _ in 0..lib_count {
             pos += 0x24;
-            let name_idx = read_halfword(&data, pos) as usize;
-            let count = read_halfword(&data, pos + 2) as usize;
+            let name_idx = read_halfword(data, pos) as usize;
+            let count = read_halfword(data, pos + 2) as usize;
             pos += 4;
             let lib_name = &string_table[name_idx];
             let mut records: Vec<u32> = vec![];
@@ -174,7 +170,7 @@ impl ImportLibraries {
                 functions: Vec::new(),
             });
         }
-        return Ok(Self { libraries });
+        Ok(Self { libraries })
     }
 }
 
@@ -193,20 +189,20 @@ pub struct ResourceInfo {
 }
 
 impl ResourceInfos {
-    pub fn parse(data: &Vec<u8>) -> Result<Self> {
+    pub fn parse(data: &[u8]) -> Result<Self> {
         ensure!(
             data.len() % 16 == 0,
             "Resource info has unexpected length! (expected a multiple of 16)"
         );
-        let num_resources = data.len() / 16;
+        let _num_resources = data.len() / 16;
         let mut info: Vec<ResourceInfo> = vec![];
-        for (_, chunk) in data.chunks_exact(16).enumerate() {
+        for chunk in data.chunks_exact(16) {
             let title_id = String::from_utf8(chunk[0..8].to_vec())?;
             let rsrc_start = u32::from_be_bytes(chunk[8..12].try_into()?);
             let rsrc_end = rsrc_start + u32::from_be_bytes(chunk[12..16].try_into()?);
             info.push(ResourceInfo { title_id, rsrc_start, rsrc_end });
         }
-        return Ok(Self { info });
+        Ok(Self { info })
     }
 }
 
@@ -224,14 +220,14 @@ pub struct XexHeader {
 }
 
 impl XexHeader {
-    fn parse(data: &Vec<u8>) -> Result<Self> {
-        let magic = read_word(&data, 0);
+    fn parse(data: &[u8]) -> Result<Self> {
+        let magic = read_word(data, 0);
         ensure!(magic == 0x58455832, "XEX2 magic header not found!");
-        let module_flags = read_word(&data, 4);
-        let pe_offset = read_word(&data, 8);
+        let module_flags = read_word(data, 4);
+        let pe_offset = read_word(data, 8);
         // reserved is at data index 12, but it's unused so who cares
-        let security_info_offset = read_word(&data, 16);
-        return Ok(Self { module_flags, pe_offset, security_info_offset });
+        let security_info_offset = read_word(data, 16);
+        Ok(Self { module_flags, pe_offset, security_info_offset })
     }
 }
 
@@ -266,9 +262,9 @@ pub struct XexOptionalHeaderData {
 }
 
 impl XexOptionalHeaderData {
-    fn parse(data: &Vec<u8>) -> Result<Self> {
+    fn parse(data: &[u8]) -> Result<Self> {
         // read in the optional headers
-        let num_optional_headers = read_word(&data, 20);
+        let num_optional_headers = read_word(data, 20);
         let mut opt_headers: Vec<XexOptionalHeader> = vec![];
         for n in 0..num_optional_headers {
             opt_headers.push(XexOptionalHeader::new(data, (24 + n * 8) as usize));
@@ -345,7 +341,7 @@ impl XexOptionalHeaderData {
         }
         // at the very minimum, we should have a base file format, as that contains encryption/compression information
         ensure!(base_file_format.is_some(), "Base file format not found!");
-        return Ok(Self {
+        Ok(Self {
             original_name,
             entry_point,
             image_base,
@@ -354,7 +350,7 @@ impl XexOptionalHeaderData {
             base_file_format,
             static_libs,
             import_libs,
-        });
+        })
     }
 }
 
@@ -402,7 +398,7 @@ pub struct XexOptionalHeader {
 }
 
 impl XexOptionalHeader {
-    pub fn new(data: &Vec<u8>, index: usize) -> Self {
+    pub fn new(data: &[u8], index: usize) -> Self {
         let mut hdr = Self {
             id: XexOptionalHeaderID::try_from(read_word(data, index)).unwrap(),
             value: read_word(data, index + 4),
@@ -427,7 +423,7 @@ impl XexOptionalHeader {
             let end: usize = (hdr.value + len) as usize;
             hdr.data = data[start..end].to_vec();
         }
-        return hdr;
+        hdr
     }
 }
 
@@ -454,20 +450,20 @@ pub struct XexLoaderInfo {
 }
 
 impl XexLoaderInfo {
-    fn parse(data: &Vec<u8>, security_offset: u32) -> Result<Self> {
+    fn parse(data: &[u8], security_offset: u32) -> Result<Self> {
         let mut pos = security_offset as usize;
-        let header_size = read_word(&data, pos);
-        let image_size = read_word(&data, pos + 4);
+        let header_size = read_word(data, pos);
+        let image_size = read_word(data, pos + 4);
         pos += 8;
         let rsa_signature = data[pos..pos + 256].try_into()?;
         pos += 256;
-        let unknown = read_word(&data, pos);
-        let image_flags = read_word(&data, pos + 4);
-        let load_address = read_word(&data, pos + 8);
+        let unknown = read_word(data, pos);
+        let image_flags = read_word(data, pos + 4);
+        let load_address = read_word(data, pos + 8);
         pos += 12;
         let section_digest = data[pos..pos + 20].try_into()?;
         pos += 20;
-        let import_table_count = read_word(&data, pos);
+        let import_table_count = read_word(data, pos);
         pos += 4;
         let import_table_digest = data[pos..pos + 20].try_into()?;
         pos += 20;
@@ -475,13 +471,13 @@ impl XexLoaderInfo {
         pos += 16;
         let file_key = data[pos..pos + 16].try_into()?;
         pos += 16;
-        let export_table = read_word(&data, pos);
+        let export_table = read_word(data, pos);
         pos += 4;
         let header_digest = data[pos..pos + 20].try_into()?;
         pos += 20;
-        let game_regions = read_word(&data, pos);
-        let media_flags = read_word(&data, pos + 4);
-        return Ok(Self {
+        let game_regions = read_word(data, pos);
+        let media_flags = read_word(data, pos + 4);
+        Ok(Self {
             header_size,
             image_size,
             rsa_signature,
@@ -497,7 +493,7 @@ impl XexLoaderInfo {
             header_digest,
             game_regions,
             media_flags,
-        });
+        })
     }
 }
 
@@ -532,10 +528,7 @@ impl XexSessionKeys {
         //     print!("{:02X} ", k);
         // }
         // print!("\n");
-        return Ok(Self {
-            session_key_retail: retail_derived_key,
-            session_key_devkit: devkit_derived_key,
-        });
+        Ok(Self { session_key_retail: retail_derived_key, session_key_devkit: devkit_derived_key })
     }
 }
 
@@ -594,43 +587,35 @@ impl XexInfo {
                         is_dev_kit = true;
                         exe_bytes = exe;
                     }
-                    Err(e) => {
-                        return Err(e); // here until case 2 is implemented
+                    Err(_) => {
                         bail!("Could not deduce exe type!");
                     }
                 }
             }
         }
 
-        return Ok(Self {
+        Ok(Self {
             header: xex_header,
             opt_header_data: xex_optional_header_data,
             loader_info: xex_loader_info,
             session_key: confirmed_session_key,
             is_dev_kit,
             exe_bytes,
-        });
+        })
     }
 
     pub fn try_get_exe(
-        exe_data: &Vec<u8>,
+        exe_data: &[u8],
         session_key: &[u8; 16],
         bff: &BaseFileFormat,
         img_size: u32,
     ) -> Result<Vec<u8>> {
-        let compressed: Cow<[u8]>;
+        let compressed: Cow<[u8]> = match bff.encryption {
+            XexEncryption::No => Cow::Borrowed(exe_data),
+            XexEncryption::Yes => Cow::Owned(decrypt_aes128_cbc_no_padding(session_key, exe_data)?),
+        };
 
-        match bff.encryption {
-            XexEncryption::No => {
-                compressed = Cow::Borrowed(&exe_data);
-            }
-            XexEncryption::Yes => {
-                compressed = Cow::Owned(decrypt_aes128_cbc_no_padding(&session_key, &exe_data)?);
-            }
-        }
-
-        let mut pe_image: Vec<u8> = vec![];
-        pe_image.resize(img_size as usize, 0);
+        let mut pe_image: Vec<u8> = vec![0; img_size as usize];
         let mut pos_in: usize = 0;
         let mut pos_out: usize = 0;
 
@@ -638,7 +623,7 @@ impl XexInfo {
             XexCompression::Raw => {
                 for bc in &bff.basics {
                     for i in 0..(bc.data_size as usize) {
-                        if pos_in + i as usize >= compressed.len() {
+                        if pos_in + i >= compressed.len() {
                             break;
                         }
                         pe_image[i + pos_out] = compressed[pos_in + i];
@@ -659,21 +644,23 @@ impl XexInfo {
 
                 while current_block_size != 0 {
                     if pos_in + current_block_size > compressed.len() {
-                        bail!("LZX: block needs {} bytes at 0x{:X} but only {} remain", current_block_size, pos_in, compressed.len() - pos_in);
+                        bail!(
+                            "LZX: block needs {} bytes at 0x{:X} but only {} remain",
+                            current_block_size,
+                            pos_in,
+                            compressed.len() - pos_in
+                        );
                     }
                     let block = &compressed[pos_in..pos_in + current_block_size];
                     pos_in += current_block_size;
                     if block.len() < 24 {
                         bail!("LZX: block too small for header: {} bytes", block.len());
                     }
-                    let next_block_size = u32::from_be_bytes([
-                        block[0], block[1], block[2], block[3],
-                    ]) as usize;
+                    let next_block_size =
+                        u32::from_be_bytes([block[0], block[1], block[2], block[3]]) as usize;
                     let mut off = 24usize;
                     while off + 2 <= block.len() {
-                        let chunk_len = u16::from_be_bytes([
-                            block[off], block[off + 1],
-                        ]) as usize;
+                        let chunk_len = u16::from_be_bytes([block[off], block[off + 1]]) as usize;
                         off += 2;
 
                         if chunk_len == 0 {
@@ -681,21 +668,37 @@ impl XexInfo {
                         }
 
                         if off + chunk_len > block.len() {
-                            bail!("LZX: sub-chunk at offset {} wants {} bytes but only {} remain", off, chunk_len, block.len() - off);
+                            bail!(
+                                "LZX: sub-chunk at offset {} wants {} bytes but only {} remain",
+                                off,
+                                chunk_len,
+                                block.len() - off
+                            );
                         }
                         let chunk_data = &block[off..off + chunk_len];
                         off += chunk_len;
-                        let expected = min(window_size, pe_image.len().saturating_sub(pos_out), );
+                        let expected = min(window_size, pe_image.len().saturating_sub(pos_out));
                         if expected == 0 {
                             break;
                         }
-                        let decompressed = lzxd_state.decompress_next(chunk_data, expected).map_err(|e| anyhow::anyhow!(
-                            "LZX: decompress failed at pos_out=0x{:X} \
+                        let decompressed =
+                            lzxd_state.decompress_next(chunk_data, expected).map_err(|e| {
+                                anyhow::anyhow!(
+                                    "LZX: decompress failed at pos_out=0x{:X} \
                             (chunk_len={}, expected={}, block_off={}): {:?}",
-                            pos_out, chunk_len, expected, off - chunk_len, e))?;
+                                    pos_out,
+                                    chunk_len,
+                                    expected,
+                                    off - chunk_len,
+                                    e
+                                )
+                            })?;
 
                         if decompressed.is_empty() {
-                            bail!("LZX: decompression returned zero bytes at pos_out=0x{:X}", pos_out);
+                            bail!(
+                                "LZX: decompression returned zero bytes at pos_out=0x{:X}",
+                                pos_out
+                            );
                         }
 
                         let copy_len = min(decompressed.len(), pe_image.len() - pos_out);
@@ -708,16 +711,10 @@ impl XexInfo {
                 if pos_out == 0 {
                     bail!("LZX: produced zero output bytes");
                 }
-                //bail!("This xex is compressed using LZX, which is not currently supported.");
-                // this is actually pretty hard to implement, it involves use of the NormalCompression we retrieved earlier,
-                // plus the use of microsoft's LZX decompression algorithms
-                // here are some references if you try to attempt this
-                // https://github.com/zeroKilo/XEXLoaderWV/blob/master/XEXLoaderWV/src/main/java/xexloaderwv/XEXHeader.java#L356
-                // https://github.com/emoose/idaxex/blob/master/formats/xex.cpp#L819
             }
         }
 
-        ensure!(pe_image[0] == 'M' as u8 && pe_image[1] == 'Z' as u8, "This is not a valid exe!");
+        ensure!(pe_image[0] == b'M' && pe_image[1] == b'Z', "This is not a valid exe!");
 
         // adjust the byte offsets, because virtual addresses have been thrown off in the initial exe reconstruction process
         let pe_file =
@@ -749,7 +746,7 @@ impl XexInfo {
                 }
             }
         }
-        return Ok(pe_file_adjusted);
+        Ok(pe_file_adjusted)
     }
 }
 
@@ -757,7 +754,7 @@ pub fn extract_exe(input: &Utf8NativePathBuf) -> Result<(String, Vec<u8>)> {
     println!("xex: {input}");
     let xex = XexInfo::from_file(input)?;
     // after this line, the XexInfo should have all of its relevant metadata parsed
-    return Ok((xex.opt_header_data.original_name, xex.exe_bytes));
+    Ok((xex.opt_header_data.original_name, xex.exe_bytes))
 }
 
 pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
@@ -867,7 +864,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
             imp[3] = 0x80;
         }
         fn add_imp(obj: &mut ObjInfo, name: String, addr: SectionAddress) -> Result<SymbolIndex> {
-            return obj.add_symbol(
+            obj.add_symbol(
                 ObjSymbol {
                     name,
                     address: addr.address as u64,
@@ -879,7 +876,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                     ..Default::default()
                 },
                 false,
-            );
+            )
         }
         // to unstrip a thunk,
         // you need the address of the __imp_ (i.e. __imp_XamInputGetCapabilities at 0x827103c4)
@@ -955,10 +952,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
         // for SOME reason, microsoft can have imports/thunks that aren't referenced in the import libraries
         // but can be referenced in xidata later on
         // so, this block of code serves to search for and capture them
-        if min_imp_addr.is_some() && max_imp_addr.is_some() {
-            let min_addr = min_imp_addr.unwrap();
-            let max_addr = max_imp_addr.unwrap();
-
+        if let (Some(min_addr), Some(max_addr)) = (min_imp_addr, max_imp_addr) {
             // i had to write things this way because of how rust handles borrowing...thank you rust, very cool
             let (import_idx, offset_within_sec) = {
                 let (idx, sec) = obj.sections.at_address(min_addr)?;
@@ -999,10 +993,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                 i += 4;
             }
         }
-        if min_api_addr.is_some() && max_api_addr.is_some() {
-            let min_addr = min_api_addr.unwrap();
-            let max_addr = max_api_addr.unwrap();
-
+        if let (Some(min_addr), Some(max_addr)) = (min_api_addr, max_api_addr) {
             // i had to write things this way because of how rust handles borrowing...thank you rust, very cool
             let (thunk_idx, offset_within_sec) = {
                 let (idx, sec) = obj.sections.at_address(min_addr)?;
@@ -1034,13 +1025,13 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                             (cur_thunk & 0xFFFF) as usize,
                         );
                         // println!("Found missing thunk {} at 0x{:08X}", sym_name, i);
-                        let imp_name = format!("__imp_{}", sym_name);
-                        let maybe_imp_sym = obj.symbols.by_name(&imp_name)?;
-                        if maybe_imp_sym.is_some() {
+                        if let Some((_, imp_sym)) =
+                            obj.symbols.by_name(&format!("__imp_{}", sym_name))?
+                        {
                             // println!("found sym {}", maybe_imp_sym.unwrap().1.name);
                             unstrip_thunk(
                                 &mut obj.sections[thunk_idx].data[data_idx..data_idx + 8],
-                                maybe_imp_sym.unwrap().1.address as u32,
+                                imp_sym.address as u32,
                             );
                         }
                         add_thunk(&mut obj, sym_name, cur_addr)?;
@@ -1245,7 +1236,7 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
 }
 
 pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
-    let root_name = obj.name.split('.').next().unwrap();
+    // let root_name = obj.name.split('.').next().unwrap();
     // println!("Writing {}.obj", root_name);
 
     // for each obj:
@@ -1300,9 +1291,7 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
             },
             weak: false, // sym.flags.scope() == ObjSymbolScope::Weak,
             section: match sym.section {
-                Some(idx) => {
-                    object::write::SymbolSection::Section(sect_map.get(&idx).unwrap().clone())
-                }
+                Some(idx) => object::write::SymbolSection::Section(*sect_map.get(&idx).unwrap()),
                 None => object::write::SymbolSection::Undefined,
             },
             flags: SymbolFlags::None,
@@ -1318,10 +1307,10 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
                 None => bail!("Could not find symbol ID for index {}", reloc.target_symbol),
             };
             cur_coff.add_relocation(
-                sect_map.get(&sect_idx).unwrap().clone(),
+                *sect_map.get(&sect_idx).unwrap(),
                 object::write::Relocation {
                     offset: addr as u64,
-                    symbol: sym_id.clone(),
+                    symbol: *sym_id,
                     addend: 0,
                     flags: RelocationFlags::Coff { typ: reloc.to_coff() },
                 },
@@ -1330,10 +1319,10 @@ pub fn write_coff(obj: &ObjInfo) -> Result<Vec<u8>> {
             match reloc.kind {
                 ObjRelocKind::PpcAddr16Ha | ObjRelocKind::PpcAddr16Lo => {
                     cur_coff.add_relocation(
-                        sect_map.get(&sect_idx).unwrap().clone(),
+                        *sect_map.get(&sect_idx).unwrap(),
                         object::write::Relocation {
                             offset: addr as u64,
-                            symbol: sym_id.clone(),
+                            symbol: *sym_id,
                             addend: 0,
                             flags: RelocationFlags::Coff { typ: object::pe::IMAGE_REL_PPC_PAIR },
                         },
@@ -1367,6 +1356,6 @@ pub fn list_exe_sections(exe: &PeFile32) {
             "  Has uninitialized data? {}",
             sec.characteristics.get(endian::LittleEndian) & 0x80 != 0
         );
-        println!("");
+        println!();
     }
 }

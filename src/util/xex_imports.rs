@@ -191,7 +191,7 @@ const SYSCALL_FUNCS: [&str; 118] = [
 const VK_FUNCS: [&str; 5] =
     ["Unused0000", "RegisterXuiClasses", "VK_UnInit", "VK_CreateScene", "VK_GetUserCancelled"];
 
-const XAM_FUNCS: [&str; 2891] = [
+static XAM_FUNCS: [&str; 2891] = [
     "Unused0000",
     "NetDll_WSAStartup",
     "NetDll_WSACleanup",

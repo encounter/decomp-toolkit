@@ -162,6 +162,7 @@ struct ExeModuleInfo<'a> {
 fn split(args: SplitArgs) -> Result<()> {
     info!("Loading {}", args.config);
     let config: ProjectConfig = {
+        // TODO: open the config.yml without making a VfsFile out of it, because we need to remove VFS from this codebase
         let mut config_file = open_file(&args.config, true)?;
         serde_yaml::from_reader(config_file.as_mut())?
     };
@@ -179,9 +180,9 @@ fn split(args: SplitArgs) -> Result<()> {
     // load_analyze_dol is called here, takes in ProjectConfig and ObjectBase and returns a Result<AnalyzeResult>
     // load_dol_module - returns a Result<(ObjInfo, Utf8NativePathBuf)> - process_xex, then the path of the object
     info!("Loading and analyzing xex");
-    let xex_result: Option<Result<ExeAnalyzeResult>> = Some(load_analyze_xex(&config));
+    let xex_result: Result<ExeAnalyzeResult> = load_analyze_xex(&config);
     let mut exe = {
-        let result = xex_result.unwrap()?;
+        let result = xex_result?;
         dep.extend(result.dep);
         ExeModuleInfo {
             obj: result.obj,
@@ -437,9 +438,9 @@ fn split_write_obj_exe(
             // write the file
             let file = File::create(&full_path)?;
             let mut writer = BufWriter::new(file);
-            if !write_asm(&mut writer, &asm_obj)
+            if write_asm(&mut writer, asm_obj)
                 .with_context(|| format!("Failed to write {full_path}"))
-                .is_ok()
+                .is_err()
             {
                 println!("Failed to write {full_path}!");
             }
@@ -483,11 +484,10 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
             if !is_reg_intrinsic(&sym.name) && sym.name != "__NLG_Return" {
                 match obj.sections.at_address(sym.address as u32).ok() {
                     Some((sec_idx, sec)) => {
-                        let sym_to_add: ObjSymbol;
                         // if func came from pdata, DO NOT override the size
                         let the_sec_addr = SectionAddress::new(sec_idx, sym.address as u32);
-                        if obj.pdata_funcs.contains(&the_sec_addr) {
-                            sym_to_add = ObjSymbol {
+                        let sym_to_add: ObjSymbol = if obj.pdata_funcs.contains(&the_sec_addr) {
+                            ObjSymbol {
                                 name: sym.name,
                                 address: sym.address,
                                 section: Some(sec_idx),
@@ -501,9 +501,9 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
                                     ObjSymbolKind::Object
                                 },
                                 ..Default::default()
-                            };
+                            }
                         } else {
-                            sym_to_add = ObjSymbol {
+                            ObjSymbol {
                                 name: sym.name,
                                 address: sym.address,
                                 section: Some(sec_idx),
@@ -516,8 +516,8 @@ fn load_analyze_xex(config: &ProjectConfig) -> Result<ExeAnalyzeResult> {
                                     ObjSymbolKind::Object
                                 },
                                 ..Default::default()
-                            };
-                        }
+                            }
+                        };
                         obj.add_symbol(sym_to_add, true)?;
                     }
                     // if we couldn't find the section (like maybe it was stripped), just continue on
@@ -628,7 +628,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
     // Gamepad Release
     apply_splits_file(&args.out, &mut obj)?;
     update_splits(&mut obj, None, false)?;
-    let split_objs = split_obj(&mut obj, None)?;
+    let split_objs = split_obj(&obj, None)?;
 
     for coff_obj in &split_objs {
         // skip autogenned splits for now
@@ -697,7 +697,7 @@ fn disasm(args: DisasmArgs) -> Result<()> {
                 },
                 weak: false, // sym.flags.scope() == ObjSymbolScope::Weak,
                 section: match sym.section {
-                    Some(idx) => SymbolSection::Section(sect_map.get(&idx).unwrap().clone()),
+                    Some(idx) => SymbolSection::Section(*sect_map.get(&idx).unwrap()),
                     None => SymbolSection::Undefined,
                 },
                 flags: SymbolFlags::None,
@@ -712,9 +712,9 @@ fn disasm(args: DisasmArgs) -> Result<()> {
                     Some(id) => id,
                     None => bail!("Could not find symbol ID for index {}", reloc.target_symbol),
                 };
-                cur_coff.add_relocation(sect_map.get(&sect_idx).unwrap().clone(), Relocation {
+                cur_coff.add_relocation(*sect_map.get(&sect_idx).unwrap(), Relocation {
                     offset: addr as u64,
-                    symbol: sym_id.clone(),
+                    symbol: *sym_id,
                     addend: 0,
                     flags: RelocationFlags::Coff { typ: reloc.to_coff() },
                 })?;
@@ -1012,7 +1012,7 @@ fn info(args: InfoArgs) -> Result<()> {
         if bff.compression == XexCompression::Compressed { "Compressed" } else { "Uncompressed" }
     );
     println!("  {}", if bff.encryption == XexEncryption::No { "Unencrypted" } else { "Encrypted" });
-    println!("");
+    println!();
 
     println!("Basefile Info:");
     println!("  Original PE Name: {}", xex.opt_header_data.original_name);
@@ -1025,7 +1025,7 @@ fn info(args: InfoArgs) -> Result<()> {
     let pst = FixedOffset::west_opt(8 * 3600).unwrap();
     let dt_pst = datetime.with_timezone(&pst);
     println!("{}", dt_pst.format("%a %b %d %H:%M:%S %Y"));
-    println!("");
+    println!();
 
     println!("Static Libraries:");
     let mut idx = 1;
@@ -1033,7 +1033,7 @@ fn info(args: InfoArgs) -> Result<()> {
         println!("  {}. {}: v{}.{}.{}.{}", idx, lib.name, lib.major, lib.minor, lib.build, lib.qfe);
         idx += 1;
     }
-    println!("");
+    println!();
 
     // TODO: import libraries
     list_exe_sections(&PeFile32::parse(&*xex.exe_bytes).expect("Failed to parse object file"));

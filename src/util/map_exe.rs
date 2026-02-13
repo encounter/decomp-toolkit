@@ -1,22 +1,18 @@
 use std::{
-    collections::{btree_map, BTreeMap, BTreeSet, HashMap},
+    collections::{btree_map, BTreeMap, HashMap},
     fs::read_to_string,
-    str::SplitWhitespace,
 };
 
 use anyhow::{bail, Result};
-use indexmap::IndexMap;
-use itertools::Itertools;
 use multimap::MultiMap;
-use typed_path::{Utf8NativePath, Utf8NativePathBuf};
+use typed_path::Utf8NativePathBuf;
 
 use crate::{
     analysis::cfa::SectionAddress,
     obj::{
-        ObjInfo, ObjReloc, ObjSection, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind, ObjUnit,
+        ObjInfo, ObjSectionKind, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags,
+        ObjSymbolKind, ObjUnit,
     },
-    util::map::{MapInfo, SectionInfo, SymbolEntry, SymbolRef},
 };
 
 // SymbolRef: the symbol name, and the obj it came from
@@ -65,6 +61,10 @@ pub struct ExeMapInfo {
     // pub section_units: HashMap<String, Vec<(u32, String)>>,
 }
 
+impl Default for ExeMapInfo {
+    fn default() -> Self { Self::new() }
+}
+
 impl ExeMapInfo {
     pub fn new() -> Self {
         ExeMapInfo {
@@ -86,12 +86,10 @@ impl ExeMapInfo {
 
     fn get_section_idx(&self, idx: u32, offset: u32) -> Result<usize> {
         for (sec_idx, sec) in self.sections.iter().enumerate() {
-            if sec.index == idx {
-                if offset >= sec.offset && offset < (sec.offset + sec.size) {
-                    return Ok(sec_idx);
-                } else if offset >= sec.offset && sec.size == 0 && sec.name == ".xedata" {
-                    return Ok(sec_idx);
-                }
+            if sec.index == idx && (offset >= sec.offset && offset < (sec.offset + sec.size))
+                || (offset >= sec.offset && sec.size == 0 && sec.name == ".xedata")
+            {
+                return Ok(sec_idx);
             }
         }
         bail!("index {}:{:#X} not found", idx, offset);
@@ -99,13 +97,13 @@ impl ExeMapInfo {
 
     fn add_symbol(&mut self, symbol_parts: Vec<&str>, is_static: bool) -> Result<()> {
         let idx_and_offset = symbol_parts[0].split(":").collect::<Vec<&str>>();
-        let sec_idx = u32::from_str_radix(&idx_and_offset[0], 16)?;
-        let sec_offset = u32::from_str_radix(&idx_and_offset[1], 16)?;
+        let sec_idx = u32::from_str_radix(idx_and_offset[0], 16)?;
+        let sec_offset = u32::from_str_radix(idx_and_offset[1], 16)?;
         let flags_slice = &symbol_parts[3..symbol_parts.len() - 1];
         let section_symbol_idx = self.get_section_idx(sec_idx, sec_offset)?;
 
         self.section_symbols.get_mut(section_symbol_idx).unwrap().push(ExeSymbolEntry {
-            addr: u32::from_str_radix(&symbol_parts[2], 16)?,
+            addr: u32::from_str_radix(symbol_parts[2], 16)?,
             symbol: String::from(symbol_parts[1]),
             unit: String::from(*symbol_parts.last().unwrap()),
             is_function: flags_slice.contains(&"f"),
@@ -137,7 +135,7 @@ impl ExeMapInfo {
                     }
                 }
             }
-            return None;
+            None
         }
 
         for entries in self.section_symbols.iter_mut() {
@@ -199,14 +197,14 @@ pub fn apply_map_file_exe(path: &Utf8NativePathBuf, obj: &mut ObjInfo) -> Result
     apply_map_exe(map_info, obj)
 }
 
-pub fn is_reg_intrinsic(name: &String) -> bool {
+pub fn is_reg_intrinsic(name: &str) -> bool {
     (name.contains("__save") || name.contains("__rest"))
         && (name.contains("gpr") || name.contains("fpr") || name.contains("vmx"))
 }
 
-pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
+pub fn apply_map_exe(result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
     // apply map symbols to ObjInfo
-    for (idx, entries) in result.section_symbols.iter().enumerate() {
+    for entries in result.section_symbols.iter() {
         for sym in entries {
             // we want to skip imps and save/restore reg intrinsics, since we'll find those ourselves later
             if !sym.symbol.contains("__imp_")
@@ -215,7 +213,6 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
             {
                 match obj.sections.at_address(sym.addr) {
                     Ok((sec_idx, sec)) => {
-                        let mut sym_to_add: ObjSymbol = ObjSymbol::default();
                         let sym_name = if result.merged_addrs.contains(&sym.addr) {
                             format!("merged_{:08X}", sym.addr)
                         } else {
@@ -223,8 +220,8 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                         };
                         // if func came from pdata, DO NOT override the size
                         let the_sec_addr = SectionAddress::new(sec_idx, sym.addr);
-                        if obj.pdata_funcs.contains(&the_sec_addr) {
-                            sym_to_add = ObjSymbol {
+                        let sym_to_add: ObjSymbol = if obj.pdata_funcs.contains(&the_sec_addr) {
+                            ObjSymbol {
                                 name: sym_name,
                                 address: sym.addr as u64,
                                 section: Some(sec_idx),
@@ -241,9 +238,9 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                                     ObjSymbolKind::Object
                                 },
                                 ..Default::default()
-                            };
+                            }
                         } else {
-                            sym_to_add = ObjSymbol {
+                            ObjSymbol {
                                 name: sym_name,
                                 address: sym.addr as u64,
                                 section: Some(sec_idx),
@@ -259,19 +256,19 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
                                     ObjSymbolKind::Object
                                 },
                                 ..Default::default()
-                            };
-                        }
+                            }
+                        };
                         obj.add_symbol(sym_to_add, true)?;
                     }
                     // if we couldn't find the section (like maybe it was stripped), just continue on
-                    Err(e) => continue,
+                    Err(_) => continue,
                 };
             }
         }
     }
 
     fn fix_split_name(orig_name: String) -> String {
-        let mut ret = orig_name.replace(":", "/");
+        let ret = orig_name.replace(":", "/");
         if orig_name.contains(".obj") {
             ret.replace(".obj", ".cpp")
         }
@@ -290,9 +287,9 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
         }
 
         let section_name = result.sections[idx].name.clone();
-        let (target_sec_idx, target_sec) = match obj.sections.at_address_mut(entries[0].addr) {
+        let (_target_sec_idx, target_sec) = match obj.sections.at_address_mut(entries[0].addr) {
             Ok((target_sec_idx, target_sec)) => (target_sec_idx, target_sec),
-            Err(e) => continue,
+            Err(_) => continue,
         };
         let section_start = target_sec.address as u32 + result.sections[idx].offset;
         let section_end = section_start + result.sections[idx].size;
@@ -468,7 +465,7 @@ pub fn apply_map_exe(mut result: ExeMapInfo, obj: &mut ObjInfo) -> Result<()> {
             }
             // obj.add_split(target_sec_idx, start_addr, split)?;
             // if this TU isn't in the link order, add it
-            if obj.link_order.iter().find(|&x| x.name == tu_name).is_none() {
+            if !obj.link_order.iter().any(|x| x.name == tu_name) {
                 obj.link_order.push(ObjUnit {
                     name: tu_name.clone(),
                     autogenerated: false,
@@ -492,7 +489,7 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
         if line.contains(PREFERRED_LOAD_ADDR_STR) {
             let entry_str = line.split(PREFERRED_LOAD_ADDR_STR).collect::<Vec<&str>>();
             assert_eq!(entry_str.len(), 2);
-            exe_map_info.set_preferred_load_addr(u32::from_str_radix(&entry_str[1], 16)?);
+            exe_map_info.set_preferred_load_addr(u32::from_str_radix(entry_str[1], 16)?);
         } else if line == SECTION_STR {
             state = ExeMapState::ReadingSections;
             continue;
@@ -508,7 +505,7 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
         match state {
             ExeMapState::None => continue,
             ExeMapState::ReadingSections => {
-                if line == "" {
+                if line.is_empty() {
                     state = ExeMapState::None;
                 } else {
                     let sec_parts = line.split_whitespace().collect::<Vec<&str>>();
@@ -518,9 +515,9 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
                     let size_str = sec_parts[1].split("H").collect::<Vec<&str>>();
                     exe_map_info.add_section(ExeSectionInfo {
                         name: String::from(sec_parts[2]),
-                        index: u32::from_str_radix(&idx_and_offset[0], 16)?,
-                        offset: u32::from_str_radix(&idx_and_offset[1], 16)?,
-                        size: u32::from_str_radix(&size_str[0], 16)?,
+                        index: u32::from_str_radix(idx_and_offset[0], 16)?,
+                        offset: u32::from_str_radix(idx_and_offset[1], 16)?,
+                        size: u32::from_str_radix(size_str[0], 16)?,
                         section_type: match sec_parts[3] {
                             "CODE" => ExeSectionType::Code,
                             "DATA" => ExeSectionType::Data,
@@ -530,7 +527,7 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
                 }
             }
             ExeMapState::ReadingSymbols => {
-                if line == "" {
+                if line.is_empty() {
                     if must_read_syms {
                         must_read_syms = false;
                         continue;
@@ -546,7 +543,7 @@ pub fn process_map_exe(map_path: &Utf8NativePathBuf) -> Result<ExeMapInfo> {
                 exe_map_info.add_symbol(symbol_parts, false)?;
             }
             ExeMapState::ReadingStaticSymbols => {
-                if line == "" {
+                if line.is_empty() {
                     if must_read_syms {
                         must_read_syms = false;
                         continue;

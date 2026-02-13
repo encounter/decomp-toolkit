@@ -1064,11 +1064,7 @@ mod tests {
     use super::*;
 
     fn make_test_symbol(kind: ObjSymbolKind) -> ObjSymbol {
-        ObjSymbol {
-            name: "test".to_string(),
-            kind,
-            ..Default::default()
-        }
+        ObjSymbol { name: "test".to_string(), kind, ..Default::default() }
     }
 
     /// Test that find_symbol_kind returns the symbol's kind when a Start entry is present.
@@ -1131,15 +1127,15 @@ mod tests {
     #[test]
     fn test_find_symbol_kind_end_then_start() {
         let symbols = vec![
-            make_test_symbol(ObjSymbolKind::Object),   // Symbol A (ending)
+            make_test_symbol(ObjSymbolKind::Object), // Symbol A (ending)
             make_test_symbol(ObjSymbolKind::Function), // Symbol B (starting)
         ];
 
         // End of A, Start of B at the same address
-        let entries = vec![
-            SymbolEntry { index: 0, kind: SymbolEntryKind::End },
-            SymbolEntry { index: 1, kind: SymbolEntryKind::Start },
-        ];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::End }, SymbolEntry {
+            index: 1,
+            kind: SymbolEntryKind::Start,
+        }];
 
         let result = find_symbol_kind(ObjSymbolKind::Object, &symbols, &entries).unwrap();
         // B's Start entry should set the kind to Function
@@ -1177,10 +1173,10 @@ mod tests {
         ];
 
         // Two Start entries with different kinds at the same address
-        let entries = vec![
-            SymbolEntry { index: 0, kind: SymbolEntryKind::Start },
-            SymbolEntry { index: 1, kind: SymbolEntryKind::Start },
-        ];
+        let entries = vec![SymbolEntry { index: 0, kind: SymbolEntryKind::Start }, SymbolEntry {
+            index: 1,
+            kind: SymbolEntryKind::Start,
+        }];
 
         let result = find_symbol_kind(ObjSymbolKind::Unknown, &symbols, &entries);
         assert!(result.is_err(), "Should error on conflicting kinds");

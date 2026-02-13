@@ -2,7 +2,7 @@ use aes::{
     cipher::{consts::U16, generic_array::GenericArray, BlockDecrypt, KeyInit},
     Aes128Dec,
 };
-use anyhow::{anyhow, bail, ensure, Context, Error, Result};
+use anyhow::{anyhow, bail, Result};
 
 /// AES-128-CBC decrypt with zero IV and no padding.
 ///

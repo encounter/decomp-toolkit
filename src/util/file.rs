@@ -144,7 +144,7 @@ pub fn touch(path: &Utf8NativePath) -> io::Result<()> {
     }
 }
 
-pub fn decompress_if_needed(buf: &[u8]) -> Result<Bytes> {
+pub fn decompress_if_needed(buf: &[u8]) -> Result<Bytes<'_>> {
     if buf.len() > 4 {
         match *array_ref!(buf, 0, 4) {
             YAZ0_MAGIC => return decompress_yaz0(buf).map(Bytes::Owned),

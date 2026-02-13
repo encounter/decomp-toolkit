@@ -284,7 +284,7 @@ impl AnalyzerState {
                 if let Some(func) = self.functions.get(&addr) {
                     if let Some(known_size) = value {
                         let known_end = addr + *known_size;
-                        assert_eq!(func.end.is_some(), true, "Function at {} has no detected end rather than known end {}. There must be an error in processing!", addr, known_end);
+                        assert!(func.end.is_some(), "Function at {} has no detected end rather than known end {}. There must be an error in processing!", addr, known_end);
                         let func_end = func.end.unwrap();
                         assert_eq!(func_end, known_end,
                                    "Function at {} has known end addr {}, but during processing, ending was found to be {}!",
