@@ -272,7 +272,9 @@ impl XexOptionalHeaderData {
             opt_headers.push(XexOptionalHeader::new(data, (24 + n * 8) as usize));
         }
 
-        let mut original_name = String::new();
+        // some games (kameo cough cough) don't include an original name
+        // so, we'll provide this as a default
+        let mut original_name = String::from("output.exe");
         let mut entry_point = 0;
         let mut image_base = 0;
         let mut file_timestamp = 0;
