@@ -652,16 +652,6 @@ impl XexInfo {
             XexCompression::Compressed => {
                 let comp = bff.normal.as_ref().unwrap();
                 let window_size = comp.window_size as usize;
-                //let lzx_window = match window_size {
-                //    32768   => lzxd::WindowSize::KB32,
-                //    65536   => lzxd::WindowSize::KB64,
-                //    131072  => lzxd::WindowSize::KB128,
-                //    262144  => lzxd::WindowSize::KB256,
-                //    524288  => lzxd::WindowSize::KB512,
-                //    1048576 => lzxd::WindowSize::MB1,
-                //    2097152 => lzxd::WindowSize::MB2,
-                //    _       => bail!("LZX: bad window size: {}", window_size),
-                //};
                 let lzx_window = lzxd::WindowSize::KB32;
                 let mut lzxd_state = Lzxd::new(lzx_window);
                 let mut current_block_size = comp.block_size as usize;
