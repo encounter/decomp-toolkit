@@ -841,7 +841,9 @@ pub fn process_xex(path: &Utf8NativePathBuf) -> Result<ObjInfo> {
                             func.thunk = *record;
                         }
                     }
-                    _ => {} // shouldn't ever reach this branch, will always be 0 or 1
+                    _ => {
+                        unreachable!()
+                    } // shouldn't ever reach this branch, will always be 0 or 1
                 }
             }
         }

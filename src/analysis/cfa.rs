@@ -10,11 +10,8 @@ use itertools::Itertools;
 
 use crate::{
     analysis::{
-        executor::{ExecCbData, ExecCbResult, Executor},
         skip_alignment,
         slices::{FunctionSlices, TailCallResult},
-        vm::{BranchTarget, GprValue, StepResult, VM},
-        RelocationTarget,
     },
     obj::{
         ObjInfo, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
@@ -560,116 +557,4 @@ impl AnalyzerState {
         }
         Ok(found_new)
     }
-}
-
-/// Execute VM from entry point following branches and function calls
-/// until SDA bases are initialized (__init_registers)
-pub fn locate_sda_bases(obj: &mut ObjInfo) -> Result<bool> {
-    let Some(entry) = obj.entry else {
-        return Ok(false);
-    };
-    let (section_index, _) = obj
-        .sections
-        .at_address(entry as u32)
-        .context(format!("Entry point {entry:#010X} outside of any section"))?;
-    let entry_addr = SectionAddress::new(section_index, entry as u32);
-
-    let mut executor = Executor::new(obj);
-    executor.push(entry_addr, VM::new(), false);
-    let result = executor.run(
-        obj,
-        |ExecCbData { executor, vm, result, ins_addr, section: _, ins: _, block_start: _ }| {
-            match result {
-                StepResult::Continue | StepResult::LoadStore { .. } => {
-                    return Ok(ExecCbResult::Continue);
-                }
-                StepResult::Illegal => bail!("Illegal instruction @ {}", ins_addr),
-                StepResult::Jump(target) => {
-                    if let BranchTarget::Address(RelocationTarget::Address(addr)) = target {
-                        return Ok(ExecCbResult::Jump(addr));
-                    }
-                }
-                StepResult::Branch(branches) => {
-                    for branch in branches {
-                        if let BranchTarget::Address(RelocationTarget::Address(addr)) =
-                            branch.target
-                        {
-                            executor.push(addr, branch.vm, false);
-                        }
-                    }
-                }
-            }
-
-            if let (GprValue::Constant(sda2_base), GprValue::Constant(sda_base)) =
-                (vm.gpr_value(2), vm.gpr_value(13))
-            {
-                return Ok(ExecCbResult::End((sda2_base, sda_base)));
-            }
-
-            Ok(ExecCbResult::EndBlock)
-        },
-    )?;
-    match result {
-        Some((sda2_base, sda_base)) => {
-            obj.sda2_base = Some(sda2_base as u32);
-            obj.sda_base = Some(sda_base as u32);
-            Ok(true)
-        }
-        None => Ok(false),
-    }
-}
-
-/// ProDG hardcodes .bss and .sbss section initialization in `entry`
-/// This function locates the memset calls and returns a list of
-/// (address, size) pairs for the .bss sections.
-pub fn locate_bss_memsets(obj: &mut ObjInfo) -> Result<Vec<(u32, u32)>> {
-    let mut bss_sections: Vec<(u32, u32)> = Vec::new();
-    let Some(entry) = obj.entry else {
-        return Ok(bss_sections);
-    };
-    let (section_index, _) = obj
-        .sections
-        .at_address(entry as u32)
-        .context(format!("Entry point {entry:#010X} outside of any section"))?;
-    let entry_addr = SectionAddress::new(section_index, entry as u32);
-
-    let mut executor = Executor::new(obj);
-    executor.push(entry_addr, VM::new(), false);
-    executor.run(
-        obj,
-        |ExecCbData { executor: _, vm, result, ins_addr, section: _, ins: _, block_start: _ }| {
-            match result {
-                StepResult::Continue | StepResult::LoadStore { .. } => Ok(ExecCbResult::Continue),
-                StepResult::Illegal => bail!("Illegal instruction @ {}", ins_addr),
-                StepResult::Jump(_target) => Ok(ExecCbResult::End(())),
-                StepResult::Branch(branches) => {
-                    for branch in branches {
-                        if branch.link {
-                            // Some ProDG crt0.s versions use the wrong registers, some don't
-                            if let (
-                                GprValue::Constant(addr),
-                                GprValue::Constant(value),
-                                GprValue::Constant(size),
-                            ) = {
-                                if vm.gpr_value(4) == GprValue::Constant(0) {
-                                    (vm.gpr_value(3), vm.gpr_value(4), vm.gpr_value(5))
-                                } else {
-                                    (vm.gpr_value(4), vm.gpr_value(5), vm.gpr_value(6))
-                                }
-                            } {
-                                if value == 0 && size > 0 {
-                                    bss_sections.push((addr as u32, size as u32));
-                                }
-                            }
-                        }
-                    }
-                    if bss_sections.len() >= 2 {
-                        return Ok(ExecCbResult::End(()));
-                    }
-                    Ok(ExecCbResult::Continue)
-                }
-            }
-        },
-    )?;
-    Ok(bss_sections)
 }

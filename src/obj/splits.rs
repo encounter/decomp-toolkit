@@ -113,4 +113,6 @@ impl ObjSplits {
     }
 
     pub fn remove(&mut self, address: u32) -> Option<Vec<ObjSplit>> { self.splits.remove(&address) }
+
+    pub fn clear(&mut self) { self.splits.clear(); }
 }
