@@ -930,7 +930,6 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
         symbols: ObjSymbols::new(ObjKind::Executable, vec![]),
         sections: ObjSections::new(ObjKind::Executable, sections),
         entry: None, // TODO result.entry_point
-        mw_comment: None,
         split_meta: None,
         sda2_base: None,
         sda_base: None,
@@ -945,7 +944,6 @@ pub fn create_obj(result: &MapInfo) -> Result<ObjInfo> {
         known_functions: Default::default(),
         pdata_funcs: Default::default(),
         module_id: 0,
-        unresolved_relocations: vec![],
     };
 
     // If every symbol the map has alignment 4, it's likely bogus

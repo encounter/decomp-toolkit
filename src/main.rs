@@ -89,9 +89,7 @@ struct TopLevel {
 #[argp(subcommand)]
 enum SubCommand {
     Demangle(cmd::demangle::Args),
-    Disc(cmd::disc::Args),
     Map(cmd::map::Args),
-    Shasum(cmd::shasum::Args),
     Xex(cmd::xex::Args),
 }
 
@@ -151,9 +149,7 @@ fn main() {
     }
     result = result.and_then(|_| match args.command {
         SubCommand::Demangle(c_args) => cmd::demangle::run(c_args),
-        SubCommand::Disc(c_args) => cmd::disc::run(c_args),
         SubCommand::Map(c_args) => cmd::map::run(c_args),
-        SubCommand::Shasum(c_args) => cmd::shasum::run(c_args),
         SubCommand::Xex(c_args) => cmd::xex::run(c_args),
     });
     if let Err(e) = result {

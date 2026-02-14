@@ -12,12 +12,7 @@ use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPathBuf};
 use xxhash_rust::xxh3::xxh3_64;
 
 use crate::{
-    array_ref,
-    util::{
-        ncompress::{decompress_yay0, decompress_yaz0, YAY0_MAGIC, YAZ0_MAGIC},
-        path::check_path_buf,
-        Bytes,
-    },
+    util::path::check_path_buf,
     vfs::{open_file, VfsFile},
 };
 
@@ -142,17 +137,6 @@ pub fn touch(path: &Utf8NativePath) -> io::Result<()> {
             Err(e) => Err(e),
         }
     }
-}
-
-pub fn decompress_if_needed(buf: &[u8]) -> Result<Bytes<'_>> {
-    if buf.len() > 4 {
-        match *array_ref!(buf, 0, 4) {
-            YAZ0_MAGIC => return decompress_yaz0(buf).map(Bytes::Owned),
-            YAY0_MAGIC => return decompress_yay0(buf).map(Bytes::Owned),
-            _ => {}
-        }
-    }
-    Ok(Bytes::Borrowed(buf))
 }
 
 pub fn verify_hash(buf: &[u8], expected_str: &str) -> Result<()> {

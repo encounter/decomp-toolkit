@@ -1,9 +1,6 @@
 mod common;
 mod disc;
-mod rarc;
 mod std_fs;
-mod u8_arc;
-mod wad;
 
 use std::{
     error::Error,
@@ -14,24 +11,15 @@ use std::{
 };
 
 use anyhow::{anyhow, Context};
-use common::{StaticFile, WindowedFile};
+use common::StaticFile;
 use disc::{nod_to_io_error, DiscFs};
 use dyn_clone::DynClone;
 use filetime::FileTime;
 use nodtool::{nod, nod::DiscStream};
-use rarc::RarcFs;
 pub use std_fs::StdFs;
 use typed_path::{Utf8NativePath, Utf8UnixPath, Utf8UnixPathBuf};
-use u8_arc::U8Fs;
-use wad::WadFs;
 
-use crate::util::{
-    ncompress::{YAY0_MAGIC, YAZ0_MAGIC},
-    nlzss,
-    rarc::RARC_MAGIC,
-    u8_arc::U8_MAGIC,
-    wad::WAD_MAGIC,
-};
+use crate::util::nlzss;
 
 pub trait Vfs: DynClone + Send + Sync {
     fn open(&mut self, path: &Utf8UnixPath) -> VfsResult<Box<dyn VfsFile>>;
@@ -137,16 +125,12 @@ impl Display for FileFormat {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum CompressionKind {
-    Yay0,
-    Yaz0,
     Nlzss,
 }
 
 impl Display for CompressionKind {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
-            CompressionKind::Yay0 => write!(f, "Yay0"),
-            CompressionKind::Yaz0 => write!(f, "Yaz0"),
             CompressionKind::Nlzss => write!(f, "NLZSS"),
         }
     }
@@ -154,19 +138,13 @@ impl Display for CompressionKind {
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum ArchiveKind {
-    Rarc,
-    U8,
     Disc(nod::Format),
-    Wad,
 }
 
 impl Display for ArchiveKind {
     fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
         match self {
-            ArchiveKind::Rarc => write!(f, "RARC"),
-            ArchiveKind::U8 => write!(f, "U8"),
             ArchiveKind::Disc(format) => write!(f, "Disc ({format})"),
-            ArchiveKind::Wad => write!(f, "WAD"),
         }
     }
 }
@@ -181,20 +159,11 @@ where R: Read + Seek + ?Sized {
         Err(e) => return Err(e),
     }
     file.seek_relative(-8)?;
-    match magic {
-        _ if magic.starts_with(&YAY0_MAGIC) => Ok(FileFormat::Compressed(CompressionKind::Yay0)),
-        _ if magic.starts_with(&YAZ0_MAGIC) => Ok(FileFormat::Compressed(CompressionKind::Yaz0)),
-        _ if magic.starts_with(&RARC_MAGIC) => Ok(FileFormat::Archive(ArchiveKind::Rarc)),
-        _ if magic.starts_with(&U8_MAGIC) => Ok(FileFormat::Archive(ArchiveKind::U8)),
-        WAD_MAGIC => Ok(FileFormat::Archive(ArchiveKind::Wad)),
-        _ => {
-            let format = nod::Disc::detect(file)?;
-            file.seek(SeekFrom::Start(0))?;
-            match format {
-                Some(format) => Ok(FileFormat::Archive(ArchiveKind::Disc(format))),
-                None => Ok(FileFormat::Regular),
-            }
-        }
+    let format = nod::Disc::detect(file)?;
+    file.seek(SeekFrom::Start(0))?;
+    match format {
+        Some(format) => Ok(FileFormat::Archive(ArchiveKind::Disc(format))),
+        None => Ok(FileFormat::Regular),
     }
 }
 
@@ -260,24 +229,6 @@ pub fn open_path_with_fs(
                             })?,
                     );
                 }
-                "yay0" => {
-                    split.next();
-                    file = Some(
-                        decompress_file(current_file.as_mut(), CompressionKind::Yay0)
-                            .with_context(|| {
-                                format!("Failed to decompress {current_path} with Yay0")
-                            })?,
-                    );
-                }
-                "yaz0" => {
-                    split.next();
-                    file = Some(
-                        decompress_file(current_file.as_mut(), CompressionKind::Yaz0)
-                            .with_context(|| {
-                                format!("Failed to decompress {current_path} with Yaz0")
-                            })?,
-                    );
-                }
                 _ => match format {
                     FileFormat::Regular => {
                         return Err(anyhow!("{} is not an archive", current_path))
@@ -328,8 +279,6 @@ pub fn open_file_with_fs(
 pub fn open_fs(mut file: Box<dyn VfsFile>, kind: ArchiveKind) -> io::Result<Box<dyn Vfs>> {
     let metadata = file.metadata()?;
     match kind {
-        ArchiveKind::Rarc => Ok(Box::new(RarcFs::new(file)?)),
-        ArchiveKind::U8 => Ok(Box::new(U8Fs::new(file)?)),
         ArchiveKind::Disc(_) => {
             let disc =
                 Arc::new(nod::Disc::new_stream(file.into_disc_stream()).map_err(nod_to_io_error)?);
@@ -337,7 +286,6 @@ pub fn open_fs(mut file: Box<dyn VfsFile>, kind: ArchiveKind) -> io::Result<Box<
                 disc.open_partition_kind(nod::PartitionKind::Data).map_err(nod_to_io_error)?;
             Ok(Box::new(DiscFs::new(disc, partition, metadata.mtime)?))
         }
-        ArchiveKind::Wad => Ok(Box::new(WadFs::new(file)?)),
     }
 }
 
@@ -347,18 +295,6 @@ pub fn decompress_file(
 ) -> io::Result<Box<dyn VfsFile>> {
     let metadata = file.metadata()?;
     match kind {
-        CompressionKind::Yay0 => {
-            let data = file.map()?;
-            let result = orthrus_ncompress::yay0::Yay0::decompress_from(data)
-                .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
-            Ok(Box::new(StaticFile::new(Arc::from(result), metadata.mtime)))
-        }
-        CompressionKind::Yaz0 => {
-            let data = file.map()?;
-            let result = orthrus_ncompress::yaz0::Yaz0::decompress_from(data)
-                .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;
-            Ok(Box::new(StaticFile::new(Arc::from(result), metadata.mtime)))
-        }
         CompressionKind::Nlzss => {
             let result = nlzss::decompress(file)
                 .map_err(|e| io::Error::new(io::ErrorKind::InvalidData, e.to_string()))?;

@@ -1,21 +1,18 @@
 use std::{collections::BTreeSet, num::NonZeroU32};
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{bail, ensure, Context, Result};
 use powerpc::{Extensions, Ins};
 
 use crate::{
     analysis::{cfa::SectionAddress, vm::JumpTableType},
     array_ref,
-    obj::{
-        ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbolKind, SectionIndex,
-    },
+    obj::{ObjInfo, ObjKind, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbolKind},
 };
 
 pub mod cfa;
 pub mod executor;
 pub mod objects;
 pub mod pass;
-pub mod signatures;
 pub mod slices;
 pub mod tracker;
 pub mod vm;
@@ -30,37 +27,6 @@ pub fn read_u32(section: &ObjSection, address: u32) -> Option<u32> {
         return None;
     }
     Some(u32::from_be_bytes(*array_ref!(section.data, offset, 4)))
-}
-
-fn read_unresolved_relocation_address(
-    obj: &ObjInfo,
-    section: &ObjSection,
-    address: u32,
-    reloc_kind: Option<ObjRelocKind>,
-) -> Result<Option<RelocationTarget>> {
-    if let Some(reloc) = obj.unresolved_relocations.iter().find(|reloc| {
-        reloc.section as SectionIndex == section.elf_index && reloc.address == address
-    }) {
-        if reloc.module_id != obj.module_id {
-            return Ok(Some(RelocationTarget::External));
-        }
-        if let Some(reloc_kind) = reloc_kind {
-            ensure!(reloc.kind == reloc_kind);
-        }
-        let (target_section_index, target_section) =
-            obj.sections.get_elf_index(reloc.target_section as SectionIndex).ok_or_else(|| {
-                anyhow!(
-                    "Failed to find target section {} for unresolved relocation",
-                    reloc.target_section
-                )
-            })?;
-        Ok(Some(RelocationTarget::Address(SectionAddress {
-            section: target_section_index,
-            address: target_section.address as u32 + reloc.addend,
-        })))
-    } else {
-        Ok(None)
-    }
 }
 
 fn read_relocation_address(
@@ -83,32 +49,6 @@ fn read_relocation_address(
         section: section_index,
         address: (symbol.address as i64 + reloc.addend) as u32,
     })))
-}
-
-pub fn read_address(obj: &ObjInfo, section: &ObjSection, address: u32) -> Result<SectionAddress> {
-    if obj.kind == ObjKind::Relocatable {
-        let mut opt = read_relocation_address(obj, section, address, Some(ObjRelocKind::Absolute))?;
-        if opt.is_none() {
-            opt = read_unresolved_relocation_address(
-                obj,
-                section,
-                address,
-                Some(ObjRelocKind::Absolute),
-            )?;
-        }
-        opt.and_then(|t| match t {
-            RelocationTarget::Address(addr) => Some(addr),
-            RelocationTarget::External => None,
-        })
-        .with_context(|| {
-            format!("Failed to find relocation for {:#010X} in section {}", address, section.name)
-        })
-    } else {
-        let offset = (address as u64 - section.address) as usize;
-        let address = u32::from_be_bytes(*array_ref!(section.data, offset, 4));
-        let (section_index, _) = obj.sections.at_address(address)?;
-        Ok(SectionAddress::new(section_index, address))
-    }
 }
 
 fn is_valid_jump_table_addr(
@@ -145,11 +85,7 @@ pub fn relocation_target_for(
     reloc_kind: Option<ObjRelocKind>,
 ) -> Result<Option<RelocationTarget>> {
     let section = &obj.sections[addr.section];
-    let mut opt = read_relocation_address(obj, section, addr.address, reloc_kind)?;
-    if opt.is_none() {
-        opt = read_unresolved_relocation_address(obj, section, addr.address, reloc_kind)?;
-    }
-    Ok(opt)
+    read_relocation_address(obj, section, addr.address, reloc_kind)
 }
 
 fn get_jump_table_entries(

@@ -22,11 +22,7 @@ pub use symbols::{
     ObjSymbolScope, ObjSymbols, SymbolIndex,
 };
 
-use crate::{
-    analysis::cfa::SectionAddress,
-    obj::addresses::AddressRanges,
-    util::{comment::MWComment, rel::RelReloc},
-};
+use crate::{analysis::cfa::SectionAddress, obj::addresses::AddressRanges};
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq, Hash)]
 pub enum ObjKind {
@@ -61,7 +57,6 @@ pub struct ObjInfo {
     pub symbols: ObjSymbols,
     pub sections: ObjSections,
     pub entry: Option<u64>,
-    pub mw_comment: Option<MWComment>,
     pub split_meta: Option<SplitMeta>,
 
     // Linker generated
@@ -85,7 +80,6 @@ pub struct ObjInfo {
     // REL
     /// Module ID (0 for main)
     pub module_id: u32,
-    pub unresolved_relocations: Vec<RelReloc>,
 }
 
 impl ObjInfo {
@@ -103,7 +97,6 @@ impl ObjInfo {
             symbols: ObjSymbols::new(kind, symbols),
             sections: ObjSections::new(kind, sections),
             entry: None,
-            mw_comment: Default::default(),
             split_meta: None,
             sda2_base: None,
             sda_base: None,
@@ -118,7 +111,6 @@ impl ObjInfo {
             known_functions: Default::default(),
             pdata_funcs: Default::default(),
             module_id: 0,
-            unresolved_relocations: vec![],
         }
     }
 

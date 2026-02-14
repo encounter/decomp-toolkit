@@ -15,7 +15,7 @@ use crate::{
         ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
         ObjUnit, SectionIndex, SymbolIndex,
     },
-    util::{align_up, comment::MWComment, toposort::toposort},
+    util::{align_up, toposort::toposort},
 };
 
 /// Create splits for gaps between existing splits.
@@ -719,13 +719,7 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
             vec![],
             vec![],
         );
-        if let Some(comment_version) = unit.comment_version {
-            if comment_version > 0 {
-                split_obj.mw_comment = Some(MWComment::new(comment_version)?);
-            }
-        } else {
-            split_obj.mw_comment.clone_from(&obj.mw_comment);
-        }
+
         split_obj.split_meta = Some(SplitMeta {
             generator: Some(format!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"))),
             module_name: module_name.map(str::to_string),
@@ -891,12 +885,6 @@ pub fn split_obj(obj: &ObjInfo, module_name: Option<&str>) -> Result<Vec<ObjInfo
                     demangled_name_hash: symbol.demangled_name_hash,
                 })?;
                 symbol_idxs[symbol_idx as usize] = Some(new_index);
-            }
-
-            // For mwldeppc 2.7 and above, a .comment section is required to link without error
-            // when common symbols are present. Automatically add one if needed.
-            if split.common && split_obj.mw_comment.is_none() {
-                split_obj.mw_comment = Some(MWComment::new(8)?);
             }
 
             if !split.common {
