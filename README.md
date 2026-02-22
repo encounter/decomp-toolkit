@@ -1,9 +1,4 @@
-# jeff [![Build Status]][actions]
-
-[Build Status]: https://github.com/encounter/decomp-toolkit/actions/workflows/build.yml/badge.svg
-[actions]: https://github.com/encounter/decomp-toolkit/actions
-
-https://youtu.be/0OzXZGA1k3s
+# <p align="center"><a href="https://www.youtube.com/watch?v=0OzXZGA1k3s" target="_blank"><img width="256" height="256" alt="jeff" src="https://github.com/user-attachments/assets/fd2778fb-8d5f-4113-a9af-583ee8028748"/></a></p>
 
 Forked from and inspired by [encounter's GC/Wii decomp toolkit](https://github.com/encounter/decomp-toolkit), jeff is 
 a decomp-toolkit meant for disassembling Xbox 360 executables (xex files). It aims to assist potential Xbox 360 decompilation projects with
