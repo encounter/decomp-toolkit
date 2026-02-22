@@ -274,24 +274,9 @@ impl AnalyzerState {
         // Process known functions first
         for addr in self.functions.keys().cloned().collect_vec() {
             self.process_function_at(obj, addr)?;
-
-            // some assertions, since we're working with known function boundaries
-            // if we got this from pdata or import data, there should be a known end
-            if let Some(value) = obj.known_functions.get(&addr) {
-                if let Some(func) = self.functions.get(&addr) {
-                    if let Some(known_size) = value {
-                        let known_end = addr + *known_size;
-                        assert!(func.end.is_some(), "Function at {} has no detected end rather than known end {}. There must be an error in processing!", addr, known_end);
-                        let func_end = func.end.unwrap();
-                        assert_eq!(func_end, known_end,
-                                   "Function at {} has known end addr {}, but during processing, ending was found to be {}!",
-                                   addr, known_end, func_end);
-                    }
-                } else {
-                    unreachable!();
-                }
-            }
-            // assert something with slices?
+            // originally, I placed some assertions here to verify CFA reached the expected end
+            // what I failed to consider is that functions may need multiple passes to reach that end.
+            // so, some functions that had possible tail calls were ending CFA early on their first run, causing these to falsely fail.
         }
 
         // the rest...
@@ -308,6 +293,7 @@ impl AnalyzerState {
         // Locate bounds for referenced functions until none are left
         self.process_functions(obj)?;
         // Final pass(es)
+        println!("Running final passes...\n");
         while self.finalize_functions(obj, true)? {
             self.process_functions(obj)?;
         }
@@ -558,3 +544,7 @@ impl AnalyzerState {
         Ok(found_new)
     }
 }
+
+#[cfg(test)]
+#[path = "cfa_tests.rs"]
+mod cfa_tests;

@@ -1,0 +1,87 @@
+-1-
+822C465C: 2B0B0068   cmplwi    r11, 0x68
+822C4660: 41990154   bgt       0x822C47B4
+822C4664: 3D808200   lis       r12, 0x8200
+822C4668: 398C0B18   addi      r12, r12, 0x0B18
+822C466C: 7C0C58AE   lbzx      r0, r12, r11
+822C4670: 5400103A   slwi      r0, r0, 0x2
+822C4674: 3D80822C   lis       r12, 0x822C
+822C4678: 60000000   nop
+822C467C: 398C468C   addi      r12, r12, 0x468C
+822C4680: 7D8C0214   add       r12, r12, r0
+822C4684: 7D8903A6   mtctr     r12
+822C4688: 4E800420   bctr
+822C468C: 39600001   li        r11, 0x1
+...
+822C47AC: 39600024   li        r11, 0x24
+
+-2-
+824AFD60: 2B0A001B   cmplwi    r10, 0x1B
+824AFD64: 4199020C   bgt       0x824AFF70
+824AFD68: 3D808203   lis       r12, 0x8203
+824AFD6C: 398CD870   addi      r12, r12, -0x2790
+824AFD70: 7C0C50AE   lbzx      r0, r12, r10
+824AFD74: 5400103A   slwi      r0, r0, 0x2
+824AFD78: 3D80824B   lis       r12, 0x824B
+824AFD7C: 398CFD90   addi      r12, r12, -0x270
+824AFD80: 7D8C0214   add       r12, r12, r0
+824AFD84: 7D8903A6   mtctr     r12
+824AFD88: 60000000   nop
+824AFD8C: 4E800420   bctr
+824AFD90: 386B0004   addi      r3, r11, 0x4
+...
+824AFF70: 38610050   addi      r3, r1, 0x50
+
+-3-
+8219B604: 2B04000A   cmplwi    r4, 0xA
+8219B608: 419901DC   bgt       0x8219B7E4
+8219B60C: 3D808200   lis       r12, 0x8200
+8219B610: 398C44F8   addi      r12, r12, 0x44F8
+8219B614: 7C0C20AE   lbzx      r0, r12, r4
+8219B618: 5400103A   slwi      r0, r0, 0x2
+8219B61C: 3D80821A   lis       r12, 0x821A
+8219B620: 60000000   nop
+8219B624: 398CB634   addi      r12, r12, -0x49CC
+8219B628: 7D8C0214   add       r12, r12, r0
+8219B62C: 7D8903A6   mtctr     r12
+8219B630: 4E800420   bctr
+8219B634: 897D000A   lbz       r11, 0xa, r29
+...
+8219B7E4: 7F63DB78   mr        r3, r27
+
+-4-
+821C3EEC: 2B0A000B   cmplwi    r10, 0xB
+821C3EF0: 41990300   bgt       0x821C41F0
+821C3EF4: 3D808201   lis       r12, 0x8201
+821C3EF8: 398C83E8   addi      r12, r12, -0x7C18
+821C3EFC: 7C0C50AE   lbzx      r0, r12, r10
+821C3F00: 5400103A   slwi      r0, r0, 0x2
+821C3F04: 3D80821C   lis       r12, 0x821C
+821C3F08: 60000000   nop
+821C3F0C: 398C3F1C   addi      r12, r12, 0x3F1C
+821C3F10: 7D8C0214   add       r12, r12, r0
+821C3F14: 7D8903A6   mtctr     r12
+821C3F18: 4E800420   bctr
+821C3F1C: 556A0043   rlwinm.   r10, r11, 0x0, 0x1, 0x1
+...
+821C41F0: 7DCE7378   mr        r14, r14
+
+-5-
+823178D0: 2B0B000B   cmplwi    r11, 0xB
+823178D4: 41990370   bgt       0x82317C44
+823178D8: 3D808204   lis       r12, 0x8204
+823178DC: 398C6EC8   addi      r12, r12, 0x6EC8
+823178E0: 7C0C58AE   lbzx      r0, r12, r11
+823178E4: 5400103A   slwi      r0, r0, 0x2
+823178E8: 3D808231   lis       r12, 0x8231
+823178EC: 60000000   nop
+823178F0: 398C7900   addi      r12, r12, 0x7900
+823178F4: 7D8C0214   add       r12, r12, r0
+823178F8: 7D8903A6   mtctr     r12
+823178FC: 4E800420   bctr
+82317900: 3FA082A4   lis       r29, 0x82A4
+82317904: 807D1FCC   lwz       r3, 0x1FCC(r29)
+...
+82317C44: 7FC3F378   mr        r3, r30
+
+-6-

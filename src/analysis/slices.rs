@@ -12,7 +12,7 @@ use crate::{
         disassemble,
         executor::{ExecCbData, ExecCbResult, Executor},
         uniq_jump_table_entries,
-        vm::{section_address_for, BranchTarget, JumpTableType, StepResult, VM},
+        vm::{section_address_for, BranchTarget, StepResult, VM},
         RelocationTarget,
     },
     obj::{ObjInfo, ObjKind, ObjSection, ObjSymbolKind},
@@ -368,24 +368,11 @@ impl FunctionSlices {
                     jump_table_address: RelocationTarget::Address(address),
                     size,
                 } => {
-                    let next_addr_size = match jt {
-                        JumpTableType::Absolute => match size {
-                            Some(num) => num.get(),
-                            None => 0,
-                        },
-                        _ => 0,
-                    };
-
                     // End of block
-                    let next_address = ins_addr + 4 + next_addr_size;
+                    let next_address = ins_addr + 4;
                     self.blocks.insert(block_start, Some(next_address));
 
-                    log::debug!(
-                        "Fetching {} jump table entries @ {} with size {:?}",
-                        if jt == JumpTableType::Absolute { "absolute" } else { "relative" },
-                        address,
-                        size
-                    );
+                    log::debug!("Fetching jump table entries @ {} with size {:?}", address, size);
                     let (entries, size) = uniq_jump_table_entries(
                         obj,
                         address,
