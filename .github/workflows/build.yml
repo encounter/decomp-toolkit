@@ -83,9 +83,9 @@ jobs:
         run: cargo test --release --all-features
 
   build:
-    name: Build dtk
+    name: Build jeff
     env:
-      CARGO_BIN_NAME: dtk
+      CARGO_BIN_NAME: jeff
     strategy:
       matrix:
         include:
