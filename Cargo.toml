@@ -1,18 +1,18 @@
 [package]
-name = "decomp-toolkit"
-description = "Yet another GameCube/Wii decompilation toolkit."
-authors = ["Luke Street <luke@street.dev>"]
+name = "jeff"
+description = "An Xbox 360 decompilation toolkit."
+authors = ["rjkiv"]
 license = "MIT OR Apache-2.0"
-version = "1.6.2"
+version = "0.3.0"
 edition = "2021"
 publish = false
-repository = "https://github.com/encounter/decomp-toolkit"
+repository = "https://github.com/rjkiv/jeff"
 readme = "README.md"
 categories = ["command-line-utilities"]
 rust-version = "1.82"
 
 [[bin]]
-name = "dtk"
+name = "jeff"
 path = "src/main.rs"
 
 [profile.release]

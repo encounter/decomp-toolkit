@@ -350,57 +350,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "decomp-toolkit"
-version = "1.6.2"
-dependencies = [
- "aes",
- "anyhow",
- "argp",
- "byteorder",
- "chrono",
- "crossterm",
- "cwdemangle",
- "cwextab 1.1.2",
- "dyn-clone",
- "enable-ansi-support",
- "encoding_rs",
- "filetime",
- "fixedbitset",
- "flagset",
- "glob",
- "hex",
- "indexmap",
- "itertools",
- "log",
- "lzxd",
- "memchr",
- "memmap2",
- "mimalloc",
- "multimap",
- "nodtool",
- "num_enum",
- "objdiff-core",
- "object 0.37.1",
- "once_cell",
- "owo-colors",
- "pdb",
- "powerpc",
- "regex",
- "serde",
- "serde_json",
- "serde_repr",
- "serde_yaml",
- "sha-1",
- "supports-color 3.0.1",
- "tracing",
- "tracing-attributes",
- "tracing-subscriber",
- "typed-path",
- "xxhash-rust",
- "zerocopy",
-]
-
-[[package]]
 name = "digest"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -687,6 +636,57 @@ name = "itoa"
 version = "1.0.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "49f1f14873335454500d59611f1cf4a4b0f786f9ac11f4312a78e4cf2566695b"
+
+[[package]]
+name = "jeff"
+version = "0.3.0"
+dependencies = [
+ "aes",
+ "anyhow",
+ "argp",
+ "byteorder",
+ "chrono",
+ "crossterm",
+ "cwdemangle",
+ "cwextab 1.1.2",
+ "dyn-clone",
+ "enable-ansi-support",
+ "encoding_rs",
+ "filetime",
+ "fixedbitset",
+ "flagset",
+ "glob",
+ "hex",
+ "indexmap",
+ "itertools",
+ "log",
+ "lzxd",
+ "memchr",
+ "memmap2",
+ "mimalloc",
+ "multimap",
+ "nodtool",
+ "num_enum",
+ "objdiff-core",
+ "object 0.37.1",
+ "once_cell",
+ "owo-colors",
+ "pdb",
+ "powerpc",
+ "regex",
+ "serde",
+ "serde_json",
+ "serde_repr",
+ "serde_yaml",
+ "sha-1",
+ "supports-color 3.0.1",
+ "tracing",
+ "tracing-attributes",
+ "tracing-subscriber",
+ "typed-path",
+ "xxhash-rust",
+ "zerocopy",
+]
 
 [[package]]
 name = "jobserver"
