@@ -56,6 +56,30 @@ fn is_end_of_seq(next: &Ins) -> bool {
             .any(|a| matches!(a, ppc750cl::Argument::GPR(ppc750cl::GPR(0 | 1))))
 }
 
+fn is_function_terminator(ins: &Ins) -> bool {
+    // blr
+    if ins.is_blr() {
+        return true;
+    }
+    // b (not bl/bla)
+    if ins.op == Opcode::B && (ins.code & 1) == 0 {
+        return true;
+    }
+    // rfi
+    if ins.op == Opcode::Rfi {
+        return true;
+    }
+    // addi r1, r1, SIMM
+    if ins.op == Opcode::Addi && ins.field_rd() == 1 && ins.field_ra() == 1 {
+        return true;
+    }
+    // lwz r1, d(rN), N != r1
+    if ins.op == Opcode::Lwz && ins.field_rd() == 1 && ins.field_ra() != 1 {
+        return true;
+    }
+    false
+}
+
 #[inline(always)]
 fn check_sequence(
     section: &ObjSection,
@@ -165,8 +189,7 @@ impl FunctionSlices {
                 } else if prologue > addr {
                     true
                 } else {
-                    // Check if any instructions between the prologue and this address
-                    // are branches or use r0 or r1.
+                    // Check if any instruction between the two prologues is a function terminator.
                     let mut current_addr = prologue.address + 4;
                     loop {
                         if current_addr == addr.address {
@@ -175,7 +198,7 @@ impl FunctionSlices {
                         let next = disassemble(section, current_addr).with_context(|| {
                             format!("Failed to disassemble {current_addr:#010X}")
                         })?;
-                        if is_end_of_seq(&next) {
+                        if is_function_terminator(&next) {
                             break true;
                         }
                         current_addr += 4;
