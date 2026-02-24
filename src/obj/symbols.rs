@@ -189,6 +189,7 @@ pub struct ObjSymbol {
     pub name: String,
     pub demangled_name: Option<String>,
     pub address: u64,
+    pub virtual_address: Option<u64>, // Added for REL virtual address support
     pub section: Option<SectionIndex>,
     pub size: u64,
     pub size_known: bool,
@@ -297,6 +298,7 @@ impl ObjSymbols {
                 name: in_symbol.name,
                 demangled_name: in_symbol.demangled_name,
                 address: in_symbol.address,
+                virtual_address: in_symbol.virtual_address,
                 section: in_symbol.section,
                 size,
                 size_known: existing.size_known || in_symbol.size != 0,
@@ -321,6 +323,7 @@ impl ObjSymbols {
                 name: in_symbol.name,
                 demangled_name: in_symbol.demangled_name,
                 address: in_symbol.address,
+                virtual_address: in_symbol.virtual_address,
                 section: in_symbol.section,
                 size: in_symbol.size,
                 size_known: in_symbol.size != 0,
