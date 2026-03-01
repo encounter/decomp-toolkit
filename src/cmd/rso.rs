@@ -428,7 +428,7 @@ fn make_rso(
     });
 
     // Sort Export Symbol by Hash
-    export_symbol_table.sort_by(|lhs, rhs| rhs.hash.unwrap().cmp(&lhs.hash.unwrap()));
+    export_symbol_table.sort_by_key(|e| std::cmp::Reverse(e.hash.unwrap()));
 
     {
         // Write Export Symbol Table
