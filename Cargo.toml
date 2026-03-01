@@ -4,12 +4,12 @@ description = "Yet another GameCube/Wii decompilation toolkit."
 authors = ["Luke Street <luke@street.dev>"]
 license = "MIT OR Apache-2.0"
 version = "1.8.0"
-edition = "2021"
+edition = "2024"
 publish = false
 repository = "https://github.com/encounter/decomp-toolkit"
 readme = "README.md"
 categories = ["command-line-utilities"]
-rust-version = "1.81"
+rust-version = "1.85"
 
 [[bin]]
 name = "dtk"

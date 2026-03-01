@@ -172,7 +172,7 @@ impl AnalyzerState {
         let mut iter = self.jump_tables.iter().peekable();
         while let Some((&addr, &(mut size))) = iter.next() {
             // Truncate overlapping jump tables
-            if let Some((&next_addr, _)) = iter.peek() {
+            if let Some(&(&next_addr, _)) = iter.peek() {
                 if next_addr.section == addr.section {
                     size = min(size, next_addr.address - addr.address);
                 }
