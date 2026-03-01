@@ -77,6 +77,7 @@ ignore = [
     { id = "RUSTSEC-2025-0056", reason = "adler crate used via nodtool has no maintained alternative yet" },
     { id = "RUSTSEC-2025-0048", reason = "tsify-next is unmaintained but required by objdiff-core" },
     { id = "RUSTSEC-2025-0119", reason = "unmaintained transient dependency (number_prefix)" },
+    { id = "RUSTSEC-2025-0141", reason = "unmaintained transient dependency (bincode)" },
 ]
 # If this is true, then cargo deny will use the git executable to fetch advisory database.
 # If this is false, then it uses a built-in git library.
