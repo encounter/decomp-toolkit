@@ -1,4 +1,4 @@
-use anyhow::{bail, ensure, Result};
+use anyhow::{Result, bail, ensure};
 use flagset::FlagSet;
 use itertools::Itertools;
 use memchr::memmem;

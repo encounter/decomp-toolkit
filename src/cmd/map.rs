@@ -1,15 +1,15 @@
 use std::fs::DirBuilder;
 
-use anyhow::{bail, ensure, Result};
+use anyhow::{Result, bail, ensure};
 use argp::FromArgs;
-use cwdemangle::{demangle, DemangleOptions};
+use cwdemangle::{DemangleOptions, demangle};
 use tracing::error;
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
     util::{
         config::{write_splits_file, write_symbols_file},
-        map::{create_obj, process_map, SymbolEntry, SymbolRef},
+        map::{SymbolEntry, SymbolRef, create_obj, process_map},
         path::native_path,
         split::update_splits,
     },

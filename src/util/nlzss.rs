@@ -29,7 +29,7 @@
 
 use std::io::{Cursor, Read, Write};
 
-use anyhow::{bail, ensure, Result};
+use anyhow::{Result, bail, ensure};
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 
 /// Decompresses an LZ10/LZ11 compressed file. It returns an error when:

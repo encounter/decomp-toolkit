@@ -1,9 +1,9 @@
 use std::{
     fs::File,
-    io::{stdout, BufRead, Read, Write},
+    io::{BufRead, Read, Write, stdout},
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use argp::FromArgs;
 use owo_colors::{OwoColorize, Stream};
 use sha1::{Digest, Sha1};

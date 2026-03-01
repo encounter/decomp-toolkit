@@ -1,15 +1,15 @@
 use std::{
     cell::RefCell,
     collections::btree_map,
-    io::{stdout, Cursor, Read, Write},
+    io::{Cursor, Read, Write, stdout},
     ops::Bound::{Excluded, Unbounded},
     str::from_utf8,
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use argp::FromArgs;
 use object::{
-    elf, Object, ObjectSection, ObjectSymbol, RelocationFlags, RelocationTarget, Section,
+    Object, ObjectSection, ObjectSymbol, RelocationFlags, RelocationTarget, Section, elf,
 };
 use syntect::{
     highlighting::{Color, HighlightIterator, HighlightState, Highlighter, Theme, ThemeSet},
@@ -20,9 +20,9 @@ use typed_path::Utf8NativePathBuf;
 use crate::{
     util::{
         dwarf::{
-            parse_producer, preprocess_cu_tag, print::tag_type_string, process_compile_unit,
-            process_cu_tag, process_overlay_branch, read_debug_section, should_skip_tag,
-            AttributeKind, MemberFunctionMap, TagKind, TypedefMap,
+            AttributeKind, MemberFunctionMap, TagKind, TypedefMap, parse_producer,
+            preprocess_cu_tag, print::tag_type_string, process_compile_unit, process_cu_tag,
+            process_overlay_branch, read_debug_section, should_skip_tag,
         },
         file::buf_writer,
         path::native_path,

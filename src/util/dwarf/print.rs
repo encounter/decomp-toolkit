@@ -1,16 +1,16 @@
 use std::{cmp::max, fmt::Write};
 
-use anyhow::{anyhow, ensure, Result};
+use anyhow::{Result, anyhow, ensure};
 use cwdemangle::demangle as cw_demangle;
-use gnuv2_demangle::{demangle as gnu_demangle, DemangleConfig};
+use gnuv2_demangle::{DemangleConfig, demangle as gnu_demangle};
 use indent::indent_all_by;
 
 use crate::util::dwarf::{
-    get_udt_by_key, process_variable_tag, ud_type, ArrayType, AttributeKind, DwarfInfo,
-    EnumerationType, FundType, MemberSubroutineDefType, Modifier, Producer, PtrToMemberType,
-    StructureKind, StructureMember, StructureType, SubroutineBlock, SubroutineNode, SubroutineType,
-    TagKind, TagType, Type, TypeKind, TypeString, TypedefMap, TypedefTag, UnionType,
-    UserDefinedType, VariableTag, Visibility,
+    ArrayType, AttributeKind, DwarfInfo, EnumerationType, FundType, MemberSubroutineDefType,
+    Modifier, Producer, PtrToMemberType, StructureKind, StructureMember, StructureType,
+    SubroutineBlock, SubroutineNode, SubroutineType, TagKind, TagType, Type, TypeKind, TypeString,
+    TypedefMap, TypedefTag, UnionType, UserDefinedType, VariableTag, Visibility, get_udt_by_key,
+    process_variable_tag, ud_type,
 };
 
 pub fn apply_modifiers(mut str: TypeString, modifiers: &[Modifier]) -> Result<TypeString> {

@@ -3,13 +3,13 @@ pub mod print;
 use std::{
     cell::RefCell,
     cmp::max,
-    collections::{btree_map, BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, btree_map},
     fmt::{Display, Formatter},
     io::{BufRead, Cursor, Seek, SeekFrom},
     num::NonZeroU32,
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use num_enum::{IntoPrimitive, TryFromPrimitive, TryFromPrimitiveError};
 
 use crate::{
@@ -1120,11 +1120,7 @@ pub const REGISTER_NAMES: [&str; 109] = [
 ];
 
 pub const fn register_name(reg: u32) -> &'static str {
-    if reg < REGISTER_NAMES.len() as u32 {
-        REGISTER_NAMES[reg as usize]
-    } else {
-        "[invalid]"
-    }
+    if reg < REGISTER_NAMES.len() as u32 { REGISTER_NAMES[reg as usize] } else { "[invalid]" }
 }
 
 pub fn process_variable_location(block: &[u8], e: Endian) -> Result<String> {
@@ -1368,7 +1364,10 @@ fn process_array_tag(info: &DwarfInfo, tag: &Tag) -> Result<ArrayType> {
                 AttributeValue::Data2(d2) => {
                     let order = ArrayOrdering::try_from_primitive(*d2)?;
                     if order == ArrayOrdering::ColMajor {
-                        log::warn!("Column Major Ordering in Tag {}, Cannot guarantee array will be correct if original source is in different programming language.", tag.key);
+                        log::warn!(
+                            "Column Major Ordering in Tag {}, Cannot guarantee array will be correct if original source is in different programming language.",
+                            tag.key
+                        );
                     }
                 }
                 _ => bail!("Unhandled ArrayType attribute {:?}", attr),

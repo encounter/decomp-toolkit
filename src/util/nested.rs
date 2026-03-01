@@ -1,9 +1,9 @@
 use std::{
-    collections::{btree_map, hash_map, BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, btree_map, hash_map},
     hash::Hash,
 };
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 
 pub trait NestedMap<T1, T2, T3> {
     fn nested_insert(&mut self, v1: T1, v2: T2, v3: T3) -> Result<()>;

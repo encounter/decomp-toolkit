@@ -7,8 +7,8 @@ use std::{
     mem::{replace, take},
 };
 
-use anyhow::{anyhow, bail, Error, Result};
-use cwdemangle::{demangle, DemangleOptions};
+use anyhow::{Error, Result, anyhow, bail};
+use cwdemangle::{DemangleOptions, demangle};
 use flagset::FlagSet;
 use indexmap::IndexMap;
 use itertools::Itertools;
@@ -19,9 +19,9 @@ use typed_path::Utf8NativePath;
 
 use crate::{
     obj::{
-        section_kind_for_section, ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind,
-        ObjSections, ObjSplit, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
-        ObjSymbols, ObjUnit, SectionIndex,
+        ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSections, ObjSplit,
+        ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbols, ObjUnit,
+        SectionIndex, section_kind_for_section,
     },
     util::nested::NestedVec,
     vfs::open_file,
@@ -107,7 +107,10 @@ static_regex!(
 // Memory map
 static_regex!(MEMORY_MAP_START, "^\\s*Memory map:\\s*$");
 static_regex!(MEMORY_MAP_HEADER, "^(\\s*Starting Size\\s+File\\s*|\\s*address\\s+Offset\\s*)$");
-static_regex!(MEMORY_MAP_ENTRY, "^\\s*(?P<section>\\S+)\\s+(?P<addr>[0-9A-Fa-f]+|\\.{0,8})\\s+(?P<size>[0-9A-Fa-f]+|\\.{1,8})\\s+(?P<offset>[0-9A-Fa-f]+|\\.{1,8})\\s*$");
+static_regex!(
+    MEMORY_MAP_ENTRY,
+    "^\\s*(?P<section>\\S+)\\s+(?P<addr>[0-9A-Fa-f]+|\\.{0,8})\\s+(?P<size>[0-9A-Fa-f]+|\\.{1,8})\\s+(?P<offset>[0-9A-Fa-f]+|\\.{1,8})\\s*$"
+);
 
 // Linker generated symbols
 static_regex!(LINKER_SYMBOLS_START, "^\\s*Linker generated symbols:\\s*$");

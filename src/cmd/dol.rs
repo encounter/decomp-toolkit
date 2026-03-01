@@ -1,6 +1,6 @@
 use std::{
     cmp::min,
-    collections::{btree_map::Entry, hash_map, BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, btree_map::Entry, hash_map},
     fs,
     fs::DirBuilder,
     io::{Cursor, Seek, Write},
@@ -9,7 +9,7 @@ use std::{
     time::Instant,
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use argp::FromArgs;
 use cwdemangle::demangle;
 use itertools::Itertools;
@@ -32,16 +32,18 @@ use crate::{
     },
     cmd::shasum::file_sha1_string,
     obj::{
-        best_match_for_reloc, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol,
-        ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex,
+        ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
+        ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope, SectionIndex, SymbolIndex,
+        best_match_for_reloc,
     },
     util::{
+        IntoCow, ToCow,
         asm::write_asm,
-        bin2c::{bin2c, HeaderKind},
+        bin2c::{HeaderKind, bin2c},
         comment::MWComment,
         config::{
-            apply_splits_file, apply_symbols_file, is_auto_symbol, signed_hex_serde,
-            write_splits_file, write_symbols_file, SectionAddressRef,
+            SectionAddressRef, apply_splits_file, apply_symbols_file, is_auto_symbol,
+            signed_hex_serde, write_splits_file, write_symbols_file,
         },
         dep::DepFile,
         diff::{calc_diff_ranges, print_diff, process_code},
@@ -49,18 +51,17 @@ use crate::{
         elf::{process_elf, write_elf},
         extab::clean_extab,
         file::{
-            buf_copy_with_hash, buf_writer, check_hash_str, touch, verify_hash, FileIterator,
-            FileReadInfo,
+            FileIterator, FileReadInfo, buf_copy_with_hash, buf_writer, check_hash_str, touch,
+            verify_hash,
         },
         lcf::{asm_path_for_unit, generate_ldscript, obj_path_for_unit},
         map::apply_map_file,
         path::{check_path_buf, native_path},
         rel::{process_rel, process_rel_header, update_rel_section_alignment},
-        rso::{process_rso, DOL_SECTION_ABS, DOL_SECTION_ETI, DOL_SECTION_NAMES},
+        rso::{DOL_SECTION_ABS, DOL_SECTION_ETI, DOL_SECTION_NAMES, process_rso},
         split::{is_linker_generated_object, split_obj, update_splits},
-        IntoCow, ToCow,
     },
-    vfs::{detect, open_file, open_file_with_fs, open_fs, ArchiveKind, FileFormat, Vfs, VfsFile},
+    vfs::{ArchiveKind, FileFormat, Vfs, VfsFile, detect, open_file, open_file_with_fs, open_fs},
 };
 
 #[derive(FromArgs, PartialEq, Debug)]
@@ -183,11 +184,7 @@ mod unix_path_serde_option {
 
     pub fn serialize<S>(path: &Option<Utf8UnixPathBuf>, s: S) -> Result<S::Ok, S::Error>
     where S: Serializer {
-        if let Some(path) = path {
-            s.serialize_str(path.as_str())
-        } else {
-            s.serialize_none()
-        }
+        if let Some(path) = path { s.serialize_str(path.as_str()) } else { s.serialize_none() }
     }
 
     pub fn deserialize<'de, D>(deserializer: D) -> Result<Option<Utf8UnixPathBuf>, D::Error>

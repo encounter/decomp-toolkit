@@ -4,9 +4,9 @@ use std::{
     io::{Read, Seek, SeekFrom, Write},
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use itertools::Itertools;
-use object::{elf, Object, ObjectSection, ObjectSymbol};
+use object::{Object, ObjectSection, ObjectSymbol, elf};
 use tracing::warn;
 
 use crate::{
@@ -16,10 +16,9 @@ use crate::{
         ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, SectionIndex,
     },
     util::{
-        align_up,
-        reader::{struct_size, Endian, FromReader, ToWriter, DYNAMIC_SIZE},
+        IntoCow, align_up,
+        reader::{DYNAMIC_SIZE, Endian, FromReader, ToWriter, struct_size},
         split::default_section_align,
-        IntoCow,
     },
 };
 
@@ -719,11 +718,7 @@ where
         // so that the space can be reclaimed via OSLinkFixed. (See fix_size)
         relocations.sort_by(|a, b| {
             if a.module_id == 0 {
-                if b.module_id == 0 {
-                    Ordering::Equal
-                } else {
-                    Ordering::Greater
-                }
+                if b.module_id == 0 { Ordering::Equal } else { Ordering::Greater }
             } else if a.module_id == info.module_id {
                 if b.module_id == 0 {
                     Ordering::Less

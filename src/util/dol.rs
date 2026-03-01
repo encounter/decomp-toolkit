@@ -4,12 +4,12 @@ use std::{
     io::{Cursor, Read, Seek, SeekFrom, Write},
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use itertools::Itertools;
 
 use crate::{
     analysis::cfa::{
-        locate_bss_memsets, locate_cross_section_branch_targets, locate_sda_bases, SectionAddress,
+        SectionAddress, locate_bss_memsets, locate_cross_section_branch_targets, locate_sda_bases,
     },
     array_ref,
     obj::{
@@ -17,9 +17,9 @@ use crate::{
         ObjSymbolFlags, ObjSymbolKind, SectionIndex,
     },
     util::{
-        alf::{AlfFile, AlfSymbol, ALF_MAGIC},
+        alf::{ALF_MAGIC, AlfFile, AlfSymbol},
         align_up,
-        reader::{skip_bytes, Endian, FromReader, ToWriter},
+        reader::{Endian, FromReader, ToWriter, skip_bytes},
     },
 };
 

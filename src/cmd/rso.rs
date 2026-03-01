@@ -1,11 +1,11 @@
 use std::io::{BufRead, Seek, Write};
 
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use argp::FromArgs;
 use object::{
-    elf::{R_PPC_NONE, R_PPC_REL24},
     Architecture, Endianness, Object, ObjectKind, ObjectSection, ObjectSymbol, SectionKind,
     SymbolIndex, SymbolKind, SymbolSection,
+    elf::{R_PPC_NONE, R_PPC_REL24},
 };
 use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 
@@ -15,8 +15,8 @@ use crate::{
         path::native_path,
         reader::{Endian, ToWriter},
         rso::{
-            process_rso, symbol_hash, RsoHeader, RsoRelocation, RsoSectionHeader, RsoSymbol,
-            RSO_SECTION_NAMES,
+            RSO_SECTION_NAMES, RsoHeader, RsoRelocation, RsoSectionHeader, RsoSymbol, process_rso,
+            symbol_hash,
         },
     },
     vfs::open_file,

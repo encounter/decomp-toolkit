@@ -1,5 +1,5 @@
 use std::{
-    collections::{btree_map, BTreeMap},
+    collections::{BTreeMap, btree_map},
     error::Error,
     fmt,
     ops::RangeBounds,
@@ -133,7 +133,7 @@ impl ObjRelocations {
             match map.entry(address) {
                 btree_map::Entry::Vacant(e) => e.insert(reloc),
                 btree_map::Entry::Occupied(e) => {
-                    return Err(ExistingRelocationError { address, value: e.get().clone() })
+                    return Err(ExistingRelocationError { address, value: e.get().clone() });
                 }
             };
         }
@@ -147,7 +147,7 @@ impl ObjRelocations {
         match self.relocations.entry(address) {
             btree_map::Entry::Vacant(e) => e.insert(reloc),
             btree_map::Entry::Occupied(e) => {
-                return Err(ExistingRelocationError { address, value: e.get().clone() })
+                return Err(ExistingRelocationError { address, value: e.get().clone() });
             }
         };
         Ok(())

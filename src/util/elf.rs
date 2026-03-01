@@ -1,24 +1,24 @@
 use std::{
-    collections::{hash_map, HashMap},
+    collections::{HashMap, hash_map},
     io::Cursor,
     num::NonZeroU64,
     path::Path,
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use cwdemangle::demangle;
 use flagset::Flags;
 use indexmap::IndexMap;
-use objdiff_core::obj::split_meta::{SplitMeta, SHT_SPLITMETA, SPLITMETA_SECTION};
+use objdiff_core::obj::split_meta::{SHT_SPLITMETA, SPLITMETA_SECTION, SplitMeta};
 use object::{
+    Architecture, Endianness, File, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
+    RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection,
     elf,
     elf::{SHF_ALLOC, SHF_EXECINSTR, SHF_WRITE, SHT_LOUSER, SHT_NOBITS, SHT_PROGBITS},
     write::{
-        elf::{ProgramHeader, Rel, SectionHeader, SectionIndex, SymbolIndex, Writer},
         StringId,
+        elf::{ProgramHeader, Rel, SectionHeader, SectionIndex, SymbolIndex, Writer},
     },
-    Architecture, Endianness, File, Object, ObjectKind, ObjectSection, ObjectSymbol, Relocation,
-    RelocationFlags, RelocationTarget, SectionKind, Symbol, SymbolKind, SymbolScope, SymbolSection,
 };
 use typed_path::{Utf8NativePath, Utf8NativePathBuf};
 

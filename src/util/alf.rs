@@ -11,7 +11,7 @@ use crate::{
     util::{
         dol::{DolLike, DolSection, DolSectionKind},
         reader::{
-            read_string, read_vec, read_vec_args, struct_size, Endian, FromReader, DYNAMIC_SIZE,
+            DYNAMIC_SIZE, Endian, FromReader, read_string, read_vec, read_vec_args, struct_size,
         },
     },
 };

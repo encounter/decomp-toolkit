@@ -4,7 +4,7 @@ use std::{
     ops::{Index, IndexMut, Range, RangeBounds},
 };
 
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{Result, anyhow, bail, ensure};
 use itertools::Itertools;
 
 use crate::{

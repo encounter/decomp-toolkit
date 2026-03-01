@@ -1,24 +1,24 @@
 use std::{
-    collections::{btree_map, BTreeMap, HashMap},
+    collections::{BTreeMap, HashMap, btree_map},
     fs,
     fs::DirBuilder,
     io::{Cursor, Write},
 };
 
-use anyhow::{anyhow, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, ensure};
 use argp::FromArgs;
-use objdiff_core::obj::split_meta::{SplitMeta, SPLITMETA_SECTION};
+use objdiff_core::obj::split_meta::{SPLITMETA_SECTION, SplitMeta};
 use object::{
-    elf,
-    write::{Mangling, SectionId, SymbolId},
     FileFlags, Object, ObjectSection, ObjectSymbol, RelocationTarget, SectionFlags, SectionIndex,
-    SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection,
+    SectionKind, SymbolFlags, SymbolIndex, SymbolKind, SymbolScope, SymbolSection, elf,
+    write::{Mangling, SectionId, SymbolId},
 };
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
     obj::ObjKind,
     util::{
+        IntoCow, ToCow,
         asm::write_asm,
         comment::{CommentSym, MWComment},
         config::{write_splits_file, write_symbols_file},
@@ -26,9 +26,8 @@ use crate::{
         file::{buf_writer, process_rsp},
         path::native_path,
         reader::{Endian, FromReader},
-        signatures::{compare_signature, generate_signature, FunctionSignature},
+        signatures::{FunctionSignature, compare_signature, generate_signature},
         split::split_obj,
-        IntoCow, ToCow,
     },
 };
 

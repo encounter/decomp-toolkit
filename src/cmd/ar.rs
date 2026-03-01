@@ -1,10 +1,10 @@
 use std::{
-    collections::{btree_map::Entry, BTreeMap},
+    collections::{BTreeMap, btree_map::Entry},
     fs::File,
     io::Write,
 };
 
-use anyhow::{anyhow, bail, Context, Result};
+use anyhow::{Context, Result, anyhow, bail};
 use argp::FromArgs;
 use object::{Object, ObjectSymbol, SymbolScope};
 use typed_path::Utf8NativePathBuf;

@@ -13,7 +13,7 @@ use typed_path::Utf8UnixPath;
 use zerocopy::{FromZeros, IntoBytes};
 
 use super::{
-    next_non_empty, StaticFile, Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult,
+    StaticFile, Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult, next_non_empty,
 };
 
 #[derive(Clone)]

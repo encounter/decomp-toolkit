@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use orthrus_ncompress::{yay0::Yay0, yaz0::Yaz0};
 
 pub const YAZ0_MAGIC: [u8; 4] = *b"Yaz0";

@@ -12,10 +12,10 @@ use zerocopy::FromZeros;
 
 use crate::{
     array_ref,
-    util::wad::{align_up, process_wad, ContentMetadata, WadFile},
+    util::wad::{ContentMetadata, WadFile, align_up, process_wad},
     vfs::{
-        common::{StaticFile, WindowedFile},
         Vfs, VfsError, VfsFile, VfsFileType, VfsMetadata, VfsResult,
+        common::{StaticFile, WindowedFile},
     },
 };
 

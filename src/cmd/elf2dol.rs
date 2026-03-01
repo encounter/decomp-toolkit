@@ -1,6 +1,6 @@
 use std::io::{Seek, SeekFrom, Write};
 
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{Result, anyhow, bail, ensure};
 use argp::FromArgs;
 use object::{Architecture, Endianness, Object, ObjectKind, ObjectSection, SectionKind};
 use typed_path::Utf8NativePathBuf;

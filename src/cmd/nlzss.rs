@@ -1,11 +1,11 @@
 use std::fs;
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{Context, Result, anyhow};
 use argp::FromArgs;
 use typed_path::Utf8NativePathBuf;
 
 use crate::{
-    util::{file::process_rsp, nlzss, path::native_path, IntoCow, ToCow},
+    util::{IntoCow, ToCow, file::process_rsp, nlzss, path::native_path},
     vfs::open_file,
 };
 

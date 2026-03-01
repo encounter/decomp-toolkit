@@ -1,19 +1,19 @@
 use std::{
-    collections::{btree_map, BTreeMap, BTreeSet},
+    collections::{BTreeMap, BTreeSet, btree_map},
     ops::Range,
 };
 
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use ppc750cl::{Ins, Opcode};
 
 use crate::{
     analysis::{
+        RelocationTarget,
         cfa::{FunctionInfo, SectionAddress},
         disassemble,
         executor::{ExecCbData, ExecCbResult, Executor},
         uniq_jump_table_entries,
-        vm::{section_address_for, BranchTarget, GprValue, StepResult, VM},
-        RelocationTarget,
+        vm::{BranchTarget, GprValue, StepResult, VM, section_address_for},
     },
     obj::{ObjInfo, ObjKind, ObjSection, ObjSymbolKind},
 };
@@ -205,7 +205,11 @@ impl FunctionSlices {
                     }
                 };
                 if invalid_seq {
-                    bail!("Found multiple functions inside a symbol: {:#010X} and {:#010X}. Check symbols.txt?", prologue, addr)
+                    bail!(
+                        "Found multiple functions inside a symbol: {:#010X} and {:#010X}. Check symbols.txt?",
+                        prologue,
+                        addr
+                    )
                 }
             } else {
                 self.prologue = Some(addr);

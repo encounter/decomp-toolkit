@@ -5,8 +5,8 @@ use std::{
     str::FromStr,
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
-use cwdemangle::{demangle, DemangleOptions};
+use anyhow::{Context, Result, anyhow, bail, ensure};
+use cwdemangle::{DemangleOptions, demangle};
 use filetime::FileTime;
 use once_cell::sync::Lazy;
 use regex::{Captures, Regex};
@@ -21,7 +21,7 @@ use crate::{
         ObjSymbolFlags, ObjSymbolKind, ObjUnit, SectionIndex,
     },
     util::{
-        file::{buf_writer, FileReadInfo},
+        file::{FileReadInfo, buf_writer},
         split::default_section_align,
     },
     vfs::open_file,
@@ -102,7 +102,8 @@ pub fn parse_symbol_line(line: &str, obj: &mut ObjInfo) -> Result<Option<ObjSymb
             ensure!(
                 addr >= vaddr,
                 "Symbol address {:#010X} is below section vaddr {:#010X}",
-                addr, vaddr
+                addr,
+                vaddr
             );
             addr - vaddr
         } else {
@@ -465,7 +466,9 @@ where W: Write + ?Sized {
         if section.align > 0 {
             write!(w, " align:{}", section.align)?;
         }
-        if obj.kind == ObjKind::Relocatable && let Some(vaddr) = section.virtual_address {
+        if obj.kind == ObjKind::Relocatable
+            && let Some(vaddr) = section.virtual_address
+        {
             write!(w, " vaddr:{:#010X}", vaddr)?;
         }
         writeln!(w)?;
@@ -494,7 +497,13 @@ where W: Write + ?Sized {
             } else {
                 0
             };
-            write!(w, "\t{:<11} start:{:#010X} end:{:#010X}", section.name, addr + vaddr_offset, end + vaddr_offset)?;
+            write!(
+                w,
+                "\t{:<11} start:{:#010X} end:{:#010X}",
+                section.name,
+                addr + vaddr_offset,
+                end + vaddr_offset
+            )?;
             if let Some(align) = split.align {
                 if align != default_section_align(section) as u32 {
                     write!(w, " align:{align}")?;
@@ -593,7 +602,8 @@ fn parse_unit_line(captures: Captures) -> Result<SplitLine> {
 fn parse_section_line(captures: Captures, state: &SplitState) -> Result<SplitLine> {
     if matches!(state, SplitState::Sections(_)) {
         let name = &captures["name"];
-        let mut section = SectionDef { name: name.to_string(), kind: None, align: None, vaddr: None };
+        let mut section =
+            SectionDef { name: name.to_string(), kind: None, align: None, vaddr: None };
 
         for attr in captures["attrs"].split(' ').filter(|&s| !s.is_empty()) {
             if let Some((attr, value)) = attr.split_once(':') {
@@ -705,7 +715,10 @@ where R: BufRead + ?Sized {
             (SplitState::None | SplitState::Unit(_), SplitLine::SectionsStart) => {
                 state = SplitState::Sections(0);
             }
-            (SplitState::Sections(index), SplitLine::Section(SectionDef { name, kind, align, vaddr })) => {
+            (
+                SplitState::Sections(index),
+                SplitLine::Section(SectionDef { name, kind, align, vaddr }),
+            ) => {
                 let Some(obj_section) = obj.sections.get_mut(*index) else {
                     bail!(
                         "Section out of bounds: {} (index {}), object has {} sections",
@@ -765,7 +778,10 @@ where R: BufRead + ?Sized {
                     ensure!(
                         start >= vaddr && end >= vaddr,
                         "Split address {:#010X}..{:#010X} is below section {} vaddr {:#010X}",
-                        start, end, name, vaddr
+                        start,
+                        end,
+                        name,
+                        vaddr
                     );
                     (start - vaddr, end - vaddr)
                 } else {
@@ -827,11 +843,7 @@ pub fn read_splits_sections(path: &Utf8NativePath) -> Result<Option<Vec<SectionD
             _ => {}
         }
     }
-    if sections.is_empty() {
-        Ok(None)
-    } else {
-        Ok(Some(sections))
-    }
+    if sections.is_empty() { Ok(None) } else { Ok(Some(sections)) }
 }
 
 pub mod signed_hex_serde {

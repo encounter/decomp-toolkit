@@ -3,7 +3,7 @@ use std::{
     mem::take,
 };
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use cwextab::decode_extab;
 use ppc750cl::Opcode;
 use tracing::{debug_span, info_span};
@@ -11,11 +11,11 @@ use tracing_attributes::instrument;
 
 use crate::{
     analysis::{
+        RelocationTarget,
         cfa::SectionAddress,
         executor::{ExecCbData, ExecCbResult, Executor},
         relocation_target_for, uniq_jump_table_entries,
-        vm::{is_store_op, BranchTarget, GprValue, StepResult, VM},
-        RelocationTarget,
+        vm::{BranchTarget, GprValue, StepResult, VM, is_store_op},
     },
     obj::{
         ObjDataKind, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,

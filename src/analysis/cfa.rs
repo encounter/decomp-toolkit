@@ -5,15 +5,15 @@ use std::{
     ops::{Add, AddAssign, BitAnd, Sub},
 };
 
-use anyhow::{bail, ensure, Context, Result};
+use anyhow::{Context, Result, bail, ensure};
 use itertools::Itertools;
 
 use crate::{
     analysis::{
+        RelocationTarget,
         executor::{ExecCbData, ExecCbResult, Executor},
         slices::{FunctionSlices, TailCallResult},
         vm::{BranchTarget, GprValue, StepResult, VM},
-        RelocationTarget,
     },
     obj::{
         ObjInfo, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags,
@@ -312,11 +312,7 @@ impl AnalyzerState {
             .functions
             .iter()
             .filter_map(|(&addr, info)| {
-                if info.is_unfinalized() {
-                    info.slices.clone().map(|s| (addr, s))
-                } else {
-                    None
-                }
+                if info.is_unfinalized() { info.slices.clone().map(|s| (addr, s)) } else { None }
             })
             .collect_vec();
         for (addr, mut slices) in unfinalized {

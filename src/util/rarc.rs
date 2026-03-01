@@ -1,7 +1,7 @@
 use std::{borrow::Cow, ffi::CStr};
 
 use typed_path::Utf8UnixPath;
-use zerocopy::{big_endian::*, FromBytes, Immutable, IntoBytes, KnownLayout};
+use zerocopy::{FromBytes, Immutable, IntoBytes, KnownLayout, big_endian::*};
 
 use crate::{static_assert, vfs::next_non_empty};
 

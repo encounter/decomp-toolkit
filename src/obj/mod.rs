@@ -10,16 +10,16 @@ use std::{
     hash::Hash,
 };
 
-use anyhow::{anyhow, bail, ensure, Result};
+use anyhow::{Result, anyhow, bail, ensure};
 use objdiff_core::obj::split_meta::SplitMeta;
 pub use relocations::{ObjReloc, ObjRelocKind, ObjRelocations};
 pub use sections::{
-    section_kind_for_section, ObjSection, ObjSectionKind, ObjSections, SectionIndex,
+    ObjSection, ObjSectionKind, ObjSections, SectionIndex, section_kind_for_section,
 };
 pub use splits::{ObjSplit, ObjSplits};
 pub use symbols::{
-    best_match_for_reloc, ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind,
-    ObjSymbolScope, ObjSymbols, SymbolIndex,
+    ObjDataKind, ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, ObjSymbolScope,
+    ObjSymbols, SymbolIndex, best_match_for_reloc,
 };
 
 use crate::{

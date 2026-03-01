@@ -1,6 +1,6 @@
 use std::{fs, fs::File, io::Write};
 
-use anyhow::{anyhow, bail, Context};
+use anyhow::{Context, anyhow, bail};
 use argp::FromArgs;
 use size::Size;
 use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPath};
@@ -9,8 +9,8 @@ use unicode_width::UnicodeWidthStr;
 use crate::{
     util::{file::buf_copy, path::native_path},
     vfs::{
-        decompress_file, detect, open_path, FileFormat, OpenResult, Vfs, VfsFile, VfsFileType,
-        VfsMetadata,
+        FileFormat, OpenResult, Vfs, VfsFile, VfsFileType, VfsMetadata, decompress_file, detect,
+        open_path,
     },
 };
 

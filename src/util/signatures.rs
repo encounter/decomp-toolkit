@@ -1,17 +1,17 @@
-use std::collections::{btree_map, BTreeMap};
+use std::collections::{BTreeMap, btree_map};
 
-use anyhow::{anyhow, bail, ensure, Result};
-use base64::{engine::general_purpose::STANDARD, Engine};
-use cwdemangle::{demangle, DemangleOptions};
+use anyhow::{Result, anyhow, bail, ensure};
+use base64::{Engine, engine::general_purpose::STANDARD};
+use cwdemangle::{DemangleOptions, demangle};
 use serde::{Deserialize, Serialize};
 use sha1::{Digest, Sha1};
 use typed_path::Utf8NativePath;
 
 use crate::{
     analysis::{
+        RelocationTarget,
         cfa::SectionAddress,
         tracker::{Relocation, Tracker},
-        RelocationTarget,
     },
     array_ref,
     obj::{

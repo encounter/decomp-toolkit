@@ -4,11 +4,11 @@ use std::{
 };
 
 use aes::cipher::{BlockDecryptMut, KeyIvInit};
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use nodtool::nod::{Ticket, TmdHeader};
 use sha1::{Digest, Sha1};
 use size::Size;
-use zerocopy::{big_endian::*, FromBytes, FromZeros, Immutable, IntoBytes, KnownLayout};
+use zerocopy::{FromBytes, FromZeros, Immutable, IntoBytes, KnownLayout, big_endian::*};
 
 use crate::{
     array_ref_mut, static_assert,

@@ -1,9 +1,9 @@
 use std::{
-    cmp::{max, min, Ordering},
-    collections::{btree_map, BTreeMap, HashMap, HashSet},
+    cmp::{Ordering, max, min},
+    collections::{BTreeMap, HashMap, HashSet, btree_map},
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use itertools::Itertools;
 use objdiff_core::obj::split_meta::SplitMeta;
 use sanitise_file_name::sanitize_with_options;

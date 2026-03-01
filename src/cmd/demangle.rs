@@ -1,6 +1,6 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use argp::FromArgs;
-use cwdemangle::{demangle, DemangleOptions};
+use cwdemangle::{DemangleOptions, demangle};
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
 /// Demangle a CodeWarrior C++ symbol.

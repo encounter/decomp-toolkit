@@ -3,8 +3,8 @@ use std::{
     io::{Read, Seek, SeekFrom, Write},
 };
 
-use anyhow::{anyhow, ensure, Result};
-use cwdemangle::{demangle, DemangleOptions};
+use anyhow::{Result, anyhow, ensure};
+use cwdemangle::{DemangleOptions, demangle};
 
 use crate::{
     obj::{
@@ -13,7 +13,7 @@ use crate::{
     },
     util::{
         file::{read_c_string, read_string},
-        reader::{struct_size, Endian, FromReader, ToWriter, DYNAMIC_SIZE},
+        reader::{DYNAMIC_SIZE, Endian, FromReader, ToWriter, struct_size},
     },
 };
 

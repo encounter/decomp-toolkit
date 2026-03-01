@@ -1,9 +1,9 @@
 use std::num::NonZeroU32;
 
-use ppc750cl::{Argument, Ins, Opcode, GPR};
+use ppc750cl::{Argument, GPR, Ins, Opcode};
 
 use crate::{
-    analysis::{cfa::SectionAddress, relocation_target_for, RelocationTarget},
+    analysis::{RelocationTarget, cfa::SectionAddress, relocation_target_for},
     obj::{ObjInfo, ObjKind},
 };
 

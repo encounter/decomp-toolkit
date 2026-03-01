@@ -1,10 +1,10 @@
 use std::{
-    cmp::{min, Ordering},
-    collections::{btree_map, BTreeMap},
+    cmp::{Ordering, min},
+    collections::{BTreeMap, btree_map},
     io::Write,
 };
 
-use anyhow::{anyhow, bail, ensure, Context, Result};
+use anyhow::{Context, Result, anyhow, bail, ensure};
 use itertools::Itertools;
 use ppc750cl::{Argument, Ins, InsIter, Opcode};
 

@@ -3,13 +3,13 @@ use std::{
     io::{Read, Seek, Write},
 };
 
-use anyhow::{bail, Result};
+use anyhow::{Result, bail};
 use num_enum::{IntoPrimitive, TryFromPrimitive};
 use tracing::warn;
 
 use crate::{
     obj::{ObjSymbol, ObjSymbolKind},
-    util::reader::{skip_bytes, struct_size, Endian, FromReader, ToWriter},
+    util::reader::{Endian, FromReader, ToWriter, skip_bytes, struct_size},
 };
 
 #[derive(Debug, Copy, Clone, IntoPrimitive, TryFromPrimitive)]
@@ -79,7 +79,7 @@ impl FromReader for MWComment {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidData,
                     format!("Invalid value for pool_data: {value}"),
-                ))
+                ));
             }
         };
         // 0x11
@@ -94,7 +94,7 @@ impl FromReader for MWComment {
                 return Err(io::Error::new(
                     io::ErrorKind::InvalidData,
                     format!("Expected header size {HEADER_SIZE:#X}, got {v:#X}"),
-                ))
+                ));
             }
         }
         // 0x15

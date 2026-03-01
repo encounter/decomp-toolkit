@@ -3,7 +3,7 @@
 //! Eventually it'd be nice to share [ObjInfo] and related types between decomp-toolkit and
 //! objdiff-core to avoid this conversion.
 use std::{
-    io::{stdout, Write},
+    io::{Write, stdout},
     ops::Range,
 };
 
@@ -13,8 +13,8 @@ use itertools::Itertools;
 use objdiff_core::{
     arch::{ObjArch, ProcessCodeResult},
     diff::{
-        display::{display_diff, DiffText},
         DiffObjConfig, ObjInsDiff, ObjInsDiffKind, ObjSymbolDiff,
+        display::{DiffText, display_diff},
     },
 };
 use object::RelocationFlags;

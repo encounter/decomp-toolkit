@@ -5,8 +5,8 @@ use std::{
     io::{BufRead, BufWriter, Read, Seek, SeekFrom, Write},
 };
 
-use anyhow::{anyhow, Context, Result};
-use filetime::{set_file_mtime, FileTime};
+use anyhow::{Context, Result, anyhow};
+use filetime::{FileTime, set_file_mtime};
 use sha1::{Digest, Sha1};
 use typed_path::{Utf8NativePath, Utf8NativePathBuf, Utf8UnixPathBuf};
 use xxhash_rust::xxh3::xxh3_64;
@@ -14,11 +14,11 @@ use xxhash_rust::xxh3::xxh3_64;
 use crate::{
     array_ref,
     util::{
-        ncompress::{decompress_yay0, decompress_yaz0, YAY0_MAGIC, YAZ0_MAGIC},
-        path::check_path_buf,
         Bytes,
+        ncompress::{YAY0_MAGIC, YAZ0_MAGIC, decompress_yay0, decompress_yaz0},
+        path::check_path_buf,
     },
-    vfs::{open_file, VfsFile},
+    vfs::{VfsFile, open_file},
 };
 
 /// Creates a buffered writer around a file (not memory mapped).

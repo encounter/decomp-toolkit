@@ -6,10 +6,10 @@ use typed_path::Utf8NativePathBuf;
 
 use crate::{
     util::{
+        IntoCow, ToCow,
         file::process_rsp,
         ncompress::{compress_yay0, decompress_yay0},
         path::native_path,
-        IntoCow, ToCow,
     },
     vfs::open_file,
 };

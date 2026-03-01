@@ -1,6 +1,6 @@
 use std::{cmp::max, collections::BTreeMap, ops::RangeBounds};
 
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use itertools::Itertools;
 
 use crate::{

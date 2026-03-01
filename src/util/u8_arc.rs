@@ -2,7 +2,7 @@ use std::{borrow::Cow, ffi::CStr, mem::size_of};
 
 use anyhow::Result;
 use typed_path::Utf8UnixPath;
-use zerocopy::{big_endian::U32, FromBytes, Immutable, IntoBytes, KnownLayout};
+use zerocopy::{FromBytes, Immutable, IntoBytes, KnownLayout, big_endian::U32};
 
 use crate::{static_assert, vfs::next_non_empty};
 
