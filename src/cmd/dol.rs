@@ -667,18 +667,17 @@ fn update_symbols(
             }
         }
 
-        let (target_section_index, target_section) = obj
+        let Some((target_section_index, target_section)) = obj
             .sections
             .get_elf_index(rel_reloc.target_section as SectionIndex)
-            .ok_or_else(|| {
-                anyhow!(
-                    "Failed to locate REL section {} in module ID {}: source module {}, {:?}",
-                    rel_reloc.target_section,
-                    obj.module_id,
-                    source_module_id,
-                    rel_reloc
-                )
-            })?;
+        else {
+            log::warn!(
+                "Missing relocation target section {} in module {}; skipping",
+                rel_reloc.target_section,
+                obj.module_id,
+            );
+            continue;
+        };
 
         if let Some((symbol_index, symbol)) = obj.symbols.for_relocation(
             SectionAddress::new(target_section_index, rel_reloc.addend),
@@ -762,15 +761,20 @@ fn create_relocations(
                 anyhow!("Failed to locate DOL section at {:#010X}", rel_reloc.addend)
             })?
         } else {
-            target_obj.sections.get_elf_index(rel_reloc.target_section as SectionIndex).ok_or_else(
-                || {
-                    anyhow!(
-                        "Failed to locate module {} section {}",
+            match target_obj
+                .sections
+                .get_elf_index(rel_reloc.target_section as SectionIndex)
+            {
+                Some(v) => v,
+                None => {
+                    log::warn!(
+                        "Missing relocation target section {} in module {}; skipping",
+                        rel_reloc.target_section,
                         rel_reloc.module_id,
-                        rel_reloc.target_section
-                    )
-                },
-            )?
+                    );
+                    continue;
+                }
+            }
         };
 
         let Some((symbol_index, symbol)) = target_obj.symbols.for_relocation(
