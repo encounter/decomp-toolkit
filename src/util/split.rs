@@ -246,8 +246,8 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
             group_sizes[g] += 1;
         }
 
-        for g in 0..num_groups {
-            if group_sizes[g] <= 1 {
+        for (g, group_size) in group_sizes.into_iter().enumerate() {
+            if group_size <= 1 {
                 continue; // Only process multi-entry (reversed) groups
             }
 
@@ -268,8 +268,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
                 .unwrap();
 
             // Find the first entry in this group
-            let first_in_group =
-                group_ids.iter().position(|&gid| gid == g).unwrap();
+            let first_in_group = group_ids.iter().position(|&gid| gid == g).unwrap();
 
             // Walk backwards from the first entry, absorbing earlier entries
             // whose extab falls within [min_extab, max_extab]
@@ -301,8 +300,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
     }
 
     // Phase C: Process each group.
-    for g in 0..num_groups {
-        let indices = &group_entries[g];
+    for indices in group_entries {
         if indices.is_empty() {
             continue;
         }
@@ -320,7 +318,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
         // Validate all entries and collect symbol info for the group.
         let mut function_symbols = Vec::new();
         let mut extab_symbols = Vec::new();
-        for &idx in indices {
+        for &idx in &indices {
             let entry = &entries[idx];
             let Some((_, eti_symbol)) = obj.symbols.kind_at_section_address(
                 entry.eti_address.section,
@@ -376,7 +374,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
             let mut expected_unit: Option<String> = None;
 
             // Check all entries for existing user-defined splits.
-            for &idx in indices {
+            for &idx in &indices {
                 let entry = &entries[idx];
                 let text_section = &obj.sections[entry.function_addr.section];
                 for (_, split) in [
@@ -429,15 +427,10 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
                 .max_by_key(|&(_, &i)| entries[i].function_addr.address)
                 .unwrap();
             let func_max_entry = &entries[indices[func_max_local_idx]];
-            let func_end =
-                func_max_entry.function_addr + func_max_entry.function_size;
+            let func_end = func_max_entry.function_addr + func_max_entry.function_size;
 
             // Create one covering split per section type.
-            log::debug!(
-                "Adding split for extabindex group @ {:#010X}-{:#010X}",
-                eti_min,
-                eti_end
-            );
+            log::debug!("Adding split for extabindex group @ {:#010X}-{:#010X}", eti_min, eti_end);
             new_splits.insert(eti_min, ObjSplit {
                 unit: unit.clone(),
                 end: eti_end.address,
@@ -447,11 +440,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
                 skip: false,
                 rename: None,
             });
-            log::debug!(
-                "Adding split for extab group @ {:#010X}-{:#010X}",
-                extab_min,
-                extab_end
-            );
+            log::debug!("Adding split for extab group @ {:#010X}-{:#010X}", extab_min, extab_end);
             new_splits.insert(extab_min, ObjSplit {
                 unit: unit.clone(),
                 end: extab_end.address,
@@ -461,11 +450,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
                 skip: false,
                 rename: None,
             });
-            log::debug!(
-                "Adding split for function group @ {:#010X}-{:#010X}",
-                func_min,
-                func_end
-            );
+            log::debug!("Adding split for function group @ {:#010X}-{:#010X}", func_min, func_end);
             new_splits.insert(func_min, ObjSplit {
                 unit,
                 end: func_end.address,
@@ -519,10 +504,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
                 }
             }
 
-            if extabindex_split.is_none()
-                || extab_split.is_none()
-                || function_split.is_none()
-            {
+            if extabindex_split.is_none() || extab_split.is_none() || function_split.is_none() {
                 let unit = match expected_unit {
                     Some(unit) => unit,
                     None => auto_unit_name(obj, function_symbol, &new_splits)?,
