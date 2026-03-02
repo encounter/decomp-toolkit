@@ -155,14 +155,19 @@ fn get_jump_table_entries(
         .and_then(|(_, s)| if s.size_known { NonZeroU32::new(s.size as u32) } else { None });
 
     if let Some(size) = known_size.or(size).map(|n| n.get()) {
+        let end = (addr.address + size).min((section.address + section.size) as u32);
+        if end <= addr.address {
+            return Ok((Vec::new(), 0));
+        }
+        let clamped_size = end - addr.address;
         log::trace!(
             "Located jump table @ {:#010X} with entry count {} (from {:#010X})",
             addr,
-            size / 4,
+            clamped_size / 4,
             from
         );
-        let mut entries = Vec::with_capacity(size as usize / 4);
-        let mut data = section.data_range(addr.address, addr.address + size)?;
+        let mut entries = Vec::with_capacity(clamped_size as usize / 4);
+        let mut data = section.data_range(addr.address, end)?;
         let mut cur_addr = addr;
         loop {
             if data.is_empty() {
@@ -192,7 +197,7 @@ fn get_jump_table_entries(
             data = &data[4..];
             cur_addr += 4;
         }
-        Ok((entries, size))
+        Ok((entries, clamped_size))
     } else {
         let mut entries = Vec::new();
         let mut cur_addr = addr;
