@@ -667,9 +667,8 @@ fn update_symbols(
             }
         }
 
-        let Some((target_section_index, target_section)) = obj
-            .sections
-            .get_elf_index(rel_reloc.target_section as SectionIndex)
+        let Some((target_section_index, target_section)) =
+            obj.sections.get_elf_index(rel_reloc.target_section as SectionIndex)
         else {
             log::warn!(
                 "Missing relocation target section {} in module {}; skipping",
@@ -761,10 +760,7 @@ fn create_relocations(
                 anyhow!("Failed to locate DOL section at {:#010X}", rel_reloc.addend)
             })?
         } else {
-            match target_obj
-                .sections
-                .get_elf_index(rel_reloc.target_section as SectionIndex)
-            {
+            match target_obj.sections.get_elf_index(rel_reloc.target_section as SectionIndex) {
                 Some(v) => v,
                 None => {
                     log::warn!(
