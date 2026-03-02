@@ -293,6 +293,67 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
         }
     }
 
+    // Pass 3: Merge groups with overlapping extabindex ranges.
+    // After absorption, two groups may have interleaved extabindex entries,
+    // producing overlapping covering splits. Merge such groups.
+    if num_groups > 1 {
+        // Compute extabindex range [eti_min, eti_max] for each group.
+        let mut group_eti_ranges: Vec<Option<(u32, u32)>> = vec![None; num_groups];
+        for (i, &g) in group_ids.iter().enumerate() {
+            let addr = entries[i].eti_address.address;
+            match &mut group_eti_ranges[g] {
+                Some((min, max)) => {
+                    *min = (*min).min(addr);
+                    *max = (*max).max(addr);
+                }
+                None => {
+                    group_eti_ranges[g] = Some((addr, addr));
+                }
+            }
+        }
+
+        // Sort groups by eti_min and merge overlapping ones.
+        // Build a list of (eti_min, eti_end, group_id) for non-empty groups.
+        let mut sorted_groups: Vec<(u32, u32, usize)> = group_eti_ranges
+            .iter()
+            .enumerate()
+            .filter_map(|(g, range)| range.map(|(min, max)| (min, max + 12, g)))
+            .collect();
+        sorted_groups.sort_by_key(|&(min, _, _)| min);
+
+        let mut merged = true;
+        while merged {
+            merged = false;
+            for i in 0..sorted_groups.len().saturating_sub(1) {
+                let (_, end_a, ga) = sorted_groups[i];
+                let (start_b, end_b, gb) = sorted_groups[i + 1];
+                if start_b < end_a && ga != gb {
+                    // Overlapping ranges: merge gb into ga.
+                    let merge_into = ga.min(gb);
+                    let merge_from = ga.max(gb);
+                    for gid in group_ids.iter_mut() {
+                        if *gid == merge_from {
+                            *gid = merge_into;
+                        }
+                    }
+                    // Update the range for the merged group.
+                    sorted_groups[i].1 = end_a.max(end_b);
+                    sorted_groups[i].2 = merge_into;
+                    sorted_groups.remove(i + 1);
+                    merged = true;
+                    log::debug!(
+                        "Merged overlapping groups {} and {} (extabindex range {:#010X}-{:#010X})",
+                        merge_from,
+                        merge_into,
+                        sorted_groups[i].0,
+                        sorted_groups[i].1,
+                    );
+                    break;
+                }
+            }
+        }
+    }
+
     // Build group ranges: collect entry indices per group, in iteration order.
     let mut group_entries: Vec<Vec<usize>> = vec![Vec::new(); num_groups];
     for (i, &g) in group_ids.iter().enumerate() {
