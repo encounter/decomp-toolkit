@@ -1006,10 +1006,15 @@ fn locate_extab_extabindex(obj: &mut ObjInfo) -> Result<()> {
             )?;
         }
 
-        let mut entry_iter = eti_entries.iter().peekable();
+        // Sort by extab_addr for correct size computation.
+        // With -inline deferred, extab addresses may not be monotonically increasing
+        // in extabindex iteration order, so sorting ensures subtraction never underflows.
+        let mut sorted_entries: Vec<&EtiEntry> = eti_entries.iter().collect();
+        sorted_entries.sort_by_key(|e| e.extab_addr);
+        let mut entry_iter = sorted_entries.iter().peekable();
         loop {
             let (addr, size) = match (entry_iter.next(), entry_iter.peek()) {
-                (Some(a), Some(&b)) => (a.extab_addr, b.extab_addr - a.extab_addr),
+                (Some(a), Some(b)) => (a.extab_addr, b.extab_addr - a.extab_addr),
                 (Some(a), None) => (
                     a.extab_addr,
                     (extab_section_address + extab_section_size) as u32 - a.extab_addr,
