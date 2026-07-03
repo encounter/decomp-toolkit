@@ -1966,6 +1966,21 @@ fn process_subroutine_tag(info: &DwarfInfo, tag: &Tag) -> Result<SubroutineType>
         }
     }
 
+    if this_pointer_found
+        && let Some(param) = parameters.first()
+        && let Some(name) = &param.name
+        && name != "this"
+    {
+        // MWCC can turn stack returned local variables into the first parameter
+        let stack_param = parameters.remove(0);
+        variables.push(SubroutineVariable {
+            name: stack_param.name,
+            mangled_name: None,
+            kind: stack_param.kind,
+            location: stack_param.location,
+        });
+    }
+
     let return_type = return_type
         .unwrap_or_else(|| Type { kind: TypeKind::Fundamental(FundType::Void), modifiers: vec![] });
     let direct_member_of = direct_base_key;
