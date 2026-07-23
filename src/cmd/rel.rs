@@ -42,7 +42,8 @@ use crate::{
         path::native_path,
         rel::{
             PERMITTED_SECTIONS, RelHeader, RelReloc, RelSectionHeader, RelWriteInfo,
-            print_relocations, process_rel, process_rel_header, process_rel_sections, write_rel,
+            is_permitted_section, print_relocations, process_rel, process_rel_header,
+            process_rel_sections, write_rel,
         },
     },
     vfs::open_file,
@@ -140,34 +141,27 @@ fn match_section_index(
     section_index: SectionIndex,
     rel_sections: &[RelSectionHeader],
 ) -> Result<usize> {
-    let (_, _) = (obj, rel_sections);
-    Ok(section_index.0)
-    // TODO
-    // rel_sections
-    //     .iter()
-    //     .enumerate()
-    //     .filter(|(_, s)| s.size() > 0)
-    //     .zip(obj.sections().filter(|s| s.size() > 0))
-    //     .find_map(
-    //         |((rel_section_index, _), obj_section)| {
-    //             if obj_section.index() == section_index {
-    //                 Some(rel_section_index)
-    //             } else {
-    //                 None
-    //             }
-    //         },
-    //     )
-    //     .ok_or_else(|| {
-    //         anyhow!(
-    //             "Failed to find matching section index for {} ({}), REL section count: {}",
-    //             obj.section_by_index(section_index)
-    //                 .ok()
-    //                 .and_then(|s| s.name().ok().map(|s| s.to_string()))
-    //                 .unwrap_or("[invalid]".to_string()),
-    //             section_index.0,
-    //             rel_sections.len()
-    //         )
-    //     })
+    rel_sections
+        .iter()
+        .enumerate()
+        .filter(|(_, s)| s.size() > 0)
+        .zip(obj.sections().filter(|s| is_permitted_section(s) && s.size() > 0))
+        .find_map(
+            |((rel_section_index, _), obj_section)| {
+                if obj_section.index() == section_index { Some(rel_section_index) } else { None }
+            },
+        )
+        .ok_or_else(|| {
+            anyhow!(
+                "Failed to find matching section index for {} ({}), REL section count: {}",
+                obj.section_by_index(section_index)
+                    .ok()
+                    .and_then(|s| s.name().ok().map(|s| s.to_string()))
+                    .unwrap_or("[invalid]".to_string()),
+                section_index.0,
+                rel_sections.len()
+            )
+        })
 }
 
 fn load_rel(module_config: &ModuleConfig, object_base: &ObjectBase) -> Result<RelInfo> {
@@ -384,6 +378,7 @@ fn make(args: MakeArgs) -> Result<()> {
             quiet: args.no_warn,
             section_align: None,
             section_exec: None,
+            section_index_map: None,
         };
         if let Some((header, section_headers, section_defs)) =
             existing_headers.get(&module_info.module_id)
@@ -399,6 +394,23 @@ fn make(args: MakeArgs) -> Result<()> {
                 .map(|defs| defs.iter().map(|def| def.align).collect())
                 .unwrap_or_default();
             info.section_exec = Some(section_headers.iter().map(|s| s.exec()).collect());
+            // Where each ELF section lands in the original's section table. They
+            // differ whenever the original reserved a slot that mwld dropped for
+            // being empty, which shifts everything after it by one.
+            let mut map = vec![0usize; module_info.file.sections().count()];
+            for ((rel_idx, _), obj_section) in
+                section_headers.iter().enumerate().filter(|(_, s)| s.size() > 0).zip(
+                    module_info.file.sections().filter(|s| is_permitted_section(s) && s.size() > 0),
+                )
+            {
+                map[obj_section.index().0] = rel_idx;
+            }
+            // Only carry the map when it actually differs from the ELF's own
+            // indices. Projects whose RELs have no dropped slot then take the
+            // exact path they took before.
+            if map.iter().enumerate().any(|(elf_idx, &rel_idx)| elf_idx != rel_idx) {
+                info.section_index_map = Some(map);
+            }
         }
         let rel_path = module_info.path.with_extension("rel");
         let mut w = buf_writer(&rel_path)?;
