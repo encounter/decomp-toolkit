@@ -740,17 +740,42 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                         .filter(|(_, s)| s.address == current_address.address as u64)
                         .collect_vec(),
                 );
+                // Narrow the split further if a prefix of it is solely owned by one
+                // already-known unit (e.g. a jump table referenced by one function).
+                let owned = ownership_run_end(
+                    obj,
+                    section,
+                    &symbols,
+                    current_address.address,
+                    new_split_end.address,
+                );
+                if let Some((owned_end, _)) = &owned {
+                    if *owned_end < new_split_end.address {
+                        new_split_end.address = *owned_end;
+                    }
+                }
+
                 log::debug!(
                     "Creating split from {:#010X}..{:#010X}",
                     current_address,
                     new_split_end
                 );
-                let unit = format!(
-                    "auto_{:02}_{:08X}_{}",
-                    current_address.section,
-                    current_address.address,
-                    section.name.trim_start_matches('.')
-                );
+                let unit = owned
+                    .map(|(_, unit)| unit)
+                    // Don't reuse a unit this same pass already joined (add_split() merge risk).
+                    .filter(|unit| {
+                        !new_splits.iter().any(|(addr, s)| {
+                            addr.section == current_address.section && &s.unit == unit
+                        })
+                    })
+                    .unwrap_or_else(|| {
+                        format!(
+                            "auto_{:02}_{:08X}_{}",
+                            current_address.section,
+                            current_address.address,
+                            section.name.trim_start_matches('.')
+                        )
+                    });
                 new_splits.insert(current_address, ObjSplit {
                     unit: unit.clone(),
                     end: new_split_end.address,
@@ -1770,6 +1795,85 @@ pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<Sec
         }
     }
     Ok(SectionAddress::new(section_index, section_end))
+}
+
+/// If every relocation in `start..end` targets an address already owned by one known split
+/// unit, returns that unit's name (e.g. a jump table whose entries all point into one already-
+/// split function). Ignores unresolved relocations; returns `None` on disagreement or if none
+/// resolve.
+///
+/// Never proposes a unit that already has a split in this section: `add_split` merges same-
+/// unit/same-section splits via `min(start)..max(end)`, which corrupts anything non-adjacent
+/// that used to sit between them.
+fn single_referencing_unit(
+    obj: &ObjInfo,
+    section: &ObjSection,
+    start: u32,
+    end: u32,
+) -> Option<String> {
+    let mut found: Option<&str> = None;
+    for (_, reloc) in section.relocations.range(start..end) {
+        let target = &obj.symbols[reloc.target_symbol];
+        let target_section_idx = target.section?;
+        let target_section = obj.sections.get(target_section_idx)?;
+        let (_, split) = target_section.splits.for_address(target.address as u32)?;
+        match found {
+            None => found = Some(split.unit.as_str()),
+            Some(unit) if unit == split.unit => {}
+            // Referenced by 2+ distinct already-known units: ambiguous, don't guess.
+            Some(_) => return None,
+        }
+    }
+    let unit = found?;
+    if section.splits.for_unit(unit).ok()?.is_some() {
+        return None;
+    }
+    Some(unit.to_string())
+}
+
+/// Finds the largest symbol-aligned prefix of `[start, limit)` owned by exactly one known unit,
+/// so a jump table etc. buried in an otherwise-mixed gap can still be joined without requiring
+/// the whole (possibly huge) gap to agree. `symbols` is every symbol in range, address order.
+///
+/// Evaluates ownership per symbol rather than re-probing [`single_referencing_unit`] over a
+/// growing prefix: that function hard-fails a whole range on its first unresolved relocation,
+/// which would permanently poison every later, cleanly-owned symbol too. A symbol with no
+/// resolvable owner is just "no evidence" and doesn't break an already-established run.
+fn ownership_run_end(
+    obj: &ObjInfo,
+    section: &ObjSection,
+    symbols: &[(SymbolIndex, &ObjSymbol)],
+    start: u32,
+    limit: u32,
+) -> Option<(u32, String)> {
+    let mut owner: Option<String> = None;
+    let mut end: Option<u32> = None;
+    for (i, &(_, symbol)) in symbols.iter().enumerate() {
+        let sym_start = symbol.address as u32;
+        if sym_start < start {
+            continue;
+        }
+        let sym_end = symbols.get(i + 1).map(|&(_, s)| s.address as u32).unwrap_or(limit);
+        match single_referencing_unit(obj, section, sym_start, sym_end) {
+            Some(unit) => match &owner {
+                None => {
+                    owner = Some(unit);
+                    end = Some(sym_end);
+                }
+                Some(o) if *o == unit => end = Some(sym_end),
+                // A different already-known owner: stop before this symbol.
+                Some(_) => break,
+            },
+            None => {
+                // No evidence either way; extend an already-started run over it, but don't
+                // start a run on a neutral symbol alone.
+                if owner.is_some() {
+                    end = Some(sym_end);
+                }
+            }
+        }
+    }
+    end.zip(owner)
 }
 
 /// Generates a unit name for an autogenerated split.
