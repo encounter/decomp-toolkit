@@ -747,7 +747,18 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                     &symbols,
                     current_address.address,
                     new_split_end.address,
-                );
+                )
+                // Skip units already claimed in this section, to prevent add_split from merging them.
+                .filter(|(_, unit)| {
+                    !new_splits
+                        .iter()
+                        .any(|(addr, s)| addr.section == current_address.section && &s.unit == unit)
+                })
+                // A unit's chunks in other sections already fix its place in the link order;
+                // claiming a range here that contradicts that would make the order cyclic.
+                .filter(|(_, unit)| {
+                    link_order_is_acyclic(obj, &new_splits, Some((current_address, unit.as_str())))
+                });
                 if let Some((owned_end, _)) = &owned {
                     if *owned_end < new_split_end.address {
                         new_split_end.address = *owned_end;
@@ -759,22 +770,14 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                     current_address,
                     new_split_end
                 );
-                let unit = owned
-                    .map(|(_, unit)| unit)
-                    // Skip units already claimed in this section, to prevent add_split from merging them.
-                    .filter(|unit| {
-                        !new_splits.iter().any(|(addr, s)| {
-                            addr.section == current_address.section && &s.unit == unit
-                        })
-                    })
-                    .unwrap_or_else(|| {
-                        format!(
-                            "auto_{:02}_{:08X}_{}",
-                            current_address.section,
-                            current_address.address,
-                            section.name.trim_start_matches('.')
-                        )
-                    });
+                let unit = owned.map(|(_, unit)| unit).unwrap_or_else(|| {
+                    format!(
+                        "auto_{:02}_{:08X}_{}",
+                        current_address.section,
+                        current_address.address,
+                        section.name.trim_start_matches('.')
+                    )
+                });
                 new_splits.insert(current_address, ObjSplit {
                     unit: unit.clone(),
                     end: new_split_end.address,
@@ -1227,54 +1230,74 @@ pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bo
     Ok(())
 }
 
-/// The ordering of TUs inside of each section represents a directed edge in a DAG.
-/// We can use a topological sort to determine a valid global TU order.
-/// There can be ambiguities, but any solution that satisfies the link order
-/// constraints is considered valid.
-#[instrument(level = "debug", skip(obj))]
-fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
-    #[allow(dead_code)]
-    #[derive(Debug, Copy, Clone)]
-    struct SplitEdge {
-        from: i64,
-        to: i64,
+/// Builds the link order dependency graph from every split in `obj`, plus `extra` splits not yet
+/// applied to `obj` and an optional `candidate` (address, unit) split. Returns the adjacency
+/// list and the unit name for each node index.
+fn link_order_graph<'a>(
+    obj: &'a ObjInfo,
+    extra: &'a BTreeMap<SectionAddress, ObjSplit>,
+    candidate: Option<(SectionAddress, &'a str)>,
+) -> Result<(Vec<Vec<usize>>, Vec<&'a str>)> {
+    // Per section: (address, unit, common), merged and sorted by address
+    let mut sections = vec![];
+    for (section_index, section) in obj.sections.iter() {
+        let mut entries = section
+            .splits
+            .iter()
+            .map(|(addr, split)| (addr, split.unit.as_str(), split.common))
+            .chain(
+                extra
+                    .iter()
+                    .filter(|(addr, _)| addr.section == section_index)
+                    .map(|(addr, split)| (addr.address, split.unit.as_str(), split.common)),
+            )
+            .chain(
+                candidate
+                    .filter(|(addr, _)| addr.section == section_index)
+                    .map(|(addr, unit)| (addr.address, unit, false)),
+            )
+            .collect_vec();
+        entries.sort_by_key(|&(addr, _, _)| addr);
+        sections.push((section.name.as_str(), entries));
     }
 
     let mut unit_to_index_map = BTreeMap::<&str, usize>::new();
     let mut index_to_unit = vec![];
-    for (_, _, _, split) in obj.sections.all_splits() {
-        unit_to_index_map.entry(split.unit.as_str()).or_insert_with(|| {
-            let idx = index_to_unit.len();
-            index_to_unit.push(split.unit.as_str());
-            idx
-        });
+    for (_, entries) in &sections {
+        for &(_, unit, _) in entries {
+            unit_to_index_map.entry(unit).or_insert_with(|| {
+                let idx = index_to_unit.len();
+                index_to_unit.push(unit);
+                idx
+            });
+        }
     }
     let mut graph = vec![vec![]; index_to_unit.len()];
 
-    for (_section_index, section) in obj.sections.iter() {
-        let mut iter = section.splits.iter().peekable();
-        if section.name == ".ctors" || section.name == ".dtors" {
+    for (section_name, entries) in &sections {
+        let mut iter = entries.iter().peekable();
+        if *section_name == ".ctors" || *section_name == ".dtors" {
             // Skip __init_cpp_exceptions.o
             let skipped = iter.next();
             log::debug!("Skipping split {:?} (next: {:?})", skipped, iter.peek());
         }
-        while let (Some((a_addr, a)), Some(&(b_addr, b))) = (iter.next(), iter.peek()) {
-            if !a.common && b.common {
+        while let (Some(&(a_addr, a_unit, a_common)), Some(&&(b_addr, b_unit, b_common))) =
+            (iter.next(), iter.peek())
+        {
+            if !a_common && b_common {
                 // This marks the beginning of the common BSS section.
                 continue;
             }
 
-            if a.unit != b.unit {
+            if a_unit != b_unit {
                 log::debug!(
                     "Adding dependency {} ({:#010X}) -> {} ({:#010X})",
-                    a.unit,
+                    a_unit,
                     a_addr,
-                    b.unit,
+                    b_unit,
                     b_addr
                 );
-                let a_index = *unit_to_index_map.get(a.unit.as_str()).unwrap();
-                let b_index = *unit_to_index_map.get(b.unit.as_str()).unwrap();
-                graph[a_index].push(b_index);
+                graph[unit_to_index_map[a_unit]].push(unit_to_index_map[b_unit]);
             }
         }
     }
@@ -1298,6 +1321,34 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
     while let (Some(&a_index), Some(&&b_index)) = (iter.next(), iter.peek()) {
         graph[a_index].push(b_index);
     }
+
+    Ok((graph, index_to_unit))
+}
+
+/// Whether the link order would still be resolvable with `extra` splits and `candidate` added.
+fn link_order_is_acyclic(
+    obj: &ObjInfo,
+    extra: &BTreeMap<SectionAddress, ObjSplit>,
+    candidate: Option<(SectionAddress, &str)>,
+) -> bool {
+    link_order_graph(obj, extra, candidate).is_ok_and(|(graph, _)| toposort(&graph).is_ok())
+}
+
+/// The ordering of TUs inside of each section represents a directed edge in a DAG.
+/// We can use a topological sort to determine a valid global TU order.
+/// There can be ambiguities, but any solution that satisfies the link order
+/// constraints is considered valid.
+#[instrument(level = "debug", skip(obj))]
+fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
+    #[allow(dead_code)]
+    #[derive(Debug, Copy, Clone)]
+    struct SplitEdge {
+        from: i64,
+        to: i64,
+    }
+
+    let no_extra = BTreeMap::new();
+    let (graph, index_to_unit) = link_order_graph(obj, &no_extra, None)?;
 
     match toposort(&graph) {
         Ok(vec) => Ok(vec
