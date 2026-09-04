@@ -740,8 +740,7 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                         .filter(|(_, s)| s.address == current_address.address as u64)
                         .collect_vec(),
                 );
-                // Narrow the split further if a prefix of it is solely owned by one
-                // already-known unit (e.g. a jump table referenced by one function).
+                // Identify and claim prefixes that have a single owner.
                 let owned = ownership_run_end(
                     obj,
                     section,
@@ -762,7 +761,7 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                 );
                 let unit = owned
                     .map(|(_, unit)| unit)
-                    // Don't reuse a unit this same pass already joined (add_split() merge risk).
+                    // Skip units already claimed in this section, to prevent add_split from merging them.
                     .filter(|unit| {
                         !new_splits.iter().any(|(addr, s)| {
                             addr.section == current_address.section && &s.unit == unit
@@ -1798,13 +1797,8 @@ pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<Sec
 }
 
 /// If every relocation in `start..end` targets an address already owned by one known split
-/// unit, returns that unit's name (e.g. a jump table whose entries all point into one already-
-/// split function). Ignores unresolved relocations; returns `None` on disagreement or if none
-/// resolve.
-///
-/// Never proposes a unit that already has a split in this section: `add_split` merges same-
-/// unit/same-section splits via `min(start)..max(end)`, which corrupts anything non-adjacent
-/// that used to sit between them.
+/// unit, returns that unit's name. Otherwise, returns `None`. This can identify jump
+/// tables associated with, e.g., a switch statement.
 fn single_referencing_unit(
     obj: &ObjInfo,
     section: &ObjSection,
@@ -1820,7 +1814,7 @@ fn single_referencing_unit(
         match found {
             None => found = Some(split.unit.as_str()),
             Some(unit) if unit == split.unit => {}
-            // Referenced by 2+ distinct already-known units: ambiguous, don't guess.
+            // Referenced by multiple distinct units; there's no single owner.
             Some(_) => return None,
         }
     }
@@ -1831,14 +1825,8 @@ fn single_referencing_unit(
     Some(unit.to_string())
 }
 
-/// Finds the largest symbol-aligned prefix of `[start, limit)` owned by exactly one known unit,
-/// so a jump table etc. buried in an otherwise-mixed gap can still be joined without requiring
-/// the whole (possibly huge) gap to agree. `symbols` is every symbol in range, address order.
-///
-/// Evaluates ownership per symbol rather than re-probing [`single_referencing_unit`] over a
-/// growing prefix: that function hard-fails a whole range on its first unresolved relocation,
-/// which would permanently poison every later, cleanly-owned symbol too. A symbol with no
-/// resolvable owner is just "no evidence" and doesn't break an already-established run.
+/// Finds the largest possible prefix of `[start, limit)` that is owned by exactly one known unit.
+/// This lets us identify a jump table that starts at `start`.
 fn ownership_run_end(
     obj: &ObjInfo,
     section: &ObjSection,
@@ -1861,12 +1849,11 @@ fn ownership_run_end(
                     end = Some(sym_end);
                 }
                 Some(o) if *o == unit => end = Some(sym_end),
-                // A different already-known owner: stop before this symbol.
+                // A different owner; stop the search here.
                 Some(_) => break,
             },
             None => {
-                // No evidence either way; extend an already-started run over it, but don't
-                // start a run on a neutral symbol alone.
+                // Unknown provenance: only allowed if we've already started a run.
                 if owner.is_some() {
                     end = Some(sym_end);
                 }
