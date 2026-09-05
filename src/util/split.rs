@@ -637,6 +637,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
 /// Create splits for gaps between existing splits.
 fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
     let mut new_splits = BTreeMap::<SectionAddress, ObjSplit>::new();
+    let referencers = incoming_references(obj);
 
     for (section_index, section) in obj.sections.iter() {
         let mut current_address = SectionAddress::new(section_index, section.address as u32);
@@ -740,28 +741,27 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                         .filter(|(_, s)| s.address == current_address.address as u64)
                         .collect_vec(),
                 );
-                // Identify and claim prefixes that have a single owner.
-                let owned = ownership_run_end(
-                    obj,
-                    section,
-                    &symbols,
-                    current_address.address,
-                    new_split_end.address,
-                )
-                // Skip units already claimed in this section, to prevent add_split from merging them.
-                .filter(|(_, unit)| {
-                    !new_splits
-                        .iter()
-                        .any(|(addr, s)| addr.section == current_address.section && &s.unit == unit)
-                })
-                // A unit's chunks in other sections already fix its place in the link order;
-                // claiming a range here that contradicts that would make the order cyclic.
-                .filter(|(_, unit)| {
-                    link_order_is_acyclic(obj, &new_splits, Some((current_address, unit.as_str())))
-                });
-                if let Some((owned_end, _)) = &owned {
-                    if *owned_end < new_split_end.address {
-                        new_split_end.address = *owned_end;
+                // Identify and claim data-only prefixes with a single owner.
+                let mut owner = None;
+                if section.kind != ObjSectionKind::Code {
+                    match ownership_run(
+                        obj,
+                        section_index,
+                        section,
+                        &referencers,
+                        &symbols,
+                        current_address.address,
+                        new_split_end.address,
+                    ) {
+                        OwnershipRun::Owned { end, unit } => {
+                            new_split_end.address = min(new_split_end.address, end);
+                            owner = Some(unit);
+                        }
+                        // A run could plausibly start at `next`; end this split there.
+                        OwnershipRun::Unowned { next: Some(next) } => {
+                            new_split_end.address = min(new_split_end.address, next);
+                        }
+                        OwnershipRun::Unowned { next: None } => {}
                     }
                 }
 
@@ -770,14 +770,29 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                     current_address,
                     new_split_end
                 );
-                let unit = owned.map(|(_, unit)| unit).unwrap_or_else(|| {
-                    format!(
-                        "auto_{:02}_{:08X}_{}",
-                        current_address.section,
-                        current_address.address,
-                        section.name.trim_start_matches('.')
-                    )
-                });
+                let unit = owner
+                    // Skip units already claimed in this section, to prevent add_split from merging them.
+                    .filter(|unit| {
+                        !new_splits.iter().any(|(addr, s)| {
+                            addr.section == current_address.section && &s.unit == unit
+                        })
+                    })
+                    // Prevent any cycles in the link order.
+                    .filter(|unit| {
+                        link_order_is_acyclic(
+                            obj,
+                            &new_splits,
+                            Some((current_address, unit.as_str())),
+                        )
+                    })
+                    .unwrap_or_else(|| {
+                        format!(
+                            "auto_{:02}_{:08X}_{}",
+                            current_address.section,
+                            current_address.address,
+                            section.name.trim_start_matches('.')
+                        )
+                    });
                 new_splits.insert(current_address, ObjSplit {
                     unit: unit.clone(),
                     end: new_split_end.address,
@@ -1847,71 +1862,164 @@ pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<Sec
     Ok(SectionAddress::new(section_index, section_end))
 }
 
-/// If every relocation in `start..end` targets an address already owned by one known split
-/// unit, returns that unit's name. Otherwise, returns `None`. This can identify jump
-/// tables associated with, e.g., a switch statement.
-fn single_referencing_unit(
-    obj: &ObjInfo,
-    section: &ObjSection,
-    start: u32,
-    end: u32,
-) -> Option<String> {
-    let mut found: Option<&str> = None;
-    for (_, reloc) in section.relocations.range(start..end) {
-        let target = &obj.symbols[reloc.target_symbol];
-        let target_section_idx = target.section?;
-        let target_section = obj.sections.get(target_section_idx)?;
-        let (_, split) = target_section.splits.for_address(target.address as u32)?;
-        match found {
-            None => found = Some(split.unit.as_str()),
-            Some(unit) if unit == split.unit => {}
-            // Referenced by multiple distinct units; there's no single owner.
-            Some(_) => return None,
+/// Map of every relocation target to the addresses of the relocations that point at it.
+type Referencers = BTreeMap<SectionAddress, Vec<SectionAddress>>;
+
+/// Indexes every relocation in `obj` by the address it targets.
+fn incoming_references(obj: &ObjInfo) -> Referencers {
+    let mut referencers = Referencers::new();
+    for (section_index, section) in obj.sections.iter() {
+        for (addr, reloc) in section.relocations.iter() {
+            let target = &obj.symbols[reloc.target_symbol];
+            let Some(target_section) = target.section else {
+                continue;
+            };
+            let target_address = (target.address as i64 + reloc.addend) as u32;
+            referencers
+                .entry(SectionAddress::new(target_section, target_address))
+                .or_default()
+                .push(SectionAddress::new(section_index, addr));
         }
     }
-    let unit = found?;
-    if section.splits.for_unit(unit).ok()?.is_some() {
-        return None;
+    referencers
+}
+
+/// How `[start, end)` relates to the already-declared splits.
+#[derive(Debug)]
+enum Ownership {
+    /// The range points into this one unit, and only that unit's code points at the range.
+    Owned(String),
+    /// No relocations into or out of the range; nothing to go on either way.
+    Neutral,
+    /// Anything else: shared, referenced from data, or nothing that ties it to one unit.
+    Unowned,
+}
+
+/// The unit whose declared split contains `addr`, if any.
+fn split_owner(obj: &ObjInfo, addr: SectionAddress) -> Option<&str> {
+    let (_, split) = obj.sections.get(addr.section)?.splits.for_address(addr.address)?;
+    Some(split.unit.as_str())
+}
+
+/// Determines which unit, if any, exclusively owns `start..end`. Only ranges that appear to
+/// be jump tables are considered: it must exclusively contain addresses into the target.
+fn range_ownership(
+    obj: &ObjInfo,
+    section_index: SectionIndex,
+    section: &ObjSection,
+    referencers: &Referencers,
+    start: u32,
+    end: u32,
+) -> Ownership {
+    /// Tracks the range's owner: the first call establishes it. Subsequent calls return true
+    /// only if `unit` is that same owner.
+    fn consider<'a>(found: &mut Option<&'a str>, unit: Option<&'a str>) -> bool {
+        match (*found, unit) {
+            // An address nobody has claimed yet; we can't tell who it belongs to.
+            (_, None) => false,
+            (None, Some(unit)) => {
+                *found = Some(unit);
+                true
+            }
+            // More than one distinct unit is involved; there's no single owner.
+            (Some(existing), Some(unit)) => existing == unit,
+        }
     }
-    Some(unit.to_string())
+    let mut found: Option<&str> = None;
+
+    // Every address the range points to must belong to the same unit.
+    let mut outgoing = false;
+    for (_, reloc) in section.relocations.range(start..end) {
+        outgoing = true;
+        let target = &obj.symbols[reloc.target_symbol];
+        let target_address = target.section.map(|target_section| {
+            SectionAddress::new(target_section, (target.address as i64 + reloc.addend) as u32)
+        });
+        if !consider(&mut found, target_address.and_then(|addr| split_owner(obj, addr))) {
+            return Ownership::Unowned;
+        }
+    }
+    // Every reference to the range must come from that unit's code.
+    let range = SectionAddress::new(section_index, start)..SectionAddress::new(section_index, end);
+    for &source in referencers.range(range).flat_map(|(_, sources)| sources) {
+        if obj.sections[source.section].kind != ObjSectionKind::Code
+            || !consider(&mut found, split_owner(obj, source))
+        {
+            return Ownership::Unowned;
+        }
+    }
+
+    match found {
+        None => Ownership::Neutral,
+        // Referenced but pointing nowhere: an ordinary variable, which may live anywhere.
+        Some(_) if !outgoing => Ownership::Unowned,
+        // A unit can't have more than one chunk per section.
+        Some(unit) if section.splits.for_unit(unit).ok().flatten().is_some() => Ownership::Unowned,
+        Some(unit) => Ownership::Owned(unit.to_string()),
+    }
+}
+
+/// Result of scanning a gap for a prefix with a single owner.
+#[derive(Debug)]
+enum OwnershipRun {
+    /// `[start, end)` is owned by `unit`.
+    Owned { end: u32, unit: String },
+    /// The prefix has no single owner. A run might begin at `next` instead.
+    Unowned { next: Option<u32> },
 }
 
 /// Finds the largest possible prefix of `[start, limit)` that is owned by exactly one known unit.
 /// This lets us identify a jump table that starts at `start`.
-fn ownership_run_end(
+fn ownership_run(
     obj: &ObjInfo,
+    section_index: SectionIndex,
     section: &ObjSection,
+    referencers: &Referencers,
     symbols: &[(SymbolIndex, &ObjSymbol)],
     start: u32,
     limit: u32,
-) -> Option<(u32, String)> {
-    let mut owner: Option<String> = None;
-    let mut end: Option<u32> = None;
-    for (i, &(_, symbol)) in symbols.iter().enumerate() {
-        let sym_start = symbol.address as u32;
-        if sym_start < start {
-            continue;
+) -> OwnershipRun {
+    let mut ranges = symbols
+        .iter()
+        .enumerate()
+        .map(|(i, &(_, symbol))| {
+            let sym_end = symbols.get(i + 1).map(|&(_, s)| s.address as u32).unwrap_or(limit);
+            (symbol.address as u32, sym_end)
+        })
+        .filter(|&(sym_start, _)| sym_start >= start && sym_start < limit)
+        .map(|(sym_start, sym_end)| {
+            let ownership =
+                range_ownership(obj, section_index, section, referencers, sym_start, sym_end);
+            (sym_start, sym_end, ownership)
+        });
+
+    let Some((_, first_end, Ownership::Owned(unit))) = ranges.next() else {
+        // A run must begin with a symbol owned by exactly one unit. Find the next one, so
+        // the following pass can start a split there.
+        let next = ranges
+            .find(|&(sym_start, _, ref ownership)| {
+                sym_start & 3 == 0 && matches!(ownership, Ownership::Owned(_))
+            })
+            .map(|(sym_start, _, _)| sym_start);
+        return OwnershipRun::Unowned { next };
+    };
+    let mut end = Some(first_end).filter(|end| end & 3 == 0);
+    for (_, sym_end, ownership) in ranges {
+        match ownership {
+            Ownership::Owned(other) if other == unit => {}
+            // Unknown provenance: only allowed if we've already started a run.
+            Ownership::Neutral => {}
+            // A different owner, or someone else involved; stop the search here.
+            _ => break,
         }
-        let sym_end = symbols.get(i + 1).map(|&(_, s)| s.address as u32).unwrap_or(limit);
-        match single_referencing_unit(obj, section, sym_start, sym_end) {
-            Some(unit) => match &owner {
-                None => {
-                    owner = Some(unit);
-                    end = Some(sym_end);
-                }
-                Some(o) if *o == unit => end = Some(sym_end),
-                // A different owner; stop the search here.
-                Some(_) => break,
-            },
-            None => {
-                // Unknown provenance: only allowed if we've already started a run.
-                if owner.is_some() {
-                    end = Some(sym_end);
-                }
-            }
+        if sym_end & 3 == 0 {
+            end = Some(sym_end);
         }
     }
-    end.zip(owner)
+    match end {
+        Some(end) => OwnershipRun::Owned { end, unit },
+        None => OwnershipRun::Unowned { next: None },
+    }
 }
 
 /// Generates a unit name for an autogenerated split.
