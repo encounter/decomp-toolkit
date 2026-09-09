@@ -637,6 +637,7 @@ fn split_extabindex(obj: &mut ObjInfo, start: SectionAddress) -> Result<()> {
 /// Create splits for gaps between existing splits.
 fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
     let mut new_splits = BTreeMap::<SectionAddress, ObjSplit>::new();
+    let referencers = incoming_references(obj);
 
     for (section_index, section) in obj.sections.iter() {
         let mut current_address = SectionAddress::new(section_index, section.address as u32);
@@ -740,17 +741,58 @@ fn create_gap_splits(obj: &mut ObjInfo) -> Result<()> {
                         .filter(|(_, s)| s.address == current_address.address as u64)
                         .collect_vec(),
                 );
+                // Identify and claim data-only prefixes with a single owner.
+                let mut owner = None;
+                if section.kind != ObjSectionKind::Code {
+                    match ownership_run(
+                        obj,
+                        section_index,
+                        section,
+                        &referencers,
+                        &symbols,
+                        current_address.address,
+                        new_split_end.address,
+                    ) {
+                        OwnershipRun::Owned { end, unit } => {
+                            new_split_end.address = min(new_split_end.address, end);
+                            owner = Some(unit);
+                        }
+                        // A run could plausibly start at `next`; end this split there.
+                        OwnershipRun::Unowned { next: Some(next) } => {
+                            new_split_end.address = min(new_split_end.address, next);
+                        }
+                        OwnershipRun::Unowned { next: None } => {}
+                    }
+                }
+
                 log::debug!(
                     "Creating split from {:#010X}..{:#010X}",
                     current_address,
                     new_split_end
                 );
-                let unit = format!(
-                    "auto_{:02}_{:08X}_{}",
-                    current_address.section,
-                    current_address.address,
-                    section.name.trim_start_matches('.')
-                );
+                let unit = owner
+                    // Skip units already claimed in this section, to prevent add_split from merging them.
+                    .filter(|unit| {
+                        !new_splits.iter().any(|(addr, s)| {
+                            addr.section == current_address.section && &s.unit == unit
+                        })
+                    })
+                    // Prevent any cycles in the link order.
+                    .filter(|unit| {
+                        link_order_is_acyclic(
+                            obj,
+                            &new_splits,
+                            Some((current_address, unit.as_str())),
+                        )
+                    })
+                    .unwrap_or_else(|| {
+                        format!(
+                            "auto_{:02}_{:08X}_{}",
+                            current_address.section,
+                            current_address.address,
+                            section.name.trim_start_matches('.')
+                        )
+                    });
                 new_splits.insert(current_address, ObjSplit {
                     unit: unit.clone(),
                     end: new_split_end.address,
@@ -1203,54 +1245,74 @@ pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bo
     Ok(())
 }
 
-/// The ordering of TUs inside of each section represents a directed edge in a DAG.
-/// We can use a topological sort to determine a valid global TU order.
-/// There can be ambiguities, but any solution that satisfies the link order
-/// constraints is considered valid.
-#[instrument(level = "debug", skip(obj))]
-fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
-    #[allow(dead_code)]
-    #[derive(Debug, Copy, Clone)]
-    struct SplitEdge {
-        from: i64,
-        to: i64,
+/// Builds the link order dependency graph from every split in `obj`, plus `extra` splits not yet
+/// applied to `obj` and an optional `candidate` (address, unit) split. Returns the adjacency
+/// list and the unit name for each node index.
+fn link_order_graph<'a>(
+    obj: &'a ObjInfo,
+    extra: &'a BTreeMap<SectionAddress, ObjSplit>,
+    candidate: Option<(SectionAddress, &'a str)>,
+) -> Result<(Vec<Vec<usize>>, Vec<&'a str>)> {
+    // Per section: (address, unit, common), merged and sorted by address
+    let mut sections = vec![];
+    for (section_index, section) in obj.sections.iter() {
+        let mut entries = section
+            .splits
+            .iter()
+            .map(|(addr, split)| (addr, split.unit.as_str(), split.common))
+            .chain(
+                extra
+                    .iter()
+                    .filter(|(addr, _)| addr.section == section_index)
+                    .map(|(addr, split)| (addr.address, split.unit.as_str(), split.common)),
+            )
+            .chain(
+                candidate
+                    .filter(|(addr, _)| addr.section == section_index)
+                    .map(|(addr, unit)| (addr.address, unit, false)),
+            )
+            .collect_vec();
+        entries.sort_by_key(|&(addr, _, _)| addr);
+        sections.push((section.name.as_str(), entries));
     }
 
     let mut unit_to_index_map = BTreeMap::<&str, usize>::new();
     let mut index_to_unit = vec![];
-    for (_, _, _, split) in obj.sections.all_splits() {
-        unit_to_index_map.entry(split.unit.as_str()).or_insert_with(|| {
-            let idx = index_to_unit.len();
-            index_to_unit.push(split.unit.as_str());
-            idx
-        });
+    for (_, entries) in &sections {
+        for &(_, unit, _) in entries {
+            unit_to_index_map.entry(unit).or_insert_with(|| {
+                let idx = index_to_unit.len();
+                index_to_unit.push(unit);
+                idx
+            });
+        }
     }
     let mut graph = vec![vec![]; index_to_unit.len()];
 
-    for (_section_index, section) in obj.sections.iter() {
-        let mut iter = section.splits.iter().peekable();
-        if section.name == ".ctors" || section.name == ".dtors" {
+    for (section_name, entries) in &sections {
+        let mut iter = entries.iter().peekable();
+        if *section_name == ".ctors" || *section_name == ".dtors" {
             // Skip __init_cpp_exceptions.o
             let skipped = iter.next();
             log::debug!("Skipping split {:?} (next: {:?})", skipped, iter.peek());
         }
-        while let (Some((a_addr, a)), Some(&(b_addr, b))) = (iter.next(), iter.peek()) {
-            if !a.common && b.common {
+        while let (Some(&(a_addr, a_unit, a_common)), Some(&&(b_addr, b_unit, b_common))) =
+            (iter.next(), iter.peek())
+        {
+            if !a_common && b_common {
                 // This marks the beginning of the common BSS section.
                 continue;
             }
 
-            if a.unit != b.unit {
+            if a_unit != b_unit {
                 log::debug!(
                     "Adding dependency {} ({:#010X}) -> {} ({:#010X})",
-                    a.unit,
+                    a_unit,
                     a_addr,
-                    b.unit,
+                    b_unit,
                     b_addr
                 );
-                let a_index = *unit_to_index_map.get(a.unit.as_str()).unwrap();
-                let b_index = *unit_to_index_map.get(b.unit.as_str()).unwrap();
-                graph[a_index].push(b_index);
+                graph[unit_to_index_map[a_unit]].push(unit_to_index_map[b_unit]);
             }
         }
     }
@@ -1274,6 +1336,34 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
     while let (Some(&a_index), Some(&&b_index)) = (iter.next(), iter.peek()) {
         graph[a_index].push(b_index);
     }
+
+    Ok((graph, index_to_unit))
+}
+
+/// Whether the link order would still be resolvable with `extra` splits and `candidate` added.
+fn link_order_is_acyclic(
+    obj: &ObjInfo,
+    extra: &BTreeMap<SectionAddress, ObjSplit>,
+    candidate: Option<(SectionAddress, &str)>,
+) -> bool {
+    link_order_graph(obj, extra, candidate).is_ok_and(|(graph, _)| toposort(&graph).is_ok())
+}
+
+/// The ordering of TUs inside of each section represents a directed edge in a DAG.
+/// We can use a topological sort to determine a valid global TU order.
+/// There can be ambiguities, but any solution that satisfies the link order
+/// constraints is considered valid.
+#[instrument(level = "debug", skip(obj))]
+fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
+    #[allow(dead_code)]
+    #[derive(Debug, Copy, Clone)]
+    struct SplitEdge {
+        from: i64,
+        to: i64,
+    }
+
+    let no_extra = BTreeMap::new();
+    let (graph, index_to_unit) = link_order_graph(obj, &no_extra, None)?;
 
     match toposort(&graph) {
         Ok(vec) => Ok(vec
@@ -1770,6 +1860,166 @@ pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<Sec
         }
     }
     Ok(SectionAddress::new(section_index, section_end))
+}
+
+/// Map of every relocation target to the addresses of the relocations that point at it.
+type Referencers = BTreeMap<SectionAddress, Vec<SectionAddress>>;
+
+/// Indexes every relocation in `obj` by the address it targets.
+fn incoming_references(obj: &ObjInfo) -> Referencers {
+    let mut referencers = Referencers::new();
+    for (section_index, section) in obj.sections.iter() {
+        for (addr, reloc) in section.relocations.iter() {
+            let target = &obj.symbols[reloc.target_symbol];
+            let Some(target_section) = target.section else {
+                continue;
+            };
+            let target_address = (target.address as i64 + reloc.addend) as u32;
+            referencers
+                .entry(SectionAddress::new(target_section, target_address))
+                .or_default()
+                .push(SectionAddress::new(section_index, addr));
+        }
+    }
+    referencers
+}
+
+/// How `[start, end)` relates to the already-declared splits.
+#[derive(Debug)]
+enum Ownership {
+    /// The range points into this one unit, and only that unit's code points at the range.
+    Owned(String),
+    /// No relocations into or out of the range; nothing to go on either way.
+    Neutral,
+    /// Anything else: shared, referenced from data, or nothing that ties it to one unit.
+    Unowned,
+}
+
+/// The unit whose declared split contains `addr`, if any.
+fn split_owner(obj: &ObjInfo, addr: SectionAddress) -> Option<&str> {
+    let (_, split) = obj.sections.get(addr.section)?.splits.for_address(addr.address)?;
+    Some(split.unit.as_str())
+}
+
+/// Determines which unit, if any, exclusively owns `start..end`. Only ranges that appear to
+/// be jump tables are considered: it must exclusively contain addresses into the target.
+fn range_ownership(
+    obj: &ObjInfo,
+    section_index: SectionIndex,
+    section: &ObjSection,
+    referencers: &Referencers,
+    start: u32,
+    end: u32,
+) -> Ownership {
+    /// Tracks the range's owner: the first call establishes it. Subsequent calls return true
+    /// only if `unit` is that same owner.
+    fn consider<'a>(found: &mut Option<&'a str>, unit: Option<&'a str>) -> bool {
+        match (*found, unit) {
+            // An address nobody has claimed yet; we can't tell who it belongs to.
+            (_, None) => false,
+            (None, Some(unit)) => {
+                *found = Some(unit);
+                true
+            }
+            // More than one distinct unit is involved; there's no single owner.
+            (Some(existing), Some(unit)) => existing == unit,
+        }
+    }
+    let mut found: Option<&str> = None;
+
+    // Every address the range points to must belong to the same unit.
+    let mut outgoing = false;
+    for (_, reloc) in section.relocations.range(start..end) {
+        outgoing = true;
+        let target = &obj.symbols[reloc.target_symbol];
+        let target_address = target.section.map(|target_section| {
+            SectionAddress::new(target_section, (target.address as i64 + reloc.addend) as u32)
+        });
+        if !consider(&mut found, target_address.and_then(|addr| split_owner(obj, addr))) {
+            return Ownership::Unowned;
+        }
+    }
+    // Every reference to the range must come from that unit's code.
+    let range = SectionAddress::new(section_index, start)..SectionAddress::new(section_index, end);
+    for &source in referencers.range(range).flat_map(|(_, sources)| sources) {
+        if obj.sections[source.section].kind != ObjSectionKind::Code
+            || !consider(&mut found, split_owner(obj, source))
+        {
+            return Ownership::Unowned;
+        }
+    }
+
+    match found {
+        None => Ownership::Neutral,
+        // Referenced but pointing nowhere: an ordinary variable, which may live anywhere.
+        Some(_) if !outgoing => Ownership::Unowned,
+        // A unit can't have more than one chunk per section.
+        Some(unit) if section.splits.for_unit(unit).ok().flatten().is_some() => Ownership::Unowned,
+        Some(unit) => Ownership::Owned(unit.to_string()),
+    }
+}
+
+/// Result of scanning a gap for a prefix with a single owner.
+#[derive(Debug)]
+enum OwnershipRun {
+    /// `[start, end)` is owned by `unit`.
+    Owned { end: u32, unit: String },
+    /// The prefix has no single owner. A run might begin at `next` instead.
+    Unowned { next: Option<u32> },
+}
+
+/// Finds the largest possible prefix of `[start, limit)` that is owned by exactly one known unit.
+/// This lets us identify a jump table that starts at `start`.
+fn ownership_run(
+    obj: &ObjInfo,
+    section_index: SectionIndex,
+    section: &ObjSection,
+    referencers: &Referencers,
+    symbols: &[(SymbolIndex, &ObjSymbol)],
+    start: u32,
+    limit: u32,
+) -> OwnershipRun {
+    let mut ranges = symbols
+        .iter()
+        .enumerate()
+        .map(|(i, &(_, symbol))| {
+            let sym_end = symbols.get(i + 1).map(|&(_, s)| s.address as u32).unwrap_or(limit);
+            (symbol.address as u32, sym_end)
+        })
+        .filter(|&(sym_start, _)| sym_start >= start && sym_start < limit)
+        .map(|(sym_start, sym_end)| {
+            let ownership =
+                range_ownership(obj, section_index, section, referencers, sym_start, sym_end);
+            (sym_start, sym_end, ownership)
+        });
+
+    let Some((_, first_end, Ownership::Owned(unit))) = ranges.next() else {
+        // A run must begin with a symbol owned by exactly one unit. Find the next one, so
+        // the following pass can start a split there.
+        let next = ranges
+            .find(|&(sym_start, _, ref ownership)| {
+                sym_start & 3 == 0 && matches!(ownership, Ownership::Owned(_))
+            })
+            .map(|(sym_start, _, _)| sym_start);
+        return OwnershipRun::Unowned { next };
+    };
+    let mut end = Some(first_end).filter(|end| end & 3 == 0);
+    for (_, sym_end, ownership) in ranges {
+        match ownership {
+            Ownership::Owned(other) if other == unit => {}
+            // Unknown provenance: only allowed if we've already started a run.
+            Ownership::Neutral => {}
+            // A different owner, or someone else involved; stop the search here.
+            _ => break,
+        }
+        if sym_end & 3 == 0 {
+            end = Some(sym_end);
+        }
+    }
+    match end {
+        Some(end) => OwnershipRun::Owned { end, unit },
+        None => OwnershipRun::Unowned { next: None },
+    }
 }
 
 /// Generates a unit name for an autogenerated split.
