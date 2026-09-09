@@ -137,7 +137,7 @@ jobs:
           python3 -m venv .venv
           . .venv/bin/activate
           echo PATH=$PATH >> $GITHUB_ENV
-          pip install ziglang==0.13.0 cargo-zigbuild==0.19.1
+          pip install ziglang==0.13.0 cargo-zigbuild==0.23.4
       - name: Setup Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:

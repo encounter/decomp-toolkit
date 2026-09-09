@@ -19,12 +19,11 @@ pub fn toposort(graph: &[Vec<usize>]) -> Result<Vec<usize>, Vec<usize>> {
     let mut cur = n;
     loop {
         let State::Active(eind, par) = state[cur] else { panic!("unexpected state 1") };
-        let adj;
-        if cur == n {
+        let adj = if cur == n {
             if eind == n {
                 break;
             }
-            adj = eind;
+            eind
         } else {
             if eind == graph[cur].len() {
                 state[cur] = State::Finished;
@@ -32,7 +31,7 @@ pub fn toposort(graph: &[Vec<usize>]) -> Result<Vec<usize>, Vec<usize>> {
                 cur = par;
                 continue;
             }
-            adj = graph[cur][eind];
+            graph[cur][eind]
         };
         state[cur] = State::Active(eind + 1, par);
         match state[adj] {

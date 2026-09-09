@@ -407,8 +407,8 @@ impl ObjSymbols {
     pub fn iter_abs(&self) -> impl DoubleEndedIterator<Item = (SymbolIndex, &ObjSymbol)> {
         debug_assert!(self.obj_kind == ObjKind::Executable);
         self.symbols_by_address
-            .iter()
-            .flat_map(|(_, v)| v.iter().map(|&u| (u, &self.symbols[u as usize])))
+            .values()
+            .flat_map(|v| v.iter().map(|&u| (u, &self.symbols[u as usize])))
             .filter(|(_, s)| s.section.is_none())
     }
 
