@@ -623,14 +623,14 @@ pub struct RelReloc {
 
 #[inline]
 fn reloc_can_be_applied(_module_id: u32, rel_reloc: &RelReloc) -> bool {
-    matches!(rel_reloc.kind, ObjRelocKind::PpcRel24 | ObjRelocKind::PpcRel14)
+    matches!(rel_reloc.kind, ObjRelocKind::PpcRel24)
 }
 
 #[inline]
 fn skip_reloc(module_id: u32, rel_reloc: &RelReloc) -> bool {
     rel_reloc.module_id == module_id
         && rel_reloc.section == rel_reloc.target_section
-        && matches!(rel_reloc.kind, ObjRelocKind::PpcRel24 | ObjRelocKind::PpcRel14)
+        && matches!(rel_reloc.kind, ObjRelocKind::PpcRel24)
 }
 
 fn apply_relocation(
