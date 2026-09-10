@@ -8,6 +8,7 @@ pub mod elf;
 pub mod elf2dol;
 pub mod extab;
 pub mod map;
+pub mod metroidbuildinfo;
 pub mod nlzss;
 pub mod rarc;
 pub mod rel;
