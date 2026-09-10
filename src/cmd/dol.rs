@@ -1,6 +1,7 @@
 use std::{
     cmp::min,
     collections::{BTreeMap, HashMap, btree_map::Entry, hash_map},
+    ffi::CStr,
     fs,
     fs::DirBuilder,
     io::{Cursor, Seek, Write},
@@ -13,6 +14,7 @@ use anyhow::{Context, Result, anyhow, bail};
 use argp::FromArgs;
 use cwdemangle::demangle;
 use itertools::Itertools;
+use object::ObjectSection;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
 use tracing::{debug, info, info_span};
@@ -43,7 +45,7 @@ use crate::{
         comment::MWComment,
         config::{
             SectionAddressRef, apply_splits_file, apply_symbols_file, is_auto_symbol,
-            signed_hex_serde, write_splits_file, write_symbols_file,
+            section_addr_ref_from_str, signed_hex_serde, write_splits_file, write_symbols_file,
         },
         dep::DepFile,
         diff::{calc_diff_ranges, print_diff, process_code},
@@ -80,6 +82,7 @@ enum SubCommand {
     Diff(DiffArgs),
     Apply(ApplyArgs),
     Config(ConfigArgs),
+    Strings(StringsArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -137,6 +140,21 @@ pub struct ApplyArgs {
     #[argp(switch)]
     /// always update anonymous local symbol names, even if they are similar
     full: bool,
+}
+
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Applies updated symbols from a linked ELF to the project configuration.
+#[argp(subcommand, name = "strings")]
+pub struct StringsArgs {
+    #[argp(positional, from_str_fn(native_path))]
+    /// linked ELF
+    elf_file: Utf8NativePathBuf,
+    #[argp(positional, from_str_fn(section_addr_ref_from_str))]
+    /// position of string table to split
+    address: SectionAddressRef,
+    /// Max count strings to split
+    #[argp(option, default = "20")]
+    count: u32,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -468,6 +486,7 @@ pub fn run(args: Args) -> Result<()> {
         SubCommand::Diff(c_args) => diff(c_args),
         SubCommand::Apply(c_args) => apply(c_args),
         SubCommand::Config(c_args) => config(c_args),
+        SubCommand::Strings(c_args) => strings(c_args),
     }
 }
 
@@ -525,19 +544,19 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
         if let Some((existing_symbol_idx, existing_symbol)) = existing_symbol {
             log::debug!("Mapping symbol {} to {}", symbol.name, existing_symbol.name);
             obj.symbols.replace(existing_symbol_idx, ObjSymbol {
-                name: symbol.name.clone(),
-                demangled_name: symbol.demangled_name.clone(),
-                address: address as u64,
-                section,
-                size: existing_symbol.size,
-                size_known: existing_symbol.size_known,
-                flags: ObjSymbolFlagSet(existing_symbol.flags.0 | ObjSymbolFlags::Exported),
-                kind: existing_symbol.kind,
-                align: existing_symbol.align,
-                data_kind: existing_symbol.data_kind,
-                name_hash: existing_symbol.name_hash,
-                demangled_name_hash: existing_symbol.demangled_name_hash,
-            })?;
+                    name: symbol.name.clone(),
+                    demangled_name: symbol.demangled_name.clone(),
+                    address: address as u64,
+                    section,
+                    size: existing_symbol.size,
+                    size_known: existing_symbol.size_known,
+                    flags: ObjSymbolFlagSet(existing_symbol.flags.0 | ObjSymbolFlags::Exported),
+                    kind: existing_symbol.kind,
+                    align: existing_symbol.align,
+                    data_kind: existing_symbol.data_kind,
+                    name_hash: existing_symbol.name_hash,
+                    demangled_name_hash: existing_symbol.demangled_name_hash,
+                })?;
         } else {
             log::debug!("Creating symbol {} at {:#010X}", symbol.name, address);
             obj.symbols.add(
@@ -2143,10 +2162,10 @@ fn config(args: ConfigArgs) -> Result<()> {
                 let header = process_rel_header(&mut entry)?;
                 entry.rewind()?;
                 modules.push((header.module_id, ModuleConfig {
-                    object: path.with_unix_encoding(),
-                    hash: Some(file_sha1_string(&mut entry)?),
-                    ..Default::default()
-                }));
+                        object: path.with_unix_encoding(),
+                        hash: Some(file_sha1_string(&mut entry)?),
+                        ..Default::default()
+                    }));
             }
             "sel" => {
                 config.selfile = Some(path.with_unix_encoding());
@@ -2218,10 +2237,10 @@ fn apply_add_relocations(obj: &mut ObjInfo, relocations: &[AddRelocationConfig])
             }
         };
         obj.sections[section].relocations.replace(address, ObjReloc {
-            kind: reloc.kind,
-            target_symbol,
-            addend: reloc.addend,
-            module: None,
+kind: reloc.kind,
+target_symbol,
+addend: reloc.addend,
+module: None,
         });
     }
     Ok(())
@@ -2396,6 +2415,39 @@ fn extracted_path(target_dir: &Utf8NativePath, path: &Utf8UnixPath) -> Utf8Nativ
         }
     }
     target_path
+}
+
+fn strings(args: StringsArgs) -> Result<()> {
+    let mut file = open_file(&args.elf_file, true)?;
+    let data = file.map()?;
+
+    let obj_file = object::read::File::parse(data)?;
+    let section = args.address.resolve_in_file(&obj_file)?;
+    let section_name = section.name()?;
+
+    let mut relative = (args.address.address as u64 - section.address()) as usize;
+    let section_data = section.data()?;
+
+    for _ in 0..args.count {
+        let symbol_data = &section_data[relative..];
+        let str = match CStr::from_bytes_until_nul(symbol_data) {
+            Ok(v) => v,
+            Err(_) => break,
+        };
+
+        let size = str.count_bytes() + 1;
+
+        println!(
+            "str_{0:08X} = {1}:0x{0:08X}; // type:object size:0x{2:X} scope:local data:string",
+            relative as u64 + section.address(),
+            section_name,
+            size
+        );
+
+        relative += size;
+    }
+
+    Ok(())
 }
 
 #[cfg(test)]
