@@ -218,6 +218,11 @@ fn apply_signature_for_symbol(obj: &mut ObjInfo, name: &str, sig_str: &str) -> R
     Ok(())
 }
 
+/// The unit already claiming `addr`, if the project's own splits cover it.
+fn existing_unit(obj: &ObjInfo, addr: SectionAddress) -> Option<String> {
+    obj.sections[addr.section].splits.for_address(addr.address).map(|(_, s)| s.unit.clone())
+}
+
 fn apply_ctors_signatures(obj: &mut ObjInfo) -> Result<()> {
     let Some((_, symbol)) = obj.symbols.by_name("_ctors")? else {
         return Ok(());
@@ -257,8 +262,10 @@ fn apply_ctors_signatures(obj: &mut ObjInfo) -> Result<()> {
         true,
     )?;
     if obj.sections[ctors_section_index].splits.for_address(address as u32).is_none() {
+        let unit =
+            existing_unit(obj, target).unwrap_or_else(|| "__init_cpp_exceptions.cpp".to_string());
         obj.add_split(ctors_section_index, address as u32, ObjSplit {
-            unit: "__init_cpp_exceptions.cpp".to_string(),
+            unit,
             end: address as u32 + 4,
             align: None,
             common: false,
@@ -353,8 +360,16 @@ fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
             end += 4;
         }
         if obj.sections[dtors_section_index].splits.for_address(address as u32).is_none() {
+            // __fini_cpp_exceptions is the more direct sibling of the ctors-side
+            // split (both are the same compiler-generated unit); prefer its
+            // existing unit before __destroy_global_chain's, which is more
+            // often its own separate, real unit.
+            let unit = fce_target
+                .and_then(|t| existing_unit(obj, t))
+                .or_else(|| dgc_target.and_then(|t| existing_unit(obj, t)))
+                .unwrap_or_else(|| "__init_cpp_exceptions.cpp".to_string());
             obj.add_split(dtors_section_index, address as u32, ObjSplit {
-                unit: "__init_cpp_exceptions.cpp".to_string(),
+                unit,
                 end,
                 align: None,
                 common: false,
