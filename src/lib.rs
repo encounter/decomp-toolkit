@@ -16,7 +16,7 @@ pub mod vfs;
 // Dependencies of the `dtk` binary alone. `unused_crate_dependencies` is
 // checked per target, so without these the library target reports them unused.
 use enable_ansi_support as _;
-use supports_color as _;
-use tracing_subscriber as _;
 #[cfg(target_env = "musl")]
 use mimalloc as _;
+use supports_color as _;
+use tracing_subscriber as _;
