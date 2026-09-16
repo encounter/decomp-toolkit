@@ -869,11 +869,11 @@ fn resolve_external_relocations(
     Ok(())
 }
 
-struct AnalyzeResult {
-    obj: ObjInfo,
-    dep: Vec<Utf8NativePathBuf>,
-    symbols_cache: Option<FileReadInfo>,
-    splits_cache: Option<FileReadInfo>,
+pub struct AnalyzeResult {
+    pub obj: ObjInfo,
+    pub dep: Vec<Utf8NativePathBuf>,
+    pub symbols_cache: Option<FileReadInfo>,
+    pub splits_cache: Option<FileReadInfo>,
 }
 
 fn load_dol_module(
@@ -897,7 +897,7 @@ fn load_dol_module(
     Ok((obj, object_path))
 }
 
-fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<AnalyzeResult> {
+pub fn load_analyze_dol(config: &ProjectConfig, object_base: &ObjectBase) -> Result<AnalyzeResult> {
     let (mut obj, object_path) = load_dol_module(&config.base, object_base)?;
     let mut dep = vec![object_path];
 

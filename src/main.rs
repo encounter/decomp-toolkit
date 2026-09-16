@@ -1,19 +1,12 @@
-#![deny(unused_crate_dependencies)]
 use std::{env, ffi::OsStr, fmt::Display, path::PathBuf, process::exit, str::FromStr};
 
 use anyhow::Error;
 use argp::{FromArgValue, FromArgs};
+use decomp_toolkit::{argp_version, cmd};
 use enable_ansi_support::enable_ansi_support;
 use supports_color::Stream;
 use tracing::level_filters::LevelFilter;
 use tracing_subscriber::EnvFilter;
-
-pub mod analysis;
-pub mod argp_version;
-pub mod cmd;
-pub mod obj;
-pub mod util;
-pub mod vfs;
 
 // musl's allocator is very slow, so use mimalloc when targeting musl.
 // Otherwise, use the system allocator to avoid extra code size.
