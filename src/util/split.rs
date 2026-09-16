@@ -1226,6 +1226,7 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
         });
     }
     let mut graph = vec![vec![]; index_to_unit.len()];
+    let mut edges: Vec<(usize, usize, &str)> = vec![];
 
     for (_section_index, section) in obj.sections.iter() {
         let mut iter = section.splits.iter().peekable();
@@ -1251,6 +1252,7 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
                 let a_index = *unit_to_index_map.get(a.unit.as_str()).unwrap();
                 let b_index = *unit_to_index_map.get(b.unit.as_str()).unwrap();
                 graph[a_index].push(b_index);
+                edges.push((a_index, b_index, section.name.as_str()));
             }
         }
     }
@@ -1292,11 +1294,222 @@ fn resolve_link_order(obj: &ObjInfo) -> Result<Vec<ObjUnit>> {
                 }
             })
             .collect_vec()),
-        Err(e) => Err(anyhow!(
-            "Cyclic dependency encountered while resolving link order: {}",
-            e.iter().map(|&idx| index_to_unit[idx]).join(" -> ")
-        )),
+        Err(e) => {
+            let diagnosis = diagnose_link_cycle(&edges, &graph, &index_to_unit);
+            Err(anyhow!(
+                "{}Cyclic dependency encountered while resolving link order: {}",
+                diagnosis,
+                e.iter().map(|&idx| index_to_unit[idx]).join(" -> ")
+            ))
+        }
     }
+}
+
+/// Explains why the link order graph is cyclic in terms that can be acted on,
+/// instead of just the raw DFS-found cycle. Per strongly-connected component (Tarjan),
+/// searches small combinations of non-code sections for the edges that are responsible.
+/// Returns "" if the graph turned out to be acyclic after all.
+fn diagnose_link_cycle(
+    edges: &[(usize, usize, &str)],
+    graph: &[Vec<usize>],
+    index_to_unit: &[&str],
+) -> String {
+    type Edge<'a> = (usize, usize, &'a str);
+
+    /// Finds one back edge (u, v) that closes a cycle, or None if `adj` is
+    /// acyclic. Used both as a plain cycle-existence check and, in
+    /// `greedy_feedback_edges`, to repeatedly peel off a concrete offending
+    /// edge until nothing is left to close a loop.
+    fn find_cycle_edge(adj: &HashMap<usize, Vec<usize>>) -> Option<(usize, usize)> {
+        #[derive(Clone, Copy, PartialEq)]
+        enum Color {
+            Gray,
+            Black,
+        }
+        fn visit(
+            v: usize,
+            adj: &HashMap<usize, Vec<usize>>,
+            color: &mut HashMap<usize, Color>,
+        ) -> Option<(usize, usize)> {
+            color.insert(v, Color::Gray);
+            if let Some(next) = adj.get(&v) {
+                for &w in next {
+                    match color.get(&w) {
+                        Some(Color::Gray) => return Some((v, w)),
+                        Some(Color::Black) => {}
+                        None => {
+                            if let Some(e) = visit(w, adj, color) {
+                                return Some(e);
+                            }
+                        }
+                    }
+                }
+            }
+            color.insert(v, Color::Black);
+            None
+        }
+        let mut color: HashMap<usize, Color> = HashMap::new();
+        let nodes: Vec<usize> = adj.keys().copied().collect();
+        for v in nodes {
+            if !color.contains_key(&v) {
+                if let Some(e) = visit(v, adj, &mut color) {
+                    return Some(e);
+                }
+            }
+        }
+        None
+    }
+
+    fn has_cycle(adj: &HashMap<usize, Vec<usize>>) -> bool { find_cycle_edge(adj).is_some() }
+
+    fn build_adj(edges: &[Edge]) -> HashMap<usize, Vec<usize>> {
+        let mut adj: HashMap<usize, Vec<usize>> = HashMap::new();
+        for &(a, b, _) in edges {
+            adj.entry(a).or_default().push(b);
+        }
+        adj
+    }
+
+    let sccs = tarjan_sccs(graph);
+    let mut out = String::new();
+    for scc in sccs.iter().filter(|s| s.len() > 1) {
+        let scc_set: HashSet<usize> = scc.iter().copied().collect();
+        let internal: Vec<Edge> = edges
+            .iter()
+            .filter(|(a, b, _)| scc_set.contains(a) && scc_set.contains(b))
+            .copied()
+            .collect();
+
+        // `.text`/`.init` are excluded from the search space itself, not
+        // just tried last: they're very unlikely to be incorrect
+        let mut sections: Vec<&str> = internal
+            .iter()
+            .map(|(_, _, s)| *s)
+            .filter(|s| *s != ".text" && *s != ".init")
+            .collect();
+        sections.sort_unstable();
+        sections.dedup();
+        let code_edges: Vec<Edge> =
+            internal.iter().copied().filter(|(_, _, s)| *s == ".text" || *s == ".init").collect();
+
+        let mut resolved = false;
+        'combos: for k in 1..=3.min(sections.len()) {
+            for sec_combo in sections.iter().combinations(k) {
+                let sec_set: HashSet<&str> = sec_combo.iter().map(|s| **s).collect();
+                let mut other_edges = code_edges.clone();
+                other_edges.extend(
+                    internal
+                        .iter()
+                        .copied()
+                        .filter(|(_, _, s)| !sec_set.contains(s) && *s != ".text" && *s != ".init"),
+                );
+                if has_cycle(&build_adj(&other_edges)) {
+                    // Keeping everything except this combo is still cyclic --
+                    // these sections aren't (jointly) the conflict.
+                    continue;
+                }
+                // This combo's edges are sufficient to explain the cycle.
+                // Find a small subset of them that's actually necessary,
+                // rather than dumping every edge in every section involved
+                let combo_edges: Vec<Edge> =
+                    internal.iter().copied().filter(|(_, _, s)| sec_set.contains(s)).collect();
+                let mut culprits: Option<Vec<Edge>> = None;
+                if combo_edges.len() <= 60 {
+                    'search: for k2 in 1..=3.min(combo_edges.len()) {
+                        for edge_combo in combo_edges.iter().combinations(k2) {
+                            let mut trial = other_edges.clone();
+                            trial.extend(edge_combo.iter().map(|e| **e));
+                            if has_cycle(&build_adj(&trial)) {
+                                culprits = Some(edge_combo.into_iter().copied().collect());
+                                break 'search;
+                            }
+                        }
+                    }
+                }
+                let culprits = culprits.unwrap_or(combo_edges);
+                let sec_names: Vec<&str> = sec_combo.iter().map(|s| **s).collect();
+                out.push_str(&format!(
+                    "Conflict across section(s) {sec_names:?} (removing their edges together \
+                     would resolve the cycle):\n"
+                ));
+                for (a, b, sec) in &culprits {
+                    out.push_str(&format!(
+                        "  [{sec}] {} -> {}\n",
+                        index_to_unit[*a], index_to_unit[*b]
+                    ));
+                }
+                resolved = true;
+                break 'combos;
+            }
+        }
+        if !resolved {
+            out.push_str(&format!(
+                "A cycle spans {} units; couldn't isolate it to 3 or fewer non-code sections \
+                 automatically, so this needs manual review.\n",
+                scc.len()
+            ));
+        }
+    }
+    if !out.is_empty() {
+        out.push('\n');
+    }
+    out
+}
+
+/// Finds every strongly-connected component of `graph` via Tarjan's
+/// algorithm. A component of size > 1 means those units are mutually
+/// reachable from one another, i.e. participate in a cycle together.
+fn tarjan_sccs(graph: &[Vec<usize>]) -> Vec<Vec<usize>> {
+    struct State {
+        index_counter: usize,
+        stack: Vec<usize>,
+        on_stack: Vec<bool>,
+        index: Vec<usize>,
+        lowlink: Vec<usize>,
+        sccs: Vec<Vec<usize>>,
+    }
+    fn strongconnect(v: usize, graph: &[Vec<usize>], s: &mut State) {
+        s.index[v] = s.index_counter;
+        s.lowlink[v] = s.index_counter;
+        s.index_counter += 1;
+        s.stack.push(v);
+        s.on_stack[v] = true;
+        for &w in &graph[v] {
+            if s.index[w] == usize::MAX {
+                strongconnect(w, graph, s);
+                s.lowlink[v] = s.lowlink[v].min(s.lowlink[w]);
+            } else if s.on_stack[w] {
+                s.lowlink[v] = s.lowlink[v].min(s.index[w]);
+            }
+        }
+        if s.lowlink[v] == s.index[v] {
+            let mut scc = vec![];
+            loop {
+                let w = s.stack.pop().unwrap();
+                s.on_stack[w] = false;
+                scc.push(w);
+                if w == v {
+                    break;
+                }
+            }
+            s.sccs.push(scc);
+        }
+    }
+    let n = graph.len();
+    let mut state = State {
+        index_counter: 0,
+        stack: vec![],
+        on_stack: vec![false; n],
+        index: vec![usize::MAX; n],
+        lowlink: vec![usize::MAX; n],
+        sccs: vec![],
+    };
+    for v in 0..n {
+        if state.index[v] == usize::MAX {
+            strongconnect(v, graph, &mut state);
+        }
+    }
+    state.sccs
 }
 
 /// Split an object into multiple relocatable objects.
