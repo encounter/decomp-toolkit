@@ -691,6 +691,11 @@ pub struct RelWriteInfo {
     /// This is used to match empty sections: mwld will emit them with
     /// NULL type, but the original REL may have them marked executable.
     pub section_exec: Option<Vec<bool>>,
+    /// Map from ELF section index to REL section index.
+    /// Some games reserve an empty section slot that mwld drops during the
+    /// partial link, because nothing lands in it. Without this the rebuilt
+    /// REL packs its sections one index lower than the original.
+    pub section_index_map: Option<Vec<usize>>,
 }
 
 pub const PERMITTED_SECTIONS: [&str; 7] =
@@ -968,21 +973,24 @@ where
         header.fix_size = Some(offset);
     }
 
+    let map_section = |idx: usize| -> u8 {
+        info.section_index_map.as_ref().and_then(|m| m.get(idx).copied()).unwrap_or(idx) as u8
+    };
     for symbol in file.symbols().filter(|s| s.is_definition()) {
         let Some(symbol_section) = symbol.section_index() else {
             continue;
         };
         match symbol.name() {
             Ok("_prolog") => {
-                header.prolog_section = symbol_section.0 as u8;
+                header.prolog_section = map_section(symbol_section.0);
                 header.prolog_offset = symbol.address() as u32;
             }
             Ok("_epilog") => {
-                header.epilog_section = symbol_section.0 as u8;
+                header.epilog_section = map_section(symbol_section.0);
                 header.epilog_offset = symbol.address() as u32;
             }
             Ok("_unresolved") => {
-                header.unresolved_section = symbol_section.0 as u8;
+                header.unresolved_section = map_section(symbol_section.0);
                 header.unresolved_offset = symbol.address() as u32;
             }
             _ => {}
@@ -993,9 +1001,45 @@ where
     ensure!(w.stream_position()? as u32 == header.section_info_offset);
     let mut current_data_offset = section_data_offset;
     let mut permitted_section_idx = 0;
+    // Reverse of section_index_map: for each REL slot, the ELF section that
+    // belongs in it. Slots with no ELF section are the placeholders mwld drops.
+    let rel_to_elf: Option<Vec<Option<usize>>> = info.section_index_map.as_ref().map(|map| {
+        let mut rev = vec![None; num_sections as usize];
+        for (elf_idx, &rel_idx) in map.iter().enumerate() {
+            if rel_idx < rev.len() {
+                rev[rel_idx] = Some(elf_idx);
+            }
+        }
+        rev
+    });
     for section_index in 0..num_sections {
-        let Ok(section) = file.section_by_index(object::SectionIndex(section_index as usize))
-        else {
+        let elf_index = match &rel_to_elf {
+            Some(rev) => match rev[section_index as usize] {
+                Some(i) => i,
+                None => {
+                    // No ELF section belongs in this slot. Two cases: a slot the
+                    // original reserved between real sections, which mwld drops
+                    // for being empty and which points at where its data would
+                    // start; or a trailing slot past the last real section,
+                    // which is left at zero.
+                    let last_real = rev.iter().rposition(|e| e.is_some()).unwrap_or(0);
+                    let (offset, exec) = if (section_index as usize) < last_real {
+                        let exec = info
+                            .section_exec
+                            .as_ref()
+                            .and_then(|m| m.get(section_index as usize).copied())
+                            .unwrap_or(false);
+                        (current_data_offset, exec)
+                    } else {
+                        (0, false)
+                    };
+                    RelSectionHeader::new(offset, 0, exec).to_writer(w, Endian::Big)?;
+                    continue;
+                }
+            },
+            None => section_index as usize,
+        };
+        let Ok(section) = file.section_by_index(object::SectionIndex(elf_index)) else {
             RelSectionHeader::new(0, 0, false).to_writer(w, Endian::Big)?;
             continue;
         };
