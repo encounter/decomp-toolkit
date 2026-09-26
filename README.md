@@ -32,6 +32,7 @@ project structure and build system that uses decomp-toolkit under the hood.
   - [dol apply](#dol-apply)
   - [dol config](#dol-config)
   - [dwarf dump](#dwarf-dump)
+  - [dwarf types](#dwarf-types)
   - [elf disasm](#elf-disasm)
   - [elf fixup](#elf-fixup)
   - [elf2dol](#elf2dol)
@@ -299,6 +300,14 @@ Dumps DWARF 1.1 information from an ELF file. (Does **not** support DWARF 2+)
 $ dtk dwarf dump input.elf
 # or, to include data that was stripped by MWLD
 $ dtk dwarf dump input.elf --include-erased
+```
+
+### dwarf types
+
+Dumps DWARF 1.1 information from an ELF file in JSON format. (Does **not** support DWARF 2+)
+
+```shell
+$ dtk dwarf types input.elf -o types.json
 ```
 
 ### elf disasm
