@@ -476,7 +476,9 @@ fn section_metadata_comment(
     if obj_kind == ObjKind::Executable {
         comment.push_str(&format!(" address:{address:#010X}"));
     }
-    if let Some(vaddr) = virtual_address {
+    if obj_kind == ObjKind::Relocatable
+        && let Some(vaddr) = virtual_address
+    {
         comment.push_str(&format!(" vaddr:{vaddr:#010X}"));
     }
     comment.push_str(&format!(" size:{size:#X}"));
@@ -1014,7 +1016,6 @@ impl serde::Serialize for SectionAddressRef {
         }
     }
 }
-
 
 #[cfg(test)]
 mod section_metadata_tests {
