@@ -458,10 +458,51 @@ pub fn write_splits_file(
     write_if_unchanged(path, |w| write_splits(w, obj, all), cached_file)
 }
 
+/// Emit machine-readable section metadata in standalone comments.
+///
+/// The normal splits parser ignores these lines, preserving compatibility with
+/// existing splits.txt files and tools. The section index is the zero-based index
+/// used by decomp-toolkit; elf_index preserves the original ELF section index.
+fn section_metadata_comment(
+    obj_kind: ObjKind,
+    module_id: u32,
+    index: SectionIndex,
+    elf_index: SectionIndex,
+    address: u64,
+    size: u64,
+    virtual_address: Option<u64>,
+) -> String {
+    let mut comment = format!("// section index:{index} elf_index:{elf_index}");
+    if obj_kind == ObjKind::Executable {
+        comment.push_str(&format!(" address:{address:#010X}"));
+    }
+    if let Some(vaddr) = virtual_address {
+        comment.push_str(&format!(" vaddr:{vaddr:#010X}"));
+    }
+    comment.push_str(&format!(" size:{size:#X}"));
+    if obj_kind == ObjKind::Relocatable {
+        comment.push_str(&format!(" module_id:{module_id}"));
+    }
+    comment
+}
+
 pub fn write_splits<W>(w: &mut W, obj: &ObjInfo, all: bool) -> Result<()>
 where W: Write + ?Sized {
     writeln!(w, "Sections:")?;
-    for (_, section) in obj.sections.iter() {
+    for (section_index, section) in obj.sections.iter() {
+        writeln!(
+            w,
+            "{}",
+            section_metadata_comment(
+                obj.kind,
+                obj.module_id,
+                section_index,
+                section.elf_index,
+                section.address,
+                section.size,
+                section.virtual_address,
+            )
+        )?;
         write!(w, "\t{:<11} type:{}", section.name, section_kind_to_str(section.kind))?;
         if section.align > 0 {
             write!(w, " align:{}", section.align)?;
@@ -970,6 +1011,56 @@ impl serde::Serialize for SectionAddressRef {
             serializer.serialize_str(&format!("{}:{:#X}", section, self.address))
         } else {
             serializer.serialize_str(&format!("{:#X}", self.address))
+        }
+    }
+}
+
+
+#[cfg(test)]
+mod section_metadata_tests {
+    use super::*;
+
+    #[test]
+    fn executable_section_metadata_includes_address_and_size() {
+        assert_eq!(
+            section_metadata_comment(
+                ObjKind::Executable,
+                0,
+                2,
+                9,
+                0x8000_4000,
+                0x120,
+                None,
+            ),
+            "// section index:2 elf_index:9 address:0x80004000 size:0x120",
+        );
+    }
+
+    #[test]
+    fn relocatable_section_metadata_includes_virtual_address_and_module_id() {
+        assert_eq!(
+            section_metadata_comment(
+                ObjKind::Relocatable,
+                17,
+                1,
+                5,
+                0,
+                0x80,
+                Some(0x50),
+            ),
+            "// section index:1 elf_index:5 vaddr:0x00000050 size:0x80 module_id:17",
+        );
+    }
+
+    #[test]
+    fn section_metadata_comments_are_ignored_by_the_splits_parser() {
+        for obj_kind in [ObjKind::Executable, ObjKind::Relocatable] {
+            let line =
+                section_metadata_comment(obj_kind, 17, 1, 5, 0x8000_0000, 0x80, Some(0x50));
+            assert!(matches!(
+                parse_split_line(&line, &SplitState::Sections(0)).unwrap(),
+                SplitLine::None
+            ));
         }
     }
 }
