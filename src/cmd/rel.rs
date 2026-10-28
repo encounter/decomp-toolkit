@@ -331,7 +331,11 @@ fn make(args: MakeArgs) -> Result<()> {
     // Create symbol map
     let start = Instant::now();
     let mut symbol_map = FxHashMap::<&[u8], (u32, SymbolIndex)>::default();
-    for module_info in modules.iter() {
+    // Leave the DOL for last, so in case a symbol has multiple definitions
+    // we resolve to one in a REL
+    let (dol_modules, rel_modules): (Vec<_>, Vec<_>) =
+        modules.iter().partition(|m| m.module_id == 0);
+    for module_info in rel_modules.into_iter().chain(dol_modules) {
         let _span = info_span!("file", path = %module_info.path).entered();
         for symbol in module_info.file.symbols() {
             if symbol.scope() == object::SymbolScope::Dynamic {
