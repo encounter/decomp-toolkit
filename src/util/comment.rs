@@ -272,10 +272,15 @@ impl CommentSym {
             }
         };
         let mut vis_flags = 0;
-        if symbol.flags.is_weak() {
-            vis_flags |= 0xD;
+        if symbol.flags.is_overload() {
+            vis_flags = 0xE;
+        } else if symbol.flags.is_weak() {
+            vis_flags = 0xD;
         }
         let mut active_flags = 0;
+        if symbol.flags.is_pooled_anchor() {
+            active_flags |= 0x10;
+        }
         if !symbol.flags.is_stripped()
             && (symbol.flags.is_exported()
                 || (export_all
