@@ -20,9 +20,10 @@ use typed_path::Utf8NativePathBuf;
 use crate::{
     util::{
         dwarf::{
-            AttributeKind, MemberFunctionMap, TagKind, TypedefMap, parse_producer,
-            preprocess_cu_tag, print::tag_type_string, process_compile_unit, process_cu_tag,
-            process_overlay_branch, read_debug_section, should_skip_tag,
+            AttributeKind, DwarfInfo, MemberFunctionMap, TagKind, TypedefMap,
+            layout::LayoutCollector, parse_producer, preprocess_cu_tag, print::tag_type_string,
+            process_compile_unit, process_cu_tag, process_overlay_branch, read_debug_section,
+            should_skip_tag,
         },
         file::buf_writer,
         path::native_path,
@@ -42,6 +43,7 @@ pub struct Args {
 #[argp(subcommand)]
 enum SubCommand {
     Dump(DumpArgs),
+    Types(TypesArgs),
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -63,10 +65,78 @@ pub struct DumpArgs {
     include_erased: bool,
 }
 
+#[derive(FromArgs, PartialEq, Eq, Debug)]
+/// Exports struct, union and enum layouts from DWARF 1.1 info as JSON.
+/// Types are deduplicated across compile units; definitions that disagree
+/// are reported under "conflicts" instead.
+#[argp(subcommand, name = "types")]
+pub struct TypesArgs {
+    #[argp(positional, from_str_fn(native_path))]
+    /// Input object. (ELF or archive)
+    in_file: Utf8NativePathBuf,
+    #[argp(option, short = 'o', from_str_fn(native_path))]
+    /// Output JSON file. (Default: stdout)
+    out: Option<Utf8NativePathBuf>,
+}
+
 pub fn run(args: Args) -> Result<()> {
     match args.command {
         SubCommand::Dump(c_args) => dump(c_args),
+        SubCommand::Types(c_args) => types(c_args),
     }
+}
+
+fn types(args: TypesArgs) -> Result<()> {
+    let mut collector = LayoutCollector::default();
+    let mut file = open_file(&args.in_file, true)?;
+    let buf = file.map()?;
+    if buf.starts_with(b"!<arch>\n") {
+        let mut archive = ar::Archive::new(buf);
+        while let Some(result) = archive.next_entry() {
+            let mut e = match result {
+                Ok(e) => e,
+                Err(e) => bail!("Failed to read archive entry: {:?}", e),
+            };
+            let name = String::from_utf8_lossy(e.header().identifier()).to_string();
+            let mut data = vec![0u8; e.header().size() as usize];
+            e.read_exact(&mut data)?;
+            let obj_file = object::read::File::parse(&*data)?;
+            let Some(debug_section) = obj_file.section_by_name(".debug") else {
+                log::warn!("Object '{}' missing .debug section", name);
+                continue;
+            };
+            let mut info = read_object_dwarf(&obj_file, debug_section, false)?;
+            collector.add_info(&mut info).with_context(|| format!("Processing '{name}'"))?;
+        }
+    } else {
+        let obj_file = object::read::File::parse(buf)?;
+        let debug_section = obj_file
+            .section_by_name(".debug")
+            .ok_or_else(|| anyhow!("Failed to locate .debug section"))?;
+        let mut info = read_object_dwarf(&obj_file, debug_section, false)?;
+        collector.add_info(&mut info)?;
+    }
+    if collector.errors > 0 {
+        log::warn!("{} tags or types could not be processed", collector.errors);
+    }
+    let layouts = collector.finish()?;
+    log::info!(
+        "{} structs, {} unions, {} enums, {} conflicts",
+        layouts.structs.len(),
+        layouts.unions.len(),
+        layouts.enums.len(),
+        layouts.conflicts.len()
+    );
+    if let Some(out_path) = &args.out {
+        let mut w = buf_writer(out_path)?;
+        serde_json::to_writer_pretty(&mut w, &layouts)?;
+        w.flush()?;
+    } else {
+        let mut w = stdout().lock();
+        serde_json::to_writer_pretty(&mut w, &layouts)?;
+        writeln!(w)?;
+    }
+    Ok(())
 }
 
 fn dump(args: DumpArgs) -> Result<()> {
@@ -147,29 +217,7 @@ fn dump_debug_section<W>(
 where
     W: Write + ?Sized,
 {
-    let mut data = debug_section.uncompressed_data()?.into_owned();
-
-    // Apply relocations to data
-    for (addr, reloc) in debug_section.relocations() {
-        match reloc.flags() {
-            RelocationFlags::Elf { r_type: elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 } => {
-                let target = match reloc.target() {
-                    RelocationTarget::Symbol(symbol_idx) => {
-                        let symbol = obj_file.symbol_by_index(symbol_idx)?;
-                        (symbol.address() as i64 + reloc.addend()) as u32
-                    }
-                    _ => bail!("Invalid .debug relocation target"),
-                };
-                data[addr as usize..addr as usize + 4].copy_from_slice(&target.to_be_bytes());
-            }
-            RelocationFlags::Elf { r_type: elf::R_PPC_NONE } => {}
-            _ => bail!("Unhandled .debug relocation type {:?}", reloc.kind()),
-        }
-    }
-
-    let mut reader = Cursor::new(&*data);
-    let mut info =
-        read_debug_section(&mut reader, obj_file.endianness().into(), args.include_erased)?;
+    let mut info = read_object_dwarf(obj_file, debug_section, args.include_erased)?;
 
     for (&addr, tag) in &info.tags {
         log::debug!("{}: {:?}", addr, tag);
@@ -326,6 +374,36 @@ where
     //     log::info!("{}", x);
     // }
     Ok(())
+}
+
+/// Reads the `.debug` section of an object, applying its relocations.
+fn read_object_dwarf(
+    obj_file: &object::File<'_>,
+    debug_section: Section,
+    include_erased: bool,
+) -> Result<DwarfInfo> {
+    let mut data = debug_section.uncompressed_data()?.into_owned();
+
+    // Apply relocations to data
+    for (addr, reloc) in debug_section.relocations() {
+        match reloc.flags() {
+            RelocationFlags::Elf { r_type: elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 } => {
+                let target = match reloc.target() {
+                    RelocationTarget::Symbol(symbol_idx) => {
+                        let symbol = obj_file.symbol_by_index(symbol_idx)?;
+                        (symbol.address() as i64 + reloc.addend()) as u32
+                    }
+                    _ => bail!("Invalid .debug relocation target"),
+                };
+                data[addr as usize..addr as usize + 4].copy_from_slice(&target.to_be_bytes());
+            }
+            RelocationFlags::Elf { r_type: elf::R_PPC_NONE } => {}
+            _ => bail!("Unhandled .debug relocation type {:?}", reloc.kind()),
+        }
+    }
+
+    let mut reader = Cursor::new(&*data);
+    read_debug_section(&mut reader, obj_file.endianness().into(), include_erased)
 }
 
 struct HighlightWriter<'a> {
