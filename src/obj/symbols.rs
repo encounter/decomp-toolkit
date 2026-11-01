@@ -51,6 +51,10 @@ flags! {
         NoExport,
         /// Symbol does not contain any relocations
         NoReloc,
+        /// Pooled data anchor (.comment active flag 0x10)
+        PooledAnchor,
+        /// Weak overload (.comment vis flag 0xE)
+        Overload,
     }
 }
 
@@ -103,6 +107,12 @@ impl ObjSymbolFlagSet {
 
     #[inline]
     pub fn is_no_reloc(&self) -> bool { self.0.contains(ObjSymbolFlags::NoReloc) }
+
+    #[inline]
+    pub fn is_pooled_anchor(&self) -> bool { self.0.contains(ObjSymbolFlags::PooledAnchor) }
+
+    #[inline]
+    pub fn is_overload(&self) -> bool { self.0.contains(ObjSymbolFlags::Overload) }
 
     #[inline]
     pub fn set_scope(&mut self, scope: ObjSymbolScope) {

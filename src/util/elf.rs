@@ -895,6 +895,12 @@ fn to_obj_symbol(
     if comment_sym.is_some_and(|c| c.active_flags & 0x8 != 0) {
         flags = ObjSymbolFlagSet(flags.0 | ObjSymbolFlags::Exported);
     }
+    if comment_sym.is_some_and(|c| c.active_flags & 0x10 != 0) {
+        flags = ObjSymbolFlagSet(flags.0 | ObjSymbolFlags::PooledAnchor);
+    }
+    if comment_sym.is_some_and(|c| c.vis_flags == 0xE) {
+        flags = ObjSymbolFlagSet(flags.0 | ObjSymbolFlags::Overload);
+    }
     let section_idx = section.as_ref().and_then(|section| section_indexes[section.index().0]);
     Ok(ObjSymbol {
         name: name.to_string(),
