@@ -42,7 +42,8 @@ use crate::{
         path::native_path,
         rel::{
             PERMITTED_SECTIONS, RelHeader, RelReloc, RelSectionHeader, RelWriteInfo,
-            print_relocations, process_rel, process_rel_header, process_rel_sections, write_rel,
+            SmallDataSection, print_relocations, process_rel, process_rel_header,
+            process_rel_sections, write_rel,
         },
     },
     vfs::open_file,
@@ -261,6 +262,29 @@ fn resolve_relocations(
     Ok(resolved)
 }
 
+/// Collect the static module's small data sections and their base registers.
+fn small_data_sections(file: &File) -> Vec<SmallDataSection> {
+    let symbol_address = |name: &str| file.symbol_by_name(name).map(|s| s.address() as u32);
+    let mut result = Vec::new();
+    for section in file.sections() {
+        let (base_name, register) = match section.name() {
+            Ok(".sdata" | ".sbss") => ("_SDA_BASE_", 13),
+            Ok(".sdata2" | ".sbss2") => ("_SDA2_BASE_", 2),
+            _ => continue,
+        };
+        let Some(base) = symbol_address(base_name) else {
+            continue;
+        };
+        result.push(SmallDataSection {
+            start: section.address() as u32,
+            end: (section.address() + section.size()) as u32,
+            base,
+            register,
+        });
+    }
+    result
+}
+
 type RelInfo = (RelHeader, Vec<RelSectionHeader>, Option<Vec<SectionDef>>);
 
 fn make(args: MakeArgs) -> Result<()> {
@@ -375,6 +399,10 @@ fn make(args: MakeArgs) -> Result<()> {
 
     // Write RELs
     let start = Instant::now();
+    let small_data = match modules.iter().find(|m| m.module_id == 0) {
+        Some(dol) => small_data_sections(&dol.file),
+        None => Vec::new(),
+    };
     for (module_info, relocations) in modules.iter().skip(1).zip(relocations) {
         let _span = info_span!("file", path = %module_info.path).entered();
         let mut info = RelWriteInfo {
@@ -388,6 +416,7 @@ fn make(args: MakeArgs) -> Result<()> {
             quiet: args.no_warn,
             section_align: None,
             section_exec: None,
+            small_data: small_data.clone(),
         };
         if let Some((header, section_headers, section_defs)) =
             existing_headers.get(&module_info.module_id)

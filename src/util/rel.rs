@@ -621,32 +621,81 @@ pub struct RelReloc {
     pub original_target_section: u8,
 }
 
+/// A small data section of the static module (DOL), addressed relative to a base register.
+#[derive(Clone, Debug)]
+pub struct SmallDataSection {
+    /// Start address of the section.
+    pub start: u32,
+    /// End address of the section (exclusive).
+    pub end: u32,
+    /// Address the 16-bit offset is relative to (`_SDA_BASE_` or `_SDA2_BASE_`).
+    pub base: u32,
+    /// Base register: 13 for `.sdata`/`.sbss`, 2 for `.sdata2`/`.sbss2`.
+    pub register: u8,
+}
+
 #[inline]
 fn reloc_can_be_applied(_module_id: u32, rel_reloc: &RelReloc) -> bool {
-    matches!(rel_reloc.kind, ObjRelocKind::PpcRel24)
+    match rel_reloc.kind {
+        ObjRelocKind::PpcRel24 => true,
+        // Resolve SDA21 relocations from DOL (unsupported by OSLink)
+        ObjRelocKind::PpcEmbSda21 => rel_reloc.module_id == 0,
+        _ => false,
+    }
 }
 
 #[inline]
 fn skip_reloc(module_id: u32, rel_reloc: &RelReloc) -> bool {
-    rel_reloc.module_id == module_id
-        && rel_reloc.section == rel_reloc.target_section
-        && matches!(rel_reloc.kind, ObjRelocKind::PpcRel24)
+    match rel_reloc.kind {
+        ObjRelocKind::PpcRel24 => {
+            rel_reloc.module_id == module_id && rel_reloc.section == rel_reloc.target_section
+        }
+        ObjRelocKind::PpcEmbSda21 => rel_reloc.module_id == 0,
+        _ => false,
+    }
 }
 
 fn apply_relocation(
     data: &mut [u8],
-    module_id: u32,
+    info: &RelWriteInfo,
     rel_reloc: &RelReloc,
     header: &RelHeader,
 ) -> Result<()> {
-    let diff = if rel_reloc.module_id == module_id && rel_reloc.section == rel_reloc.target_section
-    {
-        rel_reloc.addend as i32 - rel_reloc.address as i32
-    } else if header.unresolved_section == rel_reloc.section {
-        header.unresolved_offset as i32 - rel_reloc.address as i32
-    } else {
+    if rel_reloc.kind == ObjRelocKind::PpcEmbSda21 {
+        // Against the static module, the addend is the absolute target address.
+        let target = rel_reloc.addend;
+        let section =
+            info.small_data.iter().find(|s| (s.start..s.end).contains(&target)).with_context(
+                || {
+                    format!(
+                        "R_PPC_EMB_SDA21 relocation at {:#X} targets {:#X}, \
+                         outside the static module's small data sections",
+                        rel_reloc.address, target
+                    )
+                },
+            )?;
+        let offset = target as i64 - section.base as i64;
+        ensure!(
+            (-0x8000..0x8000).contains(&offset),
+            "R_PPC_EMB_SDA21 relocation at {:#X} out of range ({:#X})",
+            rel_reloc.address,
+            offset
+        );
+        let ins_ref = array_ref_mut!(data, (rel_reloc.address & !3) as usize, 4);
+        let ins = u32::from_be_bytes(*ins_ref);
+        let ins = (ins & !0x1fffff) | ((section.register as u32) << 16) | (offset as u32 & 0xffff);
+        *ins_ref = ins.to_be_bytes();
         return Ok(());
-    };
+    }
+
+    let diff =
+        if rel_reloc.module_id == info.module_id && rel_reloc.section == rel_reloc.target_section {
+            rel_reloc.addend as i32 - rel_reloc.address as i32
+        } else if header.unresolved_section == rel_reloc.section {
+            header.unresolved_offset as i32 - rel_reloc.address as i32
+        } else {
+            return Ok(());
+        };
     let ins_ref = array_ref_mut!(data, rel_reloc.address as usize, 4);
     let mut ins = u32::from_be_bytes(*ins_ref);
     match rel_reloc.kind {
@@ -691,6 +740,9 @@ pub struct RelWriteInfo {
     /// This is used to match empty sections: mwld will emit them with
     /// NULL type, but the original REL may have them marked executable.
     pub section_exec: Option<Vec<bool>>,
+    /// Small data sections of the static module, for resolving
+    /// R_PPC_EMB_SDA21 relocations against it.
+    pub small_data: Vec<SmallDataSection>,
 }
 
 pub const PERMITTED_SECTIONS: [&str; 7] =
@@ -1038,7 +1090,7 @@ where
         if apply_relocations.iter().any(|r| r.original_section == section_index) {
             let mut data = section_data.into_owned();
             for reloc in apply_relocations.iter().filter(|r| r.original_section == section_index) {
-                apply_relocation(&mut data, info.module_id, reloc, &header)?;
+                apply_relocation(&mut data, info, reloc, &header)?;
             }
             section_data = data.into_cow();
         }
