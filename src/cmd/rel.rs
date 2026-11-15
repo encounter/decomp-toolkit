@@ -27,7 +27,7 @@ use crate::{
         tracker::Tracker,
     },
     array_ref_mut,
-    cmd::dol::{ModuleConfig, ObjectBase, ProjectConfig, find_object_base},
+    cmd::dol::{ModuleConfig, ModuleKind, ObjectBase, ProjectConfig, find_object_base},
     obj::{
         ObjInfo, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind, ObjSymbol,
         SectionIndex as ObjSectionIndex,
@@ -299,7 +299,7 @@ fn make(args: MakeArgs) -> Result<()> {
             serde_yaml::from_reader(file.as_mut())?
         };
         let object_base = find_object_base(&config)?;
-        for module_config in &config.modules {
+        for module_config in config.modules.iter().filter(|m| m.kind() == ModuleKind::Rel) {
             let module_name = module_config.name();
             if !args.names.is_empty() && !args.names.iter().any(|n| n == module_name) {
                 continue;

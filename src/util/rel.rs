@@ -1125,9 +1125,16 @@ where
     Ok(())
 }
 
-/// Determines REL section alignment based on its file offset.
-pub fn update_rel_section_alignment(obj: &mut ObjInfo, header: &RelHeader) -> Result<()> {
-    let mut last_offset = header.section_info_offset + header.num_sections * 8;
+/// Determines REL (or RSO) section alignment based on its file offset.
+///
+/// `data_offset` is the file offset following the section table, and `max_align` is the
+/// largest alignment to consider.
+pub fn update_rel_section_alignment(
+    obj: &mut ObjInfo,
+    data_offset: u32,
+    max_align: u32,
+) -> Result<()> {
+    let mut last_offset = data_offset;
     for (_, section) in obj.sections.iter_mut() {
         let prev_offset = last_offset;
         last_offset = (section.file_offset + section.size) as u32;
@@ -1147,7 +1154,7 @@ pub fn update_rel_section_alignment(obj: &mut ObjInfo, header: &RelHeader) -> Re
         }
 
         // Work our way down from the REL header alignment
-        let mut align = header.align.unwrap_or(32);
+        let mut align = max_align;
         while align >= 4 {
             if align_up(prev_offset, align) == section.file_offset as u32 {
                 section.align = align as u64;

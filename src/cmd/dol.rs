@@ -1,6 +1,6 @@
 use std::{
     cmp::min,
-    collections::{BTreeMap, HashMap, btree_map::Entry, hash_map},
+    collections::{BTreeMap, BTreeSet, HashMap, btree_map::Entry, hash_map},
     fs,
     fs::DirBuilder,
     io::{Cursor, Seek, Write},
@@ -11,7 +11,7 @@ use std::{
 
 use anyhow::{Context, Result, anyhow, bail};
 use argp::FromArgs;
-use cwdemangle::demangle;
+use cwdemangle::{DemangleOptions, demangle};
 use itertools::Itertools;
 use rayon::prelude::*;
 use serde::{Deserialize, Serialize};
@@ -58,7 +58,7 @@ use crate::{
         map::apply_map_file,
         path::{check_path_buf, native_path},
         rel::{process_rel, process_rel_header, update_rel_section_alignment},
-        rso::{DOL_SECTION_ABS, DOL_SECTION_ETI, DOL_SECTION_NAMES, process_rso},
+        rso::{DOL_SECTION_ABS, DOL_SECTION_ETI, DOL_SECTION_NAMES, RsoModule, process_rso},
         split::{is_linker_generated_object, split_obj, update_splits},
     },
     vfs::{ArchiveKind, FileFormat, Vfs, VfsFile, detect, open_file, open_file_with_fs, open_fs},
@@ -266,11 +266,29 @@ impl Default for ProjectConfig {
     }
 }
 
+/// Relocatable module format.
+#[derive(Serialize, Deserialize, Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[serde(rename_all = "lowercase")]
+pub enum ModuleKind {
+    /// GameCube / Wii REL module, linked against the DOL and other RELs by module ID.
+    Rel,
+    /// Wii RSO module, linked against the DOL's exported symbols (selfile) by name.
+    Rso,
+}
+
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Default)]
 pub struct ModuleConfig {
     /// Object name. If not specified, the file name without extension will be used.
     #[serde(skip_serializing_if = "is_default")]
     pub name: Option<String>,
+    /// Module format. If not specified, determined by the object's file extension.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub kind: Option<ModuleKind>,
+    /// Module ID for RSO modules, which have no intrinsic ID. Only used to give auto-generated
+    /// symbols a unique name. If not specified, the module's (1-based) position in `modules`
+    /// is used. Ignored for REL modules.
+    #[serde(default, skip_serializing_if = "is_default")]
+    pub module_id: Option<u32>,
     #[serde(with = "unix_path_serde")]
     pub object: Utf8UnixPathBuf,
     #[serde(skip_serializing_if = "is_default")]
@@ -386,6 +404,13 @@ impl ModuleConfig {
 
     pub fn name(&self) -> &str { self.name.as_deref().unwrap_or_else(|| self.file_prefix()) }
 
+    pub fn kind(&self) -> ModuleKind {
+        self.kind.unwrap_or_else(|| match self.object.extension() {
+            Some(ext) if ext.eq_ignore_ascii_case("rso") => ModuleKind::Rso,
+            _ => ModuleKind::Rel,
+        })
+    }
+
     pub fn skip_cfa_ranges(
         &self,
         obj: &ObjInfo,
@@ -414,6 +439,9 @@ pub struct OutputUnit {
 pub struct OutputModule {
     pub name: String,
     pub module_id: u32,
+    /// Module format. Not present for the main executable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub kind: Option<ModuleKind>,
     #[serde(with = "unix_path_serde")]
     pub ldscript: Utf8UnixPathBuf,
     pub entry: Option<String>,
@@ -457,6 +485,9 @@ pub struct OutputConfig {
     pub version: String,
     #[serde(flatten)]
     pub base: OutputModule,
+    /// File name of the selfile (static module export list), if the project has one.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub selfile: Option<String>,
     pub modules: Vec<OutputModule>,
     pub links: Vec<OutputLink>,
 }
@@ -472,26 +503,21 @@ pub fn run(args: Args) -> Result<()> {
 }
 
 fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
-    let rso = process_rso(&mut Cursor::new(buf))?;
-    for (_, symbol) in rso.symbols.iter() {
-        let dol_section_index = match symbol.section {
-            Some(section) => section,
-            None => bail!(
-                "Expected section for symbol '{}' @ {:#010X} in selfile",
-                symbol.name,
-                symbol.address
-            ),
+    let sel = RsoModule::read(&mut Cursor::new(buf))?;
+    for export in &sel.exports {
+        let symbol = &ObjSymbol {
+            name: export.name.clone(),
+            demangled_name: demangle(&export.name, &DemangleOptions::default()),
+            ..Default::default()
         };
-        let (section, address, section_kind) = if dol_section_index
-            == DOL_SECTION_ABS as SectionIndex
-        {
-            (None, symbol.address as u32, None)
+        let (section, address, section_kind) = if export.section == DOL_SECTION_ABS {
+            (None, export.offset, None)
         } else {
-            let dol_section_name = if dol_section_index == DOL_SECTION_ETI as SectionIndex {
+            let dol_section_name = if export.section == DOL_SECTION_ETI {
                 "extabindex"
             } else {
-                DOL_SECTION_NAMES.get(dol_section_index as usize).and_then(|&opt| opt).ok_or_else(
-                    || anyhow!("Can't add symbol for unknown DOL section {}", dol_section_index),
+                DOL_SECTION_NAMES.get(export.section as usize).and_then(|&opt| opt).ok_or_else(
+                    || anyhow!("Can't add symbol for unknown DOL section {}", export.section),
                 )?
             };
             let (dol_section_index, dol_section) = obj
@@ -501,7 +527,7 @@ fn apply_selfile(obj: &mut ObjInfo, buf: &[u8]) -> Result<()> {
                 .ok_or_else(|| anyhow!("Failed to locate DOL section {}", dol_section_name))?;
             (
                 Some(dol_section_index),
-                dol_section.address as u32 + symbol.address as u32,
+                dol_section.address as u32 + export.offset,
                 Some(dol_section.kind),
             )
         };
@@ -814,6 +840,35 @@ fn create_relocations(
     Ok(())
 }
 
+/// Checks the imports of an RSO module against the symbols of the main executable.
+///
+/// RSO imports are resolved by name at runtime using the selfile, so the split objects simply
+/// reference them as undefined symbols. Imports that the executable doesn't define are legal
+/// (calls to them resolve to `_unresolved`), but worth reporting.
+fn check_rso_imports(dol_obj: &ObjInfo, obj: &ObjInfo) -> Result<()> {
+    let mut missing = BTreeSet::<&str>::new();
+    for (_, section) in obj.sections.iter() {
+        for (_, reloc) in section.relocations.iter() {
+            let symbol = &obj.symbols[reloc.target_symbol];
+            if symbol.section.is_none() && dol_obj.symbols.by_name(&symbol.name)?.is_none() {
+                missing.insert(&symbol.name);
+            }
+        }
+    }
+    if !missing.is_empty() {
+        log::warn!(
+            "Module {} imports {} symbol{} not exported by the main executable",
+            obj.name,
+            missing.len(),
+            if missing.len() == 1 { "" } else { "s" }
+        );
+        for name in missing {
+            log::debug!("Missing import: {}", name);
+        }
+    }
+    Ok(())
+}
+
 fn resolve_external_relocations(
     obj: &mut ObjInfo,
     modules: &ModuleMapById<'_>,
@@ -1042,6 +1097,7 @@ fn split_write_obj(
     let mut out_config = OutputModule {
         name: module_name,
         module_id,
+        kind: (module.obj.kind == ObjKind::Relocatable).then(|| module.config.kind()),
         ldscript: out_dir.join("ldscript.lcf").with_unix_encoding(),
         units: Vec::with_capacity(split_objs.len()),
         entry,
@@ -1191,10 +1247,48 @@ fn write_if_changed(path: &Utf8NativePath, contents: &[u8]) -> Result<()> {
     Ok(())
 }
 
+/// Start offset of section data and maximum section alignment of a module file.
+struct ModuleLayout {
+    data_offset: u32,
+    max_align: u32,
+}
+
+fn load_module(
+    module_config: &ModuleConfig,
+    module_index: usize,
+    data: &[u8],
+) -> Result<(ModuleLayout, ObjInfo)> {
+    match module_config.kind() {
+        ModuleKind::Rel => {
+            let (header, obj) = process_rel(&mut Cursor::new(data), module_config.name())?;
+            let layout = ModuleLayout {
+                data_offset: header.section_info_offset + header.num_sections * 8,
+                max_align: header.align.unwrap_or(32),
+            };
+            Ok((layout, obj))
+        }
+        ModuleKind::Rso => {
+            let module_id = match module_config.module_id {
+                Some(0) => bail!("RSO module ID must not be 0"),
+                Some(id) => id,
+                None => module_index as u32 + 1,
+            };
+            let (module, obj) =
+                process_rso(&mut Cursor::new(data), module_config.name(), module_id)?;
+            let layout = ModuleLayout {
+                data_offset: 0x58 + module.sections.len() as u32 * 8,
+                max_align: 32,
+            };
+            Ok((layout, obj))
+        }
+    }
+}
+
 fn load_analyze_rel(
     config: &ProjectConfig,
     object_base: &ObjectBase,
     module_config: &ModuleConfig,
+    module_index: usize,
 ) -> Result<AnalyzeResult> {
     let object_path = object_base.join(&module_config.object);
     debug!("Loading {}", object_path);
@@ -1203,7 +1297,7 @@ fn load_analyze_rel(
     if let Some(hash_str) = &module_config.hash {
         verify_hash(data, hash_str)?;
     }
-    let (header, mut module_obj) = process_rel(&mut Cursor::new(data), module_config.name())?;
+    let (layout, mut module_obj) = load_module(module_config, module_index, data)?;
 
     if let Some(comment_version) = config.mw_comment_version {
         module_obj.mw_comment = Some(MWComment::new(comment_version)?);
@@ -1239,7 +1333,8 @@ fn load_analyze_rel(
 
     if !config.symbols_known {
         debug!("Analyzing module {}", module_obj.module_id);
-        if !config.quick_analysis {
+        let analyzed = module_obj.sections.iter().all(|(_, s)| s.section_known);
+        if !config.quick_analysis || !analyzed {
             let skip_ranges =
                 module_config.skip_cfa_ranges(&module_obj).context("Resolving skip CFA ranges")?;
             let mut state = AnalyzerState::new(skip_ranges);
@@ -1256,8 +1351,8 @@ fn load_analyze_rel(
     // Create _ctors and _dtors symbols if missing
     update_ctors_dtors(&mut module_obj)?;
 
-    // Determine REL section alignment
-    update_rel_section_alignment(&mut module_obj, &header)?;
+    // Determine module section alignment
+    update_rel_section_alignment(&mut module_obj, layout.data_offset, layout.max_align)?;
 
     // Apply additional relocations from config
     apply_add_relocations(&mut module_obj, &module_config.add_relocations)?;
@@ -1324,11 +1419,13 @@ fn split(args: SplitArgs) -> Result<()> {
                 config
                     .modules
                     .par_iter()
-                    .map(|module_config| {
+                    .enumerate()
+                    .map(|(module_index, module_config)| {
                         let _span = info_span!("module", name = %module_config.name()).entered();
-                        load_analyze_rel(&config, &object_base, module_config).with_context(|| {
-                            format!("While loading object '{}'", module_config.file_name())
-                        })
+                        load_analyze_rel(&config, &object_base, module_config, module_index)
+                            .with_context(|| {
+                                format!("While loading object '{}'", module_config.file_name())
+                            })
                     })
                     .collect(),
             );
@@ -1381,9 +1478,12 @@ fn split(args: SplitArgs) -> Result<()> {
                 .map(|n| modules.get(n))
                 .collect::<Option<Vec<_>>>()
                 .with_context(|| format!("Failed to resolve links for module {}", module.obj.name))
+        } else if module.config.kind() == ModuleKind::Rso {
+            // RSO modules only reference the main executable
+            Ok(Vec::new())
         } else {
-            // Link to all other modules
-            Ok(modules.values().collect())
+            // Link to all other REL modules
+            Ok(modules.values().filter(|m| m.config.kind() == ModuleKind::Rel).collect())
         }
     }
 
@@ -1410,11 +1510,34 @@ fn split(args: SplitArgs) -> Result<()> {
         Ok(map)
     }
 
+    // RSO modules have no intrinsic ID, so ensure the configured ones are usable
+    {
+        let mut rso_ids = BTreeMap::<u32, &str>::new();
+        for module in modules.values().filter(|m| m.config.kind() == ModuleKind::Rso) {
+            if let Some(existing) = rso_ids.insert(module.obj.module_id, &module.obj.name) {
+                bail!(
+                    "Duplicate module ID {} for RSO modules {} and {}",
+                    module.obj.module_id,
+                    existing,
+                    module.obj.name
+                );
+            }
+        }
+    }
+
     if !modules.is_empty() {
         let module_names = modules.keys().cloned().collect_vec();
 
+        // Cross-check RSO imports against the main executable's exports
+        for module in modules.values().filter(|m| m.config.kind() == ModuleKind::Rso) {
+            check_rso_imports(&dol.obj, &module.obj)
+                .with_context(|| format!("Checking imports for module {}", module.obj.name))?;
+        }
+
         // Create any missing symbols (referenced from other modules) and set FORCEACTIVE
-        update_symbols(&mut dol.obj, &modules.values().collect::<Vec<_>>(), !config.symbols_known)
+        let rel_modules =
+            modules.values().filter(|m| m.config.kind() == ModuleKind::Rel).collect::<Vec<_>>();
+        update_symbols(&mut dol.obj, &rel_modules, !config.symbols_known)
             .with_context(|| format!("Updating symbols for module {}", dol.config.name()))?;
         for module_name in &module_names {
             let mut module = modules.remove(module_name).unwrap();
@@ -1506,6 +1629,7 @@ fn split(args: SplitArgs) -> Result<()> {
     let mut out_config = OutputConfig {
         version: env!("CARGO_PKG_VERSION").to_string(),
         base: dol_result.unwrap()?,
+        selfile: None,
         modules: modules_config,
         links: vec![],
     };
@@ -1521,7 +1645,9 @@ fn split(args: SplitArgs) -> Result<()> {
     );
 
     // Generate links
-    for module_info in modules.values() {
+    out_config.selfile =
+        config.selfile.as_ref().and_then(|path| path.file_name()).map(|name| name.to_string());
+    for module_info in modules.values().filter(|m| m.config.kind() == ModuleKind::Rel) {
         let mut links = get_links_map(module_info, &modules)?;
         links.insert(0, &dol);
         links.insert(module_info.obj.module_id, module_info);
@@ -2128,6 +2254,7 @@ fn apply(args: ApplyArgs) -> Result<()> {
 fn config(args: ConfigArgs) -> Result<()> {
     let mut config = ProjectConfig::default();
     let mut modules = Vec::<(u32, ModuleConfig)>::new();
+    let mut rso_modules = Vec::<ModuleConfig>::new();
     for result in FileIterator::new(&args.objects)? {
         let (path, mut entry) = result?;
         log::info!("Loading {}", path);
@@ -2153,7 +2280,7 @@ fn config(args: ConfigArgs) -> Result<()> {
                 config.selfile_hash = Some(file_sha1_string(&mut entry)?);
             }
             "rso" => {
-                config.modules.push(ModuleConfig {
+                rso_modules.push(ModuleConfig {
                     object: path.with_unix_encoding(),
                     hash: Some(file_sha1_string(&mut entry)?),
                     ..Default::default()
@@ -2167,6 +2294,8 @@ fn config(args: ConfigArgs) -> Result<()> {
         a_id.cmp(b_id).then(a_config.name().cmp(b_config.name()))
     });
     config.modules.extend(modules.into_iter().map(|(_, m)| m));
+    rso_modules.sort_by(|a, b| a.name().cmp(b.name()));
+    config.modules.extend(rso_modules);
 
     let mut out = buf_writer(&args.out_file)?;
     serde_yaml::to_writer(&mut out, &config)?;

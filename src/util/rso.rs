@@ -3,17 +3,19 @@ use std::{
     io::{Read, Seek, SeekFrom, Write},
 };
 
-use anyhow::{Result, anyhow, ensure};
+use anyhow::{Result, anyhow, bail, ensure};
 use cwdemangle::{DemangleOptions, demangle};
+use object::elf;
 
 use crate::{
     obj::{
-        ObjArchitecture, ObjInfo, ObjKind, ObjSection, ObjSectionKind, ObjSymbol, ObjSymbolFlagSet,
-        ObjSymbolFlags, ObjSymbolKind, SectionIndex,
+        ObjArchitecture, ObjInfo, ObjKind, ObjReloc, ObjRelocKind, ObjSection, ObjSectionKind,
+        ObjSymbol, ObjSymbolFlagSet, ObjSymbolFlags, ObjSymbolKind, SectionIndex,
     },
     util::{
         file::{read_c_string, read_string},
         reader::{DYNAMIC_SIZE, Endian, FromReader, ToWriter, struct_size},
+        rel::RelReloc,
     },
 };
 
@@ -297,6 +299,7 @@ impl RsoSectionHeader {
     pub fn exec(&self) -> bool { self.offset_and_flags & 1 != 0 }
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct RsoRelocation {
     /// Absolute offset of this relocation (relative to the start of the RSO file).
     pub offset: u32,
@@ -342,7 +345,6 @@ impl ToWriter for RsoRelocation {
 }
 
 impl RsoRelocation {
-    #[allow(dead_code)]
     pub fn new(offset: u32, id: u32, rel_type: u8, sym_offset: u32) -> Self {
         Self { offset, id_and_type: (id << 8) | rel_type as u32, target_offset: sym_offset }
     }
@@ -403,8 +405,7 @@ impl ToWriter for RsoSymbol {
         self.offset.to_writer(writer, e)?;
         self.section_index.to_writer(writer, e)?;
         if let Some(hash) = self.hash {
-            // Since the nature of the value is not numeric, we must preserve the order of the bytes
-            writer.write_all(&hash.to_ne_bytes())?;
+            hash.to_writer(writer, e)?;
         }
         Ok(())
     }
@@ -412,160 +413,629 @@ impl ToWriter for RsoSymbol {
     fn write_size(&self) -> usize { Self::STATIC_SIZE }
 }
 
-pub fn process_rso<R>(reader: &mut R) -> Result<ObjInfo>
+/// Loads an RSO module as a relocatable object.
+///
+/// Internal relocations are stored as [`ObjInfo::unresolved_relocations`] against the module
+/// itself. Imports are resolved by name at runtime, so each import becomes an undefined symbol,
+/// with relocations against it added directly to the referencing section.
+pub fn process_rso<R>(reader: &mut R, name: &str, module_id: u32) -> Result<(RsoModule, ObjInfo)>
 where R: Read + Seek + ?Sized {
-    let header = RsoHeader::from_reader(reader, Endian::Big)?;
-    let mut sections = Vec::with_capacity(header.num_sections as usize);
-    reader.seek(SeekFrom::Start(header.section_info_offset as u64))?;
-    let mut total_bss_size = 0;
-    for idx in 0..header.num_sections {
-        let section = RsoSectionHeader::from_reader(reader, Endian::Big)?;
-        let offset = section.offset();
-        let size = section.size();
-        if size == 0 {
+    let module = RsoModule::read(reader)?;
+    ensure!(!module.is_sel, "Expected an RSO module, but {name} is a SEL");
+
+    // The executable flag is not reliably set, so locate .text using the entry points instead.
+    let text_section = module
+        .sections
+        .iter()
+        .position(|s| s.exec && s.size != 0)
+        .map(|idx| idx as u8)
+        .or(module.prolog.map(|(section, _)| section))
+        .or(module.epilog.map(|(section, _)| section))
+        .or(module.unresolved.map(|(section, _)| section));
+    let mut sections = Vec::with_capacity(module.sections.len());
+    let mut has_bss = false;
+    for (idx, section) in module.sections.iter().enumerate() {
+        if section.size == 0 {
             continue;
         }
-
-        let data = if offset == 0 {
-            vec![]
+        let (name, kind, section_known) = if section.offset == 0 {
+            ensure!(!has_bss, "Multiple BSS sections in RSO");
+            has_bss = true;
+            (".bss".to_string(), ObjSectionKind::Bss, true)
+        } else if text_section == Some(idx as u8) {
+            (".text".to_string(), ObjSectionKind::Code, true)
         } else {
-            let position = reader.stream_position()?;
-            reader.seek(SeekFrom::Start(offset as u64))?;
-            let mut data = vec![0u8; size as usize];
-            reader.read_exact(&mut data)?;
-            reader.seek(SeekFrom::Start(position))?;
-            data
+            (format!(".section{idx}"), ObjSectionKind::Data, false)
         };
-
-        // println!("Section {} offset {:#X} size {:#X}", idx, offset, size);
-
         sections.push(ObjSection {
-            name: format!(".section{idx}"),
-            kind: if offset == 0 {
-                ObjSectionKind::Bss
-            } else if section.exec() {
-                ObjSectionKind::Code
-            } else {
-                ObjSectionKind::Data
-            },
+            name,
+            kind,
             address: 0,
-            size: size as u64,
-            data,
-            align: 0,
+            size: section.size as u64,
+            data: section.data.clone(),
+            // RSOs don't store the BSS alignment. Others are determined later from file offsets.
+            align: if section.offset == 0 { 8 } else { 0 },
             elf_index: idx as SectionIndex,
             relocations: Default::default(),
-            virtual_address: None, // TODO option to set?
-            file_offset: offset as u64,
-            section_known: false,
+            virtual_address: None,
+            file_offset: section.offset as u64,
+            section_known,
             splits: Default::default(),
         });
-        if offset == 0 {
-            total_bss_size += size;
-        }
     }
-    ensure!(
-        total_bss_size == header.bss_size,
-        "Mismatched BSS size: {:#X} != {:#X}",
-        total_bss_size,
-        header.bss_size
-    );
-
-    let mut symbols = Vec::new();
-    let mut add_symbol = |rel_section_idx: u8, offset: u32, name: &str| -> Result<()> {
-        if rel_section_idx > 0 {
-            let (section_index, _) = sections
-                .iter()
-                .enumerate()
-                .find(|&(_, section)| section.elf_index == rel_section_idx as SectionIndex)
-                .ok_or_else(|| anyhow!("Failed to locate {name} section {rel_section_idx}"))?;
-            log::debug!("Adding {name} section {rel_section_idx} offset {offset:#X}");
-            symbols.push(ObjSymbol {
-                name: name.to_string(),
-                address: offset as u64,
-                section: Some(section_index as SectionIndex),
-                flags: ObjSymbolFlagSet(ObjSymbolFlags::Global.into()),
-                kind: ObjSymbolKind::Function,
-                ..Default::default()
-            });
-        }
-        Ok(())
-    };
-    add_symbol(header.prolog_section, header.prolog_offset, "_prolog")?;
-    add_symbol(header.epilog_section, header.epilog_offset, "_epilog")?;
-    add_symbol(header.unresolved_section, header.unresolved_offset, "_unresolved")?;
-
-    reader.seek(SeekFrom::Start(header.external_rel_offset as u64))?;
-    while reader.stream_position()? < (header.external_rel_offset + header.external_rel_size) as u64
-    {
-        let reloc = RsoRelocation::from_reader(reader, Endian::Big)?;
-        log::debug!(
-            "Reloc offset: {:#X}, id: {}, type: {}, sym offset: {:#X}",
-            reloc.offset(),
-            reloc.id(),
-            reloc.rel_type(),
-            reloc.sym_offset()
-        );
-    }
-
-    reader.seek(SeekFrom::Start(header.export_table_offset as u64))?;
-    while reader.stream_position()? < (header.export_table_offset + header.export_table_size) as u64
-    {
-        let symbol = RsoSymbol::from_reader_args(reader, Endian::Big, RsoSymbolKind::Export)?;
-        let name =
-            read_c_string(reader, (header.export_table_name_offset + symbol.name_offset) as u64)?;
-        let calc = symbol_hash(&name);
-        let hash_n = symbol.hash.unwrap_or_default();
-        ensure!(
-            hash_n == calc,
-            "Mismatched calculated hash for symbol {}: {:#X} != {:#X}",
-            name,
-            hash_n,
-            calc
-        );
-        let demangled_name = demangle(&name, &DemangleOptions::default());
-        let section = sections
+    let section_index = |rso_index: u32, what: &dyn std::fmt::Display| -> Result<SectionIndex> {
+        sections
             .iter()
-            .enumerate()
-            .find(|&(_, section)| section.elf_index == symbol.section_index as SectionIndex)
-            .map(|(idx, _)| idx)
-            // HACK: selfiles won't have any sections
-            .unwrap_or(symbol.section_index as usize);
-        log::debug!(
-            "Export: {}, sym off: {:#X}, section: {}, ELF hash: {:#X}",
-            demangled_name.as_deref().unwrap_or(&name),
-            symbol.offset,
-            symbol.section_index,
-            hash_n
-        );
+            .position(|section| section.elf_index == rso_index as SectionIndex)
+            .map(|idx| idx as SectionIndex)
+            .ok_or_else(|| anyhow!("Failed to locate section {rso_index} for {what}"))
+    };
+
+    let mut symbols = Vec::<ObjSymbol>::new();
+    let mut add_symbol = |rso_section: u32, offset: u32, name: &str| -> Result<()> {
+        let section = section_index(rso_section, &name)?;
+        if symbols.iter().any(|s| s.name == name) {
+            return Ok(());
+        }
+        let mut flags = ObjSymbolFlagSet(ObjSymbolFlags::Global.into());
+        flags.set_force_active(true);
         symbols.push(ObjSymbol {
-            name,
-            demangled_name,
-            address: symbol.offset as u64,
-            section: Some(section as SectionIndex),
+            name: name.to_string(),
+            demangled_name: demangle(name, &DemangleOptions::default()),
+            address: offset as u64,
+            section: Some(section),
+            flags,
+            kind: match sections[section as usize].kind {
+                ObjSectionKind::Code => ObjSymbolKind::Function,
+                _ => ObjSymbolKind::Object,
+            },
             ..Default::default()
         });
-    }
-    reader.seek(SeekFrom::Start(header.import_table_offset as u64))?;
-    while reader.stream_position()? < (header.import_table_offset + header.import_table_size) as u64
+        Ok(())
+    };
+    for (entry, name) in
+        [(module.prolog, "_prolog"), (module.epilog, "_epilog"), (module.unresolved, "_unresolved")]
     {
-        let symbol = RsoSymbol::from_reader_args(reader, Endian::Big, RsoSymbolKind::Import)?;
-        let name =
-            read_c_string(reader, (header.import_table_name_offset + symbol.name_offset) as u64)?;
-        log::debug!(
-            "Import: {}, sym off: {}, section: {}",
-            name,
-            symbol.offset,
-            symbol.section_index
-        );
+        if let Some((section, offset)) = entry {
+            add_symbol(section as u32, offset, name)?;
+        }
+    }
+    for export in &module.exports {
+        add_symbol(export.section, export.offset, &export.name)?;
     }
 
-    let name = match header.name_offset {
-        0 => String::new(),
-        _ => read_string(reader, header.name_offset as u64, header.name_size as usize)?,
+    // Locates the section and section-relative address of a relocation by its file offset.
+    let locate = |offset: u32| -> Result<(u8, SectionIndex, u32)> {
+        sections
+            .iter()
+            .enumerate()
+            .find(|(_, s)| {
+                s.kind != ObjSectionKind::Bss
+                    && (s.file_offset..s.file_offset + s.size).contains(&(offset as u64))
+            })
+            .map(|(idx, s)| {
+                (s.elf_index as u8, idx as SectionIndex, (offset - s.file_offset as u32) & !3)
+            })
+            .ok_or_else(|| anyhow!("RSO relocation offset {offset:#X} is not within a section"))
     };
 
-    let obj = ObjInfo::new(ObjKind::Relocatable, ObjArchitecture::PowerPc, name, symbols, sections);
-    Ok(obj)
+    let mut unresolved_relocations = Vec::with_capacity(module.internal_relocations.len());
+    for reloc in &module.internal_relocations {
+        let Some(kind) = reloc_kind(reloc.rel_type())? else { continue };
+        let (section, _, address) = locate(reloc.offset())?;
+        let target_section = u8::try_from(reloc.id())
+            .map_err(|_| anyhow!("Invalid RSO relocation target section {}", reloc.id()))?;
+        unresolved_relocations.push(RelReloc {
+            kind,
+            section,
+            address,
+            module_id,
+            target_section,
+            addend: reloc.sym_offset(),
+            original_section: section,
+            original_target_section: target_section,
+        });
+    }
+
+    let mut external_relocations = Vec::with_capacity(module.external_relocations.len());
+    for reloc in &module.external_relocations {
+        let Some(kind) = reloc_kind(reloc.rel_type())? else { continue };
+        let (_, section, address) = locate(reloc.offset())?;
+        external_relocations.push((section, address, kind, reloc.id() as usize));
+    }
+
+    let mut obj = ObjInfo::new(
+        ObjKind::Relocatable,
+        ObjArchitecture::PowerPc,
+        name.to_string(),
+        symbols,
+        sections,
+    );
+    obj.module_id = module_id;
+    obj.unresolved_relocations = unresolved_relocations;
+
+    let mut import_symbols = Vec::with_capacity(module.imports.len());
+    for name in &module.imports {
+        import_symbols.push(obj.symbols.add_direct(ObjSymbol {
+            name: name.clone(),
+            demangled_name: demangle(name, &DemangleOptions::default()),
+            ..Default::default()
+        })?);
+    }
+    for (section, address, kind, import) in external_relocations {
+        obj.sections[section]
+            .relocations
+            .insert(address, ObjReloc {
+                kind,
+                target_symbol: import_symbols[import],
+                addend: 0,
+                module: None,
+            })
+            .map_err(|e| anyhow!("In RSO section {}: {e}", obj.sections[section].name))?;
+    }
+    Ok((module, obj))
+}
+
+fn reloc_kind(rel_type: u8) -> Result<Option<ObjRelocKind>> {
+    Ok(Some(match rel_type as u32 {
+        elf::R_PPC_NONE => return Ok(None),
+        elf::R_PPC_ADDR32 | elf::R_PPC_UADDR32 => ObjRelocKind::Absolute,
+        elf::R_PPC_ADDR16_LO => ObjRelocKind::PpcAddr16Lo,
+        elf::R_PPC_ADDR16_HI => ObjRelocKind::PpcAddr16Hi,
+        elf::R_PPC_ADDR16_HA => ObjRelocKind::PpcAddr16Ha,
+        elf::R_PPC_REL24 => ObjRelocKind::PpcRel24,
+        elf::R_PPC_REL14 => ObjRelocKind::PpcRel14,
+        rel_type => bail!("Unhandled RSO relocation type {rel_type}"),
+    }))
+}
+
+/// A section of an [`RsoModule`].
+#[derive(Debug, Clone, Default)]
+pub struct RsoSection {
+    /// Absolute file offset of the section data. 0 for BSS or unused sections.
+    pub offset: u32,
+    /// Size of the section.
+    pub size: u32,
+    /// Whether the executable flag is set.
+    pub exec: bool,
+    /// Section data. Empty for BSS or unused sections.
+    pub data: Vec<u8>,
+}
+
+/// An exported symbol of an [`RsoModule`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RsoExport {
+    pub name: String,
+    /// Section index, [`DOL_SECTION_ABS`] or [`DOL_SECTION_ETI`].
+    pub section: u32,
+    /// Section-relative offset (or absolute value for [`DOL_SECTION_ABS`]).
+    pub offset: u32,
+}
+
+/// A fully parsed RSO or SEL file, which can be written back out byte-for-byte.
+#[derive(Debug, Clone, Default)]
+pub struct RsoModule {
+    /// Whether this is a SEL (static module export list). SELs contain no section data or
+    /// relocations, and use a different table layout.
+    pub is_sel: bool,
+    pub version: u32,
+    /// Module name (usually the path of the original PLF or ELF).
+    pub name: String,
+    /// Section table, including unused entries.
+    pub sections: Vec<RsoSection>,
+    pub prolog: Option<(u8, u32)>,
+    pub epilog: Option<(u8, u32)>,
+    pub unresolved: Option<(u8, u32)>,
+    /// Exports in table order (sorted by name hash).
+    pub exports: Vec<RsoExport>,
+    /// Indices into `exports`, in string table order.
+    pub export_name_order: Vec<usize>,
+    /// Imported symbol names, in table (and string table) order.
+    pub imports: Vec<String>,
+    /// Relocations against sections of this module.
+    pub internal_relocations: Vec<RsoRelocation>,
+    /// Relocations against imports. [`RsoRelocation::id`] is an index into `imports`.
+    pub external_relocations: Vec<RsoRelocation>,
+}
+
+fn read_table<T, R>(reader: &mut R, offset: u32, size: u32, args: T::Args) -> Result<Vec<T>>
+where
+    T: FromReader,
+    T::Args: Copy,
+    R: Read + Seek + ?Sized,
+{
+    reader.seek(SeekFrom::Start(offset as u64))?;
+    let end = offset as u64 + size as u64;
+    let mut out = Vec::new();
+    while reader.stream_position()? < end {
+        out.push(T::from_reader_args(reader, Endian::Big, args)?);
+    }
+    Ok(out)
+}
+
+fn pad_to<W>(w: &mut W, align: u64) -> io::Result<u64>
+where W: Write + Seek + ?Sized {
+    let pos = w.stream_position()?;
+    let aligned = pos.next_multiple_of(align);
+    for _ in pos..aligned {
+        w.write_all(&[0])?;
+    }
+    Ok(aligned)
+}
+
+impl RsoModule {
+    pub fn read<R>(reader: &mut R) -> Result<Self>
+    where R: Read + Seek + ?Sized {
+        let header = RsoHeader::from_reader(reader, Endian::Big)?;
+        ensure!(header.version == 1, "Unsupported RSO version {}", header.version);
+
+        reader.seek(SeekFrom::Start(header.section_info_offset as u64))?;
+        let mut sections = Vec::with_capacity(header.num_sections as usize);
+        let mut total_bss_size = 0;
+        for idx in 0..header.num_sections {
+            let section = RsoSectionHeader::from_reader(reader, Endian::Big)?;
+            let (offset, size) = (section.offset(), section.size());
+            let data = if offset == 0 || size == 0 {
+                vec![]
+            } else {
+                let position = reader.stream_position()?;
+                reader.seek(SeekFrom::Start(offset as u64))?;
+                let mut data = vec![0u8; size as usize];
+                reader.read_exact(&mut data).map_err(|e| {
+                    anyhow!("Failed to read RSO section {idx} data with size {size:#X}: {e}")
+                })?;
+                reader.seek(SeekFrom::Start(position))?;
+                data
+            };
+            if offset == 0 {
+                total_bss_size += size;
+            }
+            sections.push(RsoSection { offset, size, exec: section.exec(), data });
+        }
+        ensure!(
+            total_bss_size == header.bss_size,
+            "Mismatched BSS size: {:#X} != {:#X}",
+            total_bss_size,
+            header.bss_size
+        );
+
+        let name = match header.name_offset {
+            0 => String::new(),
+            _ => read_string(reader, header.name_offset as u64, header.name_size as usize)?,
+        };
+
+        let raw_exports: Vec<RsoSymbol> = read_table(
+            reader,
+            header.export_table_offset,
+            header.export_table_size,
+            RsoSymbolKind::Export,
+        )?;
+        let mut exports = Vec::with_capacity(raw_exports.len());
+        for symbol in &raw_exports {
+            let name = read_c_string(
+                reader,
+                (header.export_table_name_offset + symbol.name_offset) as u64,
+            )?;
+            let calc = symbol_hash(&name);
+            let hash = symbol.hash.unwrap_or_default();
+            ensure!(
+                hash == calc,
+                "Mismatched calculated hash for symbol {}: {:#X} != {:#X}",
+                name,
+                hash,
+                calc
+            );
+            exports.push(RsoExport { name, section: symbol.section_index, offset: symbol.offset });
+        }
+        let mut export_name_order = (0..exports.len()).collect::<Vec<_>>();
+        export_name_order.sort_by_key(|&i| raw_exports[i].name_offset);
+
+        let raw_imports: Vec<RsoSymbol> = read_table(
+            reader,
+            header.import_table_offset,
+            header.import_table_size,
+            RsoSymbolKind::Import,
+        )?;
+        let mut imports = Vec::with_capacity(raw_imports.len());
+        let mut expected_name_offset = 0;
+        for symbol in &raw_imports {
+            ensure!(
+                symbol.name_offset == expected_name_offset,
+                "Unexpected RSO import name offset {:#X} (expected {:#X})",
+                symbol.name_offset,
+                expected_name_offset
+            );
+            let name = read_c_string(
+                reader,
+                (header.import_table_name_offset + symbol.name_offset) as u64,
+            )?;
+            expected_name_offset += name.len() as u32 + 1;
+            imports.push(name);
+        }
+
+        let internal_relocations: Vec<RsoRelocation> =
+            read_table(reader, header.internal_rel_offset, header.internal_rel_size, ())?;
+        let external_relocations: Vec<RsoRelocation> =
+            read_table(reader, header.external_rel_offset, header.external_rel_size, ())?;
+        for reloc in &external_relocations {
+            ensure!(
+                (reloc.id() as usize) < imports.len(),
+                "RSO external relocation references invalid import {}",
+                reloc.id()
+            );
+        }
+
+        let entry = |section: u8, offset: u32| (section != 0).then_some((section, offset));
+        Ok(Self {
+            is_sel: sections.iter().all(|s| s.size == 0),
+            version: header.version,
+            name,
+            sections,
+            prolog: entry(header.prolog_section, header.prolog_offset),
+            epilog: entry(header.epilog_section, header.epilog_offset),
+            unresolved: entry(header.unresolved_section, header.unresolved_offset),
+            exports,
+            export_name_order,
+            imports,
+            internal_relocations,
+            external_relocations,
+        })
+    }
+
+    /// Assigns file offsets to each section with data, given the alignment of each section.
+    pub fn layout_sections(&mut self, align: &[u32]) {
+        let mut offset = RsoHeader::STATIC_SIZE as u32
+            + self.sections.len() as u32 * RsoSectionHeader::STATIC_SIZE as u32;
+        for (section, &align) in self.sections.iter_mut().zip(align) {
+            if section.data.is_empty() {
+                section.offset = 0;
+                continue;
+            }
+            offset = offset.next_multiple_of(align.max(1));
+            section.offset = offset;
+            offset += section.size;
+        }
+    }
+
+    /// Writes the module. Section file offsets must be assigned (see [`Self::layout_sections`]).
+    pub fn write<W>(&self, w: &mut W) -> Result<()>
+    where W: Write + Seek + ?Sized {
+        let mut header = RsoHeader::new();
+        header.version = self.version;
+        header.num_sections = self.sections.len() as u32;
+        header.section_info_offset = RsoHeader::STATIC_SIZE as u32;
+        if let Some((section, offset)) = self.prolog {
+            (header.prolog_section, header.prolog_offset) = (section, offset);
+        }
+        if let Some((section, offset)) = self.epilog {
+            (header.epilog_section, header.epilog_offset) = (section, offset);
+        }
+        if let Some((section, offset)) = self.unresolved {
+            (header.unresolved_section, header.unresolved_offset) = (section, offset);
+        }
+
+        // Section table and data
+        w.seek(SeekFrom::Start(header.section_info_offset as u64))?;
+        for section in &self.sections {
+            RsoSectionHeader {
+                offset_and_flags: section.offset | section.exec as u32,
+                size: section.size,
+            }
+            .to_writer(w, Endian::Big)?;
+        }
+        for (idx, section) in self.sections.iter().enumerate() {
+            if section.data.is_empty() {
+                if section.offset == 0 {
+                    header.bss_size += section.size;
+                }
+                continue;
+            }
+            let pos = w.stream_position()?;
+            ensure!(
+                section.offset as u64 >= pos,
+                "RSO section {} offset {:#X} overlaps previous data (at {:#X})",
+                idx,
+                section.offset,
+                pos
+            );
+            for _ in pos..section.offset as u64 {
+                w.write_all(&[0])?;
+            }
+            w.write_all(&section.data)?;
+        }
+
+        // Module name
+        header.name_offset = pad_to(w, 4)? as u32;
+        header.name_size = self.name.len() as u32;
+        w.write_all(self.name.as_bytes())?;
+        w.write_all(&[0])?;
+
+        // String tables
+        let mut export_names = Vec::<u8>::new();
+        let mut export_name_offsets = vec![0u32; self.exports.len()];
+        ensure!(
+            self.export_name_order.len() == self.exports.len(),
+            "RSO export name order length mismatch"
+        );
+        for &idx in &self.export_name_order {
+            export_name_offsets[idx] = export_names.len() as u32;
+            export_names.extend_from_slice(self.exports[idx].name.as_bytes());
+            export_names.push(0);
+        }
+        let mut import_names = Vec::<u8>::new();
+        let mut import_name_offsets = Vec::with_capacity(self.imports.len());
+        for name in &self.imports {
+            import_name_offsets.push(import_names.len() as u32);
+            import_names.extend_from_slice(name.as_bytes());
+            import_names.push(0);
+        }
+
+        // Exports
+        header.export_table_offset = pad_to(w, 4)? as u32;
+        header.export_table_size = self.exports.len() as u32 * 16;
+        for (export, &name_offset) in self.exports.iter().zip(&export_name_offsets) {
+            RsoSymbol {
+                name_offset,
+                offset: export.offset,
+                section_index: export.section,
+                hash: Some(symbol_hash(&export.name)),
+            }
+            .to_writer(w, Endian::Big)?;
+        }
+        if !self.is_sel {
+            header.export_table_name_offset = pad_to(w, 4)? as u32;
+            w.write_all(&export_names)?;
+        }
+
+        // External relocations
+        header.external_rel_offset = pad_to(w, 4)? as u32;
+        header.external_rel_size = self.external_relocations.len() as u32 * 12;
+        for reloc in &self.external_relocations {
+            reloc.to_writer(w, Endian::Big)?;
+        }
+
+        // Imports
+        header.import_table_offset = pad_to(w, 4)? as u32;
+        header.import_table_size = self.imports.len() as u32 * 12;
+        for (idx, &name_offset) in import_name_offsets.iter().enumerate() {
+            // Offset of the first external relocation that references this import
+            let first_reloc = self
+                .external_relocations
+                .iter()
+                .position(|r| r.id() as usize == idx)
+                .map_or(u32::MAX, |i| i as u32 * 12);
+            RsoSymbol { name_offset, offset: 0, section_index: first_reloc, hash: None }
+                .to_writer(w, Endian::Big)?;
+        }
+        if self.is_sel {
+            // SELs place the (empty) relocation tables before the string tables
+            header.internal_rel_offset = header.import_table_offset;
+            header.export_table_name_offset = pad_to(w, 4)? as u32;
+            w.write_all(&export_names)?;
+        }
+        header.import_table_name_offset = pad_to(w, 4)? as u32;
+        w.write_all(&import_names)?;
+
+        // Internal relocations
+        if !self.is_sel {
+            header.internal_rel_offset = pad_to(w, 4)? as u32;
+        }
+        header.internal_rel_size = self.internal_relocations.len() as u32 * 12;
+        for reloc in &self.internal_relocations {
+            reloc.to_writer(w, Endian::Big)?;
+        }
+
+        pad_to(w, 32)?;
+        w.seek(SeekFrom::Start(0))?;
+        header.to_writer(w, Endian::Big)?;
+        Ok(())
+    }
+}
+
+/// Sorts a slice using the same (unstable) algorithm as the Microsoft C runtime's `qsort`.
+///
+/// The official RSO tooling sorts external relocations by import index using `qsort`, so the
+/// resulting order of relocations for the same import depends on the exact algorithm used.
+pub fn msvc_qsort<T, F>(data: &mut [T], mut compare: F)
+where F: FnMut(&T, &T) -> std::cmp::Ordering {
+    use std::cmp::Ordering::{Equal, Greater};
+    const CUTOFF: usize = 8;
+    if data.len() < 2 {
+        return;
+    }
+    let mut stack = vec![(0usize, data.len() - 1)];
+    while let Some((mut lo, mut hi)) = stack.pop() {
+        loop {
+            let size = hi - lo + 1;
+            if size <= CUTOFF {
+                // Selection sort: repeatedly move the largest element to the end
+                while hi > lo {
+                    let mut max = lo;
+                    for p in lo + 1..=hi {
+                        if compare(&data[p], &data[max]) == Greater {
+                            max = p;
+                        }
+                    }
+                    data.swap(max, hi);
+                    hi -= 1;
+                }
+                break;
+            }
+
+            // Median of three
+            let mut mid = lo + size / 2;
+            if compare(&data[lo], &data[mid]) == Greater {
+                data.swap(lo, mid);
+            }
+            if compare(&data[lo], &data[hi]) == Greater {
+                data.swap(lo, hi);
+            }
+            if compare(&data[mid], &data[hi]) == Greater {
+                data.swap(mid, hi);
+            }
+
+            // Partition
+            let mut loguy = lo;
+            let mut higuy = hi;
+            loop {
+                if mid > loguy {
+                    loguy += 1;
+                    while loguy < mid && compare(&data[loguy], &data[mid]) != Greater {
+                        loguy += 1;
+                    }
+                }
+                if mid <= loguy {
+                    loguy += 1;
+                    while loguy <= hi && compare(&data[loguy], &data[mid]) != Greater {
+                        loguy += 1;
+                    }
+                }
+                higuy -= 1;
+                while higuy > mid && compare(&data[higuy], &data[mid]) == Greater {
+                    higuy -= 1;
+                }
+                if higuy < loguy {
+                    break;
+                }
+                data.swap(loguy, higuy);
+                if mid == higuy {
+                    mid = loguy;
+                }
+            }
+
+            // Skip elements equal to the pivot
+            higuy += 1;
+            if mid < higuy {
+                higuy -= 1;
+                while higuy > mid && compare(&data[higuy], &data[mid]) == Equal {
+                    higuy -= 1;
+                }
+            }
+            if mid >= higuy {
+                higuy -= 1;
+                while higuy > lo && compare(&data[higuy], &data[mid]) == Equal {
+                    higuy -= 1;
+                }
+            }
+
+            // Sort [lo, higuy] and [loguy, hi]. The order they're processed in doesn't
+            // affect the result.
+            if lo < higuy {
+                stack.push((lo, higuy));
+            }
+            if loguy < hi {
+                lo = loguy;
+            } else {
+                break;
+            }
+        }
+    }
+}
+
+/// Sorts exports by name hash, as the official tooling does. `exports` should be in string
+/// table order, which determines the resulting order of any exports with the same hash.
+pub fn sort_exports(exports: &mut [RsoExport]) {
+    msvc_qsort(exports, |a, b| symbol_hash(&a.name).cmp(&symbol_hash(&b.name)));
 }
 
 pub fn symbol_hash(s: &str) -> u32 {

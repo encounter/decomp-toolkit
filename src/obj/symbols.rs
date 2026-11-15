@@ -560,7 +560,8 @@ impl ObjSymbols {
                 .iter()
                 .map(|&idx| (idx, &self.symbols[idx as usize]))
                 .filter(|(_, sym)| {
-                    (sym.section.is_none() || sym.section == Some(target_addr.section))
+                    ((sym.section.is_none() && self.obj_kind == ObjKind::Executable)
+                        || sym.section == Some(target_addr.section))
                         && sym.referenced_by(reloc_kind)
                 })
                 .collect_vec();

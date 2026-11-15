@@ -282,13 +282,14 @@ $ dtk dol apply config.yml build/main.elf
 
 ### dol config
 
-Generates an initial project configuration file from a DOL (& RELs).
+Generates an initial project configuration file from a DOL (& RELs or RSOs).
 
 Pass in the DOL file, and any REL files that are linked with it.  
-Or, for Wii games, pass in the `selfile.sel`. (Not RSOs)
+For Wii games using RSOs, pass in the `selfile.sel` and any RSO files.
 
 ```shell
 $ dtk dol config main.dol rels/*.rel -o config.yml
+$ dtk dol config main.dol RSO/selfile.sel RSO/*.rso -o config.yml
 ```
 
 ### dwarf dump
@@ -374,10 +375,7 @@ $ dtk rel info main.dol rels/*.rel -o merged.elf
 
 ### rso info
 
-> [!WARNING]  
-> This command is not yet functional.
-
-Prints information about an RSO file.
+Prints information about an RSO or SEL file: sections, exports, imports and relocation counts.
 
 ```shell
 $ dtk rso info input.rso
@@ -385,18 +383,25 @@ $ dtk rso info input.rso
 
 ### rso make
 
-> [!WARNING]  
-> This command does not yet support creating SEL files.
-
-Creates an RSO file from a relocatable ELF file.
+Creates an RSO file from a relocatable ELF file (PLF), or a SEL file from an executable ELF file.
 
 Options:
-- `-o`, `--output <File>`: Output RSO file.
-- `-m`, `--module-name <Name>`: Module name (or path). Default: input name
-- `-e`, `--export <File>`: File containing exported symbol names. (Newline separated)
+- `-o`, `--output <File>`: Output RSO or SEL file.
+- `-c`, `--config <File>`: Project configuration file.
+- `-n`, `--name <Name>`: Name of the RSO module in the project configuration. (Required with `-c`
+  when creating an RSO)
+- `-m`, `--module-name <Name>`: Module name (or path) stored in the file.
+  Default: the original module's name with `-c`, otherwise the input name.
+- `-e`, `--export <File>`: File containing additional exported symbol names. (Newline separated)
+- `--patch-unresolved`: Patch calls to imported functions to branch to `_unresolved`.
 
 ```shell
-$ dtk rso make input.elf -o input.rso
+# Standalone
+$ dtk rso make input.plf -o input.rso -e exports.txt
+# Matching the original module from a project
+$ dtk rso make build/module/module.plf -o build/module/module.rso -c config.yml -n module
+# Create a SEL from the main executable, exporting the same symbols as the original selfile
+$ dtk rso make build/main.elf -o build/selfile.sel -c config.yml
 ```
 
 ### shasum

@@ -81,7 +81,7 @@ pub struct ObjInfo {
     // From .ctors, .dtors and extab
     pub known_functions: BTreeMap<SectionAddress, Option<u32>>,
 
-    // REL
+    // REL/RSO
     /// Module ID (0 for main)
     pub module_id: u32,
     pub unresolved_relocations: Vec<RelReloc>,

@@ -1167,7 +1167,8 @@ pub fn update_splits(obj: &mut ObjInfo, common_start: Option<u32>, fill_gaps: bo
     if let Some((section_index, section)) = obj.sections.by_name(".dtors")? {
         if !section.data.is_empty() {
             let mut start = SectionAddress::new(section_index, section.address as u32);
-            let end = start + (section.size as u32 - 4);
+            let end =
+                start + (section.size as u32 - linker_generated_tail_size(obj, section).max(4));
             if obj.kind == ObjKind::Executable {
                 // Skip __destroy_global_chain_reference
                 start += 4;
@@ -1730,6 +1731,38 @@ pub fn is_linker_generated_object(name: &str) -> bool {
     )
 }
 
+/// Determines the size of the linker-generated data at the end of a .ctors or .dtors section.
+fn linker_generated_tail_size(obj: &ObjInfo, section: &ObjSection) -> u32 {
+    if !matches!(section.name.as_str(), ".ctors" | ".dtors")
+        || section.data.len() < 4
+        || section.data[section.data.len() - 4..] != [0u8; 4]
+    {
+        return 0;
+    }
+    // .ctors and .dtors end with a linker-generated null pointer
+    let mut size = 4;
+    // When partially linking a module that defines `__destroy_global_chain`, and the input
+    // objects have no .comment section (i.e. `mw_comment_version` is not set), the linker
+    // generates a .dtors entry for it.
+    if obj.kind == ObjKind::Relocatable
+        && obj.mw_comment.is_none()
+        && section.name == ".dtors"
+        && section.size >= 12
+    {
+        let start = section.address as u32;
+        let last = start + section.size as u32 - 8;
+        let target = |addr: u32| {
+            section.relocations.at(addr).map(|r| (r.kind, r.target_symbol, r.addend, r.module))
+        };
+        if let (Some(first), Some(last)) = (target(start), target(last)) {
+            if first == last {
+                size += 4;
+            }
+        }
+    }
+    size
+}
+
 /// Locate the end address of a section when excluding linker generated objects
 pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<SectionAddress> {
     let section = obj
@@ -1740,13 +1773,8 @@ pub fn end_for_section(obj: &ObjInfo, section_index: SectionIndex) -> Result<Sec
     if section.data.is_empty() {
         return Ok(SectionAddress::new(section_index, section_end));
     }
-    // .ctors and .dtors end with a linker-generated null pointer,
-    // adjust section size appropriately
-    if matches!(section.name.as_str(), ".ctors" | ".dtors")
-        && section.data[section.data.len() - 4..] == [0u8; 4]
-    {
-        section_end -= 4;
-    }
+    // .ctors and .dtors end with linker-generated data, adjust section size appropriately
+    section_end -= linker_generated_tail_size(obj, section);
     loop {
         let last_symbol =
             obj.symbols.for_section_range(section_index, ..section_end).rfind(|(_, s)| {
