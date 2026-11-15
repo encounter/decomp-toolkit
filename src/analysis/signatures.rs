@@ -360,13 +360,9 @@ fn apply_dtors_signatures(obj: &mut ObjInfo) -> Result<()> {
             end += 4;
         }
         if obj.sections[dtors_section_index].splits.for_address(address as u32).is_none() {
-            // __fini_cpp_exceptions is the more direct sibling of the ctors-side
-            // split (both are the same compiler-generated unit); prefer its
-            // existing unit before __destroy_global_chain's, which is more
-            // often its own separate, real unit.
-            let unit = fce_target
+            let owner = if found_fce { fce_target } else { dgc_target };
+            let unit = owner
                 .and_then(|t| existing_unit(obj, t))
-                .or_else(|| dgc_target.and_then(|t| existing_unit(obj, t)))
                 .unwrap_or_else(|| "__init_cpp_exceptions.cpp".to_string());
             obj.add_split(dtors_section_index, address as u32, ObjSplit {
                 unit,
