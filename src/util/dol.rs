@@ -871,16 +871,31 @@ fn locate_extab_extabindex(obj: &mut ObjInfo) -> Result<()> {
         let dol_section_start = dol_section.address as u32;
         let dol_section_end = dol_section_start + dol_section.size as u32;
         let eti_init_info_addr = {
-            let mut addr = dol_section_end - (ETI_INIT_INFO_SIZE * (num_text_sections + 1)) as u32;
+            // A section's size can stop short of the next section (the copied-to-RAM size in _rom_copy_info
+            // is often rounded differently from the file's), leaving gaps in the section map. A candidate
+            // address that lands in one says nothing about the others: skip it, don't abandon the search.
+            let lowest = dol_section_end
+                .saturating_sub((ETI_INIT_INFO_SIZE * (num_text_sections + 1)) as u32)
+                .max(dol_section_start);
+            let mut addr = lowest;
             loop {
-                let eti_init_info = read_eti_init_info(obj, addr)?;
+                let eti_init_info = match read_eti_init_info(obj, addr) {
+                    Ok(eti_init_info) => eti_init_info,
+                    Err(_) => {
+                        addr += 4;
+                        if addr > dol_section_end.saturating_sub(ETI_INIT_INFO_SIZE as u32) {
+                            continue 'outer;
+                        }
+                        continue;
+                    }
+                };
                 if validate_eti_init_info(obj, &eti_init_info, dol_section_start, dol_section_end)?
                 {
                     log::debug!("Found _eti_init_info @ {addr:#010X}");
                     break addr;
                 }
                 addr += 4;
-                if addr > dol_section_end - ETI_INIT_INFO_SIZE as u32 {
+                if addr > dol_section_end.saturating_sub(ETI_INIT_INFO_SIZE as u32) {
                     continue 'outer;
                 }
             }
@@ -889,7 +904,12 @@ fn locate_extab_extabindex(obj: &mut ObjInfo) -> Result<()> {
         let eti_init_info_end = {
             let mut addr = eti_init_info_addr;
             loop {
-                let eti_init_info = read_eti_init_info(obj, addr)?;
+                let Ok(eti_init_info) = read_eti_init_info(obj, addr) else {
+                    bail!(
+                        "Failed to locate _eti_init_info end (start @ {:#010X})",
+                        eti_init_info_addr
+                    );
+                };
                 addr += 16;
                 if eti_init_info.is_zero() {
                     break;
