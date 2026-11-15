@@ -59,7 +59,7 @@ pub fn run(args: Args) -> Result<()> {
 
 fn list(args: ListArgs) -> Result<()> {
     let path = Utf8NativePathBuf::from(format!("{}:", args.file));
-    vfs::ls(vfs::LsArgs { path, short: args.short, recursive: true })
+    vfs::ls(vfs::LsArgs { path, short: args.short, recursive: true, recurse_archives: false })
 }
 
 fn extract(args: ExtractArgs) -> Result<()> {

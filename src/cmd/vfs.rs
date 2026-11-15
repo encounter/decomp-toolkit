@@ -10,7 +10,7 @@ use crate::{
     util::{file::buf_copy, path::native_path},
     vfs::{
         FileFormat, OpenResult, Vfs, VfsFile, VfsFileType, VfsMetadata, decompress_file, detect,
-        open_path,
+        open_fs, open_path,
     },
 };
 
@@ -42,6 +42,9 @@ pub struct LsArgs {
     #[argp(switch, short = 'r')]
     /// Recursively list files in directories.
     pub recursive: bool,
+    #[argp(switch, short = 'a')]
+    /// Recursively list files in archives.
+    pub recurse_archives: bool,
 }
 
 #[derive(FromArgs, PartialEq, Eq, Debug)]
@@ -111,14 +114,9 @@ pub fn ls(args: LsArgs) -> anyhow::Result<()> {
     match open_path(&args.path, false)? {
         OpenResult::File(mut file, path) => {
             let filename = path.file_name().ok_or_else(|| anyhow!("Path has no filename"))?;
-            if args.short {
-                println!("{filename}");
-            } else {
-                let metadata = file
-                    .metadata()
-                    .with_context(|| format!("Failed to fetch metadata for {path}"))?;
-                files.push(file_info(filename, file.as_mut(), &metadata)?);
-            }
+            let metadata =
+                file.metadata().with_context(|| format!("Failed to fetch metadata for {path}"))?;
+            ls_file(file, filename, Utf8UnixPath::new(filename), &metadata, &args, &mut files)?;
         }
         OpenResult::Directory(mut fs, path) => {
             ls_directory(fs.as_mut(), &path, Utf8UnixPath::new(""), &args, &mut files)?;
@@ -147,6 +145,38 @@ pub fn ls(args: LsArgs) -> anyhow::Result<()> {
     Ok(())
 }
 
+fn ls_file(
+    mut file: Box<dyn VfsFile>,
+    filename: &str,
+    display_path: &Utf8UnixPath,
+    metadata: &VfsMetadata,
+    args: &LsArgs,
+    files: &mut Vec<Columns<5>>,
+) -> anyhow::Result<()> {
+    if args.short {
+        println!("{display_path}");
+    } else {
+        files.push(file_info(filename, file.as_mut(), metadata)?);
+    }
+    if !args.recurse_archives {
+        return Ok(());
+    }
+    let mut format = detect(file.as_mut())
+        .with_context(|| format!("Failed to detect file format for {display_path}"))?;
+    if let FileFormat::Compressed(kind) = format {
+        file = decompress_file(file.as_mut(), kind)
+            .with_context(|| format!("Failed to decompress file {display_path}"))?;
+        format = detect(file.as_mut())
+            .with_context(|| format!("Failed to detect file format for {display_path}"))?;
+    }
+    if let FileFormat::Archive(kind) = format {
+        if let Ok(mut archive) = open_fs(file, kind) {
+            ls_directory(archive.as_mut(), Utf8UnixPath::new(""), display_path, args, files)?;
+        };
+    };
+    Ok(())
+}
+
 fn ls_directory(
     fs: &mut dyn Vfs,
     path: &Utf8UnixPath,
@@ -164,14 +194,10 @@ fn ls_directory(
             .with_context(|| format!("Failed to fetch metadata for {entry_path}"))?;
         match metadata.file_type {
             VfsFileType::File => {
-                let mut file = fs
+                let file = fs
                     .open(&entry_path)
                     .with_context(|| format!("Failed to open file {entry_path}"))?;
-                if args.short {
-                    println!("{display_path}");
-                } else {
-                    files.push(file_info(display_path.as_str(), file.as_mut(), &metadata)?);
-                }
+                ls_file(file, display_path.as_str(), &display_path, &metadata, args, files)?;
             }
             VfsFileType::Directory => {
                 if args.short {
