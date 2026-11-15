@@ -332,30 +332,9 @@ pub fn generate_signature(
                     }
                     btree_map::Entry::Occupied(e) => *e.get(),
                 };
-                match reloc.kind {
-                    ObjRelocKind::Absolute => {
-                        *ins = 0;
-                        *pat = 0;
-                    }
-                    ObjRelocKind::PpcAddr16Hi
-                    | ObjRelocKind::PpcAddr16Ha
-                    | ObjRelocKind::PpcAddr16Lo => {
-                        *ins &= !0xFFFF;
-                        *pat = !0xFFFF;
-                    }
-                    ObjRelocKind::PpcRel24 => {
-                        *ins &= !0x3FFFFFC;
-                        *pat = !0x3FFFFFC;
-                    }
-                    ObjRelocKind::PpcRel14 => {
-                        *ins &= !0xFFFC;
-                        *pat = !0xFFFC;
-                    }
-                    ObjRelocKind::PpcEmbSda21 => {
-                        *ins &= !0x1FFFFF;
-                        *pat = !0x1FFFFF;
-                    }
-                }
+                let mask = !reloc.kind.value_mask();
+                *ins &= mask;
+                *pat = mask;
                 out_relocs.push(OutReloc {
                     offset: addr - (symbol.address as u32),
                     kind: reloc.kind,
