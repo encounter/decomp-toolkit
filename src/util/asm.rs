@@ -975,7 +975,7 @@ where
             write!(w, ", \"a\", @nobits")?;
         }
         ".ctors" | ".dtors" | ".ctors$10" | ".dtors$10" | ".dtors$15" | "extab" | "extabindex"
-        | ".BINARY" => {
+        | ".BINARY" | "wii_embedded" => {
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"a\"")?;
         }

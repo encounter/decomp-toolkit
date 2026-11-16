@@ -196,7 +196,7 @@ fn section_kind(section: &object::Section) -> SectionKind {
         .and_then(|name| match name {
             ".init" | ".text" | ".vmtext" | ".dbgtext" => Some(SectionKind::Text),
             ".ctors" | ".dtors" | ".data" | ".rodata" | ".sdata" | ".sdata2" | "extab"
-            | "extabindex" | ".BINARY" => Some(SectionKind::Data),
+            | "extabindex" | ".BINARY" | "wii_embedded" => Some(SectionKind::Data),
             ".bss" | ".sbss" | ".sbss2" => Some(SectionKind::UninitializedData),
             _ => None,
         })
