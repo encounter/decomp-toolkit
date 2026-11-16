@@ -241,7 +241,7 @@ pub fn section_kind_for_section(section_name: &str) -> Result<ObjSectionKind> {
             ObjSectionKind::ReadOnlyData
         }
         ".bss" | ".sbss" | ".sbss2" => ObjSectionKind::Bss,
-        ".data" | ".sdata" => ObjSectionKind::Data,
+        ".data" | ".sdata" | "wii_embedded" => ObjSectionKind::Data,
         name => bail!("Unknown section {name}"),
     })
 }

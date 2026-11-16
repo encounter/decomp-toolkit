@@ -958,7 +958,7 @@ where
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"ax\"")?;
         }
-        ".data" | ".sdata" => {
+        ".data" | ".sdata" | "wii_embedded" => {
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"wa\"")?;
         }
