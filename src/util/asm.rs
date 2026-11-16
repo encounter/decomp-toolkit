@@ -958,7 +958,7 @@ where
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"ax\"")?;
         }
-        ".data" | ".sdata" => {
+        ".data" | ".sdata" | "wii_embedded" => {
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"wa\"")?;
         }
@@ -975,7 +975,7 @@ where
             write!(w, ", \"a\", @nobits")?;
         }
         ".ctors" | ".dtors" | ".ctors$10" | ".dtors$10" | ".dtors$15" | "extab" | "extabindex"
-        | ".BINARY" | "wii_embedded" => {
+        | ".BINARY" => {
             write!(w, ".section {}", section.name)?;
             write!(w, ", \"a\"")?;
         }
